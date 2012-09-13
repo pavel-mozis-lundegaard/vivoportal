@@ -1,0 +1,17 @@
+{
+    "name": "vivoportal/v2",
+    "description": "Vivo 2",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "cms",
+        "zf2"
+    ],
+    "homepage": "http://vivoportal.org/",
+    
+    "require": {
+        "php": ">=5.3.3",
+        "zendframework/zendframework": ">=2.0.0",
+        "doctrine/common": ">=2.2.0",
+        "doctrine/orm": ">=2.2.0"
+    }
+}

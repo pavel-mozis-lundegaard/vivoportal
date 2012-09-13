@@ -1,3 +1,10 @@
+php_flag display_errors on
+
+#If CMS running on apache virtualhost using virtual document root, uncoment this line.
+#RewriteBase /
+
+#Is not necessary to use mod_rewrite, if you don't want use it, just comment these lines.
+
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} -s [OR]
 RewriteCond %{REQUEST_FILENAME} -l [OR]

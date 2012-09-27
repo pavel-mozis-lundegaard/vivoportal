@@ -1,0 +1,139 @@
+<?php
+/**
+ * Vivo CMS
+ * Copyright (c) 2009 author(s) listed below.
+ *
+ * @version $Id: Content.php 1927 2012-01-17 12:59:46Z zayda $
+ */
+namespace Vivo\CMS\Model;
+
+use Vivo\CMS;
+use Vivo\CMS\Workflow;
+
+/**
+ * Base class for all VIVO models.
+ *
+ * @author tzajicek
+ */
+class Content extends Entity {
+
+	static $DEFAULT_STATE = Workflow::STATE_NEW;
+	static $DEFAULT_STATE_CHANGE = array();
+	static $DEFAULT_RECURSIVE = false;
+
+	/**
+	 * @var string Workflow state
+	 * @see Vivo\CMS\Workflow
+	 */
+	public $state;
+	/**
+	 * @var DateTime Date for automatic state change by cron.
+	 */
+	public $state_change;
+	/**
+	 * @var bool
+	 */
+	public $recursive;
+
+	/**
+	 * Setting default values.
+	 * @param string $path Entity path.
+	 */
+	function __construct($path = null) {
+		parent::__construct($path);
+		$this->state = self::$DEFAULT_STATE;
+		$this->state_change = self::$DEFAULT_STATE_CHANGE;
+		$this->recursive = self::$DEFAULT_RECURSIVE;
+	}
+
+	/**
+	 * Gets content.
+	 * @return Vivo\CMS\Model\Document
+	 */
+	function getDocument() {
+		if (!$this->__document) {
+			$path = substr($this->path, 0, strrpos($this->path, '/') - 1);
+			$path = substr($path, 0, strrpos($path, '/'));
+			$this->__document = CMS::$repository->getEntity($path);
+		}
+		return $this->__document;
+	}
+
+	/**
+	 * Gets content version.
+	 * @return int
+	 */
+	function getVersion() {
+		return ($p = strrpos($this->path, '/')) ?  substr($this->path, $p + 1) : 0;
+	}
+
+	/**
+	 * Sets version.
+	 * @param int $version
+	 */
+	function setVersion($version) {
+		$this->path = substr($this->path, 0, strrpos($this->path, '/') + 1).$version;
+	}
+
+	/**
+	 * Gets content index. Index means number of a content in the Multicontent Document.
+	 * @return int
+	 */
+	function getIndex() {
+		return preg_match('~\/Contents\.(\d{1,2})\/~', $this->path, $matches) ? $matches[1] : false;
+	}
+
+	/**
+	 * Returns relative path of the content.
+	 * @return string Content relative path
+	 */
+	function getRelativePath() {
+		return 'Contents'.(($index = $this->getIndex()) ? '.'.$index  : '').'/'.$this->getVersion();
+	}
+
+	/**
+	 * Icon name.
+	 * @return string
+	 */
+	function getIcon() {
+		return 'Content';
+	}
+
+	/**
+	 *
+	 * @param string $property_name Name of content property referencing entity.
+	 * @return null
+	 * @since 1.1
+	 * @todo implement logic
+	 */
+	function getReferencedEntity($property_name) {
+		//TODO
+		return null;
+	}
+
+	/**
+	 *
+	 * @param string $property_name Name of content property referencing entity.
+	 * @param string|Vivo\CMS\Model\Entity $value Path (site relative) or UUID in [ref:uuid] format or entity.
+	 * @since 1.1
+	 * @todo implement logic
+	 */
+	function setReferencedEntity($property_name, $value) {
+		//TODO
+	}
+
+}
+
+Entity::define_field(__NAMESPACE__.'\Content',
+	array(
+		'state' => array(
+			'length' => 20,
+			'index' => true
+		),
+		'state_change' => array(
+			'index' => true,
+			'type' => 'DateTime'
+		)
+	)
+);
+

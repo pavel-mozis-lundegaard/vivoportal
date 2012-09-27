@@ -11,6 +11,8 @@ use Zend\Http\Response as HttpResponse;
 /**
  * The front controller which is responsible for dispatching all requests for documents and files in CMS repository.
  * @author kormik
+ *
+ * Vivo
  */
 class CMSFrontController implements DispatchableInterface, InjectApplicationEventInterface {
 
@@ -18,7 +20,7 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
 	 * @var Zend\Mvc\MvcEvent
 	 */
 	protected $event;
-	
+
 	public function dispatch(Request $request, Response $response = null) {
 		//TODO find document in repository and return it
 		$path = $this->event->getRouteMatch()->getParam('path');
@@ -26,11 +28,11 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
 		$response->setStatusCode(HttpResponse::STATUS_CODE_200);
 		return $response;
 	}
-	
+
 	public function setEvent(Event $event) {
 		$this->event = $event;
 	}
-	
+
 	public function getEvent() {
 		return $this->event;
 	}

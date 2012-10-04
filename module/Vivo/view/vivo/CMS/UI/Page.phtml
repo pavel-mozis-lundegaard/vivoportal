@@ -1,0 +1,21 @@
+<?php echo $this->doctype; ?>
+<html<? foreach ($this->html_attributes as $name => $value) echo " $name=\"".htmlspecialchars($value).'"' ?>>
+	<head>
+	<? foreach ($this->metas as $element): ?>
+		<meta<? foreach ($element as $name => $value) echo " $name=\"".htmlspecialchars($value).'"' ?> />
+	<? endforeach ?>
+		<title><?= htmlspecialchars($this->title) ?></title>
+	<? foreach ($this->links as $element): ?>
+		<link<? foreach ($element as $name => $value) echo " $name=\"".htmlspecialchars($value).'"' ?> />
+	<? endforeach ?>
+	<? foreach ($this->conditional_links as $element): ?>
+		<!--[<?=$element['condition']?>]><link<? foreach ($element as $name => $value) if ($name != 'condition') echo " $name=\"".htmlspecialchars($value).'"' ?> /><![endif]-->
+	<? endforeach ?>
+	<? foreach ($this->scripts as $element): ?>
+		<script<? foreach ($element as $name => $value) echo " $name=\"".htmlspecialchars($value).'"' ?>></script>
+	<? endforeach ?>
+	</head>
+	<body<? //foreach (array_merge($this->attributes, $attributes) as $name => $value) echo " $name=\"".htmlspecialchars($value).'"' ?>>
+		<?php echo $this->main->view()?>
+	</body>
+</html>

@@ -55,9 +55,9 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
 	/* (non-PHPdoc)
 	 * @see Vivo\UI.ComponentContainerInterface::addComponent()
 	 */
-	public function addComponent(ComponentInterface $component, $name = null) {
+	public function addComponent(ComponentInterface $component, $name) {
 		//TODO check cycles in component tree
-		$component->setParent($this);
+		$component->setParent($this, $name);
 		$this->components[$name] = $component;
 	}
 	
@@ -72,7 +72,7 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
 		//TODO also accept component object as parameter 
 		
 		if (!$this->hasComponent($name)) {
-			throw new ComponentNotExists(); 
+			throw new ComponentNotExists("Component `$name` doesn't exist in container `". $this->getPath()."`.");
 		} 
 		$this->getComponent($name)->setParent(null);
 		unset($this->components[$name]);
@@ -83,7 +83,7 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
 	 */
 	public function getComponent($name) {
 		if (!$this->hasComponent($name)) {
-			throw new ComponentNotExists();
+			throw new ComponentNotExists("Component `$name` doesn't exist in container `". $this->getPath()."`.");
 		}
 		return $this->components[$name];
 	}

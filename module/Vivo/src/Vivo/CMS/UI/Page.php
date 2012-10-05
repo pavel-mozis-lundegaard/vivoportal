@@ -55,7 +55,12 @@ class Page  extends Component {
 			)
 	);
 	
-	public function __construct($component, $options = null) {
+	/**
+	 * @param ComponentInterface $component
+	 * @param array $options
+	 */
+	public function __construct(ComponentInterface $component, $options = null) {
+		parent::__construct(null, null);
 		$this->setMain($component);
 	}
 	
@@ -64,5 +69,6 @@ class Page  extends Component {
 	}
 	
 	//TODO methods for modifying html head (css, js, keywords etc.)
+	//TODO implement resource(js,css) merging
 	
 }

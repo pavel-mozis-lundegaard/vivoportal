@@ -2,14 +2,10 @@
 namespace Vivo\CMS\UI;
 
 use Vivo\UI\ComponentInterface;
-
 use Vivo\CMS\Model\Document;
-
 use Vivo\UI;
-use Vivo\CMS\Repository;
-
 use Zend\Di\Di;
-use Zend\Stdlib\RequestInterface;
+use Zend\Http\Response;
 
 /**
  * @author kormik
@@ -18,6 +14,7 @@ use Zend\Stdlib\RequestInterface;
 class Root extends Component {
 
 	const MAIN_COMPONENT_NAME = 'main';
+	const COMPONENT_NAME = 'root';
 	
 	private $request;
 
@@ -25,25 +22,20 @@ class Root extends Component {
 
 	private $di;
 
-	/**
-	 * @param Repository $repository
-	 * @param Di $di
-	 * @param string $documentPath
-	 * @todo remove dependency on Di
-	 */
-	public function __construct(Di $di, Document $document) {
-		parent::__construct(null, 'root');
-		$this->di = $di;
+	public function __construct(Response $response) {
+		parent::__construct(null, self::COMPONENT_NAME);
+/*		$this->response = $response;
+		//TODO set response headers
 		
-		//TODO implement logic choosing appropriate UI component, depends on content type (File, Link, HyperLink etc.)
-		//TODO add response headers (content-type)
-				
-		$cf = $this->di->get('Vivo\CMS\ComponentFactory');
-		$component = $cf->getFrontComponent($document);
-		$this->setMain($di->get('Vivo\CMS\UI\Page', array ('component'=> $component)));
+		$response->getHeaders()->addHeaderLine('X-Generated-By: Vivo')
+			->addHeaderLine('X-Generated-At: '.gmdate('D, d M Y H:i:s', time()).' GMT');
+		
+		
+*/
+		
 	}
 	
-	private function setMain(ComponentInterface $component) {
+	public function setMain(ComponentInterface $component) {
 		$this->addComponent($component, self::MAIN_COMPONENT_NAME);
 	}
 
@@ -63,7 +55,8 @@ class Root extends Component {
 		return $this->response;
 	}
 
-	public function setResponse($response) {
+	public function setResponse(Response $response) {
 		$this->response = $response;
+		$response->setStatusCode(404);
 	}
 }

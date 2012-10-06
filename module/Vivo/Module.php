@@ -10,6 +10,8 @@
 namespace Vivo;
 
 use Zend\Mvc\ModuleRouteListener;
+use Zend\ServiceManager\ServiceManager;
+use Vivo\Vmodule\VmoduleManagerFactory;
 
 class Module
 {
@@ -33,6 +35,20 @@ class Module
                 'namespaces' => array(
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
                 ),
+            ),
+        );
+    }
+
+    public function getServiceConfig()
+    {
+        return array(
+            'factories' => array(
+                'vmodule_manager_factory'   => function (ServiceManager $sm) {
+                    $config                 = $sm->get('config');
+                    $vModulePaths           = $config['vivo']['vmodule_paths'];
+                    $vModuleManagerFactory  = new VmoduleManagerFactory($vModulePaths);
+                    return $vModuleManagerFactory;
+                },
             ),
         );
     }

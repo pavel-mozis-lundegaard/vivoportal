@@ -9,12 +9,6 @@ use Zend\Stdlib\ResponseInterface as Response;
 use Zend\Http\Response as HttpResponse;
 
 use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\EventManager;
-use Zend\ModuleManager\ModuleEvent;
-use Zend\ModuleManager\ModuleManager;
-use Zend\Loader\ModuleAutoloader;
-use Zend\ModuleManager\Listener\ModuleResolverListener;
-
 
 /**
  * The front controller which is responsible for dispatching all requests for documents and files in CMS repository.
@@ -23,7 +17,7 @@ use Zend\ModuleManager\Listener\ModuleResolverListener;
 class CMSFrontController implements DispatchableInterface, InjectApplicationEventInterface {
 
 	/**
-	 * @var Zend\Mvc\MvcEvent
+	 * @var \Zend\Mvc\MvcEvent
 	 */
 	protected $event;
 
@@ -36,28 +30,17 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
 		//TODO find document in repository and return it
 		$path = $this->event->getRouteMatch()->getParam('path');
 
-        //TODO - Get list of VModule names for the matched Site
-        $vModuleNames   = array('Vm1');
-        $events         = new EventManager();
-        $moduleAutoloader = new ModuleAutoloader(array('c:/WebDev/Lundegaard/v2/vmodule'));
-
-        // High priority
-        $events->attach(ModuleEvent::EVENT_LOAD_MODULES, array($moduleAutoloader, 'register'), 9000);
-        $events->attach(ModuleEvent::EVENT_LOAD_MODULE_RESOLVE, new ModuleResolverListener());
-        /*
-        // High priority
-        $events->attach(ModuleEvent::EVENT_LOAD_MODULE, new AutoloaderListener($options), 9000);
-        $events->attach(ModuleEvent::EVENT_LOAD_MODULE, new InitTrigger($options));
-        $events->attach(ModuleEvent::EVENT_LOAD_MODULE, new OnBootstrapListener($options));
-        $events->attach($locatorRegistrationListener);
-        $events->attach($configListener);
-        */
-
-        $vModuleManager = new ModuleManager($vModuleNames, $events);
-        $moduleEvent = new ModuleEvent;
-        $vModuleManager->setEvent($moduleEvent);
+        //TODO - This is a test o Vmodule manager - proof of concept - remove
+        //Vmodule names are read from Site config
+        $vModuleNames           = array('Vm1', 'Vm2');
+        $vModuleManagerFactory  = $this->event->getApplication()->getServiceManager()->get('vmodule_manager_factory');
+        $vModuleManager         = $vModuleManagerFactory->getVmoduleManager($vModuleNames);
         $vModuleManager->loadModules();
-
+        //Test autoloading of Vmodule classes
+        $myObj  = new \Vm1\MyObj();
+        //Test config merge
+        $config = $vModuleManager->getEvent()->getConfigListener()->getMergedConfig(false);
+        \Zend\Debug\Debug::dump($config, 'Merged config of Vmodules');
 
         $response->setContent('CMS document for path: '. $path);
 		$response->setStatusCode(HttpResponse::STATUS_CODE_200);

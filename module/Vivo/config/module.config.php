@@ -71,4 +71,8 @@ return array(
             __DIR__ . '/../view',
         ),
     ),
+
+    'vivo'      => array(
+        'vmodule_paths'             => array(__DIR__ . '/../../../vmodule'),
+    ),
 );

@@ -45,7 +45,7 @@ class Document extends Folder {
 	 * (relative to the root document ROOT).
 	 * @var string
 	 */
-	protected $url; // specificka URL dokumentu
+	private $url; // specificka URL dokumentu
 
 	/**
 	 * @var bool URL takes precedence.
@@ -53,25 +53,25 @@ class Document extends Folder {
 	 * Specificka URL ma prednost (je primarni)
 	 */
 // 	public $url_precedence; // specificka URL ma prednost (je primarni)
-	protected $urlPrecedence;
+	private $urlPrecedence;
 
 	/**
 	 * @var string Page header.
 	 */
-	protected $heading;
+	private $heading;
 
 	/**
 	 * @var string Name in listings
 	 */
 // 	public $overview_title;
-	protected $overviewTitle;
+	private $overviewTitle;
 
 	/**
 	 * Keywords are used to describe content of the document. Keywords could make fulltext searches faster and more effective.
 	 * Please determine each word by comma.
 	 * @var string
 	 */
-	protected $keywords;
+	private $keywords;
 
 	/**
 	 * Is used to display the contents of the document as a page, when you enter the URL on the front-end.
@@ -79,44 +79,35 @@ class Document extends Folder {
 	 * @var string
 	 * @example Layouts/page/subpage
 	 */
-	protected $layout; // layout (cesta k dokumentu Layoutu)
+	private $layout; // layout (cesta k dokumentu Layoutu)
 
 	/**
-	 * @var array Panels in layout
+	 * @var array Panels in layout.
 	 */
-// 	public $layout_panels;
-	protected $layoutPanels;
-
+	private $layoutPanels;
 	/**
 	 * If this property is set, the document will appear in the lists of sub-documents (subpages)
 	 * on the front-end (overviews, sitemaps, menu, navigation, etc.)
 	 * @var bool
 	 */
-	protected $navigable;
-
+	private $navigable;
 	/**
 	 * @var bool If this property is set, changes in the contents of the document is automatically saved as a new version of the content.
 	 */
-	protected $autoVersioning = false;
-// 	protected $auto_versioning;
-
+	private $autoVersioning = false;
 	/**
 	 * @var bool Secured (HTTPS required)
 	 */
-	public $secured;
-
+	private $secured;
 	/**
 	 * Attributes for link tag (A).
 	 * @var array
 	 */
-	public $linkAttributes = array();
-// 	public $link_attributes = array();
-
+	private $linkAttributes = array();
 	/**
 	 * @var array Use document as vocabulary term in Vocalbulary content types
 	 */
-	protected $vocabularies;
-
+	private $vocabularies;
 	/**
 	 * Expiration of the contents of the document - if set, the output display of the contents of the document
 	 * is saved to cache and will be displayed within the expiration period from there.
@@ -124,51 +115,43 @@ class Document extends Folder {
 	 * (eg, presenting data from an external database).
 	 * @var int Expiration (in seconds)
 	 */
-	protected $expiration;
-
+	private $expiration;
 	/**
 	 * @var string Forkflow class full name.
 	 * @example Vivo\CMS\Workflow\Basic
 	 */
-	protected $workflow;
-
+	private $workflow;
 	/**
 	 * Resource image name.
 	 * Image could be shown for instance in document listings if template of the listings supports it.
 	 * @var string
 	 * @example image.jpg
 	 */
-	protected $image;
-
+	private $image;
 	/**
 	 * Date and time the document was actually published. Typically it is used for articles, newsletters and press releases.
 	 * Unless explicitly specified otherwise, the system fills in the date of the creation of the document in the system.
 	 * @var DateTime
 	 */
-	protected $published; // logicke datum vydani (nezamenovat s publikaci obsahu)
-
+	private $published; // logicke datum vydani (nezamenovat s publikaci obsahu)
 	/**
 	 * Name of the person who actually created the document. It is used typically for articles, newsletters and press releases.
 	 * Unless explicitly specified otherwise, the system fills in a name of the logged editor.
 	 * @var string
 	 */
-	protected $author;
-
+	private $author;
 	/**
 	 * Internal publising notices
 	 * @var string
 	 */
-	public $internalNotice;
-// 	public $internal_notice;
-
-	private $__contents;
+	private $internalNotice;
 
 	/**
 	 * @param string $path Repository path.
 	 * @param Vivo\CMS\Model\Entity\Security $security
 	 */
-	function __construct(/*$path = null,*/ $security = null) {
-		parent::__construct(/*$path,*/ $security);
+	function __construct($path = null, $security = null) {
+		parent::__construct($path, $security);
 
 // 		if(self::$DEFAULT_POSITION != 0) {
 // 			CMS::$logger->warn('Property $DEFAULT_POSITION in model Document is deprecated.');
@@ -177,29 +160,29 @@ class Document extends Folder {
 // 			CMS::$logger->warn('Property $DEFAULT_SORTING in model Document is deprecated.');
 // 		}
 
-		$this->url = self::$DEFAULT_URL;
-		$this->url_precedence = self::$DEFAULT_URL_PRECEDENCE;
-		$this->heading = self::$DEFAULT_HEADING;
-		$this->overview_title = self::$DEFAULT_OVERVIEW_TITLE;
-		$this->keywords = self::$DEFAULT_KEYWORDS;
-		if (!$this->layout)
-			$this->layout = self::$DEFAULT_LAYOUT;
-		$this->layout_panels = self::$DEFAULT_LAYOUT_PANELS;
-		$this->navigable = self::$DEFAULT_NAVIGABLE;
-		$this->auto_versioning = self::$DEFAULT_AUTO_VERSIONING;
-		$this->secured = self::$DEFAULT_SECURED;
-		$this->expiration = self::$DEFAULT_EXPIRATION;
-		$this->workflow = self::$DEFAULT_WORKFLOW;
-		$this->image = self::$DEFAULT_IMAGE;
-		$this->published = self::$DEFAULT_PUBLISHED ? : new \DateTime;
-		$this->author = self::$DEFAULT_AUTHOR;
+// 		$this->url = self::$DEFAULT_URL;
+// 		$this->url_precedence = self::$DEFAULT_URL_PRECEDENCE;
+// 		$this->heading = self::$DEFAULT_HEADING;
+// 		$this->overview_title = self::$DEFAULT_OVERVIEW_TITLE;
+// 		$this->keywords = self::$DEFAULT_KEYWORDS;
+// 		if (!$this->layout)
+// 			$this->layout = self::$DEFAULT_LAYOUT;
+// 		$this->layout_panels = self::$DEFAULT_LAYOUT_PANELS;
+// 		$this->navigable = self::$DEFAULT_NAVIGABLE;
+// 		$this->auto_versioning = self::$DEFAULT_AUTO_VERSIONING;
+// 		$this->secured = self::$DEFAULT_SECURED;
+// 		$this->expiration = self::$DEFAULT_EXPIRATION;
+// 		$this->workflow = self::$DEFAULT_WORKFLOW;
+// 		$this->image = self::$DEFAULT_IMAGE;
+// 		$this->published = self::$DEFAULT_PUBLISHED ? : new \DateTime;
+// 		$this->author = self::$DEFAULT_AUTHOR;
 	}
 
 	/**
 	 * Page header. If heading is not set, default document name will be returned.
 	 * @return string
 	 */
-	function getHeading() {
+	public function getHeading() {
 		return $this->heading ? $this->heading : $this->title;
 	}
 
@@ -207,7 +190,7 @@ class Document extends Folder {
 	 * Document overview title. If overview title is not set, document title will be returned.
 	 * @return string
 	 */
-	function getOverviewTitle() {
+	public function getOverviewTitle() {
 		return $this->overviewTitle ? $this->overviewTitle : $this->title;
 	}
 
@@ -215,9 +198,9 @@ class Document extends Folder {
 	 * Returns image URL or NULL.
 	 * @return string|null
 	 */
-	function getImageURL() {
-		return $this->image ? $this->getURL().$this->image : null;
-	}
+// 	public function getImageURL() {
+// 		return $this->image ? $this->getURL().$this->image : null;
+// 	}
 
 	/**
 	 * Create new content by class name.
@@ -305,11 +288,11 @@ class Document extends Folder {
 	}
 
 	/**
-	 * Returns object represents document workflow.
-	 * @return Vivo\CMS\Workflow
+	 * Returns workflow.
+	 * @return string
 	 */
 	public function getWorkflow() {
-		return Workflow\Factory::get($this->workflow);
+		return $this->workflow;
 	}
 
 	/**
@@ -361,11 +344,11 @@ class Document extends Folder {
 	 * Icon name
 	 * @return string
 	 */
-	public function getIcon() {
-		if (!($content = $this->getPublishedContent(false)))
-			$content = $this->getLastContent(false);
-		return $content ? $content->getIcon() : 'Document';
-	}
+// 	public function getIcon() {
+// 		if (!($content = $this->getPublishedContent(false)))
+// 			$content = $this->getLastContent(false);
+// 		return $content ? $content->getIcon() : 'Document';
+// 	}
 
 	/**
 	 * Returns a key chain for indexer. Through this chain, the document sought.

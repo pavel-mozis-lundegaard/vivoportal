@@ -14,84 +14,77 @@ use Vivo\CMS;
 use Vivo\CMS\Model\Entity\Lock;
 
 class Entity {
-
-	const UUID_PATTERN = '[\d\w]{32}';
-
-	const URL_PATTERN = '\/[\w\d\-\/\.]+\/';
-
-	/**
-	 * Meta definitions for all entity fields in Entity class hiearchy. Almost every entity type source file ends with this kind of definition of all specific fields of defined class.
-	 * @var array
-	 */
-// 	static $FIELDS = array();
-
-	/**
-	 * Default value for searchable property.
-	 * @var boolean
-	 */
-// 	static $DEFAULT_SEARCHABLE = true;
-
 	/**
 	 * Universally Unique Identifier (UUID) of the entity instance.
 	 * Value is set when entity is being instantiated. Never set or change value of this property.
 	 * @see __construct
 	 * @var string
 	 */
-	protected $uuid;
-
+	private $uuid;
 	/**
 	 * Absolute path to entity stored in repository.
 	 * @var string
 	 */
-	protected $path;
-
+	private $path;
 	/**
 	 * Not used yet.
 	 * @var Vivo\CMS\Model\Lock
 	 */
 // 	protected $lock;
-
 	/**
 	 * If TRUE, entity will be indexed by fulltext indexer.
 	 * @see Vivo\CMS\Solr\Indexer
 	 * @var boolean
 	 */
-	protected $searchable;
-
+	private $searchable;
 	/**
 	 * Time of entity creation.
 	 * @var DateTime
 	 */
-	protected $created;
-
+	private $created;
 	/**
 	 * Username of entity creator.
 	 * @var string
 	 */
-	protected $createdBy;
-
+	private $createdBy;
 	/**
 	 * Time of entity last modification.
 	 * @var DateTime
 	 */
-	protected $modified;
-
+	private $modified;
 	/**
 	 * Username of user who made last last modification.
 	 * @var string
 	 */
-	protected $modifiedBy;
-
+	private $modifiedBy;
 	/**
 	 * Constructor. Sets uuid property by value obtained from static method create_uuid().
 	 * @param string $path Path to entity. If not set, it will be undefined and can be set later before persisting entity using saveEntity method of Repository.
 	 * @see Vivo\CMS\DAO\Repository::saveEntity()
 	 */
-	public function __construct(/*$path = null*/) {
+	public function __construct($path = null) {
+		$this->path = $path;
 // 		if ($path)
 // 			$this->setPath($path);
-		$this->uuid = self::create_uuid();
+// 		$this->uuid = self::create_uuid();
 // 		$this->searchable = self::$DEFAULT_SEARCHABLE;
+	}
+
+	/**
+	* Compare entities by path.
+	* @param Vivo\CMS\Model\Entity $entity
+	* @return bool Returns true if the entity is under another entity (in the tree paths).
+	*/
+	public function under($entity) {
+		return (strpos($this->path.'/', $entity->path.'/') === 0);
+	}
+
+	public function setUuid($uuid) {
+		$this->uuid = $uuid;
+	}
+
+	public function getUuid() {
+		return $this->uuid;
 	}
 
 	/**
@@ -109,29 +102,11 @@ class Entity {
 	/**
 	 * Creates new Entity uuid after an object cloning.
 	 */
-	public function __clone() {
-		$this->uuid = self::createUuid();
-	}
+// 	public function __clone() {
+// 		$this->uuid = self::createUuid();
+// 	}
 
-	/**
-	 * Compare entities by path.
-	 * @param Vivo\CMS\Model\Entity $entity
-	 * @return bool Returns true if the entity is under another entity (in the tree paths).
-	 */
-	public function under($entity) {
-		return (strpos($this->path.'/', $entity->path.'/') === 0);
-	}
 
-	/**
-	 * @comp: drive create_uuid()
-	 *
-	 * Creates new UUID. UUID is 32-character unique hexadecimal number.
-	 * @example A6E7FC1218C8725AFC9A6B6A3D003435
-	 * @return string
-	 */
-	public static function createUuid() {
-		return strtoupper(md5(uniqid()));
-	}
 
 	/**
 	 * Sets entity path.
@@ -157,6 +132,64 @@ class Entity {
 	public function getName() {
 		return (($pos = strrpos($this->path, '/')) !== false) ? substr($this->path, $pos + 1) : '';
 	}
+
+	/**
+	 * @param DateTime $date
+	 */
+	public function setCreated(\DateTime $date) {
+		$this->created = $date;
+	}
+
+	/**
+	 * @return DateTime
+	 */
+	public function getCreated() {
+		return $this->created;
+	}
+
+	/**
+	 * @return string $userName
+	 */
+	public function setCreatedBy($userName) {
+		$this->createdBy = $userName;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getCreatedBy() {
+		return $this->createdBy;
+	}
+
+	/**
+	 * @param DateTime $date
+	 */
+	public function setModified(\DateTime $date) {
+		$this->modified = $date;
+	}
+
+	/**
+	 * @return DateTime
+	 */
+	public function getModified() {
+		return $this->modified;
+	}
+
+	/**
+	 * @return string $userName
+	 */
+	public function setModifiedBy($userName) {
+		$this->modifiedBy = $userName;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getModifiedBy() {
+		return $this->modifiedBy;
+	}
+
+
 
 	/**
 	 * Returns entity from CMS repository by path.
@@ -234,37 +267,37 @@ class Entity {
 	 * @param bool $ignore_specific_url
 	 * @return string URL.
 	 */
-	function getUrl(/*$subpath = false,*/ $ignore_specific_url = false) {
-		// get url
-		$url =
-			(!$ignore_specific_url && $this->url_precedence && $this->url) ?
-				$this->url :
-				//@todo: nahradit za self::getUrlFromPath() - ale ted se tady v tom moc nevyznam, tak az v 2.0
-				((($pos = strpos($this->path, '/ROOT')) ?
-					substr($this->path, $pos + 5) :
-					'').
-				'/'); // neresi URL mimo kontext site
-		// append subpath
-// 		if ($subpath) {
-// 			if (substr($url, -1) == '/') {
-// 				$url .= ($subpath{0} == '/') ? substr($subpath, 1) : $subpath;
-// 			} else {
-// 				$url .= ($subpath{0} == '/') ? $subpath : '/'.$subpath;
-// 			}
-// 		}
-		return $url;
-	}
+// 	public function getUrl(/*$subpath = false,*/ $ignore_specific_url = false) {
+// 		// get url
+// 		$url =
+// 			(!$ignore_specific_url && $this->url_precedence && $this->url) ?
+// 				$this->url :
+// 				//@todo: nahradit za self::getUrlFromPath() - ale ted se tady v tom moc nevyznam, tak az v 2.0
+// 				((($pos = strpos($this->path, '/ROOT')) ?
+// 					substr($this->path, $pos + 5) :
+// 					'').
+// 				'/'); // neresi URL mimo kontext site
+// 		// append subpath
+// // 		if ($subpath) {
+// // 			if (substr($url, -1) == '/') {
+// // 				$url .= ($subpath{0} == '/') ? substr($subpath, 1) : $subpath;
+// // 			} else {
+// // 				$url .= ($subpath{0} == '/') ? $subpath : '/'.$subpath;
+// // 			}
+// // 		}
+// 		return $url;
+// 	}
 
 	/**
 	 * Returns URL from entity path.
 	 * @param string $path
 	 * @return string
 	 */
-	public static function getUrlFromPath($path) {
-		$url = substr($path, strpos($path, '/ROOT') + 5).'/';
+// 	public static function getUrlFromPath($path) {
+// 		$url = substr($path, strpos($path, '/ROOT') + 5).'/';
 
-		return $url;
-	}
+// 		return $url;
+// 	}
 
 	/**
 	 * Depth in the repository tree
@@ -279,9 +312,9 @@ class Entity {
 	/**
 	 * @return string
 	 */
-	public function getIcon() {
-		return 'Entity';
-	}
+// 	public function getIcon() {
+// 		return 'Entity';
+// 	}
 
 	/**
 	 * Returns string for full-text. UUID and created by.

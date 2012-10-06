@@ -3,10 +3,8 @@ namespace Vivo\Repository\Storage;
 
 interface StorageInterface {
 
-	const FILE = 'FILE'; //@fixme: V interface konstanty?
+	const FILE = 'FILE'; //@fixme: V Storage/local, nebo uz zde?
 	const DIR  = 'DIR';
-
-	public function getIndexer();
 
 	/**
 	 * Checks whether item exists and (optionally) has not expired yet.
@@ -43,20 +41,20 @@ interface StorageInterface {
 	 * If an item doesn't exist under specified path, NULL value will be returned.
 	 * @param string path to item
 	 * @param int item expiration (see the same argument of contains method to understand)
-	 * @param boolean if TRUE, and object will be unserialized using standard PHP public function unserialize. Value of this argument should be allways equivalent to the value passed to the so-called parameter of set method.
+	 * @-----param boolean if TRUE, and object will be unserialized using standard PHP public function unserialize. Value of this argument should be allways equivalent to the value passed to the so-called parameter of set method.
 	 * @return mixed|null
 	 */
-	public function get($path, $expiration = false, $unserialize = false);
+	public function get($path, $expiration = false/*, $unserialize = false*/);
 
 	/**
 	 * Saves item to file system.
 	 * If and item under specified path already exists, it will be overwritten.
 	 * @param string path to item
 	 * @param mixed item data
-	 * @param boolean if TRUE, item data will be serialized to file system using standard PHP public function serialize (used typically for PHP objects)
-	 * @return void
+	 * @-----param boolean if TRUE, item data will be serialized to file system using standard PHP public function serialize (used typically for PHP objects)
+	 * @-----return void
 	 */
-	public function set($path, $variable, $serialize = false);
+	public function set($path, $variable/*, $serialize = false*/);
 
 	/**
 	 * Touches item in file system.

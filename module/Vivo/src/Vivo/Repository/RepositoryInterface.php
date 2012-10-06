@@ -1,6 +1,7 @@
 <?php
 namespace Vivo\Repository;
 
+use Vivo\TransactionalInterface;
 use Vivo\CMS\Model;
 
 interface RepositoryInterface extends TransactionalInterface {
@@ -14,13 +15,11 @@ interface RepositoryInterface extends TransactionalInterface {
 	public function saveEntity(Model\Entity $entity);
 
 	public function deleteEntity(Model\Entity $entity);
-
 	/**
 	 * @param Vivo\CMS\Model\Entity $entity
 	 * @param string $target
 	 */
 	public function moveEntity(Model\Entity $entity, $target);
-
 	/**
 	 * @param Vivo\CMS\Model\Entity $entity
 	 * @param string $target
@@ -37,9 +36,5 @@ interface RepositoryInterface extends TransactionalInterface {
 	public function getChildren($path = '', $class_name = false, $deep = false, $throw_exception = true);
 
 
-// 	public function begin();
-
-// 	public function commit();
-
-// 	public function rollback();
+	public function reindex(Model\Entity $entity, $deep = false);
 }

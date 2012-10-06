@@ -1,12 +1,8 @@
 <?php
-/**
- * Vivo framework
- *
- * Copyright (c) 2012 author(s) listed below.
- */
 namespace Vivo;
 
 /**
+ * @author miroslav.hajek
  */
 interface TransactionalInterface  {
 

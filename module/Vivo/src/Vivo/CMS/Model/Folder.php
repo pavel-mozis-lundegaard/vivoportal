@@ -29,50 +29,50 @@ class Folder extends Entity {
 	/**
 	 * @var string Folder name.
 	 */
-	protected $title;
+	private $title;
 	/**
 	 * @var string Language.
 	 */
-	protected $language;
+	private $language;
 	/**
 	 * @var string
 	 */
-	protected $description;
+	private $description;
 	/**
 	 * @var bool
 	 */
 // 	public $allow_listing;
-	protected $allowListing;
+	private $allowListing;
 	/**
 	 * @var int Position of the document in layer. This property could be used as sorting option of the document.
 	 * @see self::$sorting
 	 */
-	protected $position;
+	private $position;
 	/**
 	 * @var string Specifies which criteria will classify sub-documents in the lists (newsletters, sitemap, menu, etc.)
 	 * @see $FIELDS
 	 * @example vivo_cms_model_document_position asc
 	 */
-	protected $sorting;
+	private $sorting;
 	/**
 	 * @var string Replication id;
 	 */
-	protected $replicationGroupId;
+	private $replicationGroupId;
 	/**
 	 * Absolute last path to entity stored in repository before move to trash.
 	 * @var string
 	 */
-	protected $lastPath;
+	private $lastPath;
 	/**
 	 * @var Vivo\CMS\Model\Entity\Security
 	 */
-	protected $security;
+	private $security;
 
 	/**
 	 * @param string $path Folder (entity) path in CMS repository.
 	 * @param Vivo\CMS\Model\Entity\Security $security
 	 */
-	function __construct(/*$path = null, */$security = null) {
+	function __construct($path = null, $security = null) {
 		parent::__construct($path);
 // 		$this->title = self::$DEFAULT_TITLE;
 // 		$this->language = self::$DEFAULT_LANGUAGE;
@@ -82,14 +82,24 @@ class Folder extends Entity {
 // 		$this->sorting = self::$DEFAULT_SORTING;
 		$this->security =
 			$security ? :
-				(self::$DEFAULT_SECURITY ? :
-					new CMS\Model\Entity\Security(
+				//(self::$DEFAULT_SECURITY ? :
+					new CMS\Model\Folder\Security(
 						array(
-							Security\Manager::ROLE_VISITOR			=> array(Security\Manager::GROUP_ANYONE),
+							/*Security\Manager::ROLE_VISITOR			=> array(Security\Manager::GROUP_ANYONE),
 							Security\Manager::ROLE_PUBLISHER		=> array(Security\Manager::GROUP_PUBLISHERS),
 							Security\Manager::ROLE_ADMINISTRATOR	=> array(Security\Manager::GROUP_ADMINISTRATORS)
+							*/
 						)
-					));
+					);
+// 		);
+	}
+
+	public function setTitle($title) {
+		$this->title = $title;
+	}
+
+	public function getTitle() {
+		return $this->title;
 	}
 
 	/**
@@ -122,12 +132,12 @@ class Folder extends Entity {
 	/**
 	 * @return string
 	 */
-	public function getIcon() {
-		$icon = 'Folder';
-		if (in_array($this->getName(), array('Components', 'Layouts', 'Files', 'Trash')))
-			$icon.= '.'.$this->getName();
-		return $icon;
-	}
+// 	public function getIcon() {
+// 		$icon = 'Folder';
+// 		if (in_array($this->getName(), array('Components', 'Layouts', 'Files', 'Trash')))
+// 			$icon.= '.'.$this->getName();
+// 		return $icon;
+// 	}
 
 	/**
 	 * @param array $field_names

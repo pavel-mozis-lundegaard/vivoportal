@@ -19,6 +19,12 @@ class Query {
 	 */
 	private $parameters = array();
 
+	const HYDRATE_FIELD_LIST = 'field_list';
+	const HYDRATE_FACET_FIELD_LIST = 'facet_field_list';
+	const HYDRATE_ENTITY_LIST = 'entity_list';
+
+	private $hydrateMode;
+
 	public function __construct($query) {
 		$this->query = $query;
 	}
@@ -56,4 +62,24 @@ class Query {
 		$this->maxResults = $limit;
 		return $this;
 	}
+
+	public function setHydrateMode($mode) {
+		//@todo: overeni na existujici hydr
+		$this->hydrateMode = $mode;
+	}
+
+// 	/**
+// 	 * X vysledku
+// 	 */
+// 	public function getResult() { }
+// 	/*
+// 	 * 1 vysldek
+// 	 */
+// 	public function getSingleResult() { }
+// 	/**
+// 	 * bnic nevraci, napr. volani delete
+// 	 */
+// 	public function execute() { }
+
+
 }

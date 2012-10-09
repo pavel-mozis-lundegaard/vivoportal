@@ -24,14 +24,9 @@ class Root extends Component {
 
 	public function __construct(Response $response) {
 		parent::__construct(null, self::COMPONENT_NAME);
-/*		$this->response = $response;
-		//TODO set response headers
-		
+		$this->response = $response;
 		$response->getHeaders()->addHeaderLine('X-Generated-By: Vivo')
 			->addHeaderLine('X-Generated-At: '.gmdate('D, d M Y H:i:s', time()).' GMT');
-		
-		
-*/
 		
 	}
 	

@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\CMS\UI;
 
+use Zend\Http\Response;
+
 use Vivo\UI\ComponentInterface;
 
 /**
@@ -59,9 +61,9 @@ class Page  extends Component {
 	 * @param ComponentInterface $component
 	 * @param array $options
 	 */
-	public function __construct(ComponentInterface $component, $options = null) {
+	public function __construct(Response $response, $options = null) {
 		parent::__construct(null, null);
-		$this->setMain($component);
+		$response->getHeaders()->addHeaderLine('Content-Type: text/html');
 	}
 	
 	public function setMain(ComponentInterface $component) {

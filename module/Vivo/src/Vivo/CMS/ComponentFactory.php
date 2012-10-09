@@ -50,9 +50,9 @@ class ComponentFactory {
 			//TODO
 			$root->setMain($this->getContentFrontComponent($content, $document));
 		} else {
-			
+			$page = $this->di->get('Vivo\CMS\UI\Page');
 			$component = $this->getFrontComponent($document);
-			$page = $this->di->get('Vivo\CMS\UI\Page', array('component' => $component));
+			$page->setMain($component);
 			$root->setMain($page);
 		}
 		
@@ -122,7 +122,12 @@ class ComponentFactory {
 	public function getContentFrontComponent(Content $content, Document $document) {
 		//TODO How to find UI component class?
 		$className = $content->getFrontComponentClass();
-		$component = $this->di->newInstance($className, array('content'=> $content, 'document' => $document));
+		$component = $this->di->newInstance($className);
+		if ($component instanceof \Vivo\CMS\UI\Component) {
+			//TODO how to properly inject document and content
+			$component->setContent($content);
+			$component->setDocument($document);
+		}
 		return $component;
 	}
 	

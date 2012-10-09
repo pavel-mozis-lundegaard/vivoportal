@@ -43,6 +43,10 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
 		$host = $request->getUri()->getHost();
 		$site = $cms->getSiteByHost($host);		
 		
+		$di->instanceManager()->addSharedInstance($request, 'Zend\Http\Request');
+		$di->instanceManager()->addSharedInstance($response, 'Zend\Http\Response');
+		$di->instanceManager()->addSharedInstance($di, 'Zend\Di\Di');
+		
 		//TODO: add exception when document doesn't exist
 		//TODO: redirects based on document properties(https, $document->url etc.)
 		
@@ -51,12 +55,13 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
 		$cf = $di->get('Vivo\CMS\ComponentFactory');
 		$root = $cf->getRootComponent($document);
 		
+		//\Zend\Di\Display\Console::export($di);
 		$root->init();
 		Template::register();
 		$content = $root->view();
 		$root->done();
 		$response->setContent($content);
-		$response->setStatusCode(HttpResponse::STATUS_CODE_200);
+//		$response->setStatusCode(HttpResponse::STATUS_CODE_200);
 		return $response;
 	}
 	

@@ -1,5 +1,3 @@
-php_flag display_errors on
-
 #If CMS running on apache virtualhost using virtual document root, uncoment this line.
 #RewriteBase /
 

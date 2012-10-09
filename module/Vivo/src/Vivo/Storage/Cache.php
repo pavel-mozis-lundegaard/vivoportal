@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Repository\Storage;
+namespace Vivo\Storage;
 
 use Vivo;
 use Vivo\Logger;

@@ -1,4 +1,4 @@
 <?php
 namespace Vivo\Repository\Exception;
 
-class Exception implements ExceptionInterface{ }
+class Exception extends \Exception implements ExceptionInterface{ }

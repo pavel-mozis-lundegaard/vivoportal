@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Repository\Storage;
+namespace Vivo\Storage;
 
 /**
  * Implementation of the virtual file system over local filesystem.
@@ -128,7 +128,7 @@ class Local implements StorageInterface {
 		if (!file_exists($abs_path)) {
 // 			echo "mkdir $abs_path<br>";
 			if (@!mkdir($abs_path, 0777, true)) {
-				throw new \Vivo\IOException("Cannot create directory $abs_path for $path");
+				throw new Exception\IOException("Cannot create directory $abs_path for $path");
 			}
 		}
 	}
@@ -175,7 +175,7 @@ class Local implements StorageInterface {
 // 			echo "------------------\n";
 // 		}
 		if ($result === false) {
-			throw new \Vivo\IOException("Cannot write data to $abs_path for $path");
+			throw new Exception\IOException("Cannot write data to $abs_path for $path");
 		}
 // 		chmod($abs_path, 0777); //@todo: tohle je tu proc ????? @see self::pdir
 // 		return true;
@@ -303,10 +303,4 @@ class Local implements StorageInterface {
 		return $count;
 	}
 
-// 	function __toString() {
-// 		return get_class($this).':'.$this->root;
-// 	}
-
 }
-
-

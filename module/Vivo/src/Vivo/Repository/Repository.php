@@ -14,7 +14,7 @@ use Vivo\CMS\Model;
 use Vivo\CMS\Security;
 use Vivo\Util;
 //use Vivo\Logger;
-use Vivo\Repository\Storage;
+use Vivo\Storage;
 use Vivo\Repository\Indexer;
 
 /**

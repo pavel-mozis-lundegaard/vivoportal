@@ -1,4 +1,4 @@
 <?php
-namespace Vivo\Repository\Exception;
+namespace Vivo\Storage\Exception;
 
 interface ExceptionInterface { }

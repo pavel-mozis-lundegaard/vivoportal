@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\Controller;
 
+use Vivo\CMS\Stream\Template;
+
 use Zend\EventManager\EventInterface as Event;
 use Zend\Http\Response as HttpResponse;
 use Zend\Mvc\InjectApplicationEventInterface;
@@ -33,8 +35,27 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
 	 */
 	public function dispatch(Request $request, Response $response = null) {
 		//TODO find document in repository and return it
-		$path = $this->event->getRouteMatch()->getParam('path');
-		$response->setContent('CMS document for path: '. $path);
+		$documentPath = $this->event->getRouteMatch()->getParam('path');
+		$di = $this->serviceLocator->get('di');
+		$cms = $this->serviceLocator->get('Vivo\CMS');
+
+		//TODO get host from routing - this enable selecting site by any part of url (like http://server/www.domain.cz/path...)
+		$host = $request->getUri()->getHost();
+		$site = $cms->getSiteByHost($host);		
+		
+		//TODO: add exception when document doesn't exist
+		//TODO: redirects based on document properties(https, $document->url etc.)
+		
+		$document = $cms->getDocument($documentPath, $site);
+		
+		$cf = $di->get('Vivo\CMS\ComponentFactory');
+		$root = $cf->getRootComponent($document);
+		
+		$root->init();
+		Template::register();
+		$content = $root->view();
+		$root->done();
+		$response->setContent($content);
 		$response->setStatusCode(HttpResponse::STATUS_CODE_200);
 		return $response;
 	}

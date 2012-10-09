@@ -71,4 +71,15 @@ return array(
             __DIR__ . '/../view',
         ),
     ),
+    'di' => array(
+    	'instance' => array (
+	    	'Vivo\CMS\UI\Page' => array (
+	    			'parameters' => array (
+	    					'options' => array (
+	    						'doctype' => '<!DOCTYPE html>',
+							),
+	    			),
+	    	),
+    	) 
+    )
 );

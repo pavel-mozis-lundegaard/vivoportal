@@ -64,10 +64,17 @@ class Page  extends Component {
 	public function __construct(Response $response, $options = null) {
 		parent::__construct(null, null);
 		$response->getHeaders()->addHeaderLine('Content-Type: text/html');
+		if (isset($options['doctype'])) {
+			$this->setDoctype($options['doctype']);
+		}
 	}
 	
 	public function setMain(ComponentInterface $component) {
 		$this->addComponent($component, self::MAIN_COMPONENT_NAME);
+	}
+	
+	public function setDoctype($doctype) {
+		$this->doctype = $doctype;
 	}
 	
 	//TODO methods for modifying html head (css, js, keywords etc.)

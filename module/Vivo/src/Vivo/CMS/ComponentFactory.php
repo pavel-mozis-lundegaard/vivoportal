@@ -1,8 +1,6 @@
 <?php
 namespace Vivo\CMS;
 
-use Zend\Di\Di;
-
 use Vivo\CMS;
 use Vivo\CMS\Model\Content;
 use Vivo\CMS\Model\Document;
@@ -10,6 +8,7 @@ use Vivo\CMS\UI\Content\Layout;
 use Vivo\UI; 
 use Vivo\UI\Component;
 
+use Zend\Di\Di;
 
 /**
  * ComponentFactory is responsible for instatniating UI component for CMS documents. 

@@ -1,9 +1,9 @@
 <?php
 namespace Vivo\CMS\UI;
 
-use Zend\Http\Response;
-
 use Vivo\UI\ComponentInterface;
+
+use Zend\Http\Response;
 
 /**
  * @author kormik
@@ -69,10 +69,18 @@ class Page  extends Component {
 		}
 	}
 	
+	/**
+	 * Sets main UI component of the page. 
+	 * @param ComponentInterface $component
+	 */
 	public function setMain(ComponentInterface $component) {
 		$this->addComponent($component, self::MAIN_COMPONENT_NAME);
 	}
 	
+	/**
+	 * Sets HTML doctype of page.
+	 * @param unknown_type $doctype
+	 */
 	public function setDoctype($doctype) {
 		$this->doctype = $doctype;
 	}

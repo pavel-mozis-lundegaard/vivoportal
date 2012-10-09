@@ -1,14 +1,9 @@
 <?php
 namespace Vivo\Repository\Storage;
 
-// use Vivo\Util\FS;
-// use Vivo\CMS\StorageInterface;
-
 /**
  * Implementation of the virtual file system over local filesystem.
  */
-use Zend\Serializer\Serializer;
-
 class Local implements StorageInterface {
 
 	const ENTITY_FILENAME = 'Entity.object';

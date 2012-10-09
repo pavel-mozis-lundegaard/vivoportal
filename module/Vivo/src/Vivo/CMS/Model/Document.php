@@ -229,26 +229,26 @@ class Document extends Folder {
 	 * @param int $index Content index means position in the Multi Content Document.
 	 * @return Vivo\CMS\Model\Content|null
 	 */
-	public function getContent($version, $index = false) {
-		$contents = $this->getContents($index);
-		/**
-		 * Pokud nastane neintegrita rady (verze 0,1,3), zde nastava problem - indexy pole jsou ale po sobe jdouci klice.
-		 * FIX je zatim odlozen, dokud se neprijde na pricinu.
-		 * Staci ze porovnovat $version != $contents[$version]->getVersion()
-		 */
-		return array_key_exists($version, $contents) ? $contents[$version] : null;
-	}
+// 	public function getContent($version, $index = false) {
+// 		$contents = $this->getContents($index);
+// 		/**
+// 		 * Pokud nastane neintegrita rady (verze 0,1,3), zde nastava problem - indexy pole jsou ale po sobe jdouci klice.
+// 		 * FIX je zatim odlozen, dokud se neprijde na pricinu.
+// 		 * Staci ze porovnovat $version != $contents[$version]->getVersion()
+// 		 */
+// 		return array_key_exists($version, $contents) ? $contents[$version] : null;
+// 	}
 
 	/**
 	 * Returns count of contents in the MultiContentDocument
 	 * @return int
 	 */
-	public function getContentCount() {
-		for ($index = 1; $index <= 20; $index++)
-			if (!$this->getContents($index))
-				break;
-		return $index - 1;
-	}
+// 	public function getContentCount() {
+// 		for ($index = 1; $index <= 20; $index++)
+// 			if (!$this->getContents($index))
+// 				break;
+// 		return $index - 1;
+// 	}
 
 	/**
 	 * Returns sub-documents of this Document.
@@ -257,34 +257,38 @@ class Document extends Folder {
 	 * @param int $which
 	 * @return array
 	 */
-	public function getChildren($class_name = false, $deep = false, $which = self::ALL) {
-		if (!$class_name)
-			$class_name = 'Vivo\CMS\Model\Folder';
-		$children = parent::getChildren($class_name, $deep); //TODO which support (use rather querying)
-		if ($which == self::AVAILABLE) {
-			$available_children = array();
-			foreach ($children as $child)
-				if (!\Vivo\Util\Object::is_a($child, 'Vivo\CMS\Model\Document') || ($child->navigable && $child->isPublished()))
-					$available_children[] = $child;
-			return $available_children;
-		}
-		else if($which == self::PUBLISHED) {
-			$available_children = array();
-			foreach ($children as $child)
-				if (!\Vivo\Util\Object::is_a($child, 'Vivo\CMS\Model\Document') || $child->isPublished())
-					$available_children[] = $child;
-			return $available_children;
-		} else {
-			return $children;
-		}
-	}
+// 	public function getChildren($class_name = false, $deep = false, $which = self::ALL) {
+// 		if (!$class_name)
+// 			$class_name = 'Vivo\CMS\Model\Folder';
+// 		$children = parent::getChildren($class_name, $deep); //TODO which support (use rather querying)
+// 		if ($which == self::AVAILABLE) {
+// 			$available_children = array();
+// 			foreach ($children as $child)
+// 				if (!\Vivo\Util\Object::is_a($child, 'Vivo\CMS\Model\Document') || ($child->navigable && $child->isPublished()))
+// 					$available_children[] = $child;
+// 			return $available_children;
+// 		}
+// 		else if($which == self::PUBLISHED) {
+// 			$available_children = array();
+// 			foreach ($children as $child)
+// 				if (!\Vivo\Util\Object::is_a($child, 'Vivo\CMS\Model\Document') || $child->isPublished())
+// 					$available_children[] = $child;
+// 			return $available_children;
+// 		} else {
+// 			return $children;
+// 		}
+// 	}
 
 	/**
 	 * Returns the document which sub-documents of it should be displayed in the menu or overview.
 	 * @return array
 	 */
-	public function getAvailableChildren() {
-		return $this->getChildren('Vivo\CMS\Model\Document', false, self::AVAILABLE);
+// 	public function getAvailableChildren() {
+// 		return $this->getChildren('Vivo\CMS\Model\Document', false, self::AVAILABLE);
+// 	}
+
+	public function setWorkflow($workflow) {
+		$this->workflow = $workflow;
 	}
 
 	/**
@@ -301,21 +305,21 @@ class Document extends Folder {
 	 * @throws Vivo\CMS\NoPublishedContentException
 	 * @return Vivo\CMS\Model\Content|null
 	 */
-	public function getPublishedContent($throw_exception = true, $index = false) {
-		return $this->getWorkflow()->getPublishedContent($this, $throw_exception, $index);
-	}
+// 	public function getPublishedContent($throw_exception = true, $index = false) {
+// 		return $this->getWorkflow()->getPublishedContent($this, $throw_exception, $index);
+// 	}
 
 	/**
 	 * Returns all published contents of this Document / MultiContentDocument
 	 * @return array
 	 */
-	public function getPublishedContents() {
-		$contents = array();
-		for ($index = 1; $index <= $this->getContentCount(); $index++)
-			if ($content = $this->getPublishedContent(false, $index))
-				$contents[$index] = $content;
-		return $contents;
-	}
+// 	public function getPublishedContents() {
+// 		$contents = array();
+// 		for ($index = 1; $index <= $this->getContentCount(); $index++)
+// 			if ($content = $this->getPublishedContent(false, $index))
+// 				$contents[$index] = $content;
+// 		return $contents;
+// 	}
 
 	/**
 	 * Returns the last content. If this Document is type of MultiContentDocument, returns last content from first position / index.
@@ -323,22 +327,22 @@ class Document extends Folder {
 	 * @throws Vivo\CMS\NoContentException
 	 * @return Vivo\CMS\Model\Content|null
 	 */
-	public function getLastContent($throw_exception = true) {
-		$contents = $this->getContents();
-		$index = ($count = count($contents)) == 0 ? 0 : $count - 1;
-		$content = isset($contents[$index]) ? $contents[$index] : null;
-		if (!$content && $throw_exception)
-			throw new CMS\NoContentException($this->path);
-		return $content;
-	}
+// 	public function getLastContent($throw_exception = true) {
+// 		$contents = $this->getContents();
+// 		$index = ($count = count($contents)) == 0 ? 0 : $count - 1;
+// 		$content = isset($contents[$index]) ? $contents[$index] : null;
+// 		if (!$content && $throw_exception)
+// 			throw new CMS\NoContentException($this->path);
+// 		return $content;
+// 	}
 
 	/**
 	 * If this Document has at least one published content, returns true otherwise false.
 	 * @return bool
 	 */
-	public function isPublished() {
-		return $this->getPublishedContent(false) ? true : false;
-	}
+// 	public function isPublished() {
+// 		return $this->getPublishedContent(false) ? true : false;
+// 	}
 
 	/**
 	 * Icon name
@@ -365,10 +369,10 @@ class Document extends Folder {
 	 * @param Vivo\CMS\Model\Document $doc2
 	 * @return int
 	 */
-	function cmp_published_asc($doc1, $doc2) {
-		return $doc1->published >= $doc2->published ?
-			$doc1->published == $doc2->published ? 0 : 1 : -1;
-	}
+// 	function cmp_published_asc($doc1, $doc2) {
+// 		return $doc1->published >= $doc2->published ?
+// 			$doc1->published == $doc2->published ? 0 : 1 : -1;
+// 	}
 
 	/**
 	 * Comparation function.
@@ -376,10 +380,10 @@ class Document extends Folder {
 	 * @param Vivo\CMS\Model\Document $doc2
 	 * @return int
 	 */
-	function cmp_published_desc($doc1, $doc2) {
-		return $doc1->published <= $doc2->published ?
-			$doc1->published == $doc2->published ? 0 : 1 : -1;
-	}
+// 	function cmp_published_desc($doc1, $doc2) {
+// 		return $doc1->published <= $doc2->published ?
+// 			$doc1->published == $doc2->published ? 0 : 1 : -1;
+// 	}
 	/*
 	 * trideni cmp funkcemi se realne vyuziva jenom na back-endu (front-end pouziva prehledy vyuzivajici fulltext)
 	 * a neni ucelne uzivateli v back-endu neustale menit poradi childu, proto zakomentovano
@@ -405,11 +409,11 @@ class Document extends Folder {
 	 * Returns sorting string.
 	 * @return string
 	 */
-	function sorting() {
-		return is_string($this->sorting) && isset($this->old_new_sorting[$this->sorting])
-					? $this->old_new_sorting[$this->sorting]
-					: $this->sorting;
-	}
+// 	function sorting() {
+// 		return is_string($this->sorting) && isset($this->old_new_sorting[$this->sorting])
+// 					? $this->old_new_sorting[$this->sorting]
+// 					: $this->sorting;
+// 	}
 
 	/**
 	 * Returns class names of contents for Multi Content Document

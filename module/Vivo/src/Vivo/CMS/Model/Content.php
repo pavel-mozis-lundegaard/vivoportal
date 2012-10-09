@@ -51,6 +51,10 @@ class Content extends Entity {
 		return $this->state;
 	}
 
+	public function setState($state) {
+		$this->state = $state;
+	}
+
 	/**
 	 * Gets content.
 	 * @return Vivo\CMS\Model\Document

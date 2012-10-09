@@ -188,7 +188,7 @@ class Repository implements RepositoryInterface {
 	 * @param int $deep
 	 * @return array
 	 */
-	function getChildren($path = '', $class_name = false, $deep = false, $throw_exception = true) {
+	public function getChildren($path = '', $class_name = false, $deep = false, $throw_exception = true) {
 		$children = array();
 		$descendants = array();
 
@@ -254,12 +254,12 @@ class Repository implements RepositoryInterface {
 	 * @param string $path
 	 * @return bool
 	 */
-	function hasChildren($path = '') {
-		foreach ($this->storage->scan($path) as $name)
-			if (($name{0} != '.') && $this->storage->contains("$path/$name/".self::ENTITY_FILENAME))
-				return true;
-		return false;
-	}
+// 	function hasChildren($path = '') {
+// 		foreach ($this->storage->scan($path) as $name)
+// 			if (($name{0} != '.') && $this->storage->contains("$path/$name/".self::ENTITY_FILENAME))
+// 				return true;
+// 		return false;
+// 	}
 
 	/**
 	 * @param string $query
@@ -433,23 +433,25 @@ class Repository implements RepositoryInterface {
 	 * @param bool $throw_exception
 	 * @return string|null File path.
 	 * @throws Vivo\CMS\Exception 404, File not found
+	 *
+	 * @todo self::getResource
 	 */
 	function getFile($path, $throw_exception = true) {
-		if (!$this->storage->contains($path)) {
-			CMS::$cache->remove($path);
-			if ($throw_exception)
-			//@fixme: tohle doresit
-				throw new CMS\Exception(404, 'file_not_found', array($path)); else
-				return null;
-		}
-		if (CMS::$parameters['cache.resources'] || ($this->storage instanceof Util\FS\DB)) {
-			if (CMS::$cache->mtime($path) < $this->storage->mtime($path)) {
-				CMS::$cache->set($path, $this->storage->get($path));
-			}
-			return CMS::$cache->root.$path;
-		} else {
-			return $this->storage->root.$path;
-		}
+// 		if (!$this->storage->contains($path)) {
+// 			CMS::$cache->remove($path);
+// 			if ($throw_exception)
+// 			//@fixme: tohle doresit
+// 				throw new CMS\Exception(404, 'file_not_found', array($path)); else
+// 				return null;
+// 		}
+// 		if (CMS::$parameters['cache.resources'] || ($this->storage instanceof Util\FS\DB)) {
+// 			if (CMS::$cache->mtime($path) < $this->storage->mtime($path)) {
+// 				CMS::$cache->set($path, $this->storage->get($path));
+// 			}
+// 			return CMS::$cache->root.$path;
+// 		} else {
+// 			return $this->storage->root.$path;
+// 		}
 	}
 
 	/**
@@ -510,14 +512,18 @@ class Repository implements RepositoryInterface {
 	 * @param Vivo\CMS\Model\Document $entity
 	 * @return array
 	 */
-	public function getAllContents($entity) {
+	public function getAllContents(\Vivo\CMS\Model\Document $entity) {
 		$return = array();
-		if($entity instanceof CMS\Model\Document) {
+// 		if($entity instanceof CMS\Model\Document) {
+
+		//@todo:
 			$count = $entity->getContentCount();
 			for ($index = 1; $index <= $count; $index++) {
 				$return = array_merge($return, $entity->getContents($index));
 			}
-		}
+		//--------------
+
+// 		}
 		return $return;
 	}
 
@@ -526,17 +532,17 @@ class Repository implements RepositoryInterface {
 	 * @param string $event
 	 * @param bool $recursive
 	 */
-	private function callEventOn($entity, $event, $recursive = true) {
-		CMS::$event->invoke($event, $entity);
-		foreach($this->getAllContents($entity) as $content) {
-			CMS::$event->invoke($event, $content);
-		}
-		if($recursive) {
-			foreach ($entity->getChildren() as $ch) {
-				$this->callEventOn($ch, $event, $recursive);
-			}
-		}
-	}
+// 	private function callEventOn($entity, $event, $recursive = true) {
+// 		CMS::$event->invoke($event, $entity);
+// 		foreach($this->getAllContents($entity) as $content) {
+// 			CMS::$event->invoke($event, $content);
+// 		}
+// 		if($recursive) {
+// 			foreach ($entity->getChildren() as $ch) {
+// 				$this->callEventOn($ch, $event, $recursive);
+// 			}
+// 		}
+// 	}
 
 	/**
 	 * @param Vivo\CMS\Model\Entity|string $entity Entity object or entity path.

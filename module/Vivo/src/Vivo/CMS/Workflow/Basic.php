@@ -25,7 +25,7 @@ class Basic extends AbstractWorkflow {
 	 * Returns all workflow states.
 	 * @return array
 	 */
-	function getAllStates() {
+	public function getAllStates() {
 		return array_keys($this->parameters);
 	}
 
@@ -34,7 +34,7 @@ class Basic extends AbstractWorkflow {
 	 * @see Vivo\CMS\Security\Manager::isUserInGroup()
 	 * @return array
 	 */
-	function getAvailableStates() {
+	public function getAvailableStates() {
 // 		$principal = CMS::$securityManager->getUserPrincipal();
 // 		$available_states = array();
 // 		foreach ($this->parameters as $state => $groups) {
@@ -100,7 +100,7 @@ class Basic extends AbstractWorkflow {
 	 * @throws Vivo\CMS\Exception 403, No published content.
 	 * @return Vivo\CMS\Model\Content|null
 	 */
-	function getPublishedContent($document, $throw_exception = true, $index = false) {
+// 	function getPublishedContent($document, $throw_exception = true, $index = false) {
 // 		if ($contents = $document->getContents($index)) {
 // 			foreach ($contents as $content) {
 // 				if ($content->state == self::STATE_PUBLISHED)
@@ -112,7 +112,7 @@ class Basic extends AbstractWorkflow {
 // 		} else {
 // 			return null;
 // 		}
-	}
+// 	}
 
 }
 

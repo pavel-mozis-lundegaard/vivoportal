@@ -1,10 +1,4 @@
 <?php
-/**
- * Vivo CMS
- * Copyright (c) 2009 author(s) listed below.
- * 
- * @version $Id: Factory.php 1354 2011-05-23 07:45:52Z tzajicek $
- */
 namespace Vivo\CMS\Workflow;
 
 use Vivo\CMS;

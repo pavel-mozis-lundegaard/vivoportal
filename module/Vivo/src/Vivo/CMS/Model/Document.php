@@ -45,69 +45,61 @@ class Document extends Folder {
 	 * (relative to the root document ROOT).
 	 * @var string
 	 */
-	private $url; // specificka URL dokumentu
-
+	protected $url; // specificka URL dokumentu
 	/**
 	 * @var bool URL takes precedence.
 	 *
 	 * Specificka URL ma prednost (je primarni)
 	 */
-// 	public $url_precedence; // specificka URL ma prednost (je primarni)
-	private $urlPrecedence;
-
+	protected $urlPrecedence;
 	/**
 	 * @var string Page header.
 	 */
-	private $heading;
-
+	protected $heading;
 	/**
 	 * @var string Name in listings
 	 */
-// 	public $overview_title;
-	private $overviewTitle;
-
+	protected $overviewTitle;
 	/**
 	 * Keywords are used to describe content of the document. Keywords could make fulltext searches faster and more effective.
 	 * Please determine each word by comma.
 	 * @var string
 	 */
-	private $keywords;
-
+	protected $keywords;
 	/**
 	 * Is used to display the contents of the document as a page, when you enter the URL on the front-end.
 	 * Settings (assignment) of the layout makes sense only for documents whose content is displayed in HTML format.
 	 * @var string
 	 * @example Layouts/page/subpage
 	 */
-	private $layout; // layout (cesta k dokumentu Layoutu)
-
+	protected $layout; // layout (cesta k dokumentu Layoutu)
 	/**
 	 * @var array Panels in layout.
 	 */
-	private $layoutPanels;
+	protected $layoutPanels;
 	/**
 	 * If this property is set, the document will appear in the lists of sub-documents (subpages)
 	 * on the front-end (overviews, sitemaps, menu, navigation, etc.)
 	 * @var bool
 	 */
-	private $navigable;
+	protected $navigable;
 	/**
 	 * @var bool If this property is set, changes in the contents of the document is automatically saved as a new version of the content.
 	 */
-	private $autoVersioning = false;
+	protected $autoVersioning = false;
 	/**
 	 * @var bool Secured (HTTPS required)
 	 */
-	private $secured;
+	protected $secured;
 	/**
 	 * Attributes for link tag (A).
 	 * @var array
 	 */
-	private $linkAttributes = array();
+	protected $linkAttributes = array();
 	/**
 	 * @var array Use document as vocabulary term in Vocalbulary content types
 	 */
-	private $vocabularies;
+	protected $vocabularies;
 	/**
 	 * Expiration of the contents of the document - if set, the output display of the contents of the document
 	 * is saved to cache and will be displayed within the expiration period from there.
@@ -115,36 +107,36 @@ class Document extends Folder {
 	 * (eg, presenting data from an external database).
 	 * @var int Expiration (in seconds)
 	 */
-	private $expiration;
+	protected $expiration;
 	/**
 	 * @var string Forkflow class full name.
 	 * @example Vivo\CMS\Workflow\Basic
 	 */
-	private $workflow;
+	protected $workflow;
 	/**
 	 * Resource image name.
 	 * Image could be shown for instance in document listings if template of the listings supports it.
 	 * @var string
 	 * @example image.jpg
 	 */
-	private $image;
+	protected $image;
 	/**
 	 * Date and time the document was actually published. Typically it is used for articles, newsletters and press releases.
 	 * Unless explicitly specified otherwise, the system fills in the date of the creation of the document in the system.
 	 * @var DateTime
 	 */
-	private $published; // logicke datum vydani (nezamenovat s publikaci obsahu)
+	protected $published; // logicke datum vydani (nezamenovat s publikaci obsahu)
 	/**
 	 * Name of the person who actually created the document. It is used typically for articles, newsletters and press releases.
 	 * Unless explicitly specified otherwise, the system fills in a name of the logged editor.
 	 * @var string
 	 */
-	private $author;
+	protected $author;
 	/**
 	 * Internal publising notices
 	 * @var string
 	 */
-	private $internalNotice;
+	protected $internalNotice;
 
 	/**
 	 * @param string $path Repository path.

@@ -32,16 +32,16 @@ class Site extends Folder {
 	/**
 	 * @var string Security domain name.
 	 */
-	private $domain;
+	protected $domain;
 	/**
 	 * @var string Parent site name.
 	 * @example META-SITE
 	 */
-	private $parentSite;
+	protected $parentSite;
 	/**
 	 * @var array Hosts are domain address under which you accessed the site.
 	 */
-	private $hosts = array();
+	protected $hosts = array();
 
 	/**
 	 * @param string Path to entity.

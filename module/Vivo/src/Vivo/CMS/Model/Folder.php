@@ -29,44 +29,44 @@ class Folder extends Entity {
 	/**
 	 * @var string Folder name.
 	 */
-	private $title;
+	protected $title;
 	/**
 	 * @var string Language.
 	 */
-	private $language;
+	protected $language;
 	/**
 	 * @var string
 	 */
-	private $description;
+	protected $description;
 	/**
 	 * @var bool
 	 */
 // 	public $allow_listing;
-	private $allowListing;
+	protected $allowListing;
 	/**
 	 * @var int Position of the document in layer. This property could be used as sorting option of the document.
 	 * @see self::$sorting
 	 */
-	private $position;
+	protected $position;
 	/**
 	 * @var string Specifies which criteria will classify sub-documents in the lists (newsletters, sitemap, menu, etc.)
 	 * @see $FIELDS
 	 * @example vivo_cms_model_document_position asc
 	 */
-	private $sorting;
+	protected $sorting;
 	/**
 	 * @var string Replication id;
 	 */
-	private $replicationGroupId;
+	protected $replicationGroupId;
 	/**
 	 * Absolute last path to entity stored in repository before move to trash.
 	 * @var string
 	 */
-	private $lastPath;
+	protected $lastPath;
 	/**
 	 * @var Vivo\CMS\Model\Entity\Security
 	 */
-	private $security;
+	protected $security;
 
 	/**
 	 * @param string $path Folder (entity) path in CMS repository.

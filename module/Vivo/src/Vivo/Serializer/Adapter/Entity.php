@@ -141,12 +141,16 @@ class Entity extends AbstractAdapter {
 				$class_name = Text::readWord($str, $pos);
 				Text::expectChar('{', $str, $pos);
 				$object = new $class_name;
+				$refl = new \ReflectionObject($object);
+
 				$vars = array();
 				while (($name = Text::readWord($str, $pos)) != '}') {
-					$object->$name = $vars[$name] = $this->unserializeRun($str, $pos);
+					$prop = $refl->getProperty($name);
+					$prop->setAccessible(true);
+					$prop->setValue($object, $vars[$name] = $this->unserializeRun($str, $pos));
 				}
-				if (method_exists($object, '__wakeup'))
-				$object->__wakeup();
+// 				if (method_exists($object, '__wakeup'))
+// 				$object->__wakeup();
 				if ($class_name == 'DateTime') {
 					try {
 						$object = new \DateTime($vars['date'], new \DateTimeZone($vars['timezone']));

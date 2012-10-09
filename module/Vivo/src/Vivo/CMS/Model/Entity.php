@@ -20,12 +20,12 @@ class Entity {
 	 * @see __construct
 	 * @var string
 	 */
-	private $uuid;
+	protected $uuid;
 	/**
 	 * Absolute path to entity stored in repository.
 	 * @var string
 	 */
-	private $path;
+	protected $path;
 	/**
 	 * Not used yet.
 	 * @var Vivo\CMS\Model\Lock
@@ -36,27 +36,27 @@ class Entity {
 	 * @see Vivo\CMS\Solr\Indexer
 	 * @var boolean
 	 */
-	private $searchable;
+	protected $searchable;
 	/**
 	 * Time of entity creation.
 	 * @var DateTime
 	 */
-	private $created;
+	protected $created;
 	/**
 	 * Username of entity creator.
 	 * @var string
 	 */
-	private $createdBy;
+	protected $createdBy;
 	/**
 	 * Time of entity last modification.
 	 * @var DateTime
 	 */
-	private $modified;
+	protected $modified;
 	/**
 	 * Username of user who made last last modification.
 	 * @var string
 	 */
-	private $modifiedBy;
+	protected $modifiedBy;
 	/**
 	 * Constructor. Sets uuid property by value obtained from static method create_uuid().
 	 * @param string $path Path to entity. If not set, it will be undefined and can be set later before persisting entity using saveEntity method of Repository.

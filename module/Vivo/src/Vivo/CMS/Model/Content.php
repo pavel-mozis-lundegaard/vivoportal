@@ -25,15 +25,15 @@ class Content extends Entity {
 	 * @var string Workflow state
 	 * @todo: @see Vivo\CMS\Workflow
 	 */
-	private $state;
+	protected $state;
 	/**
 	 * @var DateTime Date for automatic state change by cron.
 	 */
-	private $stateChange;
+	protected $stateChange;
 	/**
 	 * @var bool
 	 */
-	private $recursive;
+	protected $recursive;
 
 	/**
 	 * Setting default values.

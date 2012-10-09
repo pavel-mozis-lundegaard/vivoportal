@@ -41,7 +41,7 @@ class Overview extends Model\Content {
 	 * Vivo\CMS\Model\Entity::$FIELDS['Vivo\CMS\Model\Content\Overview']['front_view']['options']['Vivo/CMS/UI/Content/Overview.SiteMap'] = 'Site map';
 	 * </code>
 	 */
-	private $frontView;
+	protected $frontView;
 
 
 	//@todo: proc se tohle vse jmenuje overviewXXXX - proc to neni rovnou $this->XXXX ????????????????
@@ -50,34 +50,34 @@ class Overview extends Model\Content {
 	 * Overview type.
 	 * @var string see TYPE_DYNAMIC and TYPE_STATIC constants
 	 */
-	private $overviewType;
+	protected $overviewType;
 
 	/**
 	 * @var string Path to a document, which sub-documents of it should be displayed in the overview. If a overview path is not set, it shows sub-documents of the current document, which overview is the content of that document.
 	 * @example en/news/archive/
 	 */
-	private $overviewPath;
+	protected $overviewPath;
 
 	/**
 	 * @var string Fulltext criteria.
 	 */
-	private $overviewCriteria;
+	protected $overviewCriteria;
 
 	/**
 	 * @var string Documents sorting.
 	 * @see Vivo\CMS\Model\Document::$sorting
 	 */
-	private $overviewSorting;
+	protected $overviewSorting;
 
 	/**
 	 * @var int A number represent documents count in overview.
 	 */
-	private $overviewLimit;
+	protected $overviewLimit;
 
 	/**
 	 * @var array items for static overview.
 	 */
-	private $overviewItems = array();
+	protected $overviewItems = array();
 
 	/**
 	 * Setting default values

@@ -10,7 +10,7 @@ use Vivo\Repository\Repository;
  *
  * @author miroslav.hajek
  */
-class CMS implements CMSInterface {
+class CMS /*implements CMSInterface*/ {
 	/**
 	 * @var Vivo\Repository\Repository
 	 */

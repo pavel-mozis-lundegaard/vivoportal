@@ -26,6 +26,9 @@ class Local implements StorageInterface {
 	 */
 	public function __construct($root) {
 		$this->root = $root;
+
+		//@todo DI
+		$this->setSerializer(new \Vivo\Serializer\Adapter\Entity());
 	}
 
 	private function getAbsolutePath($path) {
@@ -36,7 +39,7 @@ class Local implements StorageInterface {
 		return $this->getAbsolutePath($path).DIRECTORY_SEPARATOR.self::ENTITY_FILENAME;
 	}
 
-	public function setSerializer($serializer) {
+	public function setSerializer(\Zend\Serializer\Adapter\AdapterInterface $serializer) {
 		$this->serializer = $serializer;
 	}
 
@@ -45,8 +48,7 @@ class Local implements StorageInterface {
 			return $this->serializer->serialize($object);
 		}
 
-// 		return print_r($object, true);
-		return serialize($object);
+		return /*serialize*/($object);
 	}
 
 	private function unserialize($object) {
@@ -54,7 +56,7 @@ class Local implements StorageInterface {
 			return $this->serializer->unserialize($object);
 		}
 
-		return unserialize($object);
+		return /*unserialize*/($object);
 	}
 
 	/**

@@ -394,16 +394,16 @@ class Document extends Folder {
 	/**
 	 * @var array Transfer array between the old and new type of record.
 	 */
-	private $old_new_sorting = array(
-		'created+'		=> 'vivo_cms_model_entity_created asc',
-		'created-'		=> 'vivo_cms_model_entity_created desc',
-		'title+'		=> 'vivo_cms_model_folder_title asc',
-		'title-'		=> 'vivo_cms_model_folder_title desc',
-		'position+'		=> 'vivo_cms_model_folder_position asc',
-		'position-'		=> 'vivo_cms_model_folder_position desc',
-		'published+'	=> 'vivo_cms_model_document_published asc',
-		'published-'	=> 'vivo_cms_model_document_published desc',
-	);
+// 	private $old_new_sorting = array(
+// 		'created+'		=> 'vivo_cms_model_entity_created asc',
+// 		'created-'		=> 'vivo_cms_model_entity_created desc',
+// 		'title+'		=> 'vivo_cms_model_folder_title asc',
+// 		'title-'		=> 'vivo_cms_model_folder_title desc',
+// 		'position+'		=> 'vivo_cms_model_folder_position asc',
+// 		'position-'		=> 'vivo_cms_model_folder_position desc',
+// 		'published+'	=> 'vivo_cms_model_document_published asc',
+// 		'published-'	=> 'vivo_cms_model_document_published desc',
+// 	);
 
 	/**
 	 * Returns sorting string.

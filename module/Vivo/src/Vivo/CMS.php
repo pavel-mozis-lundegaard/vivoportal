@@ -10,16 +10,11 @@ use Vivo\Repository\Repository;
  *
  * @author miroslav.hajek
  */
-class CMS {
+class CMS implements CMSInterface {
 	/**
 	 * @var Vivo\Repository\Repository
 	 */
 	private $repository;
-	/**
-	 * Set to use CMS class in the site context.
-	 * @var Vivo\CMS\Model\Site
-	 */
-// 	private $site;
 
 	public function __construct(Repository $repository) {
 		$this->repository = $repository;
@@ -237,8 +232,8 @@ class CMS {
 	 * @param int $index
 	 * @return Vivo\CMS\Model\Content
 	 */
-	public function getPublishedContent(Model\Document $document, $index = null) {
-		$index = $index ? $index : 0;
+	public function getPublishedContent(Model\Document $document, $index = 0) {
+		$index = $index ? $index : 0; //@todo: exception na is_int($index);
 		$contents = $this->getContents($document, $index);
 		foreach ($contents as $content) {
 			if($content->getState() == Workflow\AbstractWorkflow::STATE_PUBLISHED) {

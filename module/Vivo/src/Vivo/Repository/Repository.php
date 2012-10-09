@@ -472,8 +472,10 @@ class Repository implements RepositoryInterface {
 	 * Gets file resource directories within the given path.
 	 * @param string $path Path to resource directories
 	 * @return array
+	 *
+	 * @todo: pouzitove VXF Processoru, aneb je to k necemu dobre?, docaste private a poresit co s tim.
 	 */
-	function getResourceDirectories($path) {
+	private function getResourceDirectories($path) {
 		$resource_directories = array();
 		foreach ($this->storage->scan($path, Util\FS::DIR) as $name)
 			if (!$this->storage->contains("$path/$name/".self::ENTITY_FILENAME))
@@ -496,7 +498,10 @@ class Repository implements RepositoryInterface {
 // 		return $this->storage->get($path);
 // 	}
 
-	public function saveResource(Model\Entity $entity, $name, $data) {
+	/**
+	 * @todo: podme ze predavat pouze cestu, zadny data jako takova.
+	 */
+	public function saveResource(Model\Entity $entity, $name, /*$data*/ $sourceFilePath) {
 		$this->writeFile($entity->getPath().'/'.$name, $data);
 	}
 
@@ -582,8 +587,20 @@ class Repository implements RepositoryInterface {
 		$this->deletePaths[] = $path;
 	}
 
+	/**
+	 * @todo
+	 *
+	 * @param Vivo\CMS\Model\Entity $entity
+	 * @param string $target Target path.
+	 */
 	public function moveEntity(Model\Entity $entity, $target) { }
 
+	/**
+	 * @toho
+	 *
+	 * @param Vivo\CMS\Model\Entity $entity
+	 * @param string $target Target path.
+	 */
 	public function copyEntity(Model\Entity $entity, $target) { }
 
 	/**

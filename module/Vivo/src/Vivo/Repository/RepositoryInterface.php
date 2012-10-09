@@ -26,14 +26,8 @@ interface RepositoryInterface extends TransactionalInterface {
 	 */
 	public function copyEntity(Model\Entity $entity, $target);
 
-
-	/**
-	 * @see: self::getEntity($ident)
-	 */
-// 	public function getEntityPathByUuid($uuid);
-
 	//                          Model\Entity $entity?
-	public function getChildren($path = '', $class_name = false, $deep = false, $throw_exception = true);
+	public function getChildren(Model\Entity $entity, $class_name = false, $deep = false, $throw_exception = true);
 
 
 	public function reindex(Model\Entity $entity, $deep = false);

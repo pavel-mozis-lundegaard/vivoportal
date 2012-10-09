@@ -252,13 +252,13 @@ class Entity {
 	/**
 	 * @return array
 	 */
-	function __vivo_sleep() {
-		//if (!$this->uuid)
-		//	$this->uuid = strtoupper(md5(uniqid()));
-		$vars = get_object_vars($this);
-		unset($vars['path']);
-		return array_keys($vars);
-	}
+// 	function __vivo_sleep() {
+// 		//if (!$this->uuid)
+// 		//	$this->uuid = strtoupper(md5(uniqid()));
+// 		$vars = get_object_vars($this);
+// 		unset($vars['path']);
+// 		return array_keys($vars);
+// 	}
 
 	/**
 	 * @comp drive getURL

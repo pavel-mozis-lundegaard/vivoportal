@@ -19,7 +19,7 @@ class CMS {
 	 * Set to use CMS class in the site context.
 	 * @var Vivo\CMS\Model\Site
 	 */
-	private $site;
+// 	private $site;
 
 	public function __construct(Repository $repository) {
 		$this->repository = $repository;
@@ -69,7 +69,7 @@ class CMS {
 	 * @param unknown_type $site
 	 * @return Vivo\CMS\Model\Document
 	 */
-	public function getDocument($ident, $site = null) {
+	public function getDocument($ident, Model\Site $site = null) {
 		$document = $this->repository->getEntity($ident);
 
 		if($document instanceof Model\Document) {

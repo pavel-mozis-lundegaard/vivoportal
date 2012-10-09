@@ -188,10 +188,11 @@ class Repository implements RepositoryInterface {
 	 * @param int $deep
 	 * @return array
 	 */
-	public function getChildren($path = '', $class_name = false, $deep = false, $throw_exception = true) {
+	public function getChildren(Model\Entity $entity, $class_name = false, $deep = false, $throw_exception = true) {
 		$children = array();
 		$descendants = array();
 
+		$path = $entity->getPath();
 		//TODO: tady se zamyslet, zda neskenovat podle tridy i obsahy
 		//if (is_subclass_of($class_name, 'Vivo\Cms\Model\Content')) {
 		//	$names = $this->storage->scan("$path/Contents");
@@ -246,9 +247,9 @@ class Repository implements RepositoryInterface {
 	 * @deprecated self::getChildren()
 	 * @return array
 	 */
-	function getEntityChildren($path = '', $class_name = false, $deep = false, $throw_exception = true) {
-		return $this->getChildren($path, $class_name, $deep);
-	}
+// 	function getEntityChildren($path = '', $class_name = false, $deep = false, $throw_exception = true) {
+// 		return $this->getChildren($path, $class_name, $deep);
+// 	}
 
 	/**
 	 * @param string $path
@@ -429,14 +430,11 @@ class Repository implements RepositoryInterface {
 	}
 
 	/**
-	 * @param string $path
-	 * @param bool $throw_exception
-	 * @return string|null File path.
-	 * @throws Vivo\CMS\Exception 404, File not found
-	 *
-	 * @todo self::getResource
+	 * @param \Vivo\CMS\Model\Entity $entity
+	 * @param unknown_type $name
+	 * @param unknown_type $throwException
 	 */
-	function getFile($path, $throw_exception = true) {
+	public function getResource(\Vivo\CMS\Model\Entity $entity, $name, $throwException = true) {
 // 		if (!$this->storage->contains($path)) {
 // 			CMS::$cache->remove($path);
 // 			if ($throw_exception)
@@ -454,18 +452,21 @@ class Repository implements RepositoryInterface {
 // 		}
 	}
 
+	//@todo ?
+// 	public function getResources(Document $doc) { }
+
 	/**
 	 * Gets file resources within the given path.
 	 * @param string $path Path to resources
 	 * @return array
 	 */
-	function getResources($path) {
-		$resources = array();
-		foreach ($this->storage->scan($path, Util\FS::FILE) as $name)
-			if ($name != self::ENTITY_FILENAME)
-				$resources[] = $name;
-		return $resources;
-	}
+// 	function getResources($path) {
+// 		$resources = array();
+// 		foreach ($this->storage->scan($path, Util\FS::FILE) as $name)
+// 			if ($name != self::ENTITY_FILENAME)
+// 				$resources[] = $name;
+// 		return $resources;
+// 	}
 
 	/**
 	 * Gets file resource directories within the given path.
@@ -485,22 +486,28 @@ class Repository implements RepositoryInterface {
 	 * @param bool $throw_exception
 	 * @throws Vivo\CMS\Exception 404, File not found
 	 */
-	function readFile($path, $throw_exception = true) {
-		if ($file = $this->getFile($path, $throw_exception)) {
-			return file_get_contents($file);
-		} else {
-			return false;
-		}
-		//TODO vykopirovani a poskytnuti resource souboru z cache, pokud cache.resource = true
-		return $this->storage->get($path);
+// 	function readFile($path, $throw_exception = true) {
+// 		if ($file = $this->getFile($path, $throw_exception)) {
+// 			return file_get_contents($file);
+// 		} else {
+// 			return false;
+// 		}
+// 		//TODO vykopirovani a poskytnuti resource souboru z cache, pokud cache.resource = true
+// 		return $this->storage->get($path);
+// 	}
+
+	public function saveResource(Model\Entity $entity, $name, $data) {
+		$this->writeFile($entity->getPath().'/'.$name, $data);
 	}
 
 	/**
+	 * @deprecated
+	 *
 	 * @param string $path
 	 * @param mixed $data
 	 * @param bool $is_data Change between save and copy.
 	 */
-	function writeFile($path, $data, $is_data = true) {
+	private function writeFile($path, $data, $is_data = true) {
 		if ($is_data)
 			$this->saveFiles[$path] = $data;
 		else
@@ -512,7 +519,7 @@ class Repository implements RepositoryInterface {
 	 * @param Vivo\CMS\Model\Document $entity
 	 * @return array
 	 */
-	public function getAllContents(\Vivo\CMS\Model\Document $entity) {
+	public function getAllContents(\Vivo\CMS\Model\Document $document) {
 		$return = array();
 // 		if($entity instanceof CMS\Model\Document) {
 
@@ -548,7 +555,7 @@ class Repository implements RepositoryInterface {
 	 * @param Vivo\CMS\Model\Entity|string $entity Entity object or entity path.
 	 * @throws Vivo\CMS\EntityNotFoundException
 	 */
-	function deleteEntity(Model\Entity $entity) {
+	public function deleteEntity(Model\Entity $entity) {
 		if (is_string($entity))
 			$entity = $this->getEntity($entity);
 // 		if (method_exists($entity, 'onDelete')) {
@@ -563,10 +570,14 @@ class Repository implements RepositoryInterface {
 		$this->deletePaths[] = $this->deleteEntities[] = $entity->path;
 	}
 
+	public function deleteResource(Model\Entity $entity, $name) {
+		$this->deleteFile($entity->getPath().'/'.$name);
+	}
+
 	/**
 	 * @param string $path
 	 */
-	function deleteFile($path) {
+	private function deleteFile($path) {
 		//TODO kontrola zda to neni entita
 		$this->deletePaths[] = $path;
 	}

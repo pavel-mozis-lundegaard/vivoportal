@@ -77,4 +77,18 @@ interface StorageInterface {
 	 * @return boolean TRUE on success, FALSE if item doesn't exist
 	 */
 	public function remove($path);
+	
+	/**
+	 * Returns input stream for reading resource.
+	 * @param string $path
+	 * @return \Vivo\IO\InputStreamInterface
+	 */
+	public function read($path);
+	
+	/**
+	 * Returns output stream for writing resource. 
+	 * @param string $path
+	 * @return \Vivo\IO\OutputStreamInterface
+	 */
+	public function write($path);
 }

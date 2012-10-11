@@ -16,7 +16,7 @@ interface StorageInterface {
 	 * @param string $path Path to the item
 	 * @return bool
 	 */
-	public function isObject();
+	public function isObject($path);
 
 	/**
 	 * Returns item modification time in milliseconds.

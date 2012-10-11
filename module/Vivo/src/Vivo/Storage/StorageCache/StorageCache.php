@@ -33,13 +33,17 @@ class StorageCache implements StorageCacheInterface
     }
 
     /**
-     * Checks whether item exists
+     * Checks whether item exists in cache, if not there checks the storage
      * @param string $path to item
      * @return boolean TRUE if item exists otherwise FALSE
      */
     public function contains($path)
     {
-        return $this->cache->hasItem($path);
+        if ($this->cache->hasItem($path)) {
+            return true;
+        } else {
+            return $this->storage->contains($path);
+        }
     }
 
     /**
@@ -78,8 +82,10 @@ class StorageCache implements StorageCacheInterface
         $item       = $this->cache->getItem($path, $success);
         if (!$success) {
             $item   = $this->storage->get($path);
-            //TODO - process the result?
-            $result = $this->cache->setItem($path, $item);
+            if (!is_null($item)) {
+                //TODO - process the result?
+                $result = $this->cache->setItem($path, $item);
+            }
         }
         return $item;
     }

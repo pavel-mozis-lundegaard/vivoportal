@@ -4,7 +4,8 @@ namespace Vivo\Vmodule;
 use Zend\EventManager\EventManager;
 use Zend\ModuleManager\ModuleEvent;
 use Zend\ModuleManager\ModuleManager;
-use Zend\Loader\ModuleAutoloader;
+//use Zend\Loader\ModuleAutoloader;
+use Vivo\Vmodule\VmoduleAutoloader;
 use Zend\ModuleManager\Listener\ModuleResolverListener;
 use Zend\ModuleManager\Listener\AutoloaderListener;
 use Zend\ModuleManager\Listener\InitTrigger;
@@ -17,10 +18,10 @@ use Zend\ModuleManager\Listener\ConfigListener;
 class VmoduleManagerFactory
 {
     /**
-     * Paths to vModules
+     * Paths to Vmodules
      * @var array
      */
-    protected $vModulePaths     = array();
+    protected $vModulePaths = array();
 
     /**
      * Constructor
@@ -39,7 +40,7 @@ class VmoduleManagerFactory
     public function getVmoduleManager(array $vModuleNames)
     {
         $events             = new EventManager();
-        $moduleAutoloader   = new ModuleAutoloader($this->vModulePaths);
+        $moduleAutoloader   = new VmoduleAutoloader($this->vModulePaths);
         $configListener     = new ConfigListener();
 
         // High priority
@@ -47,7 +48,7 @@ class VmoduleManagerFactory
         $events->attach(ModuleEvent::EVENT_LOAD_MODULE_RESOLVE, new ModuleResolverListener());
         // High priority
         $events->attach(ModuleEvent::EVENT_LOAD_MODULE, new AutoloaderListener(), 9000);
-        $events->attach(ModuleEvent::EVENT_LOAD_MODULE, new InitTrigger());
+        //$events->attach(ModuleEvent::EVENT_LOAD_MODULE, new InitTrigger());
 
         //OnBootstrapListener would be only useful if the Site was refactored to have a bootstrap process,
         //the Vmodule onBootstrap() method could then be called on the Site bootstrap
@@ -55,7 +56,7 @@ class VmoduleManagerFactory
         //LocatorRegistrationListener is not needed (registers the module with the service manager)
         //$events->attach($locatorRegistrationListener);
 
-        $events->attach($configListener);
+        //$events->attach($configListener);
         $vModuleManager     = new ModuleManager($vModuleNames, $events);
         $moduleEvent        = new ModuleEvent;
         $vModuleManager->setEvent($moduleEvent);

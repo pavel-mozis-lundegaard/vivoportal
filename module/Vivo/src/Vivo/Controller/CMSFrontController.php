@@ -36,6 +36,9 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
         $vModuleManagerFactory  = $this->event->getApplication()->getServiceManager()->get('vmodule_manager_factory');
         $vModuleManager         = $vModuleManagerFactory->getVmoduleManager($vModuleNames);
         $vModuleManager->loadModules();
+
+        die('Check');
+
         //Test autoloading of Vmodule classes
         $myObj  = new \Vm1\MyObj();
         //Test config merge

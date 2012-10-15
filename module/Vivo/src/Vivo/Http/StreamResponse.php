@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Stream;
+namespace Vivo\Http;
 
 use Vivo\IO\InputStreamInterface;
 use Vivo\IO\FileOutputStream;
@@ -49,6 +49,7 @@ class StreamResponse extends PHPResponse {
 			$target = new FileOutputStream('php://output');
 			$util = new Util();
 			$util->copy($source, $target);
+			$source->close();
 			$target->close();
 			$this->contentSent = true;
 			return $this;

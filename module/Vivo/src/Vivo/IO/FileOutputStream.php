@@ -21,6 +21,7 @@ class FileOutputStream implements OutputStreamInterface {
 
 	/**
 	 * @param string $path
+	 * @param boolean $append 
 	 */
 	public function __construct($filename, $append = false) {
 		$mode = $append ? 'a' : 'w';
@@ -31,6 +32,7 @@ class FileOutputStream implements OutputStreamInterface {
 	}
 
 	/**
+	 * Writes data to the stream.
 	 * @param integer $bytes
 	 * @return string
 	 */
@@ -39,9 +41,9 @@ class FileOutputStream implements OutputStreamInterface {
 	}
 
 	/**
-	 * Closes stream
+	 * Closes stream.
 	 */
 	public function close() {
-		fclose($this->ftp);
+		fclose($this->fp);
 	}
 }

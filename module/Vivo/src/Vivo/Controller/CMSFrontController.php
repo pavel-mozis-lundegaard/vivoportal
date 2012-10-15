@@ -34,6 +34,8 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
 	public function dispatch(Request $request, Response $response = null) {
 		//TODO find document in repository and return it
 		$path = $this->event->getRouteMatch()->getParam('path');
+		$host = $this->event->getRouteMatch()->getParam('host'); 
+		
 		$response->setContent('CMS document for path: '. $path);
 		$response->setStatusCode(HttpResponse::STATUS_CODE_200);
 		return $response;

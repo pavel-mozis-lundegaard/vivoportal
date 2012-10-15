@@ -9,6 +9,16 @@ return array(
 		'routes' => array(
 			'vivo' => array(
 				'type' => 'Vivo\Router\Hostname', //only add hostname to routermatch
+/**
+ * Sample for matching host from part of url.
+ * @example
+ * <code>
+ * 	'type' => 'Zend\Mvc\Router\Http\Segment',
+ * 	'options' => array(
+ * 		'route' => '/site/:host',
+ * 	),
+ *  </code>
+ */				
 				'may_terminate' => false,
 				'child_routes' => array(
 
@@ -31,6 +41,18 @@ return array(
 							'spec'	=> '/resources/%module%/%path%',
 							'defaults' => array(
 								'controller' => 'ResourceFront',
+								'path' => '',
+								'module' => '',
+							),
+						),
+					),
+					'backend' => array( 
+						'type' => 'Zend\Mvc\Router\Http\Regex',
+						'options' => array(
+							'regex'	=> '/system/manager/(?<path>.*)',
+							'spec'	=> '/system/manager/%path%',
+							'defaults' => array(
+								'controller' => 'CMSFront',
 								'path' => '',
 								'module' => '',
 							),

@@ -71,6 +71,7 @@ return array(
             __DIR__ . '/../view',
         ),
     ),
+    
     'di' => array(
     	'instance' => array (
 	    	'Vivo\CMS\UI\Page' => array (
@@ -80,6 +81,14 @@ return array(
 							),
 	    			),
 	    	),
+	    	'Vivo\CMS\UI\Content\Sample' => array (
+	    			'parameters' => array (
+	    					'options' => array (
+	    							'template' => 'someTemplate.phtml',
+	    					),
+	    			),
+	    	),	    	
+	    	
     	) 
     )
 );

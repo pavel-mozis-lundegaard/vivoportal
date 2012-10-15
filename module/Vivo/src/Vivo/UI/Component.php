@@ -41,13 +41,17 @@ class Component implements ComponentInterface {
 		
 	}
 	
-	public function view() {
-		$this->template = get_called_class().'.phtml';
+	public function render() {
 		ob_start();
-		include  Template::STREAM_NAME.'://'.$this->template;
-		$output = ob_get_contents();
+			$this->view();
+			$output = ob_get_contents();
 		ob_end_clean();
 		return $output;
+	}
+	
+	public function view() {
+		$this->template = get_called_class().'.phtml';
+		include  Template::STREAM_NAME.'://'.$this->template;
 	}
 	
 	public function done() {
@@ -55,9 +59,6 @@ class Component implements ComponentInterface {
 	}
 	
 	function getPath($path = '') {
-//TODO implement action security hash
-// 		if ((!defined('VIVO_ACT_HASH') || VIVO_ACT_HASH) && ($hash = $this->getActionHash()))
-// 			$path .= ':'.$hash;
 		$component = $this;
 		while ($component) {
 			$name = $component->getName();

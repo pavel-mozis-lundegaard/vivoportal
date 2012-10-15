@@ -1,7 +1,7 @@
 <?php
 namespace Vivo;
 
-use Vivo\CMS\Repository;
+use Vivo\Repository\Repository;
 
 /**
  * Main bussiness class for interact with CMS
@@ -33,10 +33,22 @@ class CMS {
 		return $site;
 	}
 	
-	public function getSiteDocument($path, $site = null) {
+	public function getDocument($path, $site = null) {
 		//TODO implement
-		$document = new \Vivo\CMS\Model\Document();
+		//$document = new \Vivo\CMS\Model\Document();
+		
+		$className = 'Vivo\Repo\\'.str_replace('/', '\\', $path);
+		
+		$document = new $className();
+//		$document = new \Vivo\Mock\Document();
+		
+		
+		
 		return $document;
+	}
+	
+	public function getRawContent() {
+		return false;
 	}
 	
 	public function createSiteDocument() {
@@ -48,6 +60,22 @@ class CMS {
 	}
 	
 	public function addContent() {
+		
+	}
+	
+	public function getDocumentContents($document) {
+		return $document->getContents();
+	}
+	
+	public function getParentDocument($document) {
+
+		$class = get_class($document);
+		$pieces = explode('\\', $class);
+		array_pop($pieces);
+		$class = implode('\\', $pieces);
+		
+		
+		return class_exists($class)? new $class(): false;
 		
 	}
 }

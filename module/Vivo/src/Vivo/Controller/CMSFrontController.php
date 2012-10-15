@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\Controller;
 
+use Zend\Di\Di;
+
 use Vivo\CMS\Stream\Template;
 
 use Zend\EventManager\EventInterface as Event;
@@ -37,14 +39,16 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
 		//TODO find document in repository and return it
 		$documentPath = $this->event->getRouteMatch()->getParam('path');
 		$di = $this->serviceLocator->get('di');
-		$cms = $this->serviceLocator->get('Vivo\CMS');
+		$cms = $di->get('Vivo\CMS');
 
 		//TODO get host from routing - this enable selecting site by any part of url (like http://server/www.domain.cz/path...)
 		$host = $request->getUri()->getHost();
 		$site = $cms->getSiteByHost($host);		
 		
+		//setup DI with shared instances from Vivo
 		$di->instanceManager()->addSharedInstance($request, 'Zend\Http\Request');
 		$di->instanceManager()->addSharedInstance($response, 'Zend\Http\Response');
+		$di->instanceManager()->addSharedInstance($site, 'Vivo\CMS\Model\Site');
 		$di->instanceManager()->addSharedInstance($di, 'Zend\Di\Di');
 		
 		//TODO: add exception when document doesn't exist
@@ -58,7 +62,7 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
 		//\Zend\Di\Display\Console::export($di);
 		$root->init();
 		Template::register();
-		$content = $root->view();
+		$content = $root->render();
 		$root->done();
 		$response->setContent($content);
 //		$response->setStatusCode(HttpResponse::STATUS_CODE_200);

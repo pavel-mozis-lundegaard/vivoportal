@@ -80,7 +80,7 @@ class StorageCacheTest extends TestCase
 
     protected function setUp()
     {
-        $mockedMethodsCache = array('setItem', 'hasItem');
+        $mockedMethodsCache = array('setItem', 'hasItem', 'removeItem');
         $this->cache        = $this->getMock('VivoTest\Storage\StorageCache\CacheMock',
                                              $mockedMethodsCache, array(), '', false);
         $this->storage      = $this->getMock('Vivo\Storage\StorageInterface', array(), array(), '', false);
@@ -162,7 +162,7 @@ class StorageCacheTest extends TestCase
         $this->assertTrue($this->storageCache->contains($path));
     }
 
-    public function testContainsQuerïesStorageIfNotInCache()
+    public function testContainsQueriesStorageIfNotInCache()
     {
         $path   = 'foo/bar';
         $this->cache->expects($this->once())
@@ -176,11 +176,104 @@ class StorageCacheTest extends TestCase
         $this->assertTrue($this->storageCache->contains($path));
     }
 
-    /*
-    public function testMove()
+    public function testMoveWhenNotFoundInCache()
     {
-        $this->storageCache->move()
-
+        $path   = 'foo/bar';
+        $target = 'baz/bat';
+        //Set-up the cache mock not to find the item
+        $this->cache->setSuccess(false);
+        $this->cache->expects($this->never())
+            ->method('removeItem');
+        $this->cache->expects($this->never())
+            ->method('setItem');
+        $this->storage->expects($this->once())
+            ->method('move')
+            ->with($this->equalTo($path), $this->equalTo($target));
+        $this->storageCache->move($path, $target);
     }
-    */
+
+    public function testMoveWhenFoundInCache()
+    {
+        $path   = 'foo/bar';
+        $target = 'baz/bat';
+        $data   = 'qux';
+        //Set-up the cache mock to find the item
+        $this->cache->setSuccess(true);
+        $this->cache->setData($data);
+        $this->cache->expects($this->once())
+            ->method('removeItem')
+            ->with($this->equalTo($path));
+        $this->cache->expects($this->once())
+            ->method('setItem')
+            ->with($this->equalTo($target), $this->equalTo($data));
+        $this->storage->expects($this->once())
+            ->method('move')
+            ->with($this->equalTo($path), $this->equalTo($target));
+        $this->storageCache->move($path, $target);
+    }
+
+    public function testCopyWhenNotFoundInCache()
+    {
+        $path   = 'foo/bar';
+        $target = 'baz/bat';
+        //Set-up the cache mock not to find the item
+        $this->cache->setSuccess(false);
+        $this->cache->expects($this->never())
+            ->method('setItem');
+        $this->storage->expects($this->once())
+            ->method('copy')
+            ->with($this->equalTo($path), $this->equalTo($target));
+        $this->storageCache->copy($path, $target);
+    }
+
+    public function testCopyWhenFoundInCache()
+    {
+        $path   = 'foo/bar';
+        $target = 'baz/bat';
+        $data   = 'qux';
+        //Set-up the cache mock to find the item
+        $this->cache->setSuccess(true);
+        $this->cache->setData($data);
+        $this->cache->expects($this->once())
+            ->method('setItem')
+            ->with($this->equalTo($target), $this->equalTo($data));
+        $this->storage->expects($this->once())
+            ->method('copy')
+            ->with($this->equalTo($path), $this->equalTo($target));
+        $this->storageCache->copy($path, $target);
+    }
+
+    public function testRemove()
+    {
+        $path   = 'foo/bar';
+        $this->cache->expects($this->once())
+            ->method('removeItem')
+            ->with($this->equalTo($path));
+        $this->storage->expects($this->once())
+            ->method('remove')
+            ->with($this->equalTo($path));
+        $this->storageCache->remove($path);
+    }
+
+    public function testScan()
+    {
+        $path   = 'foo/bar';
+        $this->storage->expects($this->once())
+            ->method('scan')
+            ->with($this->equalTo($path));
+        $this->storageCache->scan($path);
+    }
+
+    public function testTouch()
+    {
+        $path   = 'foo/bar';
+        $this->cache->expects($this->once())
+            ->method('removeItem')
+            ->with($this->equalTo($path));
+        $this->storage->expects($this->once())
+            ->method('touch')
+            ->with($this->equalTo($path));
+        $this->storageCache->touch($path);
+    }
+
 }

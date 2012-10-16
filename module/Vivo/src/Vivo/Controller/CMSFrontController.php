@@ -37,10 +37,11 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
         $vModuleManager         = $vModuleManagerFactory->getVmoduleManager($vModuleNames);
         $vModuleManager->loadModules();
 
-        die('Check');
-
         //Test autoloading of Vmodule classes
         $myObj  = new \Vm1\MyObj();
+
+        die('Check');
+
         //Test config merge
         $config = $vModuleManager->getEvent()->getConfigListener()->getMergedConfig(false);
         \Zend\Debug\Debug::dump($config, 'Merged config of Vmodules');

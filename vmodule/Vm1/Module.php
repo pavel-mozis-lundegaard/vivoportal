@@ -11,9 +11,10 @@ class Module
     public function getAutoloaderConfig()
     {
         return array(
-            'Zend\Loader\StandardAutoloader' => array(
+            'Vivo\Vmodule\AutoloaderNs' => array(
+                'stream_name'   => \Vivo\Vmodule\StreamWrapper::STREAM_NAME,
                 'namespaces' => array(
-                    __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
+                    __NAMESPACE__ => '/' . __NAMESPACE__ . '/src/' . __NAMESPACE__,
                 ),
             ),
         );

@@ -10,13 +10,13 @@ use Vivo\Vmodule\Exception\StreamException;
  * Based on Zend\View\Stream
  * @author david.lukas
  */
-class VmoduleStreamWrapper extends ZendViewStream
+class StreamWrapper extends ZendViewStream
 {
     /**
      * Name of the stream (protocol)
      * @var string
      */
-    const STREAM_NAME   = 'vmodule.source';
+    const STREAM_NAME   = 'vmodule';
 
     /**
      * Storage with Vmodules

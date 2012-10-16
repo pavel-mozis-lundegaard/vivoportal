@@ -5,7 +5,7 @@ use Zend\EventManager\EventManager;
 use Zend\ModuleManager\ModuleEvent;
 use Zend\ModuleManager\ModuleManager;
 //use Zend\Loader\ModuleAutoloader;
-use Vivo\Vmodule\VmoduleAutoloader;
+use Vivo\Vmodule\AutoloaderModule;
 use Zend\ModuleManager\Listener\ModuleResolverListener;
 use Zend\ModuleManager\Listener\AutoloaderListener;
 use Zend\ModuleManager\Listener\InitTrigger;
@@ -40,7 +40,7 @@ class VmoduleManagerFactory
     public function getVmoduleManager(array $vModuleNames)
     {
         $events             = new EventManager();
-        $moduleAutoloader   = new VmoduleAutoloader($this->vModulePaths);
+        $moduleAutoloader   = new AutoloaderModule($this->vModulePaths);
         $configListener     = new ConfigListener();
 
         // High priority

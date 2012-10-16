@@ -46,7 +46,7 @@ class Module
                 'vmodule_manager_factory'   => function (ServiceManager $sm) {
                     //Register Vmodule stream wrapper
                     $storage    = new \Vivo\Storage\LocalFs(realpath(__DIR__ . '/../../vmodule'));
-                    \Vivo\Vmodule\VmoduleStreamWrapper::register($storage);
+                    \Vivo\Vmodule\StreamWrapper::register($storage);
                     $config                 = $sm->get('config');
                     $vModulePaths           = $config['vivo']['vmodule_paths'];
                     $vModuleManagerFactory  = new VmoduleManagerFactory($vModulePaths);

@@ -43,13 +43,18 @@ class Module
     {
         return array(
             'factories' => array(
-                'vmodule_manager_factory'   => function (ServiceManager $sm) {
-                    //Register Vmodule stream wrapper
+                'vmodule_storage'           => function(ServiceManager $sm) {
                     $storage    = new \Vivo\Storage\LocalFs(realpath(__DIR__ . '/../../vmodule'));
+                    return $storage;
+                },
+                'vmodule_manager_factory'   => function(ServiceManager $sm) {
+                    //Register Vmodule stream wrapper
+                    $storage                = $sm->get('vmodule_storage');
                     \Vivo\Vmodule\StreamWrapper::register($storage);
                     $config                 = $sm->get('config');
                     $vModulePaths           = $config['vivo']['vmodule_paths'];
-                    $vModuleManagerFactory  = new VmoduleManagerFactory($vModulePaths);
+                    $vModuleManagerFactory  = new VmoduleManagerFactory($vModulePaths,
+                                                                        \Vivo\Vmodule\StreamWrapper::STREAM_NAME);
                     return $vModuleManagerFactory;
                 },
             ),

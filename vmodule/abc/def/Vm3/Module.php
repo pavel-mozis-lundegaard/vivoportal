@@ -1,5 +1,5 @@
 <?php
-namespace Vm1;
+namespace Vm3;
 
 class Module
 {
@@ -11,15 +11,10 @@ class Module
     public function getAutoloaderConfig()
     {
         return array(
-            /*
-            'Vivo\Vmodule\AutoloaderClassMap' => array(
-                '/Vm1/autoload_classmap.php',
-            ),
-            */
             'Vivo\Vmodule\AutoloaderNs' => array(
                 'stream_name'   => \Vivo\Vmodule\StreamWrapper::STREAM_NAME,
                 'namespaces' => array(
-                    __NAMESPACE__ => '/' . __NAMESPACE__ . '/src/' . __NAMESPACE__,
+                    __NAMESPACE__ => '/abc/def/' . __NAMESPACE__ . '/src/' . __NAMESPACE__,
                 ),
             ),
         );

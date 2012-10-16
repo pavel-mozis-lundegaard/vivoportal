@@ -73,7 +73,10 @@ return array(
     ),
 
     'vivo'      => array(
-        //'vmodule_paths'             => array(__DIR__ . '/../../../vmodule'),
-        'vmodule_paths'             => array('/'),
+        //Vmodule paths in Vmodule Storage
+        'vmodule_paths'             => array(
+            '/',
+            '/abc/def',
+        ),
     ),
 );

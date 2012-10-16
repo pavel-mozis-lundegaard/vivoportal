@@ -32,15 +32,15 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
 
         //TODO - This is a test o Vmodule manager - proof of concept - remove
         //Vmodule names are read from Site config
-        $vModuleNames           = array('Vm1', 'Vm2');
+        $vModuleNames           = array('Vm1', 'Vm2', 'Vm3');
         $vModuleManagerFactory  = $this->event->getApplication()->getServiceManager()->get('vmodule_manager_factory');
         $vModuleManager         = $vModuleManagerFactory->getVmoduleManager($vModuleNames);
         $vModuleManager->loadModules();
 
         //Test autoloading of Vmodule classes
-        $myObj  = new \Vm1\MyObj();
-
-        die('Check');
+        $myObj1 = new \Vm1\MyObj();
+        $myObj2 = new \Vm2\MyObj();
+        $myObj3 = new \Vm3\MyObj();
 
         //Test config merge
         $config = $vModuleManager->getEvent()->getConfigListener()->getMergedConfig(false);

@@ -34,7 +34,7 @@ class StreamWrapper extends ZendViewStream
         }
         //Get the source
         $path        = str_replace(self::STREAM_NAME . '://', '', $path);
-        if (self::$storage->contains($path) && self::$storage->isObject($path)) {
+        if (self::$storage->isObject($path)) {
             $this->data   = self::$storage->get($path);
         }
         if (($this->data === false) || is_null($this->data)) {

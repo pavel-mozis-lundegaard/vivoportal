@@ -7,7 +7,7 @@ use Vivo\IO\Exception\RuntimeException;
  * @author kormik
  *
  */
-class FileOutputStream implements OutputStreamInterface {
+class FileOutputStream implements OutputStreamInterface, CloseableInterface {
 
 	/**
 	 * @var resource
@@ -18,6 +18,11 @@ class FileOutputStream implements OutputStreamInterface {
 	 * @var string
 	 */
 	private $filename;
+	
+	/**
+	 * @var boolean
+	 */
+	private $closed;
 
 	/**
 	 * @param string $path
@@ -33,10 +38,13 @@ class FileOutputStream implements OutputStreamInterface {
 
 	/**
 	 * Writes data to the stream.
-	 * @param integer $bytes
-	 * @return string
+	 * @param string $data
+	 * @return integer
 	 */
 	public function write($data) {
+		if ($this->isClosed()) {
+			throw new RuntimeException('Can not write to closed stream.');
+		}
 		return fwrite($this->fp, $data);
 	}
 
@@ -44,6 +52,16 @@ class FileOutputStream implements OutputStreamInterface {
 	 * Closes stream.
 	 */
 	public function close() {
-		fclose($this->fp);
+		if (!$this->isClosed()) {
+			fclose($this->fp);
+			$this->closed = true;
+		}
+	}
+	
+	/**
+	 * @return boolean 
+	 */
+	public function isClosed() {
+		return $this->closed;
 	}
 }

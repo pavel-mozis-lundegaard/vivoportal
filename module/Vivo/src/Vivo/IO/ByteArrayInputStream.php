@@ -36,8 +36,4 @@ class ByteArrayInputStream implements InputStreamInterface {
 		$this->position += $bytes;
 		return $data;
 	}
-	
-	public function close() {
-		//nothing to do
-	}
 }

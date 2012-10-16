@@ -12,9 +12,5 @@ interface OutputStreamInterface {
 	 * @param string $bytes
 	 */
 	public function write($data);
-	
-	/**
-	 * Closes stream. 
-	 */
-	public function close();
+
 }

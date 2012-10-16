@@ -12,9 +12,5 @@ interface InputStreamInterface {
 	 * @param integer $bytes
 	 */
 	public function read($bytes = 1);
-	
-	/**
-	 * Closes stream. 
-	 */
-	public function close();
+
 }

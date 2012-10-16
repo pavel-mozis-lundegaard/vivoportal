@@ -1,6 +1,7 @@
 <?php
 namespace Vivo\Http;
 
+use Vivo\IO\CloseableInterface;
 use Vivo\IO\InputStreamInterface;
 use Vivo\IO\FileOutputStream;
 use Vivo\IO\Util;
@@ -49,7 +50,9 @@ class StreamResponse extends PHPResponse {
 			$target = new FileOutputStream('php://output');
 			$util = new Util();
 			$util->copy($source, $target);
-			$source->close();
+			if ($source instanceof CloseableInterface) {
+				$source->close();
+			}
 			$target->close();
 			$this->contentSent = true;
 			return $this;

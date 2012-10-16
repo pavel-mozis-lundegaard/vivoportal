@@ -7,14 +7,16 @@ namespace Vivo\Storage;
 interface StorageInterface {
 
 	/**
-	 * Checks whether item exists
+	 * Checks whether item exists (either object or folder)
 	 * @param string $path to item
 	 * @return boolean TRUE if item exists otherwise FALSE
 	 */
 	public function contains($path);
 
 	/**
-	 * Checks whether item on the given path is an object.
+	 * Checks whether item on the given path is an object
+     * Returns true if the path represents an object
+     * Returns false if the path does not exist or represents a folder
 	 * @param string $path Path to the item
 	 * @return bool
 	 */

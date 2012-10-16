@@ -1,8 +1,11 @@
 <?php
 namespace Vivo\Storage;
 
+use Vivo\Storage\Exception\InvalidArgumentException;
+
 /**
  * Implementation of the virtual file system over local filesystem.
+ * @author mhajek, david.lukas
  */
 class LocalFs implements StorageInterface {
 	/**
@@ -15,12 +18,43 @@ class LocalFs implements StorageInterface {
 	 * @param string $root Root path.
 	 */
 	public function __construct($root) {
-		//@todo: check if exists, writable
+        $root       = $this->normalizePath($root);
+        //@todo: check if exists, writable
 		$this->root = $root;
 	}
 
-	private function getAbsolutePath($path) {
-		return $this->root.$path;
+    /**
+     * Converts backslashes to forward slashes and removes trailing slashes
+     * @param string $path
+     * @return string
+     */
+    protected function normalizePath($path)
+    {
+        //Convert backslashes to forward slashes
+        $path   = str_replace('\\', '/', $path);
+        //Remove trailing slash(es)
+        $path   = rtrim($path, '/');
+        return $path;
+    }
+
+    /**
+     * Returns absolute path in the file system
+     * @param string $path
+     * @throws Exception\InvalidArgumentException
+     * @return string
+     */
+    private function getAbsolutePath($path) {
+        $path   = $this->normalizePath($path);
+        if ($path) {
+            //Only paths starting with '/' (i.e. explicitly starting from the Storage root) are currently supported
+            if (substr($path, 0, 1) != '/') {
+                throw new InvalidArgumentException(sprintf('%s: Only absolute paths supported (%s).', __METHOD__, $path));
+            }
+            $absPath    = $this->root . $path;
+        } else {
+            $absPath    = $this->root;
+        }
+		return $absPath;
 	}
 
 	/**
@@ -105,14 +139,14 @@ class LocalFs implements StorageInterface {
 	 * Write a string to a file.
 	 *
 	 * @param string $path
-	 * @param mixed $variable
+	 * @param mixed $data
 	 * @throws Vivo\Storage\IOException Cannot create directory.
 	 */
-	public function set($path, $variable) {
+	public function set($path, $data) {
 		$this->mkdir($this->dirname($path));
 		$absPath = $this->getAbsolutePath($path);
 
-		$result = file_put_contents($absPath, $variable);
+		$result = file_put_contents($absPath, $data);
 		if ($result === false) {
 			$error = null;
 			$lastError = error_get_last();

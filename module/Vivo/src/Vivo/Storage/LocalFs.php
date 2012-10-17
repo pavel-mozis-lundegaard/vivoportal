@@ -23,7 +23,7 @@ class LocalFs implements StorageInterface {
 		}
 		$root = $this->normalizePath($options['root']);
 		if(!is_dir($root)) {
-			throw new Exception\InvalidArgumentException(sprintf('Path %s is not a directory', $root));
+			throw new Exception\InvalidArgumentException(sprintf('Root %s is not a directory', $root));
 		}
 		$this->root = $root;
 	}

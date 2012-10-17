@@ -21,6 +21,16 @@ class LocalFsTest extends \PHPUnit_Framework_TestCase {
 		$this->storage = new LocalFs(array('root'=>$this->temp));
 	}
 
+	public function testConstructRootNotDefined() {
+		$this->setExpectedException('Vivo\Storage\Exception\InvalidArgumentException');
+		$storage = new LocalFs(array('foo'=>$this->temp));
+	}
+
+	public function testConstructRootIsNotDirectory() {
+		$this->setExpectedException('Vivo\Storage\Exception\InvalidArgumentException');
+		$storage = new LocalFs(array('root'=>$this->temp.'/'.time()));
+	}
+
 	public function testSet() {
 		$path = '/testSet/file';
 		$file = $this->temp.$path;

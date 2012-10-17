@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\Storage;
 
+use Vivo\Storage\Exception;
+
 /**
  * Implementation of the virtual file system over local filesystem.
  */
@@ -13,14 +15,47 @@ class LocalFs implements StorageInterface {
 
 	/**
 	 * @param string $root Root path.
+	 * @throws \Vivo\Storage\Exception\InvalidArgumentException
 	 */
 	public function __construct($root) {
-		//@todo: check if exists, writable
+        $root = $this->normalizePath($root);
+        if(!is_dir($root)) {
+            throw new Exception\InvalidArgumentException(sprintf('Path %s is not a directory', $path));
+        }
 		$this->root = $root;
 	}
 
-	private function getAbsolutePath($path) {
-		return $this->root.$path;
+    /**
+     * Converts backslashes to forward slashes and removes trailing slashes
+     * @param string $path
+     * @return string
+     */
+    protected function normalizePath($path)
+    {
+        //Convert backslashes to forward slashes
+        $path   = str_replace('\\', '/', $path);
+        //Remove trailing slash(es)
+        $path   = rtrim($path, '/');
+        return $path;
+    }
+
+    /**
+     * @param string $path
+     * @throws \Vivo\Storage\Exception\InvalidArgumentException
+     * @return string
+     */
+    private function getAbsolutePath($path) {
+        $path = $this->normalizePath($path);
+        if ($path) {
+            //Only paths starting with '/' (i.e. explicitly starting from the Storage root) are currently supported
+            if (substr($path, 0, 1) != '/') {
+                throw new Exception\InvalidArgumentException(sprintf('%s: Only absolute paths supported (%s)', __METHOD__, $path));
+            }
+            $absPath = $this->root . $path;
+        } else {
+            $absPath = $this->root;
+        }
+		return $absPath;
 	}
 
 	/**
@@ -43,7 +78,6 @@ class LocalFs implements StorageInterface {
 		$absPath = $this->getAbsolutePath($path);
 		clearstatcache(true);
 		if (!is_dir($absPath)) {
-			//echo "mkdir $abs_dir_path<br>";
 			clearstatcache(true);
 			if (!@mkdir($absPath, 0777, true) && !is_dir($absPath)) {
 				$error = null;
@@ -105,14 +139,14 @@ class LocalFs implements StorageInterface {
 	 * Write a string to a file.
 	 *
 	 * @param string $path
-	 * @param mixed $variable
-	 * @throws Vivo\Storage\IOException Cannot create directory.
+	 * @param mixed $data
+	 * @throws Vivo\Storage\Exception\IOException Cannot create directory.
 	 */
-	public function set($path, $variable) {
+	public function set($path, $data) {
 		$this->mkdir($this->dirname($path));
 		$absPath = $this->getAbsolutePath($path);
 
-		$result = file_put_contents($absPath, $variable);
+		$result = file_put_contents($absPath, $data);
 		if ($result === false) {
 			$error = null;
 			$lastError = error_get_last();
@@ -181,7 +215,7 @@ class LocalFs implements StorageInterface {
 		$absPath = $this->getAbsolutePath($path);
 		if ($dir = @scandir($absPath)) {
 			foreach ($dir as $name) {
-				if ($name{0} != '.') {
+				if ($name != '.' || $name != '..') {
 					$names[] = $name;
 				}
 			}

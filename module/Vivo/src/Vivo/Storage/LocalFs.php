@@ -167,7 +167,9 @@ class LocalFs implements StorageInterface {
 	 * @param string $path The name of the file being touched.
 	 */
 	public function touch($path) {
-		touch($this->getAbsolutePath($path));
+		$absPath = $this->getAbsolutePath($path);
+		touch($absPath);
+		clearstatcache(true, $absPath);
 	}
 
 	/**

@@ -4,7 +4,7 @@ namespace VivoTest\Storage;
 use Vivo\Storage\LocalFs;
 
 /**
- * Local file system storage.
+ * Local file system storage test case.
  */
 class LocalFsTest extends \PHPUnit_Framework_TestCase {
 	/**
@@ -22,7 +22,7 @@ class LocalFsTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testSet() {
-		$path = DIRECTORY_SEPARATOR.'testSet'.DIRECTORY_SEPARATOR.'file';
+		$path = '/testSet/file';
 		$file = $this->temp.$path;
 		$data = __METHOD__;
 
@@ -35,7 +35,7 @@ class LocalFsTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testGet() {
-		$path = DIRECTORY_SEPARATOR.'testGet'.DIRECTORY_SEPARATOR.'file';
+		$path = '/testGet/file';
 		$dir = $this->temp.DIRECTORY_SEPARATOR.'testGet';
 		$file = $this->temp.$path;
 		$data = __METHOD__;
@@ -50,8 +50,8 @@ class LocalFsTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testContains() {
-		$path = DIRECTORY_SEPARATOR.'testContains';
-		$file = $path.DIRECTORY_SEPARATOR.'file';
+		$path = '/testContains';
+		$file = $path.'/file';
 
 		mkdir($this->temp.$path);
 		file_put_contents($this->temp.$file, __METHOD__);
@@ -63,8 +63,8 @@ class LocalFsTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testIsObject() {
-		$dir = DIRECTORY_SEPARATOR.'testIsObject';
-		$file = $dir.DIRECTORY_SEPARATOR.'file';
+		$dir = '/testIsObject';
+		$file = $dir.'/file';
 
 		mkdir($this->temp.$dir);
 		file_put_contents($this->temp.$file, __METHOD__);
@@ -74,6 +74,25 @@ class LocalFsTest extends \PHPUnit_Framework_TestCase {
 
 		unlink($this->temp.$file);
 		rmdir($this->temp.$dir);
+	}
+
+	public function testTouch() {
+		$path = '/testTouch';
+		$file = $this->temp.$path;
+		$sleep = 1;
+
+		file_put_contents($file, __METHOD__);
+		$mtime1 = filemtime($file);
+
+		sleep($sleep);
+
+		$this->storage->touch($path);
+		$mtime2 = filemtime($file);
+
+		$this->assertNotEquals($mtime1, $mtime2, 'File mtimes are same');
+		$this->assertEquals($mtime1 + $sleep, $mtime2);
+
+		unlink($file);
 	}
 
 }

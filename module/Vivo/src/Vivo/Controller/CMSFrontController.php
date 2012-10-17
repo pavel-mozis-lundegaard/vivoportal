@@ -29,24 +29,6 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
     public function dispatch(Request $request, Response $response = null) {
 		//TODO find document in repository and return it
 		$path = $this->event->getRouteMatch()->getParam('path');
-
-        //TODO - This is a test o Vmodule manager - proof of concept - remove
-        //Vmodule names are read from Site config
-        $vModuleNames           = array('Vm1', 'Vm2', 'Vm3');
-        $vModuleManagerFactory  = $this->event->getApplication()->getServiceManager()->get('vmodule_manager_factory');
-        $vModuleManager         = $vModuleManagerFactory->getVmoduleManager($vModuleNames);
-        $vModuleManager->loadModules();
-
-        //Test autoloading of Vmodule classes
-        $myObj1 = new \Vm1\MyObj();
-        $myObj2 = new \Vm2\MyObj();
-        $myObj3 = new \Vm3\MyObj();
-        $otherObj   = new \Vm1\NonPsr0CompliantObj();
-
-        //Test config merge
-        $config = $vModuleManager->getEvent()->getConfigListener()->getMergedConfig(false);
-        \Zend\Debug\Debug::dump($config, 'Merged config of Vmodules');
-
         $response->setContent('CMS document for path: '. $path);
 		$response->setStatusCode(HttpResponse::STATUS_CODE_200);
 		return $response;

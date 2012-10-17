@@ -87,7 +87,6 @@ return array(
             //Vmodule paths in Vmodule Storage
             'vmodule_paths'             => array(
                 '/',
-                '/abc/def',
             ),
         ),
     ),

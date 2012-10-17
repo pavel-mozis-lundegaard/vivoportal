@@ -10,6 +10,8 @@
 namespace Vivo;
 
 use Zend\Mvc\ModuleRouteListener;
+use Zend\ServiceManager\ServiceManager;
+use Vivo\Vmodule\VmoduleManagerFactory;
 
 class Module
 {
@@ -19,6 +21,15 @@ class Module
         $eventManager        = $e->getApplication()->getEventManager();
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
+
+        $sm     = $e->getApplication()->getServiceManager();
+        /* @var $sm ServiceManager */
+        $config = $sm->get('config');
+
+        //Register Vmodule stream
+        $vModuleStorage = $sm->get('vmodule_storage');
+        $streamName     = $config['vivo']['vmodules']['stream_name'];
+        \Vivo\Vmodule\StreamWrapper::register($streamName, $vModuleStorage);
     }
 
     public function getConfig()
@@ -33,6 +44,33 @@ class Module
                 'namespaces' => array(
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
                 ),
+            ),
+        );
+    }
+
+    public function getServiceConfig()
+    {
+        return array(
+            'factories' => array(
+                'storage_factory'   => function(ServiceManager $sm) {
+                    $storageFactory = new \Vivo\Storage\Factory();
+                    return $storageFactory;
+                },
+                'vmodule_storage'   => function(ServiceManager $sm) {
+                    $config         = $sm->get('config');
+                    $storageConfig  = $config['vivo']['vmodules']['storage'];
+                    $storageFactory = $sm->get('storage_factory');
+                    /* @var $storageFactory \Vivo\Storage\Factory */
+                    $storage    = $storageFactory->create($storageConfig);
+                    return $storage;
+                },
+                'vmodule_manager_factory'   => function(ServiceManager $sm) {
+                    $config                 = $sm->get('config');
+                    $vModulePaths           = $config['vivo']['vmodules']['vmodule_paths'];
+                    $vModuleStreamName      = $config['vivo']['vmodules']['stream_name'];
+                    $vModuleManagerFactory  = new VmoduleManagerFactory($vModulePaths, $vModuleStreamName);
+                    return $vModuleManagerFactory;
+                },
             ),
         );
     }

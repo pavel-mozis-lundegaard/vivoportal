@@ -18,7 +18,7 @@ class LocalFsTest extends \PHPUnit_Framework_TestCase {
 
 	protected function setUp() {
 		$this->temp = sys_get_temp_dir();
-		$this->storage = new LocalFs($this->temp);
+		$this->storage = new LocalFs(array('root'=>$this->temp));
 	}
 
 	public function testSet() {

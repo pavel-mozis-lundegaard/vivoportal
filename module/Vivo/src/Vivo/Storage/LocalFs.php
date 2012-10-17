@@ -14,7 +14,7 @@ class LocalFs implements StorageInterface {
 	private $root;
 
 	/**
-	 * @param array $options Root path.
+	 * @param array $options Options.
 	 * @throws \Vivo\Storage\Exception\InvalidArgumentException
 	 */
 	public function __construct(array $options) {
@@ -246,4 +246,21 @@ class LocalFs implements StorageInterface {
 		return $count;
 	}
 
+	/**
+	 * Returns input stream for reading resource.
+	 * @param string $path
+	 * @return \Vivo\IO\InputStreamInterface
+	 */
+	public function read($path) {
+		throw new Exception\IOException();
+	}
+
+	/**
+	 * Returns output stream for writing resource.
+	 * @param string $path
+	 * @return \Vivo\IO\OutputStreamInterface
+	 */
+	public function write($path) {
+		throw new Exception\IOException();
+	}
 }

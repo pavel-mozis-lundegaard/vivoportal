@@ -23,6 +23,7 @@ class Module
         $moduleRouteListener->attach($eventManager);
 
         $sm     = $e->getApplication()->getServiceManager();
+        /* @var $sm ServiceManager */
         $config = $sm->get('config');
 
         //Register Vmodule stream

@@ -9,7 +9,6 @@ use Traversable;
 /**
  * AutoloaderModule
  * Autoloads Vmodule Module class from Storage
- * @author david.lukas
  */
 class AutoloaderModule extends ModuleAutoloader
 {

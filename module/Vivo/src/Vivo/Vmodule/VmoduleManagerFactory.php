@@ -4,11 +4,12 @@ namespace Vivo\Vmodule;
 use Zend\EventManager\EventManager;
 use Zend\ModuleManager\ModuleEvent;
 use Zend\ModuleManager\ModuleManager;
-use Vivo\Vmodule\AutoloaderModule;
 use Zend\ModuleManager\Listener\ModuleResolverListener;
 use Zend\ModuleManager\Listener\AutoloaderListener;
 use Zend\ModuleManager\Listener\InitTrigger;
 use Zend\ModuleManager\Listener\ConfigListener;
+
+use Vivo\Vmodule\Exception;
 
 /**
  * VmoduleManagerFactory
@@ -33,9 +34,13 @@ class VmoduleManagerFactory
      * Constructor
      * @param array $vModulePaths Absolute path in Storage
      * @param string $vModuleStreamName
+     * @throws Exception\InvalidArgumentException
      */
     public function __construct(array $vModulePaths, $vModuleStreamName)
     {
+        if (!$vModuleStreamName) {
+            throw new Exception\InvalidArgumentException(sprintf('%s: Vmodule stream name not set', __METHOD__));
+        }
         $this->vModulePaths         = $vModulePaths;
         $this->vModuleStreamName    = $vModuleStreamName;
     }

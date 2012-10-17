@@ -27,7 +27,8 @@ class Module
 
         //Register Vmodule stream
         $vModuleStorage = $sm->get('vmodule_storage');
-        \Vivo\Vmodule\StreamWrapper::register($vModuleStorage);
+        $streamName     = $config['vivo']['vmodules']['stream_name'];
+        \Vivo\Vmodule\StreamWrapper::register($streamName, $vModuleStorage);
     }
 
     public function getConfig()
@@ -50,19 +51,23 @@ class Module
     {
         return array(
             'factories' => array(
-                'vmodule_storage'           => function(ServiceManager $sm) {
-                    $config     = $sm->get('config');
-                    $class      = $confg['vivo']['vmodule']['']
-
-                    $storage    = new );
+                'storage_factory'   => function(ServiceManager $sm) {
+                    $storageFactory = new \Vivo\Storage\Factory();
+                    return $storageFactory;
+                },
+                'vmodule_storage'   => function(ServiceManager $sm) {
+                    $config         = $sm->get('config');
+                    $storageConfig  = $config['vivo']['vmodules']['storage'];
+                    $storageFactory = $sm->get('storage_factory');
+                    /* @var $storageFactory \Vivo\Storage\Factory */
+                    $storage    = $storageFactory->create($storageConfig);
                     return $storage;
                 },
                 'vmodule_manager_factory'   => function(ServiceManager $sm) {
-                    //Register Vmodule stream wrapper
                     $config                 = $sm->get('config');
-                    $vModulePaths           = $config['vivo']['vmodule_paths'];
-                    $vModuleManagerFactory  = new VmoduleManagerFactory($vModulePaths,
-                                                                        \Vivo\Vmodule\StreamWrapper::STREAM_NAME);
+                    $vModulePaths           = $config['vivo']['vmodules']['vmodule_paths'];
+                    $vModuleStreamName      = $config['vivo']['vmodules']['stream_name'];
+                    $vModuleManagerFactory  = new VmoduleManagerFactory($vModulePaths, $vModuleStreamName);
                     return $vModuleManagerFactory;
                 },
             ),

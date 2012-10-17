@@ -12,10 +12,10 @@ use Vivo\Vmodule\Exception\StreamException;
 class StreamWrapper extends ZendViewStream
 {
     /**
-     * Name of the stream (protocol)
+     * Name of the stream (protocol) for Vmodule source access
      * @var string
      */
-    const STREAM_NAME   = 'vmodule';
+    protected static $streamName;
 
     /**
      * Storage with Vmodules
@@ -28,11 +28,8 @@ class StreamWrapper extends ZendViewStream
      */
     public function stream_open($path, $mode, $options, &$opened_path)
     {
-        if (!self::$storage) {
-            throw new StreamException(sprintf('%s: A Storage must be set.', __METHOD__));
-        }
         //Get the source
-        $path        = str_replace(self::STREAM_NAME . '://', '', $path);
+        $path        = str_replace(self::$streamName . '://', '', $path);
         if (self::$storage->isObject($path)) {
             $this->data   = self::$storage->get($path);
         }
@@ -42,6 +39,7 @@ class StreamWrapper extends ZendViewStream
         }
         //Update stat info
         $fileSize   = strlen($this->data);
+        //TODO - other stat info?
         $this->stat = array(
             7   => $fileSize,
             'size'  => $fileSize,
@@ -51,26 +49,20 @@ class StreamWrapper extends ZendViewStream
 
     /**
      * Registers this stream wrapper
-     * @param \Vivo\Storage\StorageInterface|null $storage
+     * @param string $streamName Name of the stream (protocol) used to access the Vmodule source
+     * @param \Vivo\Storage\StorageInterface $storage
      * @throws Exception\StreamException
      * @return void
      */
-    public static function register(StorageInterface $storage = null)
+    public static function register($streamName, StorageInterface $storage)
     {
-        if ($storage) {
-            self::setStorage($storage);
+        if (!$streamName) {
+            throw new StreamException(sprintf("%s: Stream name not set", __METHOD__));
         }
-        if (!stream_wrapper_register(self::STREAM_NAME, __CLASS__)) {
-            throw new StreamException(sprintf("%s: Registration of stream '%s' failed.", __METHOD__, self::STREAM_NAME));
+        self::$streamName   = $streamName;
+        self::$storage      = $storage;
+        if (!stream_wrapper_register($streamName, __CLASS__)) {
+            throw new StreamException(sprintf("%s: Registration of stream '%s' failed.", __METHOD__, $streamName));
         }
-    }
-
-    /**
-     * Statically sets storage to use for Vmodules
-     * @param \Vivo\Storage\StorageInterface $storage
-     */
-    public static function setStorage(StorageInterface $storage)
-    {
-        self::$storage  = $storage;
     }
 }

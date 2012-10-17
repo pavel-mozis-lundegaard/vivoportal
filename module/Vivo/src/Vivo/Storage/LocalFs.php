@@ -74,8 +74,8 @@ class LocalFs implements StorageInterface {
 
 	/**
 	 * Creates dir recursive.
-	 * @param string $dir
-	 * @throws Vivo\Storage\IOException Cannot create directory.
+	 * @param string $path
+	 * @throws Exception\IOException Cannot create directory.
 	 */
 	private function mkdir($path) {
 		$absPath = $this->getAbsolutePath($path);
@@ -99,8 +99,8 @@ class LocalFs implements StorageInterface {
 	 * Checks whether a file or directory exists.
 	 *
 	 * @param string $path Path to the file.
-	 * @param bool
-	 */
+     * @return bool
+     */
 	public function contains($path) {
 		$absPath = $this->getAbsolutePath($path);
 		return file_exists($absPath);
@@ -143,7 +143,7 @@ class LocalFs implements StorageInterface {
 	 *
 	 * @param string $path
 	 * @param mixed $data
-	 * @throws Vivo\Storage\Exception\IOException Cannot create directory.
+	 * @throws Exception\IOException Cannot create directory.
 	 */
 	public function set($path, $data) {
 		$this->mkdir($this->dirname($path));
@@ -246,20 +246,20 @@ class LocalFs implements StorageInterface {
 		return $count;
 	}
 
-	/**
-	 * Returns input stream for reading resource.
-	 * @param string $path
-	 * @return \Vivo\IO\InputStreamInterface
-	 */
+    /**
+     * Returns input stream for reading resource.
+     * @param string $path
+     * @return \Vivo\IO\InputStreamInterface
+     */
 	public function read($path) {
 		throw new Exception\IOException();
 	}
 
-	/**
-	 * Returns output stream for writing resource.
-	 * @param string $path
-	 * @return \Vivo\IO\OutputStreamInterface
-	 */
+    /**
+     * Returns output stream for writing resource.
+     * @param string $path
+     * @return \Vivo\IO\OutputStreamInterface
+     */
 	public function write($path) {
 		throw new Exception\IOException();
 	}

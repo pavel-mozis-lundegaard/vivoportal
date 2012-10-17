@@ -220,7 +220,7 @@ class LocalFs implements StorageInterface {
 		$absPath = $this->getAbsolutePath($path);
 		if ($dir = @scandir($absPath)) {
 			foreach ($dir as $name) {
-				if ($name != '.' || $name != '..') {
+				if ($name != '.' && $name != '..') {
 					$names[] = $name;
 				}
 			}

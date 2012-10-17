@@ -41,6 +41,7 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
         $myObj1 = new \Vm1\MyObj();
         $myObj2 = new \Vm2\MyObj();
         $myObj3 = new \Vm3\MyObj();
+        $otherObj   = new \Vm1\NonPsr0CompliantObj();
 
         //Test config merge
         $config = $vModuleManager->getEvent()->getConfigListener()->getMergedConfig(false);

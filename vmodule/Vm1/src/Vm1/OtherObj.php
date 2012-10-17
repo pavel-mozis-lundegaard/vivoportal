@@ -4,7 +4,7 @@ namespace Vm1;
 /**
  * Dummy class
  */
-class OtherObj
+class NonPsr0CompliantObj
 {
 
 }

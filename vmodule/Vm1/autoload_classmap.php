@@ -1,4 +1,4 @@
 <?php
 return array(
-    'Vm1\OtherObj' => '/Vm1/src/Vm1/OtherObj.php',
+    'Vm1\NonPsr0CompliantObj' => __DIR__ . '/src/Vm1/OtherObj.php',
 );

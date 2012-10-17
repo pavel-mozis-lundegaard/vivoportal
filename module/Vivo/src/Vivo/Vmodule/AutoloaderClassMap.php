@@ -2,68 +2,36 @@
 namespace Vivo\Vmodule;
 
 use Zend\Loader\ClassMapAutoloader;
+use Vivo\Vmodule\Exception\StreamException;
 
 /**
  * AutoloaderClassMap
+ * Autoloads Vmodule classes from Storage using registered class name -> path pairs
  * @author david.lukas
  */
 class AutoloaderClassMap extends ClassMapAutoloader
 {
     /**
-     * Config option
-     * @var string
+     * Load a map from a file
+     * If the map has been previously loaded, returns the current instance;
+     * otherwise, returns whatever was returned by calling include() on the
+     * location.
+     * @param  string $location
+     * @throws Exception\StreamException
+     * @return ClassMapAutoloader|mixed
      */
-    const STREAM_NAME   = 'stream_name';
-
-    /**
-     * Stream name (protocol) registered for Vmodule source access
-     * @var string
-     */
-    protected $streamName;
-
-    /**
-     * Autoload
-     * @param  string $class
-     * @return void
-     */
-    public function autoload($class)
+    protected function loadMapFromFile($location)
     {
-        if (isset($this->map[$class])) {
-            $fileUrl        = $this->streamName . '://' . $this->map[$class];
-            return include $fileUrl;
+        //TODO - Phar support?
+        $path   = $location;
+        if (in_array($path, $this->mapsLoaded)) {
+            // Already loaded this map
+            return $this;
         }
-    }
-
-    /**
-     * Configure autoloader
-     * Specify "namespaces" and "stream_name" keys
-     * @param array|\Traversable $options
-     * @return AutoloaderNs
-     */
-    public function setOptions($options)
-    {
-        parent::setOptions($options);
-        foreach ($options as $key => $value) {
-            switch ($key) {
-                case self::STREAM_NAME:
-                    if ($value) {
-                        $this->setStreamName($value);
-                    }
-                    break;
-                default:
-                    // ignore
-                    break;
-            }
+        $map = include $path;
+        if ($map === false) {
+            throw new StreamException(sprintf("%s: Loading class map from path '%s' failed.", __METHOD__, $path));
         }
-        return $this;
-    }
-
-    /**
-     * Sets stream name to use for Vmodule source access
-     * @param string $streamName
-     */
-    public function setStreamName($streamName)
-    {
-        $this->streamName   = $streamName;
+        return $map;
     }
 }

@@ -8,7 +8,6 @@ use Vivo\Vmodule\Exception\StreamException;
 /**
  * Stream wrapper to read Vmodule source files from storage
  * Based on Zend\View\Stream
- * @author david.lukas
  */
 class StreamWrapper extends ZendViewStream
 {

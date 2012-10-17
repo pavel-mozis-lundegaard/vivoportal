@@ -21,6 +21,13 @@ class Module
         $eventManager        = $e->getApplication()->getEventManager();
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
+
+        $sm     = $e->getApplication()->getServiceManager();
+        $config = $sm->get('config');
+
+        //Register Vmodule stream
+        $vModuleStorage = $sm->get('vmodule_storage');
+        \Vivo\Vmodule\StreamWrapper::register($vModuleStorage);
     }
 
     public function getConfig()
@@ -44,13 +51,14 @@ class Module
         return array(
             'factories' => array(
                 'vmodule_storage'           => function(ServiceManager $sm) {
-                    $storage    = new \Vivo\Storage\LocalFs(realpath(__DIR__ . '/../../vmodule'));
+                    $config     = $sm->get('config');
+                    $class      = $confg['vivo']['vmodule']['']
+
+                    $storage    = new );
                     return $storage;
                 },
                 'vmodule_manager_factory'   => function(ServiceManager $sm) {
                     //Register Vmodule stream wrapper
-                    $storage                = $sm->get('vmodule_storage');
-                    \Vivo\Vmodule\StreamWrapper::register($storage);
                     $config                 = $sm->get('config');
                     $vModulePaths           = $config['vivo']['vmodule_paths'];
                     $vModuleManagerFactory  = new VmoduleManagerFactory($vModulePaths,

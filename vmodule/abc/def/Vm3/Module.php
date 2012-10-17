@@ -12,9 +12,8 @@ class Module
     {
         return array(
             'Vivo\Vmodule\AutoloaderNs' => array(
-                'stream_name'   => \Vivo\Vmodule\StreamWrapper::STREAM_NAME,
                 'namespaces' => array(
-                    __NAMESPACE__ => '/abc/def/' . __NAMESPACE__ . '/src/' . __NAMESPACE__,
+                    __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
                 ),
             ),
         );

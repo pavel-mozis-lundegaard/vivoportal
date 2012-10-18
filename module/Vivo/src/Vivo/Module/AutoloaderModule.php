@@ -1,9 +1,9 @@
 <?php
-namespace Vivo\Vmodule;
+namespace Vivo\Module;
 
 use Zend\Loader\ModuleAutoloader;
-use Vivo\Vmodule\StreamWrapper;
-use Vivo\Vmodule\Exception\StreamException;
+use Vivo\Module\StreamWrapper;
+use Vivo\Module\Exception\StreamException;
 use Traversable;
 
 /**

@@ -1,7 +1,7 @@
 <?php
 namespace VivoTest\Vmodule;
 
-use Vivo\Vmodule\StreamWrapper;
+use Vivo\Module\StreamWrapper;
 use Vivo\Storage\StorageInterface;
 
 /**
@@ -21,7 +21,7 @@ class StreamWrapperTest extends \PHPUnit_Framework_TestCase
 
     public function testRegisterExceptionStreamNameEmpty()
     {
-        $this->setExpectedException('\Vivo\Vmodule\Exception\StreamException');
+        $this->setExpectedException('\Vivo\Module\Exception\StreamException');
         StreamWrapper::register('', $this->storage);
     }
 }

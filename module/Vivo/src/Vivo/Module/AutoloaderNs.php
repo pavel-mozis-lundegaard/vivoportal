@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Vmodule;
+namespace Vivo\Module;
 
 use Zend\Loader\StandardAutoloader;
 use Zend\Loader\Exception\InvalidArgumentException;

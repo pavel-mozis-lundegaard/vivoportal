@@ -74,7 +74,7 @@ return array(
 
     'vivo'      => array(
         //Vmodules configuration
-        'vmodules'  => array(
+        'modules'  => array(
             //Storage config
             'storage'   => array(
                 'class'     => '\Vivo\Storage\LocalFs',
@@ -85,7 +85,7 @@ return array(
             //Name of stream (protocol) which will be registered for Vmodule source file access in Storage
             'stream_name'   => 'vmodule',
             //Vmodule paths in Vmodule Storage
-            'vmodule_paths'             => array(
+            'module_paths'             => array(
                 '/',
             ),
         ),

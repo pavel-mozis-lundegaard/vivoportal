@@ -1,12 +1,12 @@
 <?php
-namespace Vivo\Vmodule;
+namespace Vivo\Module;
 
 use Zend\View\Stream as ZendViewStream;
 use Vivo\Storage\StorageInterface;
-use Vivo\Vmodule\Exception\StreamException;
+use Vivo\Module\Exception\StreamException;
 
 /**
- * Stream wrapper to read Vmodule source files from storage
+ * Stream wrapper to read module source files from storage
  * Based on Zend\View\Stream
  */
 class StreamWrapper extends ZendViewStream

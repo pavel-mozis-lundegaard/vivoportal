@@ -2,6 +2,7 @@
 namespace Vivo\Storage;
 
 use Vivo\Storage\Exception;
+use Vivo\IO;
 
 /**
  * Implementation of the virtual file system over local filesystem.
@@ -127,20 +128,21 @@ class LocalFs implements StorageInterface {
 	/**
 	 * Reads entire file into a string.
 	 * @param string $path
+	 * @throws \Vivo\Storage\Exception\IOException File not exists.
 	 * @return string
 	 */
 	public function get($path) {
-		$return = null;
-		if ($this->contains($path)) {
+		if ($this->isObject($path)) {
 			$absPath = $this->getAbsolutePath($path);
-			$return = @file_get_contents($absPath);
+			return file_get_contents($absPath);
 		}
-		return $return;
+		else {
+			throw new Exception\IOException('File not exists');
+		}
 	}
 
 	/**
 	 * Write a string to a file.
-	 *
 	 * @param string $path
 	 * @param mixed $data
 	 * @throws Vivo\Storage\Exception\IOException Cannot create directory.
@@ -256,7 +258,7 @@ class LocalFs implements StorageInterface {
 	 * @return \Vivo\IO\InputStreamInterface
 	 */
 	public function read($path) {
-		throw new Exception\IOException();
+		return new IO\FileInputStream($this->getAbsolutePath($path));
 	}
 
 	/**
@@ -265,6 +267,6 @@ class LocalFs implements StorageInterface {
 	 * @return \Vivo\IO\OutputStreamInterface
 	 */
 	public function write($path) {
-		throw new Exception\IOException();
+		return new IO\FileOutputStream($this->getAbsolutePath($path));
 	}
 }

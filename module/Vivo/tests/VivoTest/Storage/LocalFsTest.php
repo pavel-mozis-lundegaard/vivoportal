@@ -59,6 +59,11 @@ class LocalFsTest extends \PHPUnit_Framework_TestCase {
 		rmdir($dir);
 	}
 
+	public function testGetFileNotFound() {
+		$this->setExpectedException('Vivo\Storage\Exception\IOException');
+		$this->storage->get('/FileNotFoundPath/file');
+	}
+
 	public function testContains() {
 		$path = '/testContains';
 		$file = $path.'/file';

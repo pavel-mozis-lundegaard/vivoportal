@@ -1,13 +1,13 @@
 <?php
 namespace Vivo\Storage;
 
-use Vivo\Storage\Exception\InvalidArgumentException;
+use Vivo\Storage\Exception;
+use Vivo\IO;
 
 /**
  * Implementation of the virtual file system over local filesystem.
- * @author mhajek, david.lukas
  */
-class LocalFs implements StorageInterface {
+class LocalFileSystemStorage implements StorageInterface {
 	/**
 	 * Root path.
 	 * @var string $root
@@ -15,11 +15,17 @@ class LocalFs implements StorageInterface {
 	private $root;
 
 	/**
-	 * @param string $root Root path.
+	 * @param array $options Options.
+	 * @throws \Vivo\Storage\Exception\InvalidArgumentException
 	 */
-	public function __construct($root) {
-        $root       = $this->normalizePath($root);
-        //@todo: check if exists, writable
+	public function __construct(array $options) {
+		if(!isset($options['root'])) {
+			throw new Exception\InvalidArgumentException('Root is not defined');
+		}
+		$root = $this->normalizePath($options['root']);
+		if(!is_dir($root)) {
+			throw new Exception\InvalidArgumentException(sprintf('Root %s is not a directory', $root));
+		}
 		$this->root = $root;
 	}
 
@@ -38,21 +44,20 @@ class LocalFs implements StorageInterface {
     }
 
     /**
-     * Returns absolute path in the file system
      * @param string $path
-     * @throws Exception\InvalidArgumentException
+     * @throws \Vivo\Storage\Exception\InvalidArgumentException
      * @return string
      */
     private function getAbsolutePath($path) {
-        $path   = $this->normalizePath($path);
+        $path = $this->normalizePath($path);
         if ($path) {
             //Only paths starting with '/' (i.e. explicitly starting from the Storage root) are currently supported
             if (substr($path, 0, 1) != '/') {
-                throw new InvalidArgumentException(sprintf('%s: Only absolute paths supported (%s).', __METHOD__, $path));
+                throw new Exception\InvalidArgumentException(sprintf('%s: Only absolute paths supported (%s)', __METHOD__, $path));
             }
-            $absPath    = $this->root . $path;
+            $absPath = $this->root . $path;
         } else {
-            $absPath    = $this->root;
+            $absPath = $this->root;
         }
 		return $absPath;
 	}
@@ -70,14 +75,13 @@ class LocalFs implements StorageInterface {
 
 	/**
 	 * Creates dir recursive.
-	 * @param string $dir
-	 * @throws Vivo\Storage\IOException Cannot create directory.
+	 * @param string $path
+	 * @throws Exception\IOException Cannot create directory.
 	 */
 	private function mkdir($path) {
 		$absPath = $this->getAbsolutePath($path);
 		clearstatcache(true);
 		if (!is_dir($absPath)) {
-			//echo "mkdir $abs_dir_path<br>";
 			clearstatcache(true);
 			if (!@mkdir($absPath, 0777, true) && !is_dir($absPath)) {
 				$error = null;
@@ -96,8 +100,8 @@ class LocalFs implements StorageInterface {
 	 * Checks whether a file or directory exists.
 	 *
 	 * @param string $path Path to the file.
-	 * @param bool
-	 */
+     * @return bool
+     */
 	public function contains($path) {
 		$absPath = $this->getAbsolutePath($path);
 		return file_exists($absPath);
@@ -124,23 +128,24 @@ class LocalFs implements StorageInterface {
 	/**
 	 * Reads entire file into a string.
 	 * @param string $path
+	 * @throws \Vivo\Storage\Exception\IOException File not exists.
 	 * @return string
 	 */
 	public function get($path) {
-		$return = null;
-		if ($this->contains($path)) {
+		if ($this->isObject($path)) {
 			$absPath = $this->getAbsolutePath($path);
-			$return = @file_get_contents($absPath);
+			return file_get_contents($absPath);
 		}
-		return $return;
+		else {
+			throw new Exception\IOException('File not exists');
+		}
 	}
 
 	/**
 	 * Write a string to a file.
-	 *
 	 * @param string $path
 	 * @param mixed $data
-	 * @throws Vivo\Storage\IOException Cannot create directory.
+	 * @throws Exception\IOException Cannot create directory.
 	 */
 	public function set($path, $data) {
 		$this->mkdir($this->dirname($path));
@@ -164,7 +169,9 @@ class LocalFs implements StorageInterface {
 	 * @param string $path The name of the file being touched.
 	 */
 	public function touch($path) {
-		touch($this->getAbsolutePath($path));
+		$absPath = $this->getAbsolutePath($path);
+		touch($absPath);
+		clearstatcache(true, $absPath);
 	}
 
 	/**
@@ -191,14 +198,16 @@ class LocalFs implements StorageInterface {
 	 * Copy.
 	 * @param string $path Source path.
 	 * @param string $target Destination path.
+	 * @return int
 	 */
 	public function copy($path, $target) {
 		$count = 0;
 		$this->mkdir($target);
 		if (is_dir($this->getAbsolutePath($path))) {
-			@mkdir($this->getAbsolutePath($target));
-			foreach ($this->scan($path) as $name)
-				$count +=  $this->copy("$path/$name", "$target/$name");
+			$this->mkdir($this->getAbsolutePath($target));
+			foreach ($this->scan($path) as $name) {
+				$count += $this->copy("$path/$name", "$target/$name");
+			}
 		} else {
 			$count += copy($this->getAbsolutePath($path), $this->getAbsolutePath($target));
 		}
@@ -215,7 +224,7 @@ class LocalFs implements StorageInterface {
 		$absPath = $this->getAbsolutePath($path);
 		if ($dir = @scandir($absPath)) {
 			foreach ($dir as $name) {
-				if ($name{0} != '.') {
+				if ($name != '.' && $name != '..') {
 					$names[] = $name;
 				}
 			}
@@ -243,4 +252,21 @@ class LocalFs implements StorageInterface {
 		return $count;
 	}
 
+    /**
+     * Returns input stream for reading resource.
+     * @param string $path
+     * @return \Vivo\IO\InputStreamInterface
+     */
+	public function read($path) {
+		return new IO\FileInputStream($this->getAbsolutePath($path));
+	}
+
+    /**
+     * Returns output stream for writing resource.
+     * @param string $path
+     * @return \Vivo\IO\OutputStreamInterface
+     */
+	public function write($path) {
+		return new IO\FileOutputStream($this->getAbsolutePath($path));
+	}
 }

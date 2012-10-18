@@ -1,9 +1,8 @@
 <?php
-namespace Vivo\Vmodule\Exception;
+namespace Vivo\Module\Exception;
 
 /**
  * StreamException
- * @author david.lukas
  */
 class StreamException extends \Exception implements ExceptionInterface
 {

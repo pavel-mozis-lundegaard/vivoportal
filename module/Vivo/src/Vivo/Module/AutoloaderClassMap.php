@@ -1,8 +1,8 @@
 <?php
-namespace Vivo\Vmodule;
+namespace Vivo\Module;
 
 use Zend\Loader\ClassMapAutoloader;
-use Vivo\Vmodule\Exception\StreamException;
+use Vivo\Module\Exception\StreamException;
 
 /**
  * AutoloaderClassMap

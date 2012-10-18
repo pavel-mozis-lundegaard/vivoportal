@@ -1,34 +1,34 @@
 <?php
 namespace VivoTest\Storage;
 
-use Vivo\Storage\LocalFs;
+use Vivo\Storage\LocalFileSystemStorage;
 
 /**
  * Local file system storage test case.
  */
-class LocalFsTest extends \PHPUnit_Framework_TestCase {
+class LocalFileSystemStorageTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @var string
 	 */
 	private $temp;
 	/**
-	 * @var Vivo\Storage\LocalFs
+	 * @var Vivo\Storage\LocalFileSystemStorage
 	 */
 	private $storage;
 
 	protected function setUp() {
 		$this->temp = sys_get_temp_dir();
-		$this->storage = new LocalFs(array('root'=>$this->temp));
+		$this->storage = new LocalFileSystemStorage(array('root'=>$this->temp));
 	}
 
 	public function testConstructRootNotDefined() {
 		$this->setExpectedException('Vivo\Storage\Exception\InvalidArgumentException');
-		$storage = new LocalFs(array('foo'=>$this->temp));
+		$storage = new LocalFileSystemStorage(array('foo'=>$this->temp));
 	}
 
 	public function testConstructRootIsNotDirectory() {
 		$this->setExpectedException('Vivo\Storage\Exception\InvalidArgumentException');
-		$storage = new LocalFs(array('root'=>$this->temp.'/'.time()));
+		$storage = new LocalFileSystemStorage(array('root'=>$this->temp.'/'.time()));
 	}
 
 	public function testSet() {
@@ -161,5 +161,16 @@ class LocalFsTest extends \PHPUnit_Framework_TestCase {
 		rmdir($dir);
 	}
 
+	public function testCopy() {
+
 	}
+
+	public function testScan() {
+
+	}
+
+	public function testRemove() {
+
+	}
+
 }

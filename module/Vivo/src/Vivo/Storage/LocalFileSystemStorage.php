@@ -7,7 +7,7 @@ use Vivo\IO;
 /**
  * Implementation of the virtual file system over local filesystem.
  */
-class LocalFs implements StorageInterface {
+class LocalFileSystemStorage implements StorageInterface {
 	/**
 	 * Root path.
 	 * @var string $root

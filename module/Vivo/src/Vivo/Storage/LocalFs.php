@@ -196,14 +196,16 @@ class LocalFs implements StorageInterface {
 	 * Copy.
 	 * @param string $path Source path.
 	 * @param string $target Destination path.
+	 * @return int
 	 */
 	public function copy($path, $target) {
 		$count = 0;
 		$this->mkdir($target);
 		if (is_dir($this->getAbsolutePath($path))) {
-			@mkdir($this->getAbsolutePath($target));
-			foreach ($this->scan($path) as $name)
-				$count +=  $this->copy("$path/$name", "$target/$name");
+			$this->mkdir($this->getAbsolutePath($target));
+			foreach ($this->scan($path) as $name) {
+				$count += $this->copy("$path/$name", "$target/$name");
+			}
 		} else {
 			$count += copy($this->getAbsolutePath($path), $this->getAbsolutePath($target));
 		}

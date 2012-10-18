@@ -86,6 +86,20 @@ class LocalFsTest extends \PHPUnit_Framework_TestCase {
 		rmdir($this->temp.$dir);
 	}
 
+	public function testMtime() {
+		$path = '/testMtime';
+		$file = $this->temp.$path;
+
+		file_put_contents($file, __METHOD__);
+
+		$mtime1 = filemtime($file);
+		$mtime2 = $this->storage->mtime($path);
+
+		$this->assertSame($mtime1, $mtime2);
+
+		unlink($file);
+	}
+
 	public function testTouch() {
 		$path = '/testTouch';
 		$file = $this->temp.$path;
@@ -105,4 +119,42 @@ class LocalFsTest extends \PHPUnit_Framework_TestCase {
 		unlink($file);
 	}
 
+	/**
+	 * Move.
+	 *
+	 * /testMove/dir1/dir2/file2
+	 * /testMove/dir1/file1
+	 * /testMove/dir3
+	 *
+	 * /testMove/dir1 move to /testMove/dir3
+	 *
+	 * /testMove/dir3/dir2/file2
+	 * /testMove/dir3/file1
+	 */
+	public function testMove() {
+		$dir = $this->temp.'/testMove';
+
+		mkdir($dir);
+		mkdir($dir.'/dir1');
+		mkdir($dir.'/dir1/dir2');
+		mkdir($dir.'/dir3');
+		file_put_contents($dir.'/dir1/dir2/file2', __METHOD__);
+		file_put_contents($dir.'/dir1/file1', __METHOD__);
+
+		$success = $this->storage->move('/testMove/dir1', '/testMove/dir3');
+
+		$this->assertTrue($success, 'Move returns FALSE');
+
+		$this->assertTrue(is_dir($dir.'/dir3/dir2'));
+		$this->assertTrue(is_file($dir.'/dir3/file1'));
+		$this->assertFalse(is_dir($dir.'/dir3/dir2/file2'));
+
+		unlink($dir.'/dir3/dir2/file2');
+		unlink($dir.'/dir3/file1');
+		rmdir($dir.'/dir3/dir2');
+		rmdir($dir.'/dir3');
+		rmdir($dir);
+	}
+
+	}
 }

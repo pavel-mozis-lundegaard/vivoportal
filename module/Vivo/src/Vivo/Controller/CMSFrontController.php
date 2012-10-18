@@ -7,8 +7,11 @@ use Zend\Stdlib\DispatchableInterface;
 use Zend\Stdlib\RequestInterface as Request;
 use Zend\Stdlib\ResponseInterface as Response;
 use Zend\Http\Response as HttpResponse;
-
 use Zend\EventManager\EventManagerInterface;
+
+use Vivo\Site\Site;
+use Vivo\Site\Event\SiteEvent;
+use Zend\EventManager\EventManager;
 
 /**
  * The front controller which is responsible for dispatching all requests for documents and files in CMS repository.

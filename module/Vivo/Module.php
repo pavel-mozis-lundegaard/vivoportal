@@ -22,6 +22,10 @@ class Module
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
 
+        //Attach a listener to set up the Site object
+        $createSiteListener = new \Vivo\Site\Listener\CreateSiteListener();
+        $createSiteListener->attach($eventManager);
+
         $sm     = $e->getApplication()->getServiceManager();
         /* @var $sm ServiceManager */
         $config = $sm->get('config');

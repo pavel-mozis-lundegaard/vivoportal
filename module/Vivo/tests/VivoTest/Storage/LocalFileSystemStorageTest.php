@@ -21,13 +21,17 @@ class LocalFileSystemStorageTest extends \PHPUnit_Framework_TestCase {
 		$this->storage = new LocalFileSystemStorage(array('root'=>$this->temp));
 	}
 
+	/**
+	 * @expectedException \Vivo\Storage\Exception\InvalidArgumentException
+	 */
 	public function testConstructRootNotDefined() {
-		$this->setExpectedException('Vivo\Storage\Exception\InvalidArgumentException');
 		$storage = new LocalFileSystemStorage(array('foo'=>$this->temp));
 	}
 
+	/**
+	 * @expectedException \Vivo\Storage\Exception\InvalidArgumentException
+	 */
 	public function testConstructRootIsNotDirectory() {
-		$this->setExpectedException('Vivo\Storage\Exception\InvalidArgumentException');
 		$storage = new LocalFileSystemStorage(array('root'=>$this->temp.'/'.time()));
 	}
 
@@ -59,8 +63,10 @@ class LocalFileSystemStorageTest extends \PHPUnit_Framework_TestCase {
 		rmdir($dir);
 	}
 
+	/**
+	 * @expectedException \Vivo\Storage\Exception\IOException
+	 */
 	public function testGetFileNotFound() {
-		$this->setExpectedException('Vivo\Storage\Exception\IOException');
 		$this->storage->get('/FileNotFoundPath/file');
 	}
 
@@ -171,6 +177,15 @@ class LocalFileSystemStorageTest extends \PHPUnit_Framework_TestCase {
 
 	public function testRemove() {
 
+	}
+
+	/**
+	 * Only absolute paths supported test.
+	 *
+	 * @expectedException \Vivo\Storage\Exception\InvalidArgumentException
+	 */
+	public function testReadAbsolutePathsSupported() {
+		$this->storage->read(sprintf('temp_%s', time()));
 	}
 
 }

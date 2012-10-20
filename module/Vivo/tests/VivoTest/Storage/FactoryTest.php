@@ -38,7 +38,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateLocalFs()
     {
-        $class  = '\Vivo\Storage\LocalFs';
+        $class  = '\Vivo\Storage\LocalFileSystemStorage';
         $config = array(
             'class'     => $class,
             'options'   => array('root' => __DIR__),

@@ -6,6 +6,7 @@ use Zend\EventManager\ListenerAggregateInterface;
 use Zend\Mvc\MvcEvent;
 use Vivo\Site\Event\SiteEventInterface;
 use Vivo\Site\Resolver\ResolverInterface;
+use Vivo\Module\ModuleManagerFactory;
 
 /**
  * CreateSiteListener
@@ -28,12 +29,20 @@ class CreateSiteListener implements ListenerAggregateInterface
     protected $resolver;
 
     /**
+     * Module manager factory
+     * @var ModuleManagerFactory
+     */
+    protected $moduleManagerFactory;
+
+    /**
      * Constructor
      * @param \Vivo\Site\Resolver\ResolverInterface $resolver Site alias resolver
+     * @param \Vivo\Module\ModuleManagerFactory $moduleManagerFactory
      */
-    public function __construct(ResolverInterface $resolver)
+    public function __construct(ResolverInterface $resolver, ModuleManagerFactory $moduleManagerFactory)
     {
-        $this->resolver = $resolver;
+        $this->resolver             = $resolver;
+        $this->moduleManagerFactory = $moduleManagerFactory;
     }
 
     /**
@@ -78,7 +87,7 @@ class CreateSiteListener implements ListenerAggregateInterface
         $configListener     = new SiteConfigListener();
         $configListener->attach($siteEvents);
         //Attach Load modules listener
-        $loadModulesListener    = new LoadModulesListener();
+        $loadModulesListener    = new LoadModulesListener($this->moduleManagerFactory);
         $loadModulesListener->attach($siteEvents);
         //Create Site
         $site       = new \Vivo\Site\Site($siteEvents, $siteEvent);

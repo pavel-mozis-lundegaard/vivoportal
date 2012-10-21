@@ -27,8 +27,9 @@ class Module
         $config = $sm->get('config');
 
         //Attach a listener to set up the Site object
-        $resolver           = $sm->get('site_resolver');
-        $createSiteListener = new \Vivo\Site\Listener\CreateSiteListener($resolver);
+        $resolver               = $sm->get('site_resolver');
+        $moduleManagerFactory   = $sm->get('module_manager_factory');
+        $createSiteListener     = new \Vivo\Site\Listener\CreateSiteListener($resolver, $moduleManagerFactory);
         $createSiteListener->attach($eventManager);
 
         //Register Vmodule stream

@@ -3,9 +3,11 @@ namespace Vivo\Site\Listener;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
+use Zend\Stdlib\ArrayUtils;
 use Vivo\Site\Site;
 use Vivo\Site\Event\SiteEventInterface;
 use Vivo\Site\Exception;
+use Vivo\Module\ModuleManagerFactory;
 
 /**
  * SiteResolveListener
@@ -18,10 +20,18 @@ class LoadModulesListener implements ListenerAggregateInterface
     protected $listeners = array();
 
     /**
-     * Constructor
+     * Module manager factory
+     * @var ModuleManagerFactory
      */
-    public function __construct()
+    protected $moduleManagerFactory;
+
+    /**
+     * Constructor
+     * @param \Vivo\Module\ModuleManagerFactory $moduleManagerFactory
+     */
+    public function __construct(ModuleManagerFactory $moduleManagerFactory)
     {
+        $this->moduleManagerFactory = $moduleManagerFactory;
     }
 
     /**
@@ -49,7 +59,7 @@ class LoadModulesListener implements ListenerAggregateInterface
     }
 
     /**
-     * Listen to "load_modules" event
+     * Listen to "load_modules" event, create the module mgr, load modules, store the module mgr into Site, merge config
      * @param SiteEventInterface $e
      * @return void
      */
@@ -58,9 +68,19 @@ class LoadModulesListener implements ListenerAggregateInterface
         $site   = $e->getTarget();
         /* @var $site Site */
         $moduleNames = $site->getModules();
-
-        $vModuleManagerFactory = $this->event->getApplication()->getServiceManager()->get('vmodule_manager_factory');
-        $vModuleManager = $vModuleManagerFactory->getVmoduleManager($vModuleNames);
-        $vModuleManager->loadModules();
+        //Create module manager
+        $moduleManager  = $this->moduleManagerFactory->getModuleManager($moduleNames);
+        //Load modules
+        $moduleManager->loadModules();
+        //Store module manager into the Site object
+        $site->setModuleManager($moduleManager);
+        //Merge modules config with the site config (site config overrides the modules config)
+        $modulesConfig  = $moduleManager->getEvent()->getConfigListener()->getMergedConfig(false);
+        $siteConfig     = $site->getConfig();
+        if (!$siteConfig) {
+            $siteConfig = array();
+        }
+        $siteConfig = ArrayUtils::merge($modulesConfig, $siteConfig);
+        $site->setConfig($siteConfig);
     }
 }

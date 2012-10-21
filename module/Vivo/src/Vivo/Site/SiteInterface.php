@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\Site;
 
+use Zend\ModuleManager\ModuleManager;
+
 /**
  * SiteInterface
  */
@@ -54,4 +56,16 @@ interface SiteInterface
      * @return array
      */
     public function getModules();
+
+    /**
+     * Sets the module manager
+     * @param ModuleManager $moduleManager
+     */
+    public function setModuleManager(ModuleManager $moduleManager);
+
+    /**
+     * Returns the module manager
+     * @return ModuleManager
+     */
+    public function getModuleManager();
 }

@@ -3,6 +3,7 @@ namespace Vivo\Site;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventsCapableInterface;
+use Zend\ModuleManager\ModuleManager;
 use Vivo\Site\Event\SiteEventInterface;
 use Vivo\Site\Exception;
 use ArrayAccess;
@@ -47,7 +48,13 @@ class Site implements SiteInterface,
      * Site configuration
      * @var array|ArrayAccess
      */
-    protected $config;
+    protected $config   = array();
+
+    /**
+     * Module manager
+     * @var ModuleManager
+     */
+    protected $moduleManager;
 
     /**
      * Constructor
@@ -149,5 +156,21 @@ class Site implements SiteInterface,
         return $this->modules;
     }
 
+    /**
+     * Sets the module manager
+     * @param ModuleManager $moduleManager
+     */
+    public function setModuleManager(ModuleManager $moduleManager)
+    {
+        $this->moduleManager    = $moduleManager;
+    }
 
+    /**
+     * Returns the module manager
+     * @return ModuleManager
+     */
+    public function getModuleManager()
+    {
+        return $this->moduleManager;
+    }
 }

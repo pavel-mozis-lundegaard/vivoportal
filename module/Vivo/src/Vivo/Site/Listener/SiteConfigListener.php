@@ -51,6 +51,7 @@ class SiteConfigListener implements ListenerAggregateInterface
     /**
      * Listen to "config" event, get Site configuration and required module names and store it into the Site object
      * @param SiteEventInterface $e
+     * @throws \Vivo\Site\Exception\ConfigException
      * @return void
      */
     public function onConfig(SiteEventInterface $e)
@@ -65,9 +66,10 @@ class SiteConfigListener implements ListenerAggregateInterface
         $siteConfig     = array(
             'site_config_opt_1'     => 'foo',
             'site_config_opt_2'     => 'bar',
+            'config_item1'          => 'configured by site',
         );
         $siteModules    = array(
-            'vm1', 'vm2', 'vm3',
+            'vm1', 'vm2',
         );
         $site->setConfig($siteConfig);
         $site->setModules($siteModules);

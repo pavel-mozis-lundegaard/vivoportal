@@ -1,9 +1,9 @@
 <?php
-namespace Vivo\Repo\Layouts\Page;
+namespace Vivo\Fake\Repo\Layouts\Page;
 
 use Vivo\CMS\Model\Content\Layout;
 
-use Vivo\Mock\Document;
+use Vivo\Fake\Document;
 
 class SubPage extends Document {
 	

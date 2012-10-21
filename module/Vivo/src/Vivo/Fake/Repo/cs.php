@@ -1,7 +1,7 @@
 <?php
-namespace Vivo\Repo;
+namespace Vivo\Fake\Repo;
 
-use Vivo\Mock\Document;
+use Vivo\Fake\Document;
 
 class cs extends Document {
 	public $layout = 'Layouts/Page/SubPage'; 

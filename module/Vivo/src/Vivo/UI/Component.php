@@ -3,6 +3,8 @@ namespace Vivo\UI;
 
 use Vivo\CMS\Stream\Template;
 
+use Zend\View\Model\ViewModel;
+
 /**
  * @author kormik
  */
@@ -41,17 +43,24 @@ class Component implements ComponentInterface {
 		
 	}
 	
-	public function render() {
-		ob_start();
-			$this->view();
-			$output = ob_get_contents();
-		ob_end_clean();
-		return $output;
-	}
+// 	public function render() {
+// 		ob_start();
+// 			$this->view();
+// 			$output = ob_get_contents();
+// 		ob_end_clean();
+// 		return $output;
+// 	}
 	
+// 	public function view() {
+// 		$this->template = get_called_class().'.phtml';
+// 		include  Template::STREAM_NAME.'://'.$this->template;
+// 	}
+
 	public function view() {
-		$this->template = get_called_class().'.phtml';
-		include  Template::STREAM_NAME.'://'.$this->template;
+		$this->template = get_called_class().'';
+		$viewModel = new ViewModel(array('test'=>'tests'));
+		$viewModel->setTemplate($this->template);
+		return $viewModel;
 	}
 	
 	public function done() {

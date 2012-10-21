@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\UI;
 
+use Zend\View\Model\ViewModel;
+
 use Vivo\UI\Exception\ComponentNotExists;
 
 /**
@@ -109,5 +111,16 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
 			}
 		}
 		return $tree;
+	}
+	
+	public function view() {
+		$viewModel = parent::view();
+		foreach ($this->components as $name => $component) {
+			$model = $component->view();
+			
+			$viewModel->addChild($model, $name);
+		}
+		$viewModel->setVariable('sub', array_keys($this->components));
+		return $viewModel;
 	}
 }

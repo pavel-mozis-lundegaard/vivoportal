@@ -87,5 +87,4 @@ class Page  extends Component {
 	
 	//TODO methods for modifying html head (css, js, keywords etc.)
 	//TODO implement resource(js,css) merging
-	
 }

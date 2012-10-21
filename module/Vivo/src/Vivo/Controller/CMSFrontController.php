@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\Controller;
 
+use Zend\View\Model\ViewModel;
+
 use Zend\Di\Di;
 
 use Vivo\CMS\Stream\Template;
@@ -39,7 +41,7 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
 		//TODO find document in repository and return it
 		$documentPath = $this->event->getRouteMatch()->getParam('path');
 		$di = $this->serviceLocator->get('di');
-		$cms = $di->get('Vivo\CMS');
+		$cms = $di->get('cms');
 
 		//TODO get host from routing - this enable selecting site by any part of url (like http://server/www.domain.cz/path...)
 		$host = $request->getUri()->getHost();
@@ -55,18 +57,25 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
 		//TODO: redirects based on document properties(https, $document->url etc.)
 		
 		$document = $cms->getDocument($documentPath, $site);
-		
 		$cf = $di->get('Vivo\CMS\ComponentFactory');
 		$root = $cf->getRootComponent($document);
 		
-		//\Zend\Di\Display\Console::export($di);
 		$root->init();
-		Template::register();
-		$content = $root->render();
-		$root->done();
-		$response->setContent($content);
+		$result = $root->view();
+		
+		if ($result instanceof ViewModel) {
+			$this->event->setViewModel($result);
+		} else {
+			//TODO if result is stream,  
+		}
+	
+//		$this->event->setResult($model);
+//		return $model;
+		
+//		$response->setContent($content);
+		//return $response;
 //		$response->setStatusCode(HttpResponse::STATUS_CODE_200);
-		return $response;
+//		return $response;
 	}
 	
 	/**

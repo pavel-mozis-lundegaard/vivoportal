@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Mock;
+namespace Vivo\Fake;
 
 use Vivo\CMS\UI;
 

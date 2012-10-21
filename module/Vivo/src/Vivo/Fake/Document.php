@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Mock;
+namespace Vivo\Fake;
 
 class Document extends \Vivo\CMS\Model\Document {
 	

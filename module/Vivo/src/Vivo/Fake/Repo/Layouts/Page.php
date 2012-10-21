@@ -1,7 +1,7 @@
 <?php
-namespace Vivo\Repo\Layouts;
+namespace Vivo\Fake\Repo\Layouts;
 
-use Vivo\Mock\Document;
+use Vivo\Fake\Document;
 
 class Page extends Document {
 

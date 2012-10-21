@@ -3,8 +3,9 @@ namespace Vivo\Site;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventsCapableInterface;
-use Zend\Mvc\Router\RouteMatch;
 use Vivo\Site\Event\SiteEventInterface;
+use Vivo\Site\Exception;
+use ArrayAccess;
 
 /**
  * Site
@@ -31,31 +32,34 @@ class Site implements SiteInterface,
     protected $siteId;
 
     /**
-     * RouteMatch object
-     * @var RouteMatch
+     * Site alias currently used to access the site
+     * @var string
      */
-    protected $routeMatch;
+    protected $siteAlias;
+
+    /**
+     * Array of module names required by this site
+     * @var array
+     */
+    protected $modules  = array();
+
+    /**
+     * Site configuration
+     * @var array|ArrayAccess
+     */
+    protected $config;
 
     /**
      * Constructor
-     * @param \Zend\Mvc\Router\RouteMatch $routeMatch
      * @param \Zend\EventManager\EventManagerInterface $events
      * @param Event\SiteEventInterface $siteEvent
      */
-    public function __construct(RouteMatch $routeMatch, EventManagerInterface $events, SiteEventInterface $siteEvent)
+    public function __construct(EventManagerInterface $events, SiteEventInterface $siteEvent)
     {
-        $this->routeMatch   = $routeMatch;
         $this->events       = $events;
         $this->siteEvent    = $siteEvent;
-    }
-
-    /**
-     * Init the Site
-     */
-    public function init()
-    {
         $this->siteEvent->setTarget($this);
-        $this->events->trigger(SiteEventInterface::EVENT_INIT, $this->siteEvent);
+
     }
 
     /**
@@ -68,6 +72,15 @@ class Site implements SiteInterface,
     }
 
     /**
+     * Sets the Site ID
+     * @param string $siteId
+     */
+    public function setSiteId($siteId)
+    {
+        $this->siteId = $siteId;
+    }
+
+    /**
      * Returns the Site ID
      * @return string
      */
@@ -75,4 +88,66 @@ class Site implements SiteInterface,
     {
         return $this->siteId;
     }
+
+    /**
+     * Sets the current Site alias
+     * @param string $siteAlias
+     */
+    public function setSiteAlias($siteAlias)
+    {
+        $this->siteAlias = $siteAlias;
+    }
+
+    /**
+     * Returns the current Site alias
+     * @return string
+     */
+    public function getSiteAlias()
+    {
+        return $this->siteAlias;
+    }
+
+    /**
+     * Sets the site configuration
+     * @param array|\ArrayAccess $config
+     * @throws Exception\InvalidArgumentException
+     * @return void
+     */
+    public function setConfig($config)
+    {
+        if (!(is_array($config) || $config instanceof ArrayAccess)) {
+            throw new Exception\InvalidArgumentException(
+                sprintf('%s: Config must be either an array or must implement ArrayAccess', __METHOD__));
+        }
+        $this->config = $config;
+    }
+
+    /**
+     * Returns the Site configuration
+     * @return array|\ArrayAccess
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    /**
+     * Sets the module names required by this Site
+     * @param array $modules
+     */
+    public function setModules(array $modules)
+    {
+        $this->modules = $modules;
+    }
+
+    /**
+     * Returns the module names required by this site
+     * @return array
+     */
+    public function getModules()
+    {
+        return $this->modules;
+    }
+
+
 }

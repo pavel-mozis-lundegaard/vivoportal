@@ -9,10 +9,6 @@ use Zend\Stdlib\ResponseInterface as Response;
 use Zend\Http\Response as HttpResponse;
 use Zend\EventManager\EventManagerInterface;
 
-use Vivo\Site\Site;
-use Vivo\Site\Event\SiteEvent;
-use Zend\EventManager\EventManager;
-
 /**
  * The front controller which is responsible for dispatching all requests for documents and files in CMS repository.
  * @author kormik
@@ -32,6 +28,17 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
     public function dispatch(Request $request, Response $response = null) {
 		//TODO find document in repository and return it
 		$path = $this->event->getRouteMatch()->getParam('path');
+
+        //TODO Remove - test Site
+        $sm = $this->event->getApplication()->getServiceManager();
+        $site   = $sm->get('vivo_site');
+        /* @var $site \Vivo\Site\SiteInterface */
+        \Zend\Debug\Debug::dump($site->getSiteId(), 'SiteId');
+        \Zend\Debug\Debug::dump($site->getSiteAlias(), 'SiteAlias');
+        \Zend\Debug\Debug::dump($site->getConfig(), 'Site config');
+        \Zend\Debug\Debug::dump($site->getModules(), 'Modules');
+
+
         $response->setContent('CMS document for path: '. $path);
 		$response->setStatusCode(HttpResponse::STATUS_CODE_200);
 		return $response;

@@ -11,7 +11,7 @@ namespace Vivo;
 
 use Zend\Mvc\ModuleRouteListener;
 use Zend\ServiceManager\ServiceManager;
-use Vivo\Vmodule\VmoduleManagerFactory;
+use Vivo\Module\ModuleManagerFactory;
 
 class Module
 {
@@ -32,9 +32,9 @@ class Module
         $createSiteListener->attach($eventManager);
 
         //Register Vmodule stream
-        $vModuleStorage = $sm->get('vmodule_storage');
-        $streamName     = $config['vivo']['vmodules']['stream_name'];
-        \Vivo\Vmodule\StreamWrapper::register($streamName, $vModuleStorage);
+        $moduleStorage  = $sm->get('module_storage');
+        $streamName     = $config['vivo']['modules']['stream_name'];
+        \Vivo\Module\StreamWrapper::register($streamName, $moduleStorage);
     }
 
     public function getConfig()
@@ -61,20 +61,20 @@ class Module
                     $storageFactory = new \Vivo\Storage\Factory();
                     return $storageFactory;
                 },
-                'vmodule_storage'   => function(ServiceManager $sm) {
+                'module_storage'    => function(ServiceManager $sm) {
                     $config         = $sm->get('config');
-                    $storageConfig  = $config['vivo']['vmodules']['storage'];
+                    $storageConfig  = $config['vivo']['modules']['storage'];
                     $storageFactory = $sm->get('storage_factory');
                     /* @var $storageFactory \Vivo\Storage\Factory */
                     $storage    = $storageFactory->create($storageConfig);
                     return $storage;
                 },
-                'vmodule_manager_factory'   => function(ServiceManager $sm) {
+                'module_manager_factory'    => function(ServiceManager $sm) {
                     $config                 = $sm->get('config');
-                    $vModulePaths           = $config['vivo']['vmodules']['vmodule_paths'];
-                    $vModuleStreamName      = $config['vivo']['vmodules']['stream_name'];
-                    $vModuleManagerFactory  = new VmoduleManagerFactory($vModulePaths, $vModuleStreamName);
-                    return $vModuleManagerFactory;
+                    $ModulePaths            = $config['vivo']['modules']['module_paths'];
+                    $moduleStreamName       = $config['vivo']['modules']['stream_name'];
+                    $moduleManagerFactory   = new ModuleManagerFactory($ModulePaths, $moduleStreamName);
+                    return $moduleManagerFactory;
                 },
                 'site_resolver'             => function(ServiceManager $sm) {
                     //TODO - get the site alias -> id map from somewhere

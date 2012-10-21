@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Vmodule;
+namespace Vivo\Module;
 
 use Zend\EventManager\EventManager;
 use Zend\ModuleManager\ModuleEvent;
@@ -9,51 +9,50 @@ use Zend\ModuleManager\Listener\AutoloaderListener;
 use Zend\ModuleManager\Listener\InitTrigger;
 use Zend\ModuleManager\Listener\ConfigListener;
 
-use Vivo\Vmodule\Exception;
+use Vivo\Module\Exception;
 
 /**
- * VmoduleManagerFactory
- * Factory class for Vmodule manager
- * @author david.lukas
+ * ModuleManagerFactory
+ * Factory class for Module manager
  */
-class VmoduleManagerFactory
+class ModuleManagerFactory
 {
     /**
-     * Paths to Vmodules
+     * Paths to modules
      * @var array
      */
-    protected $vModulePaths = array();
+    protected $modulePaths = array();
 
     /**
      * Stream name for Vmodule access
      * @var string
      */
-    protected $vModuleStreamName;
+    protected $moduleStreamName;
 
     /**
      * Constructor
-     * @param array $vModulePaths Absolute path in Storage
-     * @param string $vModuleStreamName
+     * @param array $modulePaths Absolute path in Storage
+     * @param string $moduleStreamName
      * @throws Exception\InvalidArgumentException
      */
-    public function __construct(array $vModulePaths, $vModuleStreamName)
+    public function __construct(array $modulePaths, $moduleStreamName)
     {
-        if (!$vModuleStreamName) {
-            throw new Exception\InvalidArgumentException(sprintf('%s: Vmodule stream name not set', __METHOD__));
+        if (!$moduleStreamName) {
+            throw new Exception\InvalidArgumentException(sprintf('%s: Module stream name not set', __METHOD__));
         }
-        $this->vModulePaths         = $vModulePaths;
-        $this->vModuleStreamName    = $vModuleStreamName;
+        $this->modulePaths         = $modulePaths;
+        $this->moduleStreamName    = $moduleStreamName;
     }
 
     /**
      * Creates and returns a new Vmodule manager instance
-     * @param array $vModuleNames
+     * @param array $moduleNames
      * @return \Zend\ModuleManager\ModuleManager
      */
-    public function getVmoduleManager(array $vModuleNames)
+    public function getModuleManager(array $moduleNames)
     {
         $events             = new EventManager();
-        $moduleAutoloader   = new AutoloaderModule($this->vModulePaths, $this->vModuleStreamName);
+        $moduleAutoloader   = new AutoloaderModule($this->modulePaths, $this->moduleStreamName);
         $configListener     = new ConfigListener();
 
         // High priority
@@ -70,9 +69,9 @@ class VmoduleManagerFactory
         //$events->attach($locatorRegistrationListener);
 
         $events->attach($configListener);
-        $vModuleManager     = new ModuleManager($vModuleNames, $events);
-        $moduleEvent        = new ModuleEvent;
-        $vModuleManager->setEvent($moduleEvent);
-        return $vModuleManager;
+        $moduleManager  = new ModuleManager($moduleNames, $events);
+        $moduleEvent    = new ModuleEvent;
+        $moduleManager->setEvent($moduleEvent);
+        return $moduleManager;
     }
 }

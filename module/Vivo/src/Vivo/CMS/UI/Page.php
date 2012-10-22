@@ -85,6 +85,11 @@ class Page  extends Component {
 		$this->doctype = $doctype;
 	}
 	
+	public function view() {
+		$this->view->setVariable('doctype', $this->doctype);
+		return parent::view();
+	}
+	
 	//TODO methods for modifying html head (css, js, keywords etc.)
 	//TODO implement resource(js,css) merging
 }

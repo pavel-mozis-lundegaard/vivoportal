@@ -29,7 +29,7 @@ class Module
         //Attach a listener to set up the Site object
         $resolver               = $sm->get('site_resolver');
         $moduleManagerFactory   = $sm->get('module_manager_factory');
-        $createSiteListener     = new \Vivo\Site\Listener\CreateSiteListener($resolver, $moduleManagerFactory);
+        $createSiteListener     = new \Vivo\Site\Listener\CreateSiteListener('host', $resolver, $moduleManagerFactory);
         $createSiteListener->attach($eventManager);
 
         //Register Vmodule stream
@@ -78,7 +78,7 @@ class Module
                     return $moduleManagerFactory;
                 },
                 'site_resolver'             => function(ServiceManager $sm) {
-                    //TODO - get the site alias -> id map from somewhere
+                    //TODO - get the site alias -> id map from somewhere or rather configure a proper resolver
                     $map    = array(
                         'www.my-site-alias.com'     => 'www.my-site.com',
                     );

@@ -17,8 +17,8 @@ return array(
         						'defaults' => array(
         								'controller' => 'Vivo\Controller\CMSFront',
         								'path' => '',
-                                        //TODO Remove site_alias default
-                                        'site_alias'    => 'www.my-site-alias.com',
+                                        //TODO Remove host default
+                                        'host'    => 'www.my-site-alias.com',
         						),
                 ),
             ),

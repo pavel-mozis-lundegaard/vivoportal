@@ -20,6 +20,12 @@ class SiteResolveListener implements ListenerAggregateInterface
     protected $listeners = array();
 
     /**
+     * Route parameter name containing the host name
+     * @var string
+     */
+    protected $routeParamHost;
+
+    /**
      * Site alias resolver
      * @var ResolverInterface
      */
@@ -27,11 +33,13 @@ class SiteResolveListener implements ListenerAggregateInterface
 
     /**
      * Constructor
+     * @param string $routeParamHost Route param name containing the host name
      * @param \Vivo\Site\Resolver\ResolverInterface $resolver
      */
-    public function __construct(ResolverInterface $resolver)
+    public function __construct($routeParamHost, ResolverInterface $resolver)
     {
-        $this->resolver = $resolver;
+        $this->routeParamHost   = $routeParamHost;
+        $this->resolver         = $resolver;
     }
 
     /**
@@ -73,19 +81,17 @@ class SiteResolveListener implements ListenerAggregateInterface
                                                                  __METHOD__));
         }
         /* @var $routeMatch RouteMatch */
-        $siteAlias  = $routeMatch->getParam('site_alias');
-        if (!$siteAlias) {
-            throw new Exception\ResolveException(sprintf("%s: Parameter 'site_alias' missing in RouteMatch",
-                __METHOD__));
+        $siteAlias  = $routeMatch->getParam($this->routeParamHost);
+        if ($siteAlias) {
+            $siteId = $this->resolver->resolve($siteAlias);
+            if ($siteId) {
+                //Site has been resolved
+                $site   = $e->getTarget();
+                /* @var $site Site */
+                $site->setSiteId($siteId);
+                $site->setSiteAlias($siteAlias);
+                $e->stopPropagation(true);
+            }
         }
-        $siteId = $this->resolver->resolve($siteAlias);
-        if (!$siteId) {
-            throw new Exception\ResolveException(sprintf("%s: Site alias '%s' cannot be resolved to a site id",
-                __METHOD__, $siteAlias));
-        }
-        $site   = $e->getTarget();
-        /* @var $site Site */
-        $site->setSiteId($siteId);
-        $site->setSiteAlias($siteAlias);
     }
 }

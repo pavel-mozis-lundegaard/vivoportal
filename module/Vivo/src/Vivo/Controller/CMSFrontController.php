@@ -29,20 +29,23 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
 		//TODO find document in repository and return it
 		$path = $this->event->getRouteMatch()->getParam('path');
 
-        //TODO Remove - Site testing
+        //Site testing
         $sm = $this->event->getApplication()->getServiceManager();
-        $site   = $sm->get('vivo_site');
-        /* @var $site \Vivo\Site\SiteInterface */
-        \Zend\Debug\Debug::dump($site->getSiteId(), 'SiteId');
-        \Zend\Debug\Debug::dump($site->getSiteAlias(), 'SiteAlias');
-        \Zend\Debug\Debug::dump($site->getConfig(), 'Site config');
-        \Zend\Debug\Debug::dump($site->getModules(), 'Modules');
-        \Zend\Debug\Debug::dump(get_class($site->getModuleManager()), 'Module manager type');
-
-        //Test class autoloading
-        $myObj  = new \Vm1\MyObj();
-        $myObj2 = new \Vm2\MyObj();
-
+        if ($sm->has('vivo_site')) {
+            $site   = $sm->get('vivo_site');
+            /* @var $site \Vivo\Site\SiteInterface */
+            \Zend\Debug\Debug::dump($site->getSiteId(), 'SiteId');
+            \Zend\Debug\Debug::dump($site->getSiteAlias(), 'SiteAlias');
+            \Zend\Debug\Debug::dump($site->getConfig(), 'Site config');
+            \Zend\Debug\Debug::dump($site->getModules(), 'Modules');
+            \Zend\Debug\Debug::dump(get_class($site->getModuleManager()), 'Module manager type');
+            //Test class autoloading
+            $myObj  = new \Vm1\MyObj();
+            $myObj2 = new \Vm2\MyObj();
+        } else {
+            echo 'Site not found in SM.<br>';
+        }
+        //END - Site testing
 
         $response->setContent('CMS document for path: '. $path);
 		$response->setStatusCode(HttpResponse::STATUS_CODE_200);

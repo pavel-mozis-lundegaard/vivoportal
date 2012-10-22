@@ -70,7 +70,7 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-            'CMSFront' => 'Vivo\Controller\CMSFrontController',
+      //      'CMSFront' => 'Vivo\Controller\CMSFrontController',
             'ResourceFront' => 'Vivo\Controller\ResourceFrontController'
         ),
     ),
@@ -90,14 +90,14 @@ return array(
             __DIR__ . '/../view',
         ),
     ),
-    
+
     'di' => array(
     	'instance' => array (
     		'alias' => array (
     			'cms' => 'Vivo\Fake\CMS',
     			'viewModel' =>  'Vivo\View\Model\UIViewModel',
     		),
-    		
+
     		'viewModel' => array (
     				'shared' => false,
     		),
@@ -125,7 +125,7 @@ return array(
  	    					'view' => 'viewModel',
  	    			),
  	    	),
-    	), 
+    	),
     ),
 
     'vivo'      => array(
@@ -150,6 +150,6 @@ return array(
         		//    			'Vivo\CMS\UI\Content\Sample' => 'page.phtml',
         		),
         )
-        
+
     ),
 );

@@ -1,22 +1,14 @@
 <?php
-/**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/ZendSkeletonApplication for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
- */
-
 namespace Vivo;
 
-use Vivo\CMS\ComponentFactory;
+use Zend\Mvc\Controller\ControllerManager;
 
+use Vivo\CMS\ComponentFactory;
+use Vivo\Module\ModuleManagerFactory;
 use Vivo\View\Strategy\UIRenderingStrategy;
 
 use Zend\Mvc\ModuleRouteListener;
 use Zend\ServiceManager\ServiceManager;
-
-use Vivo\Module\ModuleManagerFactory;
 
 class Module
 {
@@ -35,7 +27,7 @@ class Module
         $moduleStorage  = $sm->get('module_storage');
         $streamName     = $config['vivo']['modules']['stream_name'];
         \Vivo\Module\StreamWrapper::register($streamName, $moduleStorage);
-        
+
         $eventManager->attach('render', array ($this, 'registerUIRenderingStrategy'), 100);
     }
 
@@ -55,19 +47,19 @@ class Module
         );
     }
 
-    
+
     /**
      * Register rendering strategy fo Vivo UI.
-     * 
+     *
      * @param unknown_type $e
      */
-    public function registerUIRenderingStrategy($e) 
+    public function registerUIRenderingStrategy($e)
     {
-    	$app          = $e->getTarget();
-    	$locator      = $app->getServiceManager();
-    	$view         = $locator->get('Zend\View\View');
-    	$UIRendererStrategy = $locator->get('Vivo\View\Strategy\UIRenderingStrategy');
-    	$view->getEventManager()->attach($UIRendererStrategy, 100);
+        $app          = $e->getTarget();
+        $locator      = $app->getServiceManager();
+        $view         = $locator->get('Zend\View\View');
+        $UIRendererStrategy = $locator->get('Vivo\View\Strategy\UIRenderingStrategy');
+        $view->getEventManager()->attach($UIRendererStrategy, 100);
     }
 
 
@@ -94,18 +86,40 @@ class Module
                     $moduleManagerFactory   = new ModuleManagerFactory($ModulePaths, $moduleStreamName);
                     return $moduleManagerFactory;
                 },
-				'Vivo\View\Strategy\UIRenderingStrategy' => function(ServiceManager $sm) {
-					$config = $sm->get('config');
-					$resolver = new \Vivo\View\Resolver\UIResolver($config['vivo']['templates']);
-					$renderer = new \Vivo\View\Renderer\UIRenderer($resolver);
-					$strategy = new UIRenderingStrategy($renderer);
-					return $strategy;
-				},
-				'Vivo\CMS\ComponentFactory' => function(ServiceManager $sm) {
-					return new ComponentFactory($sm->get('di'), $sm->get('cms'));
-				},
+                'Vivo\View\Strategy\UIRenderingStrategy' => function(ServiceManager $sm) {
+                    $config = $sm->get('config');
+                    $resolver = new \Vivo\View\Resolver\UIResolver($config['vivo']['templates']);
+                    $renderer = new \Vivo\View\Renderer\UIRenderer($resolver);
+                    $strategy = new UIRenderingStrategy($renderer);
+                    return $strategy;
+                },
+                'Vivo\CMS\ComponentFactory' => function(ServiceManager $sm) {
+                    $di = $sm->get('di');
+                    //setup DI with shared instances from Vivo
+                    //TODO move di setup somewhere else
+                    $di->instanceManager()
+                    ->addSharedInstance($sm->get('request'), 'Zend\Http\Request');
+                    $di->instanceManager()
+                    ->addSharedInstance($sm->get('response'), 'Zend\Http\Response');
+                    return new ComponentFactory($di, $sm->get('cms'));
+                },
             ),
         );
+    }
 
+    public function getControllerConfig() {
+        return array(
+            'factories' => array(
+                'CMSFront' => function (ControllerManager $cm) {
+                    $fc = new \Vivo\Controller\CMSFrontController();
+                    $sm = $cm->getServiceLocator();
+                    $fc->setComponentFactory($sm->get('Vivo\CMS\ComponentFactory'));
+                    $fc->setCMS($sm->get('cms'));
+                    //TODO get site from SiteManager
+                    $fc->setSite(new \Vivo\CMS\Model\Site());
+                    return $fc;
+                },
+            ),
+        );
     }
 }

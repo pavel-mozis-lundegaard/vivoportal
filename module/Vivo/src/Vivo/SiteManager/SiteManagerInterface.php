@@ -1,12 +1,12 @@
 <?php
-namespace Vivo\Site;
+namespace Vivo\SiteManager;
 
 use Zend\ModuleManager\ModuleManager;
 
 /**
- * SiteInterface
+ * SiteManagerInterface
  */
-interface SiteInterface
+interface SiteManagerInterface
 {
     /**
      * Sets the Site ID

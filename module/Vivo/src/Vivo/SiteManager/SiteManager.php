@@ -1,18 +1,19 @@
 <?php
-namespace Vivo\Site;
+namespace Vivo\SiteManager;
+
+use Vivo\SiteManager\Event\SiteEventInterface;
+use Vivo\SiteManager\Exception;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventsCapableInterface;
 use Zend\ModuleManager\ModuleManager;
-use Vivo\Site\Event\SiteEventInterface;
-use Vivo\Site\Exception;
 use ArrayAccess;
 
 /**
- * Site
+ * SiteManager
  */
-class Site implements SiteInterface,
-                      EventsCapableInterface
+class SiteManager implements SiteManagerInterface,
+                             EventsCapableInterface
 {
     /**
      * Event manager
@@ -27,13 +28,13 @@ class Site implements SiteInterface,
     protected $siteEvent;
 
     /**
-     * Site ID
+     * SiteManager ID
      * @var string
      */
     protected $siteId;
 
     /**
-     * Site alias currently used to access the site
+     * SiteManager alias currently used to access the site
      * @var string
      */
     protected $siteAlias;
@@ -45,7 +46,7 @@ class Site implements SiteInterface,
     protected $modules  = array();
 
     /**
-     * Site configuration
+     * SiteManager configuration
      * @var array|ArrayAccess
      */
     protected $config   = array();
@@ -79,7 +80,7 @@ class Site implements SiteInterface,
     }
 
     /**
-     * Sets the Site ID
+     * Sets the SiteManager ID
      * @param string $siteId
      */
     public function setSiteId($siteId)
@@ -88,7 +89,7 @@ class Site implements SiteInterface,
     }
 
     /**
-     * Returns the Site ID
+     * Returns the SiteManager ID
      * @return string
      */
     public function getSiteId()
@@ -97,7 +98,7 @@ class Site implements SiteInterface,
     }
 
     /**
-     * Sets the current Site alias
+     * Sets the current SiteManager alias
      * @param string $siteAlias
      */
     public function setSiteAlias($siteAlias)
@@ -106,7 +107,7 @@ class Site implements SiteInterface,
     }
 
     /**
-     * Returns the current Site alias
+     * Returns the current SiteManager alias
      * @return string
      */
     public function getSiteAlias()
@@ -130,7 +131,7 @@ class Site implements SiteInterface,
     }
 
     /**
-     * Returns the Site configuration
+     * Returns the SiteManager configuration
      * @return array|\ArrayAccess
      */
     public function getConfig()
@@ -139,7 +140,7 @@ class Site implements SiteInterface,
     }
 
     /**
-     * Sets the module names required by this Site
+     * Sets the module names required by this SiteManager
      * @param array $modules
      */
     public function setModules(array $modules)

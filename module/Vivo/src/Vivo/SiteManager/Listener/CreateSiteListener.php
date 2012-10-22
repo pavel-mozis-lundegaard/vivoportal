@@ -1,23 +1,24 @@
 <?php
-namespace Vivo\Site\Listener;
+namespace Vivo\SiteManager\Listener;
+
+use Vivo\SiteManager\Event\SiteEventInterface;
+use Vivo\SiteManager\Resolver\ResolverInterface;
+use Vivo\Module\ModuleManagerFactory;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\Mvc\MvcEvent;
-use Vivo\Site\Event\SiteEventInterface;
-use Vivo\Site\Resolver\ResolverInterface;
-use Vivo\Module\ModuleManagerFactory;
 
 /**
  * CreateSiteListener
- * Sets-up a listener for MVC Route event to create and prepare a Site object
+ * Sets-up a listener for MVC Route event to create and prepare a SiteManager object
  */
 class CreateSiteListener implements ListenerAggregateInterface
 {
     /**
-     * Name used to register the Site object in the ServiceManager
+     * Name used to register the SiteManager object in the ServiceManager
      */
-    const SM_KEY_SITE   = 'vivo_site';
+    const SM_KEY_SITE   = 'vivo_site_manager';
 
     /**
      * @var \Zend\Stdlib\CallbackHandler[]
@@ -44,7 +45,7 @@ class CreateSiteListener implements ListenerAggregateInterface
     /**
      * Constructor
      * @param $routeParamHost
-     * @param \Vivo\Site\Resolver\ResolverInterface $resolver Site alias resolver
+     * @param \Vivo\SiteManager\Resolver\ResolverInterface $resolver SiteManager alias resolver
      * @param \Vivo\Module\ModuleManagerFactory $moduleManagerFactory
      */
     public function __construct($routeParamHost, ResolverInterface $resolver, ModuleManagerFactory $moduleManagerFactory)
@@ -79,7 +80,7 @@ class CreateSiteListener implements ListenerAggregateInterface
     }
 
     /**
-     * Listen to the "route" event, create a new Site and store it in the SM
+     * Listen to the "route" event, create a new SiteManager and store it in the SM
      * @param  MvcEvent $e
      * @return void
      */
@@ -88,37 +89,37 @@ class CreateSiteListener implements ListenerAggregateInterface
         $sm         = $e->getApplication()->getServiceManager();
         /* @var $sm \Zend\ServiceManager\ServiceManager */
         $routeMatch = $e->getRouteMatch();
-        $siteEvent  = new \Vivo\Site\Event\SiteEvent();
+        $siteEvent  = new \Vivo\SiteManager\Event\SiteEvent();
         $siteEvents = new \Zend\EventManager\EventManager();
         $siteEvent->setParam('route_match', $routeMatch);
-        //Attach Site resolve listener
+        //Attach SiteManager resolve listener
         $resolveListener    = new SiteResolveListener($this->routeParamHost, $this->resolver);
         $resolveListener->attach($siteEvents);
-        //Attach Site config listener
+        //Attach SiteManager config listener
         $configListener     = new SiteConfigListener();
         $configListener->attach($siteEvents);
         //Attach Load modules listener
         $loadModulesListener    = new LoadModulesListener($this->moduleManagerFactory);
         $loadModulesListener->attach($siteEvents);
-        //Create Site
-        $site       = new \Vivo\Site\Site($siteEvents, $siteEvent);
-        //Trigger events on Site
-        //Init the Site
+        //Create SiteManager
+        $site       = new \Vivo\SiteManager\SiteManager($siteEvents, $siteEvent);
+        //Trigger events on SiteManager
+        //Init the SiteManager
         $siteEvent->stopPropagation(false);
         $siteEvents->trigger(SiteEventInterface::EVENT_INIT, $siteEvent);
-        //Resolve the Site id
+        //Resolve the SiteManager id
         $siteEvent->stopPropagation(false);
         $siteEvents->trigger(SiteEventInterface::EVENT_RESOLVE, $siteEvent);
-        //Test if the Site has been resolved
+        //Test if the SiteManager has been resolved
         if ($site->getSiteId()) {
-            //The Site has been resolved, so configure it and store it
-            //Get Site config
+            //The SiteManager has been resolved, so configure it and store it
+            //Get SiteManager config
             $siteEvent->stopPropagation(false);
             $siteEvents->trigger(SiteEventInterface::EVENT_CONFIG, $siteEvent);
             //Load site modules
             $siteEvent->stopPropagation(false);
             $siteEvents->trigger(SiteEventInterface::EVENT_LOAD_MODULES, $siteEvent);
-            //Store the Site into SM
+            //Store the SiteManager into SM
             $sm->setService(self::SM_KEY_SITE, $site);
         }
     }

@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Site\Event;
+namespace Vivo\SiteManager\Event;
 
 use Zend\EventManager\EventInterface;
 

@@ -29,14 +29,14 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
 		//TODO find document in repository and return it
 		$path = $this->event->getRouteMatch()->getParam('path');
 
-        //Site testing
+        //SiteManager testing
         $sm = $this->event->getApplication()->getServiceManager();
-        if ($sm->has('vivo_site')) {
-            $site   = $sm->get('vivo_site');
-            /* @var $site \Vivo\Site\SiteInterface */
+        if ($sm->has('vivo_site_manager')) {
+            $site   = $sm->get('vivo_site_manager');
+            /* @var $site \Vivo\SiteManager\SiteManagerInterface */
             \Zend\Debug\Debug::dump($site->getSiteId(), 'SiteId');
             \Zend\Debug\Debug::dump($site->getSiteAlias(), 'SiteAlias');
-            \Zend\Debug\Debug::dump($site->getConfig(), 'Site config');
+            \Zend\Debug\Debug::dump($site->getConfig(), 'SiteManager config');
             \Zend\Debug\Debug::dump($site->getModules(), 'Modules');
             \Zend\Debug\Debug::dump(get_class($site->getModuleManager()), 'Module manager type');
             //Test class autoloading
@@ -45,7 +45,7 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
         } else {
             echo 'Site not found in SM.<br>';
         }
-        //END - Site testing
+        //END - SiteManager testing
 
         $response->setContent('CMS document for path: '. $path);
 		$response->setStatusCode(HttpResponse::STATUS_CODE_200);

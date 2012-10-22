@@ -1,11 +1,12 @@
 <?php
-namespace Vivo\Site\Listener;
+namespace Vivo\SiteManager\Listener;
+
+use Vivo\SiteManager\SiteManager;
+use Vivo\SiteManager\Event\SiteEventInterface;
+use Vivo\SiteManager\Exception;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
-use Vivo\Site\Site;
-use Vivo\Site\Event\SiteEventInterface;
-use Vivo\Site\Exception;
 
 /**
  * SiteConfigListener
@@ -49,20 +50,20 @@ class SiteConfigListener implements ListenerAggregateInterface
     }
 
     /**
-     * Listen to "config" event, get Site configuration and required module names and store it into the Site object
+     * Listen to "config" event, get Site configuration and required module names and store it into the SiteManager object
      * @param SiteEventInterface $e
-     * @throws \Vivo\Site\Exception\ConfigException
+     * @throws \Vivo\SiteManager\Exception\ConfigException
      * @return void
      */
     public function onConfig(SiteEventInterface $e)
     {
         $site   = $e->getTarget();
-        /* @var $site Site */
+        /* @var $site SiteManager */
         $siteId = $site->getSiteId();
         if (!$siteId) {
             throw new Exception\ConfigException(sprintf('%s: SiteId not set.', __METHOD__));
         }
-        //TODO - load Site Entity from repository using the siteId and get site configuration and module names from there
+        //TODO - load SiteManager Entity from repository using the siteId and get site configuration and module names from there
         $siteConfig     = array(
             'site_config_opt_1'     => 'foo',
             'site_config_opt_2'     => 'bar',

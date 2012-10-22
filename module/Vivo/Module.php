@@ -1,17 +1,10 @@
 <?php
-/**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/ZendSkeletonApplication for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
- */
-
 namespace Vivo;
+
+use Vivo\Module\ModuleManagerFactory;
 
 use Zend\Mvc\ModuleRouteListener;
 use Zend\ServiceManager\ServiceManager;
-use Vivo\Module\ModuleManagerFactory;
 
 class Module
 {
@@ -26,10 +19,11 @@ class Module
         /* @var $sm ServiceManager */
         $config = $sm->get('config');
 
-        //Attach a listener to set up the Site object
+        //Attach a listener to set up the SiteManager object
         $resolver               = $sm->get('site_resolver');
         $moduleManagerFactory   = $sm->get('module_manager_factory');
-        $createSiteListener     = new \Vivo\Site\Listener\CreateSiteListener('host', $resolver, $moduleManagerFactory);
+        $createSiteListener     = new \Vivo\SiteManager\Listener\CreateSiteListener(
+                                    'host', $resolver, $moduleManagerFactory);
         $createSiteListener->attach($eventManager);
 
         //Register Vmodule stream
@@ -78,11 +72,8 @@ class Module
                     return $moduleManagerFactory;
                 },
                 'site_resolver'             => function(ServiceManager $sm) {
-                    //TODO - get the site alias -> id map from somewhere or rather configure a proper resolver
-                    $map    = array(
-                        'www.my-site-alias.com'     => 'www.my-site.com',
-                    );
-                    $siteResolver   = new \Vivo\Site\Resolver\Map($map);
+                    //TODO - configure a proper SiteResolver, the FixedValue resolver is for development only
+                    $siteResolver   = new \Vivo\SiteManager\Resolver\FixedValue('abcdefgh12345678');
                     return $siteResolver;
                 },
             ),

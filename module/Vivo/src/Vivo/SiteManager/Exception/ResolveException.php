@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Site\Exception;
+namespace Vivo\SiteManager\Exception;
 
 /**
  * ResolveException

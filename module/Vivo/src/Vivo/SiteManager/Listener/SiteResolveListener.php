@@ -1,13 +1,14 @@
 <?php
-namespace Vivo\Site\Listener;
+namespace Vivo\SiteManager\Listener;
+
+use Vivo\SiteManager\SiteManager;
+use Vivo\SiteManager\Event\SiteEventInterface;
+use Vivo\SiteManager\Exception;
+use Vivo\SiteManager\Resolver\ResolverInterface;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\Mvc\Router\RouteMatch;
-use Vivo\Site\Site;
-use Vivo\Site\Event\SiteEventInterface;
-use Vivo\Site\Exception;
-use Vivo\Site\Resolver\ResolverInterface;
 
 /**
  * SiteResolveListener
@@ -26,7 +27,7 @@ class SiteResolveListener implements ListenerAggregateInterface
     protected $routeParamHost;
 
     /**
-     * Site alias resolver
+     * SiteManager alias resolver
      * @var ResolverInterface
      */
     protected $resolver;
@@ -67,10 +68,10 @@ class SiteResolveListener implements ListenerAggregateInterface
     }
 
     /**
-     * Listen to "resolve" event, get site alias from RouteMatch, resolve it to site id and set site alias and id to Site
+     * Listen to "resolve" event, get site alias from RouteMatch, resolve it to site id and set site alias and id to SiteManager
      * @param SiteEventInterface $e
-     * @throws \Vivo\Site\Exception\ResolveException
-     * @throws \Vivo\Site\Exception\InvalidArgumentException
+     * @throws \Vivo\SiteManager\Exception\ResolveException
+     * @throws \Vivo\SiteManager\Exception\InvalidArgumentException
      * @return void
      */
     public function onResolve(SiteEventInterface $e)
@@ -85,9 +86,9 @@ class SiteResolveListener implements ListenerAggregateInterface
         if ($siteAlias) {
             $siteId = $this->resolver->resolve($siteAlias);
             if ($siteId) {
-                //Site has been resolved
+                //SiteManager has been resolved
                 $site   = $e->getTarget();
-                /* @var $site Site */
+                /* @var $site SiteManager */
                 $site->setSiteId($siteId);
                 $site->setSiteAlias($siteAlias);
                 $e->stopPropagation(true);

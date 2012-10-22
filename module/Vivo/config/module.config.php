@@ -1,8 +1,6 @@
 <?php
 /**
- * Main CMS config, can be splited to the topic related files in future.  
- * 
- * @author kormik
+ * Main CMS config, can be split to the topic related files in future.
  */
 
 return array(

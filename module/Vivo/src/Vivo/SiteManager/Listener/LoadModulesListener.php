@@ -1,13 +1,14 @@
 <?php
-namespace Vivo\Site\Listener;
+namespace Vivo\SiteManager\Listener;
+
+use Vivo\SiteManager\SiteManager;
+use Vivo\SiteManager\Event\SiteEventInterface;
+use Vivo\SiteManager\Exception;
+use Vivo\Module\ModuleManagerFactory;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\Stdlib\ArrayUtils;
-use Vivo\Site\Site;
-use Vivo\Site\Event\SiteEventInterface;
-use Vivo\Site\Exception;
-use Vivo\Module\ModuleManagerFactory;
 
 /**
  * SiteResolveListener
@@ -59,20 +60,20 @@ class LoadModulesListener implements ListenerAggregateInterface
     }
 
     /**
-     * Listen to "load_modules" event, create the module mgr, load modules, store the module mgr into Site, merge config
+     * Listen to "load_modules" event, create the module mgr, load modules, store the module mgr into SiteManager, merge config
      * @param SiteEventInterface $e
      * @return void
      */
     public function onLoadModules(SiteEventInterface $e)
     {
         $site   = $e->getTarget();
-        /* @var $site Site */
+        /* @var $site SiteManager */
         $moduleNames = $site->getModules();
         //Create module manager
         $moduleManager  = $this->moduleManagerFactory->getModuleManager($moduleNames);
         //Load modules
         $moduleManager->loadModules();
-        //Store module manager into the Site object
+        //Store module manager into the SiteManager object
         $site->setModuleManager($moduleManager);
         //Merge modules config with the site config (site config overrides the modules config)
         $modulesConfig  = $moduleManager->getEvent()->getConfigListener()->getMergedConfig(false);

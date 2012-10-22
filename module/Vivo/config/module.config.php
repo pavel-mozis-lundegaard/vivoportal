@@ -1,104 +1,95 @@
 <?php
 /**
- * Main CMS config, can be splited to the topic related files in future.  
- * 
+ * Main CMS config, can be splited to the topic related files in future.
+ *
  */
 return array(
-	'router' => array(
-		'routes' => array(
-			'vivo' => array(
-				'type' => 'Vivo\Router\Hostname', //only add hostname to routermatch
-/**
- * Sample for matching host from part of url.
- * @example
- * <code>
- * 	'type' => 'Zend\Mvc\Router\Http\Segment',
- * 	'options' => array(
- * 		'route' => '/site/:host',
- * 	),
- *  </code>
- */				
-				'may_terminate' => false,
-				'child_routes' => array(
+    'router' => array(
+        'routes' => array(
+            'vivo' => array(
+                //only add hostname to routermatch
+                'type' => 'Vivo\Router\Hostname',
+                'may_terminate' => false,
+                'child_routes' => array(
 
-					'cms' => array(
-						'type' => 'Zend\Mvc\Router\Http\Regex',
-						'options' => array(
-							'regex'	=> '/(?<path>.*)',
-							'spec'	=> '/%path%',
-							'defaults' => array(
-								'controller' => 'CMSFront',
-								'path' => '',
-							),
-						),
-					),
+                    'cms' => array(
+                        'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'options' => array(
+                            'regex'    => '/(?<path>.*)',
+                            'spec'    => '/%path%',
+                            'defaults' => array(
+                                'controller' => 'CMSFront',
+                                'path' => '',
+                            ),
+                        ),
+                    ),
 
-					'resources' => array(
-						'type' => 'Zend\Mvc\Router\Http\Regex',
-						'options' => array(
-							'regex'	=> '/resources/(?<module>.*?)/(?<path>.*)',
-							'spec'	=> '/resources/%module%/%path%',
-							'defaults' => array(
-								'controller' => 'ResourceFront',
-								'path' => '',
-								'module' => '',
-							),
-						),
-					),
-					'backend' => array( 
-						'type' => 'Zend\Mvc\Router\Http\Regex',
-						'options' => array(
-							'regex'	=> '/system/manager/(?<path>.*)',
-							'spec'	=> '/system/manager/%path%',
-							'defaults' => array(
-								'controller' => 'CMSFront',
-								'path' => '',
-								'module' => '',
-							),
-						),
-					),
-				),
-			),
-		),
-	),
-	   		
-	'service_manager' => array(
-		'factories' => array(
-			'translator' => 'Zend\I18n\Translator\TranslatorServiceFactory',
-		),
-	),
-	'translator' => array(
-		'locale' => 'en_US',
-		'translation_file_patterns' => array(
-			array(
-				'type'	 => 'gettext',
-				'base_dir' => __DIR__ . '/../language',
-				'pattern'  => '%s.mo',
-			),
-		),
-	),
-	'controllers' => array(
-		'invokables' => array(
-			'CMSFront' => 'Vivo\Controller\CMSFrontController',
-			'ResourceFront' => 'Vivo\Controller\ResourceFrontController'
-		),
-	),
-	'view_manager' => array(
-		'display_not_found_reason' => true,
-		'display_exceptions'	   => true,
-		'doctype'				  => 'HTML5',
-		'not_found_template'	   => 'error/404',
-		'exception_template'	   => 'error/index',
-		'template_map' => array(
-			'layout/layout'		   => __DIR__ . '/../view/layout/layout.phtml',
-			'vivo/index/index' => __DIR__ . '/../view/vivo/index/index.phtml',
-			'error/404'			   => __DIR__ . '/../view/error/404.phtml',
-			'error/index'			 => __DIR__ . '/../view/error/index.phtml',
-		),
-		'template_path_stack' => array(
-			__DIR__ . '/../view',
-		),
-	),
+                    'resources' => array(
+                        'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'options' => array(
+                            'regex'    => '/resources/(?<module>.*?)/(?<path>.*)',
+                            'spec'    => '/resources/%module%/%path%',
+                            'defaults' => array(
+                                'controller' => 'ResourceFront',
+                                'path' => '',
+                                'module' => '',
+                            ),
+                        ),
+                    ),
+                    'backend' => array(
+                        'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'options' => array(
+                            'regex'    => '/system/manager/(?<path>.*)',
+                            'spec'    => '/system/manager/%path%',
+                            'defaults' => array(
+                                'controller' => 'CMSFront',
+                                'path' => '',
+                                'module' => '',
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    ),
+
+    'service_manager' => array(
+        'factories' => array(
+            'translator' => 'Zend\I18n\Translator\TranslatorServiceFactory',
+        ),
+    ),
+    'translator' => array(
+        'locale' => 'en_US',
+        'translation_file_patterns' => array(
+            array(
+                'type'     => 'gettext',
+                'base_dir' => __DIR__ . '/../language',
+                'pattern'  => '%s.mo',
+            ),
+        ),
+    ),
+    'controllers' => array(
+        'invokables' => array(
+            'CMSFront' => 'Vivo\Controller\CMSFrontController',
+            'ResourceFront' => 'Vivo\Controller\ResourceFrontController'
+        ),
+    ),
+    'view_manager' => array(
+        'display_not_found_reason' => true,
+        'display_exceptions'       => true,
+        'doctype'                  => 'HTML5',
+        'not_found_template'       => 'error/404',
+        'exception_template'       => 'error/index',
+        'template_map' => array(
+            'layout/layout'           => __DIR__ . '/../view/layout/layout.phtml',
+            'vivo/index/index' => __DIR__ . '/../view/vivo/index/index.phtml',
+            'error/404'               => __DIR__ . '/../view/error/404.phtml',
+            'error/index'             => __DIR__ . '/../view/error/index.phtml',
+        ),
+        'template_path_stack' => array(
+            __DIR__ . '/../view',
+        ),
+    ),
 
     'vivo'      => array(
         //Vmodules configuration

@@ -1,9 +1,8 @@
 <?php
-namespace Vivo\Storage\Exception;
+namespace Vivo\Module\Exception;
 
 /**
  * ExceptionInterface
- * @author david.lukas
  */
 interface ExceptionInterface
 {

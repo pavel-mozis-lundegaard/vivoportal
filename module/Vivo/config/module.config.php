@@ -96,7 +96,7 @@ return array(
         'modules'  => array(
             //Storage config
             'storage'   => array(
-                'class'     => '\Vivo\Storage\LocalFileSystemStorage',
+                'class'     => 'Vivo\Storage\LocalFileSystemStorage',
                 'options'   => array(
                     'root'      => __DIR__ . '/../../../vmodule',
                 ),

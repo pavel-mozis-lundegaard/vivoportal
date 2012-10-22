@@ -1,14 +1,11 @@
 <?php
 namespace Vivo\UI;
 
+use Vivo\UI\Exception\ComponentNotExists;
 use Zend\View\Model\ViewModel;
 
-use Vivo\UI\Exception\ComponentNotExists;
-
 /**
- * @author kormik
  * @todo implement ArrayAccess?
- *
  */
 
 class ComponentContainer extends Component implements ComponentContainerInterface {

@@ -34,7 +34,6 @@ class Template extends Stream {
     }
      	
 	public static function register() {
-		stream_wrapper_register(self::STREAM_NAME, __CLASS__);
+		return stream_wrapper_register(self::STREAM_NAME, __CLASS__);
 	}
-
 }

@@ -2,7 +2,6 @@
 // foreach ($this->components as $name => $component) {
 // 	echo $component->view();
 // }		
-foreach ($this->sub as $cmp) {
-	echo $this->$cmp;	
+foreach ($sub as $cmp) {
+	echo $$cmp;
 }
-

@@ -76,14 +76,17 @@ return array(
     	'instance' => array (
     		'alias' => array (
     			'cms' => 'Vivo\Fake\CMS',
+    			'viewModel' =>  'Vivo\View\Model\UIViewModel',
     		),
     		
+    		'viewModel' => array (
+    				'shared' => false,
+    		),
     		'Vivo\CMS\ComponentFactory' => array (
 	    		'parameters' => array (
 	    			'cms' => 'cms',
 	    		),
     		),
-    		
 	    	'Vivo\CMS\UI\Page' => array (
 	    			'parameters' => array (
 	    					'options' => array (
@@ -97,34 +100,20 @@ return array(
 	    							'template' => 'someTemplate.phtml',
 	    					),
 	    			),
-	    	),
-// 	    	'Zend\View\Resolver\AggregateResolver' => array(
-// 	    			'injections' => array(
-// //	    					'Zend\View\Resolver\TemplateMapResolver',
-// 	    					'Zend\View\Resolver\TemplatePathStack',
-// 	    			),
-// 	    	),
-	    	
-// // 	    	'Zend\View\Resolver\TemplateMapResolver' => array(
-// // 	    			'parameters' => array(
-// // 	    					'map'  => array(
-// // 	    							'page'      => __DIR__ . '/view/layout.phtml',
-// // 	    					),
-// // 	    			),
-// // 	    	),
-// 	    	'Zend\View\Resolver\TemplatePathStack' => array(
-// 	    			'parameters' => array(
-// 	    					'paths'  => array(
-// 	    							'application' => __DIR__ . '/../view',
-// 	    					),
-// 	    			),
-// 	    	),
-// 	    	'Zend\View\Renderer\PhpRenderer' => array(
-// 	    			'parameters' => array(
-// 	    					'resolver' => 'Zend\View\Resolver\TemplatePathStack',
-// 	    			),
-// 	    	),
-	    	
-    	) 
+			),
+ 			'Vivo\UI\Component' => array (
+ 	    			'parameters' => array (
+ 	    					'view' => 'viewModel',
+ 	    			),
+ 	    	),
+    	), 
+    ),
+
+    'vivo' => array (
+    	'templates' => array (
+    		'templateMap' => array(
+//    			'Vivo\CMS\UI\Content\Sample' => 'page.phtml',
+    		),
+    	)
     )
 );

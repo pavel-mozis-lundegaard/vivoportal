@@ -9,7 +9,12 @@
 
 namespace Vivo;
 
+use Vivo\CMS\ComponentFactory;
+
+use Vivo\View\Strategy\UIRenderingStrategy;
+
 use Zend\Mvc\ModuleRouteListener;
+use Zend\ServiceManager\ServiceManager;
 
 class Module
 {
@@ -19,6 +24,7 @@ class Module
         $eventManager        = $e->getApplication()->getEventManager();
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
+        $eventManager->attach('render', array ($this, 'registerUIRenderingStrategy'), 100);
     }
 
     public function getConfig()
@@ -35,5 +41,35 @@ class Module
                 ),
             ),
         );
+    }
+    
+    public function getServiceConfig() {
+		return array(
+			'factories' => array (
+				'Vivo\View\Strategy\UIRenderingStrategy' => function(ServiceManager $sm) {
+					$config = $sm->get('config');
+					$resolver = new \Vivo\View\Resolver\UIResolver($config['vivo']['templates']);
+					$renderer = new \Vivo\View\Renderer\UIRenderer($resolver);
+					$strategy = new UIRenderingStrategy($renderer);
+					return $strategy;
+				},
+				'Vivo\CMS\ComponentFactory' => function(ServiceManager $sm) {
+					return new ComponentFactory($sm->get('di'), $sm->get('cms'));
+				},
+			),
+		);
+	}
+    
+    /**
+     * Register rendering strategy fo Vivo UI.
+     * 
+     * @param unknown_type $e
+     */
+    public function registerUIRenderingStrategy($e) {
+    	$app          = $e->getTarget();
+    	$locator      = $app->getServiceManager();
+    	$view         = $locator->get('Zend\View\View');
+    	$UIRendererStrategy = $locator->get('Vivo\View\Strategy\UIRenderingStrategy');
+    	$view->getEventManager()->attach($UIRendererStrategy, 100);
     }
 }

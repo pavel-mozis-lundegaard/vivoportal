@@ -1,9 +1,7 @@
 <?php
 namespace Vivo\UI;
 
-use Vivo\CMS\Stream\Template;
-
-use Zend\View\Model\ViewModel;
+use Vivo\View\Model\UIViewModel;
 
 /**
  * @author kormik
@@ -29,6 +27,11 @@ class Component implements ComponentInterface {
 	 */
 	private $name;
 	
+	/**
+	 * @var ViewModel
+	 */
+	protected $view;
+	
 
 	public function __construct(ComponentContainerInterface $parent = null, $name = null) {
 		if ($name) {
@@ -37,6 +40,10 @@ class Component implements ComponentInterface {
 		if ($parent) {
 			$parent->addComponent($this, $name);
 		}
+	}
+	
+	public function setView(UIViewModel $view) {
+		$this->view = $view;
 	}
 	
 	public function init() {
@@ -57,10 +64,10 @@ class Component implements ComponentInterface {
 // 	}
 
 	public function view() {
-		$this->template = get_called_class().'';
-		$viewModel = new ViewModel(array('test'=>'tests'));
-		$viewModel->setTemplate($this->template);
-		return $viewModel;
+//		echo "\n".get_class($this) ."::::". get_class($this->view);
+		$this->view->setTemplate($this->getTemplate());
+		$this->view->setVariable('component', $this);
+		return $this->view;
 	}
 	
 	public function done() {
@@ -79,6 +86,10 @@ class Component implements ComponentInterface {
 	
 	public function setTemplate($template) {
 		$this->template = $template;
+	}
+	
+	public function getTemplate() {
+		return $this->template?:get_class($this);  
 	}
 	
 	public function getParent() {

@@ -12,8 +12,6 @@ use Zend\Di\Di;
 
 /**
  * ComponentFactory is responsible for instatniating UI component for CMS documents. 
- * @author kormik
- *
  */
 class ComponentFactory {
 
@@ -31,7 +29,7 @@ class ComponentFactory {
 	 * @param CMS $cms
 	 * @param Di $di
 	 */
-	public function __construct(CMS $cms, Di $di) {
+	public function __construct(Di $di, CMS $cms) {
 		$this->cms = $cms;
 		$this->di = $di;
 	}
@@ -69,11 +67,11 @@ class ComponentFactory {
 		$contents = $this->cms->getDocumentContents($document);
 
 		if (count($contents) > 1) {
-			$frontComponent =  new UI\ComponentContainer();
+			$frontComponent =  $this->di->get('Vivo\UI\ComponentContainer');
 			$i = 1;
 			foreach ($contents as $content) {
 				$cc = $this->getContentFrontComponent($content, $document);
-				$frontComponent->addComponent($cc, $i++);
+				$frontComponent->addComponent($cc, 'content'.$i++);
 			}
 		
 		} elseif (count($contents) === 1) {

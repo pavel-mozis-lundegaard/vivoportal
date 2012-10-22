@@ -53,11 +53,13 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
 		$di->instanceManager()->addSharedInstance($site, 'Vivo\CMS\Model\Site');
 		$di->instanceManager()->addSharedInstance($di, 'Zend\Di\Di');
 		
+		//\Zend\Di\Display\Console::export($di);
+		//die();
 		//TODO: add exception when document doesn't exist
 		//TODO: redirects based on document properties(https, $document->url etc.)
 		
 		$document = $cms->getDocument($documentPath, $site);
-		$cf = $di->get('Vivo\CMS\ComponentFactory');
+		$cf = $this->serviceLocator->get('Vivo\CMS\ComponentFactory');
 		$root = $cf->getRootComponent($document);
 		
 		$root->init();

@@ -1,7 +1,7 @@
 <?php
 /**
- * Main CMS config, can be splited to the topic related files in future.  
- * 
+ * Main CMS config, can be splited to the topic related files in future.
+ *
  * @author kormik
  */
 
@@ -77,7 +77,7 @@ return array(
         'modules'  => array(
             //Storage config
             'storage'   => array(
-                'class'     => '\Vivo\Storage\LocalFileSystemStorage',
+                'class'     => 'Vivo\Storage\LocalFileSystemStorage',
                 'options'   => array(
                     'root'      => __DIR__ . '/../../../vmodule',
                 ),

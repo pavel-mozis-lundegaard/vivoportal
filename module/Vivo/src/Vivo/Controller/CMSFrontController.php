@@ -10,6 +10,8 @@ use Zend\Stdlib\DispatchableInterface;
 use Zend\Stdlib\RequestInterface as Request;
 use Zend\Stdlib\ResponseInterface as Response;
 
+use Zend\EventManager\EventManagerInterface;
+
 /**
  * The front controller which is responsible for dispatching all requests for documents and files in CMS repository.
  * @author kormik
@@ -17,7 +19,7 @@ use Zend\Stdlib\ResponseInterface as Response;
 class CMSFrontController implements DispatchableInterface, InjectApplicationEventInterface, ServiceLocatorAwareInterface {
 
 	/**
-	 * @var Zend\Mvc\MvcEvent
+	 * @var \Zend\Mvc\MvcEvent
 	 */
 	protected $event;
 	
@@ -25,13 +27,9 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
 	 * @var Zend\ServiceManager\ServiceManager
 	 */
 	private $serviceLocator;
-	
-	/**
-	 * @param Request $request
-	 * @param Response $response
-	 * @return Response
-	 */
-	public function dispatch(Request $request, Response $response = null) {
+
+    /**
+     * @var EventManagerInterface     */    protected $events;		/*	 * @param Request $request	 * @param Response $response	 * @return Response	 */	public function dispatch(Request $request, Response $response = null) {
 		//TODO find document in repository and return it
 		$path = $this->event->getRouteMatch()->getParam('path');
 		$host = $this->event->getRouteMatch()->getParam('host'); 
@@ -68,4 +66,41 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
 	public function getServiceLocator() {
 		return $this->serviceLocator;
 	}
+
+    /**
+     * Set the event manager instance
+     * @param  EventManagerInterface $events
+     * @return CMSFrontController
+     */
+    public function setEventManager(EventManagerInterface $events)
+    {
+        $events->setIdentifiers(array(
+            __CLASS__,
+            get_called_class(),
+            'cms_front_controller',
+        ));
+        $this->events = $events;
+        $this->attachDefaultListeners();
+        return $this;
+    }
+
+    /**
+     * Retrieve the event manager
+     * @return EventManagerInterface
+     */
+    public function getEventManager()
+    {
+        return $this->events;
+    }
+
+    /**
+     * Register the default event listeners
+     * @return CMSFrontController
+     */
+    protected function attachDefaultListeners()
+    {
+        $events = $this->getEventManager();
+        $events->attach(ModuleEvent::EVENT_LOAD_MODULES, array($this, 'onLoadModules'));
+    }
+
 }

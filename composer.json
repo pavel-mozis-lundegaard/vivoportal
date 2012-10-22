@@ -12,6 +12,7 @@
         "php": ">=5.3.3",
         "zendframework/zendframework": ">=2.0.0",
         "doctrine/common": ">=2.2.0",
-        "doctrine/orm": ">=2.2.0"
+        "doctrine/orm": ">=2.2.0",
+        "webino/zf2nette-debug": ">=1"
     }
 }

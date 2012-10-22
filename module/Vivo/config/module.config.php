@@ -109,11 +109,28 @@ return array(
     	), 
     ),
 
-    'vivo' => array (
-    	'templates' => array (
-    		'templateMap' => array(
-//    			'Vivo\CMS\UI\Content\Sample' => 'page.phtml',
-    		),
-    	)
-    )
+    'vivo'      => array(
+        //Vmodules configuration
+        'modules'  => array(
+            //Storage config
+            'storage'   => array(
+                'class'     => '\Vivo\Storage\LocalFileSystemStorage',
+                'options'   => array(
+                    'root'      => __DIR__ . '/../../../vmodule',
+                ),
+            ),
+            //Name of stream (protocol) which will be registered for Vmodule source file access in Storage
+            'stream_name'   => 'vmodule',
+            //Vmodule paths in Vmodule Storage
+            'module_paths'             => array(
+                '/',
+            ),
+        ),
+        'templates' => array (
+        		'templateMap' => array(
+        		//    			'Vivo\CMS\UI\Content\Sample' => 'page.phtml',
+        		),
+        )
+        
+    ),
 );

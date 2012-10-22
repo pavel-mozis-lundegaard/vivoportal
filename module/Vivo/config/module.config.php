@@ -73,7 +73,7 @@ return array(
     ),
 
     'vivo'      => array(
-        //Vmodules configuration
+        //Vivo Modules configuration
         'modules'  => array(
             //Storage config
             'storage'   => array(
@@ -82,9 +82,9 @@ return array(
                     'root'      => __DIR__ . '/../../../vmodule',
                 ),
             ),
-            //Name of stream (protocol) which will be registered for Vmodule source file access in Storage
+            //Name of stream (protocol) which will be registered for Vivo Module source file access in Storage
             'stream_name'   => 'vmodule',
-            //Vmodule paths in Vmodule Storage
+            //Vivo Module paths in Vivo Module Storage
             'module_paths'             => array(
                 '/',
             ),

@@ -3,7 +3,6 @@ namespace Vivo\Storage\StorageCache\KeyNormalizer;
 
 /**
  * KeyNormalizerInterface
- * @author david.lukas
  */
 interface KeyNormalizerInterface
 {

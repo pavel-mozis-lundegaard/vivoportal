@@ -1,6 +1,10 @@
 <?php
 namespace Vivo\Storage\StorageCache\KeyNormalizer;
 
+/**
+ * FileSystemCache
+ * Normalizes keys for FileSystem cache
+ */
 class FileSystemCache implements KeyNormalizerInterface
 {
     /**

@@ -4,11 +4,10 @@ namespace Vivo\Storage\StorageCache;
 use Vivo\Storage\StorageInterface;
 use Zend\Cache\Storage\StorageInterface as ZendCache;
 use Vivo\Storage\StorageCache\KeyNormalizer\KeyNormalizerInterface;
-use Vivo\Storage\Exception\StorageException;
 
 /**
  * StorageCache
- * @author david.lukas
+ * Transparently caches Storage objects
  */
 class StorageCache implements StorageCacheInterface
 {
@@ -65,7 +64,6 @@ class StorageCache implements StorageCacheInterface
     public function isObject($path)
     {
         $cacheKey   = $this->normalizeCacheKey($path);
-        //TODO - review isObject() implementation - is it ok to check if the cache hasItem?
         if ($this->cache->hasItem($cacheKey)) {
             return true;
         }
@@ -79,12 +77,11 @@ class StorageCache implements StorageCacheInterface
      */
     public function mtime($path)
     {
-        //TODO - try to get mtime first from cache?
         return $this->storage->mtime($path);
     }
 
     /**
-     * Returns item from cache, if not there, from the underlying storage
+     * Returns item from cache, if not there, gets the item from the underlying storage
      * @param string $path to item
      * @return mixed|null
      */
@@ -96,7 +93,6 @@ class StorageCache implements StorageCacheInterface
         if (!$success) {
             $item   = $this->storage->get($path);
             if (!is_null($item)) {
-                //TODO - process the result?
                 $result = $this->cache->setItem($cacheKey, $item);
             }
         }
@@ -112,7 +108,6 @@ class StorageCache implements StorageCacheInterface
     public function set($path, $variable)
     {
         $cacheKey   = $this->normalizeCacheKey($path);
-        //TODO - process the result?
         $result = $this->cache->setItem($cacheKey, $variable);
         $this->storage->set($path, $variable);
     }
@@ -125,7 +120,6 @@ class StorageCache implements StorageCacheInterface
     public function touch($path)
     {
         $cacheKey   = $this->normalizeCacheKey($path);
-        //TODO - review item touching - is it ok, to remove it from the cache and touch it in the storage?
         $this->cache->removeItem($cacheKey);
         $this->storage->touch($path);
     }
@@ -204,4 +198,29 @@ class StorageCache implements StorageCacheInterface
         return $normalized;
     }
 
+    /**
+     * Returns input stream for reading resource.
+     * @param string $path
+     * @return \Vivo\IO\InputStreamInterface
+     */
+    public function read($path)
+    {
+        $cacheKey   = $this->normalizeCacheKey($path);
+        $this->cache->removeItem($cacheKey);
+        $stream     = $this->storage->read($path);
+        return $stream;
+    }
+
+    /**
+     * Returns output stream for writing resource.
+     * @param string $path
+     * @return \Vivo\IO\OutputStreamInterface
+     */
+    public function write($path)
+    {
+        $cacheKey   = $this->normalizeCacheKey($path);
+        $this->cache->removeItem($cacheKey);
+        $stream     = $this->storage->write($path);
+        return $stream;
+    }
 }

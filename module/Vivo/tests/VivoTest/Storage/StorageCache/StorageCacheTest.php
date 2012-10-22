@@ -6,6 +6,7 @@ use Zend\Cache\Storage\StorageInterface as ZendCache;
 use Zend\Cache\Storage\Adapter\Filesystem as FsCache;
 use Vivo\Storage\StorageInterface;
 use Vivo\Storage\StorageCache\StorageCache;
+use Vivo\IO;
 
 /**
  * CacheMock
@@ -276,4 +277,33 @@ class StorageCacheTest extends TestCase
         $this->storageCache->touch($path);
     }
 
+    public function testRead()
+    {
+        $inputStream  = $this->getMock('Vivo\IO\InputStreamInterface', array(), array(), '', false);
+        $path   = 'foo/bar';
+        $this->cache->expects($this->once())
+            ->method('removeItem')
+            ->with($this->equalTo($path));
+        $this->storage->expects($this->once())
+            ->method('read')
+            ->with($this->equalTo($path))
+            ->will($this->returnValue($inputStream));
+        $stream = $this->storageCache->read($path);
+        $this->assertInstanceOf('\Vivo\IO\InputStreamInterface', $stream);
+    }
+
+    public function testWrite()
+    {
+        $outputStream  = $this->getMock('Vivo\IO\OutputStreamInterface', array(), array(), '', false);
+        $path   = 'foo/bar';
+        $this->cache->expects($this->once())
+            ->method('removeItem')
+            ->with($this->equalTo($path));
+        $this->storage->expects($this->once())
+            ->method('write')
+            ->with($this->equalTo($path))
+            ->will($this->returnValue($outputStream));
+        $stream = $this->storageCache->write($path);
+        $this->assertInstanceOf('\Vivo\IO\OutputStreamInterface', $stream);
+    }
 }

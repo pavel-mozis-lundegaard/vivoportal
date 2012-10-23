@@ -1,71 +1,27 @@
 <?php
 namespace Vivo\SiteManager;
 
-use Zend\ModuleManager\ModuleManager;
+use Zend\EventManager\EventsCapableInterface;
+use Zend\Mvc\Router\RouteMatch;
 
 /**
  * SiteManagerInterface
  */
-interface SiteManagerInterface
+interface SiteManagerInterface extends EventsCapableInterface
 {
     /**
-     * Sets the Site ID
-     * @param string $siteId
+     * Sets the RouteMatch object
+     * @param RouteMatch|null $routeMatch
      */
-    public function setSiteId($siteId);
+    public function setRouteMatch(RouteMatch $routeMatch = null);
 
     /**
-     * Returns the Site ID
-     * @return string
+     * Bootstraps the SiteManager
      */
-    public function getSiteId();
+    public function bootstrap();
 
     /**
-     * Sets the current Site alias
-     * @param string $siteAlias
+     * Prepares the site
      */
-    public function setSiteAlias($siteAlias);
-
-    /**
-     * Returns the current Site alias
-     * @return string
-     */
-    public function getSiteAlias();
-
-    /**
-     * Sets the site configuration
-     * @param array|\ArrayAccess $config
-     * @return void
-     */
-    public function setConfig($config);
-
-    /**
-     * Returns the Site configuration
-     * @return array|\ArrayAccess
-     */
-    public function getConfig();
-
-    /**
-     * Sets the module names required by this Site
-     * @param array $modules
-     */
-    public function setModules(array $modules);
-
-    /**
-     * Returns the module names required by this site
-     * @return array
-     */
-    public function getModules();
-
-    /**
-     * Sets the module manager
-     * @param ModuleManager $moduleManager
-     */
-    public function setModuleManager(ModuleManager $moduleManager);
-
-    /**
-     * Returns the module manager
-     * @return ModuleManager
-     */
-    public function getModuleManager();
+    public function prepareSite();
 }

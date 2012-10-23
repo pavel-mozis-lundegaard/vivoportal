@@ -2,18 +2,24 @@
 namespace Vivo\SiteManager;
 
 use Vivo\SiteManager\Event\SiteEventInterface;
+use Vivo\SiteManager\Event\SiteEvent;
 use Vivo\SiteManager\Exception;
+use Vivo\SiteManager\Resolver\ResolverInterface;
+use Vivo\SiteManager\Listener\SiteResolveListener;
+use Vivo\SiteManager\Listener\SiteConfigListener;
+use Vivo\SiteManager\Listener\LoadModulesListener;
+use Vivo\Module\ModuleManagerFactory;
 
 use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\EventsCapableInterface;
+use Zend\EventManager\EventManagerAwareInterface;
 use Zend\ModuleManager\ModuleManager;
-use ArrayAccess;
+use Zend\Mvc\Router\RouteMatch;
 
 /**
  * SiteManager
  */
 class SiteManager implements SiteManagerInterface,
-                             EventsCapableInterface
+                             EventManagerAwareInterface
 {
     /**
      * Event manager
@@ -27,29 +33,6 @@ class SiteManager implements SiteManagerInterface,
      */
     protected $siteEvent;
 
-    /**
-     * SiteManager ID
-     * @var string
-     */
-    protected $siteId;
-
-    /**
-     * SiteManager alias currently used to access the site
-     * @var string
-     */
-    protected $siteAlias;
-
-    /**
-     * Array of module names required by this site
-     * @var array
-     */
-    protected $modules  = array();
-
-    /**
-     * SiteManager configuration
-     * @var array|ArrayAccess
-     */
-    protected $config   = array();
 
     /**
      * Module manager
@@ -58,16 +41,103 @@ class SiteManager implements SiteManagerInterface,
     protected $moduleManager;
 
     /**
+     * RouteMatch object
+     * @var RouteMatch
+     */
+    protected $routeMatch;
+
+    /**
+     * Name of the route param containing the host name
+     * @var string
+     */
+    protected $routeParamHost;
+
+    /**
+     * @var ResolverInterface
+     */
+    protected $resolver;
+
+    /**
+     * Module manager factory
+     * @var ModuleManagerFactory
+     */
+    protected $moduleManagerFactory;
+
+    /**
      * Constructor
      * @param \Zend\EventManager\EventManagerInterface $events
      * @param Event\SiteEventInterface $siteEvent
+     * @param string $routeParamHost Name of the route parameter containing the host name
+     * @param Resolver\ResolverInterface $resolver
+     * @param \Vivo\Module\ModuleManagerFactory $moduleManagerFactory
+     * @param \Zend\Mvc\Router\RouteMatch|null $routeMatch
      */
-    public function __construct(EventManagerInterface $events, SiteEventInterface $siteEvent)
+    public function __construct(EventManagerInterface $events,
+                                SiteEventInterface $siteEvent,
+                                $routeParamHost,
+                                ResolverInterface $resolver,
+                                ModuleManagerFactory $moduleManagerFactory,
+                                RouteMatch $routeMatch = null)
     {
-        $this->events       = $events;
-        $this->siteEvent    = $siteEvent;
-        $this->siteEvent->setTarget($this);
+        $this->setEventManager($events);
+        $this->siteEvent            = $siteEvent;
+        $this->routeParamHost       = $routeParamHost;
+        $this->resolver             = $resolver;
+        $this->moduleManagerFactory = $moduleManagerFactory;
+        $this->setRouteMatch($routeMatch);
+    }
 
+    /**
+     * Bootstraps the SiteManager
+     */
+    public function bootstrap()
+    {
+        $this->siteEvent->setTarget($this);
+        $this->siteEvent->setRouteMatch($this->routeMatch);
+
+        //Attach Site resolve listener
+        $resolveListener    = new SiteResolveListener($this->routeParamHost, $this->resolver);
+        $resolveListener->attach($this->events);
+        //Attach Site config listener
+        $configListener     = new SiteConfigListener();
+        $configListener->attach($this->events);
+        //Attach Load modules listener
+        $loadModulesListener    = new LoadModulesListener($this->moduleManagerFactory);
+        $loadModulesListener->attach($this->events);
+    }
+
+    /**
+     * Prepares the site
+     */
+    public function prepareSite()
+    {
+        //Trigger events on SiteManager
+        //Init the Site
+        $this->siteEvent->stopPropagation(false);
+        $this->events->trigger(SiteEventInterface::EVENT_INIT, $this->siteEvent);
+        //Resolve the Site id
+        $this->siteEvent->stopPropagation(false);
+        $this->events->trigger(SiteEventInterface::EVENT_RESOLVE, $this->siteEvent);
+        //Test if the Site has been resolved
+        if ($this->siteEvent->getSiteId()) {
+            //The Site has been resolved, so configure it and store it
+            //Get Site config
+            $this->siteEvent->stopPropagation(false);
+            $this->events->trigger(SiteEventInterface::EVENT_CONFIG, $this->siteEvent);
+            //Load site modules
+            $this->siteEvent->stopPropagation(false);
+            $this->events->trigger(SiteEventInterface::EVENT_LOAD_MODULES, $this->siteEvent);
+        }
+    }
+
+    /**
+     * Inject an EventManager instance
+     * @param  EventManagerInterface $eventManager
+     * @return void
+     */
+    public function setEventManager(EventManagerInterface $eventManager)
+    {
+        $this->events   = $eventManager;
     }
 
     /**
@@ -80,98 +150,11 @@ class SiteManager implements SiteManagerInterface,
     }
 
     /**
-     * Sets the SiteManager ID
-     * @param string $siteId
+     * Sets the RouteMatch object
+     * @param \Zend\Mvc\Router\RouteMatch|null $routeMatch
      */
-    public function setSiteId($siteId)
+    public function setRouteMatch(RouteMatch $routeMatch = null)
     {
-        $this->siteId = $siteId;
-    }
-
-    /**
-     * Returns the SiteManager ID
-     * @return string
-     */
-    public function getSiteId()
-    {
-        return $this->siteId;
-    }
-
-    /**
-     * Sets the current SiteManager alias
-     * @param string $siteAlias
-     */
-    public function setSiteAlias($siteAlias)
-    {
-        $this->siteAlias = $siteAlias;
-    }
-
-    /**
-     * Returns the current SiteManager alias
-     * @return string
-     */
-    public function getSiteAlias()
-    {
-        return $this->siteAlias;
-    }
-
-    /**
-     * Sets the site configuration
-     * @param array|\ArrayAccess $config
-     * @throws Exception\InvalidArgumentException
-     * @return void
-     */
-    public function setConfig($config)
-    {
-        if (!(is_array($config) || $config instanceof ArrayAccess)) {
-            throw new Exception\InvalidArgumentException(
-                sprintf('%s: Config must be either an array or must implement ArrayAccess', __METHOD__));
-        }
-        $this->config = $config;
-    }
-
-    /**
-     * Returns the SiteManager configuration
-     * @return array|\ArrayAccess
-     */
-    public function getConfig()
-    {
-        return $this->config;
-    }
-
-    /**
-     * Sets the module names required by this SiteManager
-     * @param array $modules
-     */
-    public function setModules(array $modules)
-    {
-        $this->modules = $modules;
-    }
-
-    /**
-     * Returns the module names required by this site
-     * @return array
-     */
-    public function getModules()
-    {
-        return $this->modules;
-    }
-
-    /**
-     * Sets the module manager
-     * @param ModuleManager $moduleManager
-     */
-    public function setModuleManager(ModuleManager $moduleManager)
-    {
-        $this->moduleManager    = $moduleManager;
-    }
-
-    /**
-     * Returns the module manager
-     * @return ModuleManager
-     */
-    public function getModuleManager()
-    {
-        return $this->moduleManager;
+        $this->routeMatch = $routeMatch;
     }
 }

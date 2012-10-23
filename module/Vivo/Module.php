@@ -20,10 +20,7 @@ class Module
         $config = $sm->get('config');
 
         //Attach a listener to set up the SiteManager object
-        $resolver               = $sm->get('site_resolver');
-        $moduleManagerFactory   = $sm->get('module_manager_factory');
-        $createSiteListener     = new \Vivo\SiteManager\Listener\CreateSiteListener(
-                                    'host', $resolver, $moduleManagerFactory);
+        $createSiteListener = $sm->get('create_site_listener');
         $createSiteListener->attach($eventManager);
 
         //Register Vmodule stream
@@ -75,6 +72,28 @@ class Module
                     //TODO - configure a proper SiteResolver, the FixedValue resolver is for development only
                     $siteResolver   = new \Vivo\SiteManager\Resolver\FixedValue('abcdefgh12345678');
                     return $siteResolver;
+                },
+                'site_event'        => function(ServiceManager $sm) {
+                    $siteEvent              = new \Vivo\SiteManager\Event\SiteEvent();
+                    return $siteEvent;
+                },
+                'site_manager'      => function(ServiceManager $sm) {
+                    $siteEvents             = new \Zend\EventManager\EventManager();
+                    $siteEvent              = $sm->get('site_event');
+                    $routeParamHost         = 'host';
+                    $resolver               = $sm->get('site_resolver');
+                    $moduleManagerFactory   = $sm->get('module_manager_factory');
+                    $siteManager            = new \Vivo\SiteManager\SiteManager($siteEvents,
+                                                                                $siteEvent,
+                                                                                $routeParamHost,
+                                                                                $resolver,
+                                                                                $moduleManagerFactory);
+                    return $siteManager;
+                },
+                'create_site_listener'  => function(ServiceManager $sm) {
+                    $siteManager            = $sm->get('site_manager');
+                    $createSiteListener     = new \Vivo\SiteManager\Listener\CreateSiteListener($siteManager);
+                    return $createSiteListener;
                 },
             ),
         );

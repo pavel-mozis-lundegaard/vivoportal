@@ -76,12 +76,11 @@ class SiteResolveListener implements ListenerAggregateInterface
      */
     public function onResolve(SiteEventInterface $e)
     {
-        $routeMatch = $e->getParam('route_match');
+        $routeMatch = $e->getRouteMatch();
         if (!$routeMatch) {
             throw new Exception\InvalidArgumentException(sprintf("%s: Parameter 'route_match' missing in SiteEvent",
                                                                  __METHOD__));
         }
-        /* @var $routeMatch RouteMatch */
         $siteAlias  = $routeMatch->getParam($this->routeParamHost);
         if ($siteAlias) {
             $siteId = $this->resolver->resolve($siteAlias);

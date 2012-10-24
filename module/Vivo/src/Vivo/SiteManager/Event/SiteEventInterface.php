@@ -12,6 +12,7 @@ interface SiteEventInterface extends EventInterface
     const EVENT_INIT            = 'init';
     const EVENT_RESOLVE         = 'resolve';
     const EVENT_CONFIG          = 'config';
+    const EVENT_COLLECT_MODULES = 'collect_modules';
     const EVENT_LOAD_MODULES    = 'load_modules';
 
     /**

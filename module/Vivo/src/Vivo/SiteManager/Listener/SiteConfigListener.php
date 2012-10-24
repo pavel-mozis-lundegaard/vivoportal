@@ -1,7 +1,6 @@
 <?php
 namespace Vivo\SiteManager\Listener;
 
-use Vivo\SiteManager\SiteManager;
 use Vivo\SiteManager\Event\SiteEventInterface;
 use Vivo\SiteManager\Exception;
 
@@ -50,7 +49,7 @@ class SiteConfigListener implements ListenerAggregateInterface
     }
 
     /**
-     * Listen to "config" event, get Site configuration and required module names and store it into the SiteEvent
+     * Listen to "config" event, get Site configuration and store it into the SiteEvent
      * @param SiteEventInterface $e
      * @throws \Vivo\SiteManager\Exception\ConfigException
      * @return void
@@ -66,11 +65,14 @@ class SiteConfigListener implements ListenerAggregateInterface
             'site_config_opt_1'     => 'foo',
             'site_config_opt_2'     => 'bar',
             'config_item1'          => 'configured by site',
+            'modules'               => array(
+                'vm1',
+            ),
         );
+        $e->setSiteConfig($siteConfig);
         $siteModules    = array(
             'vm1', 'vm2',
         );
-        $e->setSiteConfig($siteConfig);
         $e->setModules($siteModules);
     }
 }

@@ -123,6 +123,9 @@ class SiteManager implements SiteManagerInterface,
             //Get Site config
             $this->siteEvent->stopPropagation(false);
             $this->events->trigger(SiteEventInterface::EVENT_CONFIG, $this->siteEvent);
+            //Get module names loaded for the site
+            $this->siteEvent->stopPropagation(false);
+            $this->events->trigger(SiteEventInterface::EVENT_COLLECT_MODULES, $this->siteEvent);
             //Load site modules
             $this->siteEvent->stopPropagation(false);
             $this->events->trigger(SiteEventInterface::EVENT_LOAD_MODULES, $this->siteEvent);

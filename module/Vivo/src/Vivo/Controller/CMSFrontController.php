@@ -26,7 +26,7 @@ class CMSFrontController implements DispatchableInterface,
     protected $event;
 
     /**
-     * @var Zend\ServiceManager\ServiceManager
+     * @var \Zend\ServiceManager\ServiceManager
      */
     private $serviceLocator;
 

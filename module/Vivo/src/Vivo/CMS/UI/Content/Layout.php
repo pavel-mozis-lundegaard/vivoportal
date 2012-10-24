@@ -6,18 +6,20 @@ use Vivo\UI\ComponentContainer;
 use Vivo\CMS\UI\Component;
 
 /**
- * @author kormik
- *
+ * Layout UI component wrap the underlaying component to layout.
  */
-class Layout extends Component {
+class Layout extends Component
+{
 
-	const MAIN_COMPONENT_NAME = 'param';
-	
-	public function setMain(ComponentInterface $component) {
-		$this->addComponent($component, self::MAIN_COMPONENT_NAME);
-	}
-	
-	public function createPanels() {
-		//TODO
-	}
+    const MAIN_COMPONENT_NAME = 'param';
+
+    public function setMain(ComponentInterface $component)
+    {
+        $this->addComponent($component, self::MAIN_COMPONENT_NAME);
+    }
+
+    public function createPanels()
+    {
+        //TODO
+    }
 }

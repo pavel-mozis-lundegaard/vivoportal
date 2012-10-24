@@ -6,32 +6,34 @@ use Vivo\CMS\Model\Document;
 use Vivo\UI\ComponentContainer;
 
 /**
- * @author kormik
- *
+ * Base component for CMS UI components.
  */
-class Component extends ComponentContainer {
+class Component extends ComponentContainer implements InjectModelInterface
+{
 
-	/**
-	 * @var \Vivo\CMS\Model\Document
-	 */
-	protected $document;
-	
-	/**
-	 * @var \Vivo\CMS\Model\Content
-	 */
-	protected $content;
-	
-	/**
-	 * @param Document $document
-	 */
-	public function setDocument(Document $document) {
-		$this->document = $document;
-	}
-	
-	/**
-	 * @param Content $content
-	 */
-	public function setContent(Content $content) {
-		$this->content = $content;
-	}
+    /**
+     * @var \Vivo\CMS\Model\Document
+     */
+    protected $document;
+
+    /**
+     * @var \Vivo\CMS\Model\Content
+     */
+    protected $content;
+
+    /**
+     * @param Document $document
+     */
+    public function setDocument(Document $document)
+    {
+        $this->document = $document;
+    }
+
+    /**
+     * @param Content $content
+     */
+    public function setContent(Content $content)
+    {
+        $this->content = $content;
+    }
 }

@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\Controller;
 
+use Vivo\IO\InputStreamInterface;
+
 use Zend\View\Model\ViewModel;
 use Vivo\CMS\ComponentFactory;
 use Vivo\CMS;
@@ -72,6 +74,9 @@ class CMSFrontController implements DispatchableInterface,
         //TODO: add exception when document doesn't exist
         //TODO: redirects based on document properties(https, $document->url etc.)
 
+        $response->getHeaders()->addHeaderLine('X-Generated-By: Vivo')
+        ->addHeaderLine('X-Generated-At: '.gmdate('D, d M Y H:i:s', time()).' GMT');
+
         $documentPath = $this->event->getRouteMatch()->getParam('path');
         $document = $this->cms->getDocument($documentPath, $this->site);
         $root = $this->componentFactory->getRootComponent($document);
@@ -81,8 +86,11 @@ class CMSFrontController implements DispatchableInterface,
 
         if ($result instanceof ViewModel) {
             $this->event->setViewModel($result);
-        } else {
-            //TODO shortcicruit if result is stream,
+        } elseif ($result instanceof InputStreamInterface) {
+            //TODO shortcicruit if result is stream
+        } elseif (is_string($result)) {
+            $response->setContent($result);
+            return $response;
         }
     }
 

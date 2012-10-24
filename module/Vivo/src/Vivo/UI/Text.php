@@ -3,22 +3,24 @@ namespace Vivo\UI;
 
 /**
  * Text component only display your content.
- * @author tzajicek
  */
-class Text extends Component {
-	/**
-	 * @var string
-	 */
-	private $text;
+class Text extends Component
+{
+    /**
+     * @var string
+     */
+    private $text;
 
-	/**
-	 * @param string
-	 */
-	public function __construct($text = '') {
-		$this->text = $text;
-	}
+    /**
+     * @param string
+     */
+    public function __construct($text = '')
+    {
+        $this->text = $text;
+    }
 
-	public function view() {
-		return $this->text;
-	}
+    public function view()
+    {
+        return $this->text;
+    }
 }

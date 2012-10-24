@@ -1,13 +1,14 @@
 <?php
 namespace Vivo\UI;
+
 /**
- * @author kormik
- *
+ * Interface for UI componets.
  */
-interface ComponentInterface {
-	public function init();
-	public function view();
-	public function done();
-	public function getName();
-	public function getparent();
+interface ComponentInterface
+{
+    public function init();
+    public function view();
+    public function done();
+    public function getName();
+    public function getparent();
 }

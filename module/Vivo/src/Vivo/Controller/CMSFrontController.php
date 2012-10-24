@@ -31,19 +31,18 @@ class CMSFrontController implements DispatchableInterface, InjectApplicationEven
 
         //SiteManager testing
         $sm = $this->event->getApplication()->getServiceManager();
-        if ($sm->has('vivo_site_manager')) {
-            $site   = $sm->get('vivo_site_manager');
-            /* @var $site \Vivo\SiteManager\SiteManagerInterface */
-            \Zend\Debug\Debug::dump($site->getSiteId(), 'SiteId');
-            \Zend\Debug\Debug::dump($site->getSiteAlias(), 'SiteAlias');
-            \Zend\Debug\Debug::dump($site->getConfig(), 'SiteManager config');
-            \Zend\Debug\Debug::dump($site->getModules(), 'Modules');
-            \Zend\Debug\Debug::dump(get_class($site->getModuleManager()), 'Module manager type');
+        $siteEvent  = $sm->get('site_event');
+        /* @var $siteEvent \Vivo\SiteManager\Event\SiteEventInterface */
+        if ($siteEvent->getSiteId()) {
+            \Zend\Debug\Debug::dump($siteEvent->getSiteId(), 'SiteId');
+            \Zend\Debug\Debug::dump($siteEvent->getHost(), 'Host');
+            \Zend\Debug\Debug::dump($siteEvent->getSiteConfig(), 'Site config');
+            \Zend\Debug\Debug::dump($siteEvent->getModules(), 'Modules');
             //Test class autoloading
             $myObj  = new \Vm1\MyObj();
             $myObj2 = new \Vm2\MyObj();
         } else {
-            echo 'Site not found in SM.<br>';
+            echo 'Site ID not set.<br>';
         }
         //END - SiteManager testing
 

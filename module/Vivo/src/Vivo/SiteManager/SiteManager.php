@@ -2,7 +2,6 @@
 namespace Vivo\SiteManager;
 
 use Vivo\SiteManager\Event\SiteEventInterface;
-use Vivo\SiteManager\Event\SiteEvent;
 use Vivo\SiteManager\Exception;
 use Vivo\SiteManager\Resolver\ResolverInterface;
 use Vivo\SiteManager\Listener\SiteResolveListener;

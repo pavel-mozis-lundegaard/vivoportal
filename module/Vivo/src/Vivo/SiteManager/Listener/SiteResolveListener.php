@@ -35,7 +35,7 @@ class SiteResolveListener implements ListenerAggregateInterface
     /**
      * Constructor
      * @param string $routeParamHost Route param name containing the host name
-     * @param \Vivo\Site\Resolver\ResolverInterface $resolver
+     * @param ResolverInterface $resolver
      */
     public function __construct($routeParamHost, ResolverInterface $resolver)
     {
@@ -68,7 +68,7 @@ class SiteResolveListener implements ListenerAggregateInterface
     }
 
     /**
-     * Listen to "resolve" event, get site alias from RouteMatch, resolve it to site id and set site alias and id to SiteManager
+     * Listen to "resolve" event, get host name from RouteMatch, resolve it to site id and set host name and id to SiteEvent
      * @param SiteEventInterface $e
      * @throws \Vivo\SiteManager\Exception\ResolveException
      * @throws \Vivo\SiteManager\Exception\InvalidArgumentException
@@ -78,18 +78,16 @@ class SiteResolveListener implements ListenerAggregateInterface
     {
         $routeMatch = $e->getRouteMatch();
         if (!$routeMatch) {
-            throw new Exception\InvalidArgumentException(sprintf("%s: Parameter 'route_match' missing in SiteEvent",
+            throw new Exception\InvalidArgumentException(sprintf("%s: RouteMatch missing in SiteEvent",
                                                                  __METHOD__));
         }
-        $siteAlias  = $routeMatch->getParam($this->routeParamHost);
-        if ($siteAlias) {
-            $siteId = $this->resolver->resolve($siteAlias);
+        $host  = $routeMatch->getParam($this->routeParamHost);
+        if ($host) {
+            $siteId = $this->resolver->resolve($host);
             if ($siteId) {
-                //SiteManager has been resolved
-                $site   = $e->getTarget();
-                /* @var $site SiteManager */
-                $site->setSiteId($siteId);
-                $site->setSiteAlias($siteAlias);
+                //Site has been resolved
+                $e->setSiteId($siteId);
+                $e->setHost($host);
                 $e->stopPropagation(true);
             }
         }

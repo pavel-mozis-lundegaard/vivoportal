@@ -60,28 +60,24 @@ class LoadModulesListener implements ListenerAggregateInterface
     }
 
     /**
-     * Listen to "load_modules" event, create the module mgr, load modules, store the module mgr into SiteManager, merge config
+     * Listen to "load_modules" event, create the module mgr, load modules, merge config
      * @param SiteEventInterface $e
      * @return void
      */
     public function onLoadModules(SiteEventInterface $e)
     {
-        $site   = $e->getTarget();
-        /* @var $site SiteManager */
-        $moduleNames = $site->getModules();
+        $moduleNames = $e->getModules();
         //Create module manager
         $moduleManager  = $this->moduleManagerFactory->getModuleManager($moduleNames);
         //Load modules
         $moduleManager->loadModules();
-        //Store module manager into the SiteManager object
-        $site->setModuleManager($moduleManager);
         //Merge modules config with the site config (site config overrides the modules config)
         $modulesConfig  = $moduleManager->getEvent()->getConfigListener()->getMergedConfig(false);
-        $siteConfig     = $site->getConfig();
+        $siteConfig     = $e->getSiteConfig();
         if (!$siteConfig) {
             $siteConfig = array();
         }
         $siteConfig = ArrayUtils::merge($modulesConfig, $siteConfig);
-        $site->setConfig($siteConfig);
+        $e->setSiteConfig($siteConfig);
     }
 }

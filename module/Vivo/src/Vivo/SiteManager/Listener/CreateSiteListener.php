@@ -2,9 +2,6 @@
 namespace Vivo\SiteManager\Listener;
 
 use Vivo\SiteManager\SiteManagerInterface;
-use Vivo\SiteManager\Resolver\ResolverInterface;
-use Vivo\Module\ModuleManagerFactory;
-use Vivo\SiteManager\SiteManager;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
@@ -12,7 +9,7 @@ use Zend\Mvc\MvcEvent;
 
 /**
  * CreateSiteListener
- * Sets-up a listener for MVC Route event to create and prepare a SiteManager object
+ * Sets-up a listener for MVC Route event to bootstrap the SiteManager object and prepare the Site
  */
 class CreateSiteListener implements ListenerAggregateInterface
 {

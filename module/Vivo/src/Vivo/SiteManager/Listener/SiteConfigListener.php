@@ -50,20 +50,18 @@ class SiteConfigListener implements ListenerAggregateInterface
     }
 
     /**
-     * Listen to "config" event, get Site configuration and required module names and store it into the SiteManager object
+     * Listen to "config" event, get Site configuration and required module names and store it into the SiteEvent
      * @param SiteEventInterface $e
      * @throws \Vivo\SiteManager\Exception\ConfigException
      * @return void
      */
     public function onConfig(SiteEventInterface $e)
     {
-        $site   = $e->getTarget();
-        /* @var $site SiteManager */
-        $siteId = $site->getSiteId();
+        $siteId = $e->getSiteId();
         if (!$siteId) {
             throw new Exception\ConfigException(sprintf('%s: SiteId not set.', __METHOD__));
         }
-        //TODO - load SiteManager Entity from repository using the siteId and get site configuration and module names from there
+        //TODO - load Site Entity from repository using the siteId and get site configuration and module names from there
         $siteConfig     = array(
             'site_config_opt_1'     => 'foo',
             'site_config_opt_2'     => 'bar',
@@ -72,7 +70,7 @@ class SiteConfigListener implements ListenerAggregateInterface
         $siteModules    = array(
             'vm1', 'vm2',
         );
-        $site->setConfig($siteConfig);
-        $site->setModules($siteModules);
+        $e->setSiteConfig($siteConfig);
+        $e->setModules($siteModules);
     }
 }

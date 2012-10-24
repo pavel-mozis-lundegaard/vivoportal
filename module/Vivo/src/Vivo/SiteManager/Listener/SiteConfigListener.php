@@ -66,13 +66,9 @@ class SiteConfigListener implements ListenerAggregateInterface
             'site_config_opt_2'     => 'bar',
             'config_item1'          => 'configured by site',
             'modules'               => array(
-                'vm1',
+                'vm1', 'vm2',
             ),
         );
         $e->setSiteConfig($siteConfig);
-        $siteModules    = array(
-            'vm1', 'vm2',
-        );
-        $e->setModules($siteModules);
     }
 }

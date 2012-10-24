@@ -7,6 +7,7 @@ use Vivo\SiteManager\Resolver\ResolverInterface;
 use Vivo\SiteManager\Listener\SiteResolveListener;
 use Vivo\SiteManager\Listener\SiteConfigListener;
 use Vivo\SiteManager\Listener\LoadModulesListener;
+use Vivo\SiteManager\Listener\CollectModulesListener;
 use Vivo\Module\ModuleManagerFactory;
 
 use Zend\EventManager\EventManagerInterface;
@@ -63,12 +64,19 @@ class SiteManager implements SiteManagerInterface,
     protected $moduleManagerFactory;
 
     /**
+     * List of names of global modules
+     * @var array
+     */
+    protected $globalModules    = array();
+
+    /**
      * Constructor
      * @param \Zend\EventManager\EventManagerInterface $events
      * @param Event\SiteEventInterface $siteEvent
      * @param string $routeParamHost Name of the route parameter containing the host name
      * @param Resolver\ResolverInterface $resolver
      * @param \Vivo\Module\ModuleManagerFactory $moduleManagerFactory
+     * @param array $globalModules
      * @param \Zend\Mvc\Router\RouteMatch|null $routeMatch
      */
     public function __construct(EventManagerInterface $events,
@@ -76,6 +84,7 @@ class SiteManager implements SiteManagerInterface,
                                 $routeParamHost,
                                 ResolverInterface $resolver,
                                 ModuleManagerFactory $moduleManagerFactory,
+                                array $globalModules,
                                 RouteMatch $routeMatch = null)
     {
         $this->setEventManager($events);
@@ -83,6 +92,7 @@ class SiteManager implements SiteManagerInterface,
         $this->routeParamHost       = $routeParamHost;
         $this->resolver             = $resolver;
         $this->moduleManagerFactory = $moduleManagerFactory;
+        $this->globalModules        = $globalModules;
         $this->setRouteMatch($routeMatch);
     }
 
@@ -100,6 +110,9 @@ class SiteManager implements SiteManagerInterface,
         //Attach Site config listener
         $configListener     = new SiteConfigListener();
         $configListener->attach($this->events);
+        //Attach Collect modules listener
+        $collectModulesListener = new CollectModulesListener($this->globalModules);
+        $collectModulesListener->attach($this->events);
         //Attach Load modules listener
         $loadModulesListener    = new LoadModulesListener($this->moduleManagerFactory);
         $loadModulesListener->attach($this->events);

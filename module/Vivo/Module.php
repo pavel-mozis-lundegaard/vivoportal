@@ -83,11 +83,14 @@ class Module
                     $routeParamHost         = 'host';
                     $resolver               = $sm->get('site_resolver');
                     $moduleManagerFactory   = $sm->get('module_manager_factory');
+                    //TODO - get list of global modules from somewhere
+                    $globalModules          = array('Gvm1');
                     $siteManager            = new \Vivo\SiteManager\SiteManager($siteEvents,
                                                                                 $siteEvent,
                                                                                 $routeParamHost,
                                                                                 $resolver,
-                                                                                $moduleManagerFactory);
+                                                                                $moduleManagerFactory,
+                                                                                $globalModules);
                     return $siteManager;
                 },
                 'create_site_listener'  => function(ServiceManager $sm) {

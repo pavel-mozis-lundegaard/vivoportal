@@ -29,7 +29,7 @@ class CollectModulesListener implements ListenerAggregateInterface
      */
     public function __construct(array $globalModules)
     {
-        $this->modules    = $this->arrayToLower($globalModules);
+        $this->modules    = $globalModules;
     }
 
     /**
@@ -66,7 +66,7 @@ class CollectModulesListener implements ListenerAggregateInterface
     {
         $siteConfig = $e->getSiteConfig();
         if (isset($siteConfig['modules'])) {
-            $siteModules    = $this->arrayToLower($siteConfig['modules']);
+            $siteModules    =$siteConfig['modules'];
         } else {
             $siteModules    = array();
         }
@@ -99,7 +99,8 @@ class CollectModulesListener implements ListenerAggregateInterface
      */
     protected function getModuleDependencies($module)
     {
-
+        //TODO - implement
+        return array();
     }
 
     /**
@@ -110,7 +111,6 @@ class CollectModulesListener implements ListenerAggregateInterface
     protected function addMissingValues(array &$base, array $toAdd)
     {
         foreach ($toAdd as $value) {
-            $value  = strtolower($value);
             if (!in_array($value, $base)) {
                 $base[] = $value;
             }
@@ -120,11 +120,13 @@ class CollectModulesListener implements ListenerAggregateInterface
     /**
      * Converts all array values to lower case
      * @param array $ay
+     * @return array
      */
-    protected function arrayToLower(array &$ay)
+    protected function arrayToLower(array $ay)
     {
         foreach ($ay as $key => $value) {
             $ay[$key]   = strtolower($value);
         }
+        return $ay;
     }
 }

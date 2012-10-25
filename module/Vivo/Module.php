@@ -90,6 +90,7 @@ class Module
                     $config = $sm->get('config');
                     $resolver = new \Vivo\View\Resolver\UIResolver($config['vivo']['templates']);
                     $renderer = new \Vivo\View\Renderer\UIRenderer($resolver);
+                    $renderer->setHelperPluginManager($sm->get('ViewHelperManager'));
                     $strategy = new UIRenderingStrategy($renderer);
                     return $strategy;
                 },

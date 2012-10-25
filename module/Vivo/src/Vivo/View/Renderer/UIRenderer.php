@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\View\Renderer;
 
+use Zend\View\HelperPluginManager;
+
 use Vivo\View\Resolver\UIResolver;
 use Vivo\View\Exception;
 
@@ -108,4 +110,82 @@ class UIRenderer implements Renderer
         }
         return $this->__vars[$key];
     }
+
+    /**
+     * Set helper plugin manager instance
+     *
+     * @param  string|HelperPluginManager $helpers
+     * @return PhpRenderer
+     * @throws Exception\InvalidArgumentException
+     */
+    public function setHelperPluginManager($helpers)
+    {
+        if (is_string($helpers)) {
+            if (!class_exists($helpers)) {
+                throw new Exception\InvalidArgumentException(sprintf(
+                        'Invalid helper helpers class provided (%s)',
+                        $helpers
+                ));
+            }
+            $helpers = new $helpers();
+        }
+        if (!$helpers instanceof HelperPluginManager) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                    'Helper helpers must extend Zend\View\HelperPluginManager; got type "%s" instead',
+                    (is_object($helpers) ? get_class($helpers) : gettype($helpers))
+            ));
+        }
+        $helpers->setRenderer($this);
+        $this->__helpers = $helpers;
+
+        return $this;
+    }
+
+    /**
+     * Get helper plugin manager instance
+     *
+     * @return HelperPluginManager
+     */
+    public function getHelperPluginManager()
+    {
+        if (null === $this->__helpers) {
+            $this->setHelperPluginManager(new HelperPluginManager());
+        }
+        return $this->__helpers;
+    }
+
+    /**
+     * Get plugin instance
+     *
+     * @param  string     $name Name of plugin to return
+     * @param  null|array $options Options to pass to plugin constructor (if not already instantiated)
+     * @return AbstractHelper
+     */
+    public function plugin($name, array $options = null)
+    {
+        return $this->getHelperPluginManager()->get($name, $options);
+    }
+
+    /**
+     * Overloading: proxy to helpers
+     *
+     * Proxies to the attached plugin manager to retrieve, return, and potentially
+     * execute helpers.
+     *
+     * * If the helper does not define __invoke, it will be returned
+     * * If the helper does define __invoke, it will be called as a functor
+     *
+     * @param  string $method
+     * @param  array $argv
+     * @return mixed
+     */
+    public function __call($method, $argv)
+    {
+        $helper = $this->plugin($method);
+        if (is_callable($helper)) {
+            return call_user_func_array($helper, $argv);
+        }
+        return $helper;
+    }
+
 }

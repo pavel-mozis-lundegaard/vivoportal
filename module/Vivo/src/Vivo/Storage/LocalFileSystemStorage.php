@@ -7,7 +7,7 @@ use Vivo\IO;
 /**
  * Implementation of the virtual file system over local filesystem.
  */
-class LocalFileSystemStorage implements StorageInterface {
+class LocalFileSystemStorage extends AbstractStorage {
 	/**
 	 * Root path.
 	 * @var string $root
@@ -204,7 +204,7 @@ class LocalFileSystemStorage implements StorageInterface {
 		$count = 0;
 		$this->mkdir($target);
 		if (is_dir($this->getAbsolutePath($path))) {
-			$this->mkdir($this->getAbsolutePath($target));
+			$this->mkdir($target);
 			foreach ($this->scan($path) as $name) {
 				$count += $this->copy("$path/$name", "$target/$name");
 			}

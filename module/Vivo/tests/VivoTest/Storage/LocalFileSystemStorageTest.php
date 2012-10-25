@@ -6,13 +6,15 @@ use Vivo\Storage\LocalFileSystemStorage;
 /**
  * Local file system storage test case.
  */
-class LocalFileSystemStorageTest extends \PHPUnit_Framework_TestCase {
+class LocalFileSystemStorageTest extends \PHPUnit_Framework_TestCase
+{
 	/**
 	 * @var string
 	 */
 	private $temp;
+
 	/**
-	 * @var Vivo\Storage\LocalFileSystemStorage
+	 * @var \Vivo\Storage\LocalFileSystemStorage
 	 */
 	private $storage;
 
@@ -144,7 +146,6 @@ class LocalFileSystemStorageTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function testMove() {
 		$dir = $this->temp.'/testMove';
-
 		mkdir($dir);
 		mkdir($dir.'/dir1');
 		mkdir($dir.'/dir1/dir2');
@@ -187,5 +188,31 @@ class LocalFileSystemStorageTest extends \PHPUnit_Framework_TestCase {
 	public function testReadAbsolutePathsSupported() {
 		$this->storage->read(sprintf('temp_%s', time()));
 	}
+
+    /**
+     * Tests building storage paths
+     */
+    public function testBuildPath()
+    {
+        $elements   = array(
+            'foo',
+            'bar',
+            '/',
+            'baz/bat',
+            '///qux/////',
+            '//quux',
+        );
+        $sep        = $this->storage->getStoragePathSeparator();
+        $expected   = 'foo' . $sep . 'bar' . $sep . 'baz/bat' . $sep . 'qux' . $sep . 'quux';
+        $this->assertEquals($expected, $this->storage->buildStoragePath($elements, false));
+        $this->assertEquals($sep . $expected, $this->storage->buildStoragePath($elements, true));
+        $elements   = array(
+            '///foo',
+            'bar',
+            'baz',
+        );
+        $expected   = 'foo' . $sep . 'bar' . $sep . 'baz';
+        $this->assertEquals($expected, $this->storage->buildStoragePath($elements, false));
+    }
 
 }

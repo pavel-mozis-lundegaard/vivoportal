@@ -69,6 +69,7 @@ interface StorageInterface {
 	/**
 	 * Returns list of child items
 	 * @param string $path to item
+     * @return array
 	 */
 	public function scan($path);
 

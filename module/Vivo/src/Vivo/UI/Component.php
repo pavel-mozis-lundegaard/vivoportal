@@ -61,6 +61,7 @@ class Component implements ComponentInterface
     {
         $this->view->setTemplate($this->getTemplate());
         $this->view->setVariable('component', $this);
+        $this->view->setVariable('cpath', $this->getPath());
         return $this->view;
     }
 

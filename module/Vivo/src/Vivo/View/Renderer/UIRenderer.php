@@ -1,11 +1,10 @@
 <?php
 namespace Vivo\View\Renderer;
 
-use Zend\View\HelperPluginManager;
-
 use Vivo\View\Resolver\UIResolver;
 use Vivo\View\Exception;
 
+use Zend\View\HelperPluginManager;
 use Zend\View\Model\ModelInterface;
 use Zend\View\Renderer\RendererInterface as Renderer;
 use Zend\View\Resolver\ResolverInterface;
@@ -22,6 +21,11 @@ class UIRenderer implements Renderer
      * @var ResolverInterface
      */
     private $__resolver;
+
+    /**
+     * @var ModelInterface
+     */
+    private $__currentModel;
 
     /**
      * @param ResolverInterface $resolver
@@ -41,6 +45,21 @@ class UIRenderer implements Renderer
         $this->__resolver = $resolver;
     }
 
+    /**
+     * Returns currently rendered model.
+     */
+    public function getCurrentModel() {
+        return $this->__currentModel;
+    }
+
+    /**
+     * Sets currently rendered model.
+     * @param ModelInterface $model
+     */
+    private function setCurrentModel(ModelInterface $model = null) {
+        $this->__currentModel = $model;
+    }
+
     public function render($model, $values = null)
     {
         if (!$model instanceof ModelInterface) {
@@ -51,6 +70,7 @@ class UIRenderer implements Renderer
                 'Missing model template.');
         }
 
+        $this->setCurrentModel($model);
         $values = $model->getVariables();
 
         if (null !== $values) {
@@ -67,11 +87,17 @@ class UIRenderer implements Renderer
         unset($__vars); // remove $__vars from local scope
 
         $this->__file = $this->__resolver->resolve($model->getTemplate());
+        try {
+            ob_start();
+            include $this->__file;
+            $this->__content = ob_get_clean();
+        } catch (\Exception $e) {
+            // we don't want to send broken output
+            ob_clean();
+            throw $e;
+        }
 
-        ob_start();
-        include $this->__file;
-        $this->__content = ob_get_clean();
-
+        $this->setCurrentModel(null);
         return $this->__content;
     }
 
@@ -187,5 +213,4 @@ class UIRenderer implements Renderer
         }
         return $helper;
     }
-
 }

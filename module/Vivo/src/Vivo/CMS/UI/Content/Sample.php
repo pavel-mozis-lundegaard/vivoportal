@@ -26,4 +26,8 @@ class Sample extends Component
     {
         $this->response = $response;
     }
+
+    public function submit($arg1, $arg2) {
+        $this->view->call = __METHOD__ . ">>> arg1:$arg1 arg2:$arg2";
+    }
 }

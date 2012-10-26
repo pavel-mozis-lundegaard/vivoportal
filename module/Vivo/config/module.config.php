@@ -22,6 +22,12 @@ return array(
                                 'path' => '',
                             ),
                         ),
+                        'may_terminate' => true,
+                        'child_routes' => array(
+                            'query' => array(
+                                'type' => 'Query',
+                            ),
+                        ),
                     ),
 
                     'resources' => array(
@@ -70,7 +76,6 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-      //      'CMSFront' => 'Vivo\Controller\CMSFrontController',
             'ResourceFront' => 'Vivo\Controller\ResourceFrontController'
         ),
     ),
@@ -89,6 +94,11 @@ return array(
         'template_path_stack' => array(
             __DIR__ . '/../view',
         ),
+    ),
+
+    'view_helpers' => array(
+            'invokables' => array(
+            ),
     ),
 
     'di' => array(

@@ -1,12 +1,12 @@
 <?php
 namespace Vivo;
 
-use Zend\Mvc\Controller\ControllerManager;
-
 use Vivo\CMS\ComponentFactory;
 use Vivo\Module\ModuleManagerFactory;
+use Vivo\View\Helper\Action;
 use Vivo\View\Strategy\UIRenderingStrategy;
 
+use Zend\Mvc\Controller\ControllerManager;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\ServiceManager\ServiceManager;
 
@@ -29,6 +29,7 @@ class Module
         \Vivo\Module\StreamWrapper::register($streamName, $moduleStorage);
 
         $eventManager->attach('render', array ($this, 'registerUIRenderingStrategy'), 100);
+        $eventManager->attach('render', array ($this, 'registerViewHelpers'), 100);
     }
 
     public function getConfig()
@@ -60,6 +61,16 @@ class Module
         $view         = $locator->get('Zend\View\View');
         $UIRendererStrategy = $locator->get('Vivo\View\Strategy\UIRenderingStrategy');
         $view->getEventManager()->attach($UIRendererStrategy, 100);
+    }
+
+    public function registerViewHelpers($e) {
+        $app          = $e->getTarget();
+        $serviceLocator      = $app->getServiceManager();
+        $plugins      = $serviceLocator->get('view_helper_manager');
+        $plugins->setFactory('action', function($sm) use($serviceLocator) {
+            $helper = new Action($sm->get('url'));
+            return $helper;
+        });
     }
 
 
@@ -115,6 +126,7 @@ class Module
                     $fc = new \Vivo\Controller\CMSFrontController();
                     $sm = $cm->getServiceLocator();
                     $fc->setComponentFactory($sm->get('Vivo\CMS\ComponentFactory'));
+                    $fc->setTreeUtil($sm->get('Vivo\UI\TreeUtil'));
                     $fc->setCMS($sm->get('cms'));
                     //TODO get site from SiteManager
                     $fc->setSite(new \Vivo\CMS\Model\Site());

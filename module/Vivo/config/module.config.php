@@ -71,7 +71,10 @@ return array(
     'controllers' => array(
         'invokables' => array(
             'CMSFront' => 'Vivo\Controller\CMSFrontController',
-            'ResourceFront' => 'Vivo\Controller\ResourceFrontController'
+            'ResourceFront' => 'Vivo\Controller\ResourceFrontController',
+            'CLI\Indexer' => 'Vivo\Controller\CLI\IndexerController',
+            'CLI\Info' => 'Vivo\Controller\CLI\InfoController',
+            'CLI\Module' => 'Vivo\Controller\CLI\ModuleController',
         ),
     ),
     'view_manager' => array(
@@ -106,6 +109,39 @@ return array(
             //Vivo Module paths in Vivo Module Storage
             'module_paths'             => array(
                 '/',
+            ),
+        ),
+    ),
+    'console' => array(
+        'router' => array(
+            'routes' => array(
+                'info' => array(
+                    'options' => array(
+                        'route'    => 'info [<action>]',
+                        'defaults' => array(
+                            'controller' => 'CLI\Info',
+                            'action'     => 'default',
+                        ),
+                    ),
+                ),
+                'module' => array(
+                    'options' => array(
+                        'route'    => 'module [<action>]',
+                        'defaults' => array(
+                            'controller' => 'CLI\Module',
+                            'action'     => 'default',
+                        ),
+                    ),
+                ),
+                'indexer' => array(
+                    'options' => array(
+                        'route'    => 'indexer [<action>]',
+                        'defaults' => array(
+                            'controller' => 'CLI\Indexer',
+                            'action'     => 'default',
+                        ),
+                    ),
+                ),
             ),
         ),
     ),

@@ -6,13 +6,15 @@ use Vivo\Storage\LocalFileSystemStorage;
 /**
  * Local file system storage test case.
  */
-class LocalFileSystemStorageTest extends \PHPUnit_Framework_TestCase {
+class LocalFileSystemStorageTest extends \PHPUnit_Framework_TestCase
+{
 	/**
 	 * @var string
 	 */
 	private $temp;
+
 	/**
-	 * @var Vivo\Storage\LocalFileSystemStorage
+	 * @var \Vivo\Storage\LocalFileSystemStorage
 	 */
 	private $storage;
 
@@ -144,7 +146,6 @@ class LocalFileSystemStorageTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function testMove() {
 		$dir = $this->temp.'/testMove';
-
 		mkdir($dir);
 		mkdir($dir.'/dir1');
 		mkdir($dir.'/dir1/dir2');
@@ -188,4 +189,38 @@ class LocalFileSystemStorageTest extends \PHPUnit_Framework_TestCase {
 		$this->storage->read(sprintf('temp_%s', time()));
 	}
 
+    /**
+     * Tests building storage paths
+     */
+    public function testBuildPath()
+    {
+        $sep        = $this->storage->getStoragePathSeparator();
+        $elements   = array(
+            'foo',
+            'bar',
+            $sep,
+            'baz' . str_repeat($sep, 3) . 'bat',
+            str_repeat($sep, 3) . 'qux' . str_repeat($sep, 5),
+            str_repeat($sep, 2) . 'quux',
+        );
+        $expected   = 'foo' . $sep . 'bar' . $sep . 'baz'. $sep . 'bat' . $sep . 'qux' . $sep . 'quux';
+        $this->assertEquals($expected, $this->storage->buildStoragePath($elements, false));
+        $this->assertEquals($sep . $expected, $this->storage->buildStoragePath($elements, true));
+        $elements   = array(
+            str_repeat($sep, 3) . 'foo',
+            'bar',
+            'baz',
+        );
+        $expected   = 'foo' . $sep . 'bar' . $sep . 'baz';
+        $this->assertEquals($expected, $this->storage->buildStoragePath($elements, false));
+    }
+
+    public function testGetStoragePathComponents()
+    {
+        $sep        = $this->storage->getStoragePathSeparator();
+        $path       = str_repeat($sep, 5) . 'abc' . $sep . 'de' . str_repeat($sep, 2)
+                    . 'fgh' . str_repeat($sep, 2) . 'ijk' . str_repeat($sep, 2);
+        $expected   = array('abc', 'de', 'fgh', 'ijk');
+        $this->assertEquals($expected, $this->storage->getStoragePathComponents($path));
+    }
 }

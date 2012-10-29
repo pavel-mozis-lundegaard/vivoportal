@@ -1,6 +1,8 @@
 <?php
 namespace Vivo;
 
+use Vivo\CMS\ComponentResolver;
+
 use Vivo\CMS\ComponentFactory;
 use Vivo\Module\ModuleManagerFactory;
 use Vivo\View\Helper\Action;
@@ -113,7 +115,10 @@ class Module
                     ->addSharedInstance($sm->get('request'), 'Zend\Http\Request');
                     $di->instanceManager()
                     ->addSharedInstance($sm->get('response'), 'Zend\Http\Response');
-                    return new ComponentFactory($di, $sm->get('cms'));
+                    $cf = new ComponentFactory($di, $sm->get('cms'));
+                    $resolver = new ComponentResolver($sm->get('config'));
+                    $cf->setResolver($resolver);
+                    return $cf;
                 },
             ),
         );

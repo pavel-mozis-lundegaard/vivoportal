@@ -27,6 +27,11 @@ class ComponentFactory
     private $di;
 
     /**
+     * @var ComponentResolver
+     */
+    private $resolver;
+
+    /**
      * @param CMS $cms
      * @param Di $di
      */
@@ -125,7 +130,8 @@ class ComponentFactory
         Document $document)
     {
         //TODO How to find UI component class?
-        $className = $content->getFrontComponentClass();
+//        $className = $content->getFrontComponentClass();
+        $className = $this->resolver->resolve($content);
         $component = $this->di->newInstance($className);
         if ($component instanceof InjectModelInterface) {
             //TODO how to properly inject document and content
@@ -145,4 +151,12 @@ class ComponentFactory
     {
         //TODO implement
     }
+
+    /**
+     * @param ComponentResolver $resolver
+     */
+    public function setResolver(ComponentResolver $resolver) {
+        $this->resolver = $resolver;
+    }
+
 }

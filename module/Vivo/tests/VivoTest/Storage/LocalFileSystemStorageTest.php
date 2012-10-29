@@ -228,7 +228,38 @@ class LocalFileSystemStorageTest extends \PHPUnit_Framework_TestCase
     {
         $sysTmp     = sys_get_temp_dir();
         $testDir    = $sysTmp . DIRECTORY_SEPARATOR . 'TestDir';
-        $file       = implode(DIRECTORY_SEPARATOR, array($sysTmp, 'TestDir', 'a', 'b', 'c'));
+        $this->rrmdir($testDir);
+        mkdir($testDir, 0777, true);
+        $storage    = new LocalFileSystemStorage(array('root' => $testDir));
+        $file       = $storage->buildStoragePath(array('a', 'b', 'c', 'file.txt'), true);
+        $output     = $storage->write($file);
+        $data       = 'foo bar baz';
+        $bytes      = $output->write($data);
+        $this->assertEquals(strlen($data), $bytes);
+        $this->assertEquals($data, $storage->get($file));
+        //Permission denied?
+        //$this->rrmdir($testDir);
     }
 
+    /**
+     * Recursively removes a directory in file system
+     * @param string $dir
+     */
+    protected function rrmdir($dir)
+    {
+        if (is_dir($dir)) {
+            $objects = scandir($dir);
+            foreach ($objects as $object) {
+                if ($object != "." && $object != "..") {
+                    $path   = $dir . DIRECTORY_SEPARATOR . $object;
+                    if (is_dir($path)) {
+                        $this->rrmdir($path);
+                    } else {
+                        unlink($path);
+                    }
+                }
+            }
+            rmdir($dir);
+        }
+    }
 }

@@ -267,13 +267,14 @@ class LocalFileSystemStorage extends AbstractStorage {
      * @return \Vivo\IO\OutputStreamInterface
      */
 	public function write($path) {
-        //The directory must exist prior to instantiating the output stream. The file will be also created for consistency.
+        //The directory must exist prior to instantiating the output stream, otherwise stream opening fails
+        //The file will be also created beforehand for consistency reasons
         $components = $this->getStoragePathComponents($path);
-        $fileName   = array_pop($components);
-        $dir        = $this->getAbsolutePath($this->buildStoragePath($components, true));
-        $filePath   = $dir . DIRECTORY_SEPARATOR . $fileName;
-        $this->mkdir($dir);
-        touch($filePath);
-		return new IO\FileOutputStream($filePath);
+        array_pop($components);
+        $storageDir = $this->buildStoragePath($components, true);
+        $fsFullPath = $this->getAbsolutePath($path);
+        $this->mkdir($storageDir);
+        $this->touch($path);
+		return new IO\FileOutputStream($fsFullPath);
 	}
 }

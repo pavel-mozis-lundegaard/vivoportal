@@ -29,7 +29,7 @@ class StreamWrapper extends ZendViewStream
     public function stream_open($path, $mode, $options, &$opened_path)
     {
         //Get the source
-        $path        = str_replace(self::$streamName . '://', '', $path);
+        $path        = $this->getBarePath($path);
         if (self::$storage->isObject($path)) {
             $this->data   = self::$storage->get($path);
         }
@@ -39,12 +39,42 @@ class StreamWrapper extends ZendViewStream
         }
         //Update stat info
         $fileSize   = strlen($this->data);
-        //TODO - other stat info?
         $this->stat = array(
-            7   => $fileSize,
-            'size'  => $fileSize,
+            'size'      => $fileSize,
+            'mtime'     => self::$storage->mtime($path),
         );
         return true;
+    }
+
+    /**
+     * Retrieve information about a file
+     * @link http://cz.php.net/manual/en/streamwrapper.url-stat.php
+     * @param string $path
+     * @param int $flags
+     * @return array
+     */
+    public function url_stat($path, $flags)
+    {
+        $path   = $this->getBarePath($path);
+        if (self::$storage->isObject($path)) {
+            $stat   = array(
+                'mtime'     => self::$storage->mtime($path),
+            );
+        } else {
+            $stat   = false;
+        }
+        return $stat;
+    }
+
+    /**
+     * Returns the path without the stream name and ://
+     * @param string $path
+     * @return string
+     */
+    protected function getBarePath($path)
+    {
+        $barePath   = str_replace(self::$streamName . '://', '', $path);
+        return $barePath;
     }
 
     /**

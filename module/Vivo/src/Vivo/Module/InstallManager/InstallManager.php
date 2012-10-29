@@ -51,7 +51,13 @@ class InstallManager implements InstallManagerInterface
      * Cached storage instances
      * @var array
      */
-    protected $storageInstances      = array();
+    protected $storageInstances     = array();
+
+    /**
+     * Array of info about modules present in storage
+     * @var array
+     */
+    protected $moduleInfo           = array();
 
     /**
      * Constructor
@@ -84,6 +90,7 @@ class InstallManager implements InstallManagerInterface
      * @param string $moduleUrl
      * @param bool $force
      * @param string|null $installPath
+     * @throws \Vivo\Module\Exception\DescriptorException
      * @throws \Vivo\Module\Exception\InvalidArgumentException
      * @return mixed
      */
@@ -109,17 +116,27 @@ class InstallManager implements InstallManagerInterface
                 sprintf("%s: Cannot read module descriptor from '%s' for module URL '%s'",
                     __METHOD__, self::MODULE_DESCRIPTOR, $moduleUrl));
         }
-        if (!isset($moduleDescJson['namespace'])) {
+        if (!isset($moduleDescJson['name'])) {
             throw new Exception\DescriptorException(
-                sprintf("%s: 'namespace' field missing in module descriptor for module URL '%s'", __METHOD__, $moduleUrl));
+                sprintf("%s: 'name' field missing in module descriptor for module URL '%s'", __METHOD__, $moduleUrl));
         }
-        $moduleName = $moduleDescJson['namespace'];
+        $moduleName = $moduleDescJson['name'];
         //Check that the module name has not been added yet
         if ($this->moduleExists($moduleName)) {
             throw new Exception\InvalidArgumentException(
                 sprintf("%s: Module '%s' (%s) already exists in module storage", __METHOD__, $moduleName, $moduleUrl));
         }
-        //TODO - Read module dependencies on other vmodules and check they have been added (otherwise throw exception)
+        //Read module dependencies on other vmodules and check they have been added (otherwise throw exception)
+        if (isset($moduleDescJson['require'])) {
+            $dependencies   = $moduleDescJson['require'];
+            foreach ($dependencies as $depName => $depVersion) {
+                if (!$this->moduleExists($depName, $depVersion)) {
+                    throw new Exception\DependencyException(
+                        sprintf("%s: Dependency '%s (version %s)' of module '%s' not satisfied.",
+                                __METHOD__, $depName, $depVersion, $moduleName));
+                }
+            }
+        }
         //TODO - Read module dependencies on libraries, throw an exception, if unsatisfied
         //Copy the module source to the module storage
         $pathInTargetStorage    = $this->storage->buildStoragePath(array($installPath, $moduleName), true);
@@ -129,57 +146,56 @@ class InstallManager implements InstallManagerInterface
     /**
      * Returns if a module exists in the storage
      * @param string $moduleName
+     * @param string|null $version
      * @return boolean
      */
-    public function moduleExists($moduleName)
+    public function moduleExists($moduleName, $version = null)
     {
-        //TODO - refactor to a cheaper implementation, getModules() always scans whole storage
-        $modules    = $this->getModules();
-        $moduleExists   = array_key_exists($moduleName, $modules);
-        return $moduleExists;
+        $modules        = $this->getModules();
+        if (!array_key_exists($moduleName, $modules)) {
+            return false;
+        }
+        if (is_null($version)) {
+            return true;
+        }
+        $ourVersion = $modules[$moduleName]['descriptor']['version'];
+        $versionOk  = $this->isVersionOk($ourVersion, $version);
+        return $versionOk;
     }
 
     /**
      * Returns an array with information about modules added to the storage
+     * @throws \Vivo\Module\Exception\DescriptorException
      * @return array
      */
     public function getModules()
     {
-        $modules    = array();
-        foreach ($this->modulePaths as $moduleBasePath) {
-            $scan   = $this->storage->scan($moduleBasePath);
-            foreach ($scan as $item) {
-                $modulePath     = $this->storage->buildStoragePath(array($moduleBasePath, $item), true);
-                $moduleFilePath = $this->storage->buildStoragePath(array($moduleBasePath, $item, 'Module.php'), true);
-                $moduleJsonPath = $this->storage->buildStoragePath(array($moduleBasePath, $item, self::MODULE_DESCRIPTOR), true);
-                if ($this->storage->isObject($moduleFilePath)) {
-                    $moduleJson = $this->getJsonContent($this->storage, $moduleJsonPath);
-                    if ((!isset($moduleJson['namespace'])) || ($item != $moduleJson['namespace'])) {
-                        throw new Exception\DescriptorException(
-                            sprintf("%s: Namespace in the module descriptor does not match module name '%s'.",
-                                    __METHOD__, $item));
+        if (empty($this->moduleInfo)) {
+            $this->moduleInfo   = array();
+            foreach ($this->modulePaths as $moduleBasePath) {
+                $scan   = $this->storage->scan($moduleBasePath);
+                foreach ($scan as $item) {
+                    $modulePath     = $this->storage->buildStoragePath(array($moduleBasePath, $item), true);
+                    $moduleFilePath = $this->storage->buildStoragePath(array($moduleBasePath, $item, 'Module.php'), true);
+                    $moduleJsonPath = $this->storage->buildStoragePath(array($moduleBasePath, $item, self::MODULE_DESCRIPTOR), true);
+                    if ($this->storage->isObject($moduleFilePath)) {
+                        $moduleJson = $this->getJsonContent($this->storage, $moduleJsonPath);
+                        if ((!isset($moduleJson['name'])) || ($item != $moduleJson['name'])) {
+                            throw new Exception\DescriptorException(
+                                sprintf("%s: Name in the module descriptor does not match module name '%s'.",
+                                        __METHOD__, $item));
+                        }
+                        $moduleDesc = array(
+                            'name'          => $item,
+                            'storage_path'  => $modulePath,
+                            'descriptor'    => $moduleJson,
+                        );
+                        $this->moduleInfo[$item] = $moduleDesc;
                     }
-                    $moduleDesc = array(
-                        'namespace'     => $item,
-                        'storage_path'  => $modulePath,
-                    );
-                    //Version
-                    if (isset($moduleJson['version'])) {
-                        $moduleDesc['version']  = $moduleJson['version'];
-                    } else {
-                        $moduleDesc['version']  = null;
-                    }
-                    //Type
-                    if (isset($moduleJson['type'])) {
-                        $moduleDesc['type']  = $moduleJson['type'];
-                    } else {
-                        $moduleDesc['type']  = null;
-                    }
-                    $modules[$item] = $moduleDesc;
                 }
             }
         }
-        return $modules;
+        return $this->moduleInfo;
     }
 
     /**
@@ -234,5 +250,42 @@ class InstallManager implements InstallManagerInterface
         //For file system storage the module is always at the root of the storage
         $modulePath = $sourceStorage->getStoragePathSeparator();
         return $modulePath;
+    }
+
+    /**
+     * Compare the specified version strings
+     * @param string $left
+     * @param string $right
+     * @param string|null $operator
+     * @return int  -1 if the left version is older,
+     *               0 if they are the same,
+     *              +1 if the left version is newer.
+     */
+    protected function compareVersion($left, $right, $operator = null)
+    {
+        $left   = strtolower($left);
+        $right  = strtolower($right);
+        return version_compare($left, $right, $operator);
+    }
+
+    /**
+     * Checks if a version number satisfies the requirements
+     * @param string $ourVersion
+     * @param string $requiredVersion May be prepended with an operator '=' or '>='
+     * @return bool
+     */
+    protected function isVersionOk($ourVersion, $requiredVersion)
+    {
+        if (substr($requiredVersion, 0, 2) == '>=') {
+            $requiredVersion    = substr($requiredVersion, 2);
+            $operator           = '>=';
+        } elseif (substr($requiredVersion, 0, 1) == '=') {
+            $requiredVersion    = substr($requiredVersion, 1);
+            $operator           = '=';
+        } else {
+            $operator           = '=';
+        }
+        $result = version_compare($ourVersion, $requiredVersion, $operator);
+        return $result;
     }
 }

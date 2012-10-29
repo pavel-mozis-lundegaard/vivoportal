@@ -1,6 +1,6 @@
 {
-    "name": "vendorx/venx-gvm1",
-    "namespace": "Gvm1",
+    "package": "vendorx/venx-gvm1",
+    "name": "Gvm1",
     "version": "0.1",
     "type": "site",
     "description": "Vivo 2 sample module demonstrating Vivo module capabilities and features",

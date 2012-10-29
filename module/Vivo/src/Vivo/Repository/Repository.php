@@ -26,18 +26,24 @@ use Vivo\Repository\Indexer;
  */
 class Repository implements RepositoryInterface {
 
+	const ENTITY_FILENAME = 'Entity.object';
+
 	const UUID_PATTERN = '[\d\w]{32}';
 
 //	const URL_PATTERN = '\/[\w\d\-\/\.]+\/';
 
 	/**
-	 * @var Vivo\Repository\Storage\StorageInterface
+	 * @var \Vivo\Repository\Storage\StorageInterface
 	 */
 	private $storage;
 	/**
-	 * @var Vivo\Repository\Indexer\IndexerInterface
+	 * @var \Vivo\Repository\Indexer\IndexerInterface
 	 */
 	private $indexer;
+	/**
+	 * @var \Zend\Serializer\Adapter\AdapterInterface
+	 */
+	private $serializer;
 	/**
 	 * @var array The list of entities that are prepared to impose.
 	 */
@@ -63,9 +69,10 @@ class Repository implements RepositoryInterface {
 	 * @param Vivo\Repository\Storage\StorageInterface $storage
 	 * @param Vivo\Repository\Indexer\IndexerInterface $indexer
 	 */
-	public function __construct(Storage\StorageInterface $storage, Indexer\IndexerInterface $indexer) {
+	public function __construct(Storage\StorageInterface $storage, $cache, Indexer\IndexerInterface $indexer, \Zend\Serializer\Adapter\AdapterInterface $serializer) {
 		$this->storage = $storage;
 		$this->indexer = $indexer;
+		$this->serializer = $serializer;
 	}
 
 	/**
@@ -99,12 +106,16 @@ class Repository implements RepositoryInterface {
 			throw new \Exception('TODO');
 
 			/* UUID */
-			$entities = $this->indexer->execute(new Indexer\Query("vivo_cms_model_entity_uuid:$uuid"));
+			$query = new Indexer\Query('SELECT Vivo\CMS\Model\Entity\uuid = :uuid');
+			$query->setParameter('uuid', $uuid);
+
+			$entities = $this->indexer->execute($query);
+
 			if (!empty($entities)) {
 				return $entities[0];
 			}
 			if ($throwException)
-				throw new CMS\EntityNotFoundException($uuid);
+				throw new Exception\EntityNotFoundException(sprintf('Entity not found; UUID: %s', $uuid));
 			return null;
 		} else {
 			/* path */
@@ -143,7 +154,7 @@ class Repository implements RepositoryInterface {
 				throw new \Exception('Entity not found: '.$ident);
 			}
 
-			$entity = $this->storage->get($ident);
+			$entity = $this->serializer->unserialize($this->storage->get($ident));
 // print_r($entity);
 
 			return $entity;
@@ -158,8 +169,9 @@ class Repository implements RepositoryInterface {
 	 */
 	public function getEntityPathByUuid($uuid) {
 		$paths = array();
-		$query = new Indexer\Query("vivo_cms_model_entity_uuid:$uuid");
-		$query->setFirstResult(0);
+		$query = new Indexer\Query('SELECT Vivo\CMS\Model\Entity\uuid = :uuid');
+		$query->setParameter('uuid', $uuid);
+		$query->setMaxResults(1);
 
 		$facetPaths = $this->indexer->execute($query//,
 										/*array(
@@ -331,9 +343,11 @@ class Repository implements RepositoryInterface {
 		try {
 			// mazani faze 1 (presun do temp adresare)
 			try {
-				foreach ($this->deletePaths as $path)
-					$this->storage->move($path, $tmp_del_files[$path] = '/Temp/del-'.uniqid());
-			} catch (\Exception $e) {
+				foreach ($this->deletePaths as $path) {
+					$this->storage->move($path, $tmp_del_files[$path] = '/del-'.uniqid());
+				}
+			}
+			catch (\Exception $e) {
 				// presun toho co bylo presunuto zpet
 				foreach ($tmp_del_files as $path => $tmp_del_path)
 					$this->storage->move($tmp_del_path, $path);
@@ -360,16 +374,15 @@ class Repository implements RepositoryInterface {
 
 				$entity->setModified($now);
 				$entity->setModifiedBy($username);
-				$tmp_path = $entity->getPath(); //@todo: .'.'.uniqid('tmp');
-				//@todo: transakce a setovani TMP_PATH
 
+				$path = $entity->getPath().'/'.self::ENTITY_FILENAME;
+				$tmpPath = $path.'.'.uniqid('tmp');
 
-// 				CMS::$cache->remove($path);
-				$this->storage->set($tmp_path, $entity);
+				$this->storage->set($tmpPath, $this->serializer->serialize($entity));
 
-// 				$tmp_files[$entity->getPath()] = $tmp_path;
-				//TODO overit, zda ma prava na prepsani (move) souboru v $path
+				$tmp_files[$path] = $tmpPath;
 			}
+
 			/// b) soubory
 // 			foreach ($this->saveFiles as $path => $data) {
 // 				$tmp_path = $path.'.'.uniqid('tmp');
@@ -389,17 +402,18 @@ class Repository implements RepositoryInterface {
 // 			foreach ($tmp_del_files as $tmp_del_file)
 // 				$this->storage->remove($tmp_del_file);
 			// ulozeni faze 2 (prejmenuje temporarni soubory na skutecne)
-// 			foreach ($tmp_files as $path => $tmp_path) {
-// 				if (CMS::$logger->level >= Logger::LEVEL_FINER)
-// 					CMS::$logger->finer("commit $path");
-// 				if (!$this->storage->move($tmp_path, $path)) {
-// 					throw new CMS\Exception(500, 'commit_failed', array($tmp_path, $path));
-// 				}
-// 			}
+			foreach ($tmp_files as $path => $tmpPath) {
+				if (!$this->storage->move($tmpPath, $path)) {
+					throw new Exception\Exception(sprintf('Commit failed; source: %s, destination: %s', $tmpPath, $path));
+				}
+			}
 			// delete entities from index
 // 			foreach ($this->deleteEntities as $path) {
 // 				$path = str_replace(' ', '\\ ', $path);
-// 				$this->indexer->deleteByQuery("vivo_cms_model_entity_path:$path OR vivo_cms_model_entity_path:$path/*");
+				$query = new Indexer\Query('DELETE Vivo\CMS\Model\Entity\path = :path OR Vivo\CMS\Model\Entity\path = :path/*');
+				$query->setParameter('path', $path);
+
+				$this->indexer->execute($query);
 // 			}
 			foreach ($this->saveEntities as $entity)
 				$this->indexer->save($entity); // (re)index entity

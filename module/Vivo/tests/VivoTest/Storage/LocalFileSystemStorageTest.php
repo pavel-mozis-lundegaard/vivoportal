@@ -223,4 +223,12 @@ class LocalFileSystemStorageTest extends \PHPUnit_Framework_TestCase
         $expected   = array('abc', 'de', 'fgh', 'ijk');
         $this->assertEquals($expected, $this->storage->getStoragePathComponents($path));
     }
+
+    public function testWrite()
+    {
+        $sysTmp     = sys_get_temp_dir();
+        $testDir    = $sysTmp . DIRECTORY_SEPARATOR . 'TestDir';
+        $file       = implode(DIRECTORY_SEPARATOR, array($sysTmp, 'TestDir', 'a', 'b', 'c'));
+    }
+
 }

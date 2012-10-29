@@ -1,16 +1,15 @@
 <?php
-namespace Vivo;
+namespace Vivo\CMS;
 
 use Vivo\CMS\Model;
 use Vivo\CMS\Workflow;
+use Vivo\CMS\Exception;
 use Vivo\Repository\Repository;
 
 /**
  * Main business class for interact with CMS.
- *
- * @author miroslav.hajek
  */
-class CMS /*implements CMSInterface*/ {
+class CMS {
 	/**
 	 * @var Vivo\Repository\Repository
 	 */
@@ -49,9 +48,8 @@ class CMS /*implements CMSInterface*/ {
 	}
 
 	/**
-	 * Enter description here ...
 	 * @param \Vivo\CMS\Model\Document $document
-	 * @return Vivo\CMS\Workflow\AbstractWorkflow
+	 * @return \Vivo\CMS\Workflow\AbstractWorkflow
 	 */
 	public function getWorkflow(\Vivo\CMS\Model\Document $document) {
 		return Workflow\Factory::get($document->getWorkflow());
@@ -62,18 +60,10 @@ class CMS /*implements CMSInterface*/ {
 	 *
 	 * @param string $ident
 	 * @param unknown_type $site
-	 * @return Vivo\CMS\Model\Document
+	 * @return Vivo\CMS\Model\Entity
 	 */
-	public function getDocument($ident, Model\Site $site = null) {
-		$document = $this->repository->getEntity($ident);
-
-		if($document instanceof Model\Document) {
-			return $document;
-		}
-	}
-
-	public function createDocument() {
-
+	public function getEntity($ident, Model\Site $site = null) {
+		return $this->repository->getEntity($ident);
 	}
 
 	protected function saveEntity(\Vivo\CMS\Model\Entity $entity) {
@@ -98,7 +88,13 @@ class CMS /*implements CMSInterface*/ {
 	 * @param string $target Path.
 	 */
 	public function moveDocument(Model\Document $document, $target) {
+		$this->repository->moveEntity($document, $target);
+		$this->repository->commit();
+	}
 
+	public function removeEntity(Model\Entity $entity) {
+		$this->repository->deleteEntity($entity);
+		$this->repository->commit();
 	}
 
 	public function removeDocument(Model\Document $document) {

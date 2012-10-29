@@ -1,29 +1,12 @@
 <?php
-/**
- * Vivo CMS
- * Copyright (c) 2009 author(s) listed below.
- *
- * @version $Id: Content.php 1927 2012-01-17 12:59:46Z zayda $
- */
 namespace Vivo\CMS\Model;
-
-// use Vivo\CMS;
-// use Vivo\CMS\Workflow;
 
 /**
  * Base class for all VIVO models.
- *
- * @author tzajicek
  */
 class Content extends Entity {
-
-// 	static $DEFAULT_STATE = Workflow::STATE_NEW;
-	static $DEFAULT_STATE_CHANGE = array();
-	static $DEFAULT_RECURSIVE = false;
-
 	/**
 	 * @var string Workflow state
-	 * @todo: @see Vivo\CMS\Workflow
 	 */
 	protected $state;
 	/**
@@ -41,10 +24,6 @@ class Content extends Entity {
 	 */
 	public function __construct($path = null) {
 		parent::__construct($path);
-
-// 		$this->state = self::$DEFAULT_STATE;
-// 		$this->stateChange = self::$DEFAULT_STATE_CHANGE;
-// 		$this->recursive = self::$DEFAULT_RECURSIVE;
 	}
 
 	public function getState() {
@@ -54,19 +33,6 @@ class Content extends Entity {
 	public function setState($state) {
 		$this->state = $state;
 	}
-
-	/**
-	 * Gets content.
-	 * @return Vivo\CMS\Model\Document
-	 */
-// 	function getDocument() {
-// 		if (!$this->__document) {
-// 			$path = substr($this->path, 0, strrpos($this->path, '/') - 1);
-// 			$path = substr($path, 0, strrpos($path, '/'));
-// 			$this->__document = CMS::$repository->getEntity($path);
-// 		}
-// 		return $this->__document;
-// 	}
 
 	/**
 	 * Gets content version.
@@ -100,49 +66,4 @@ class Content extends Entity {
 		return 'Contents'.(($index = $this->getIndex()) ? '.'.$index  : '').'/'.$this->getVersion();
 	}
 
-	/**
-	 * Icon name.
-	 * @return string
-	 */
-// 	public function getIcon() {
-// 		return 'Content';
-// 	}
-
-	/**
-	 *
-	 * @param string $property_name Name of content property referencing entity.
-	 * @return null
-	 * @since 1.1
-	 * @todo implement logic
-	 */
-// 	function getReferencedEntity($property_name) {
-// 		//TODO
-// 		return null;
-// 	}
-
-	/**
-	 *
-	 * @param string $property_name Name of content property referencing entity.
-	 * @param string|Vivo\CMS\Model\Entity $value Path (site relative) or UUID in [ref:uuid] format or entity.
-	 * @since 1.1
-	 * @todo implement logic
-	 */
-// 	function setReferencedEntity($property_name, $value) {
-// 		//TODO
-// 	}
-
 }
-/*
-Entity::define_field(__NAMESPACE__.'\Content',
-	array(
-		'state' => array(
-			'length' => 20,
-			'index' => true
-		),
-		'stateChange' => array(
-			'index' => true,
-			'type' => 'DateTime'
-		)
-	)
-);
-*/

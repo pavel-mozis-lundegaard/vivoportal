@@ -39,13 +39,7 @@ class Security {
 	 * @param array $deny
 	 */
 	public function __construct($roles = array(), $allow = array(), $deny = array()) {
-		$this->roles =
-			$roles; /* ? :
-			array(
-				Manager::ROLE_VISITOR => array(Manager::GROUP_ANYONE),
-				Manager::ROLE_ADMINISTRATOR => array(Manager::GROUP_ADMINISTRATORS)
-			);*/
-
+		$this->roles = $roles;
 		$this->allow = $allow;
 		$this->deny = $deny;
 	}

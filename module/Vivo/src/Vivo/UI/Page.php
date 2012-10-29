@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\CMS\UI;
+namespace Vivo\UI;
 
 use Vivo\UI\ComponentInterface;
 
@@ -10,7 +10,7 @@ use \Zend\View\Helper\Doctype;
  * @todo use Zend\View\Helper\Doctype;
  *
  */
-class Page extends Component
+class Page extends ComponentContainer
 {
 
     const MAIN_COMPONENT_NAME = 'main';

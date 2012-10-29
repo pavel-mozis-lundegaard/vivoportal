@@ -10,7 +10,7 @@ class Sample extends Component
 
     private $response;
 
-    public function __construct(Response $response, \Vivo\CMS\UI\Page $page,
+    public function __construct(Response $response, \Vivo\UI\Page $page,
         $options)
     {
         $this->response = $response;

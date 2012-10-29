@@ -50,7 +50,7 @@ class ComponentFactory
             //TODO
             $root->setMain($this->getContentFrontComponent($content, $document));
         } else {
-            $page = $this->di->get('Vivo\CMS\UI\Page');
+            $page = $this->di->get('Vivo\UI\Page');
             $component = $this->getFrontComponent($document);
             $page->setMain($component);
             $root->setMain($page);

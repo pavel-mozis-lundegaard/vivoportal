@@ -116,7 +116,7 @@ return array(
 	    			'cms' => 'cms',
 	    		),
     		),
-	    	'Vivo\CMS\UI\Page' => array (
+	    	'Vivo\UI\Page' => array (
 	    			'parameters' => array (
 	    					'options' => array (
 	    						'doctype' => '<!DOCTYPE html>',

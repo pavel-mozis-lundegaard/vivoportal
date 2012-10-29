@@ -65,9 +65,9 @@ class LocalFileSystemStorage implements StorageInterface {
 	/**
 	 * @todo prepsat telo na dirname($path) ???
 	 *
-	 * Enter description here ...
-	 * @param unknown_type $path
-	 * @return Ambigous <boolean, string>
+	 * Returns dirname.
+	 * @param string $path
+	 * @return string
 	 */
 	private function dirname($path) {
 		return ($p = strrpos($path, '/')) ? substr($path, 0, $p) : false;
@@ -161,7 +161,6 @@ class LocalFileSystemStorage implements StorageInterface {
 
 			throw new Exception\IOException("Cannot write data to '$absPath' for '$path' ($error)");
 		}
-// 		chmod($absPath, 0777); //@todo: tohle je tu proc ????? @see self::mkdir
 	}
 
 	/**
@@ -189,7 +188,7 @@ class LocalFileSystemStorage implements StorageInterface {
 				return false;
 			}
 		} else {
-			$this->mkdir($target);
+			$this->mkdir($this->dirname($target));
 			return rename($this->getAbsolutePath($path), $this->getAbsolutePath($target));
 		}
 	}

@@ -9,8 +9,6 @@ use Vivo\IO\IOUtil;
  */
 class StorageUtil
 {
-    //TODO - replace all '/'
-
     /**
      * IO Utilities
      * @var IOUtil
@@ -28,7 +26,7 @@ class StorageUtil
 
     /**
      * Copies data between storages
-     * Can copy directories as well as files
+     * Copies directories as well as files
      * @param StorageInterface $storageFrom
      * @param string $pathFrom
      * @param StorageInterface $storageTo
@@ -53,22 +51,24 @@ class StorageUtil
      */
     protected function copyDir(StorageInterface $storageFrom, $pathFrom, StorageInterface $storageTo, $pathTo)
     {
-        if ($storageFrom->isObject($pathFrom)) {
-            throw new Exception\InvalidArgumentException(sprintf("%s: '%s' is not a directory in source storage", __METHOD__, $pathFrom));
+        if (!$storageFrom->contains($pathFrom)) {
+            throw new Exception\InvalidArgumentException(sprintf("%s: Path '%s' does not exist in source storage",
+                                                            __METHOD__, $pathFrom));
         }
-        if ($storageTo->isObject($pathTo)) {
-            throw new Exception\InvalidArgumentException(sprintf("%s: '%s' is not a directory in target storage", __METHOD__, $pathTo));
+        if ($storageFrom->isObject($pathFrom)) {
+            throw new Exception\InvalidArgumentException(sprintf("%s: Path '%s' is not a directory in source storage",
+                                                            __METHOD__, $pathFrom));
         }
         $scan   = $storageFrom->scan($pathFrom);
         foreach ($scan as $path) {
-            $fullSrcPath    = $pathFrom . '/' . $path;
-            $fullTargetPath = $pathTo . '/' . $path;
+            $fullSrcPath    = $storageFrom->buildStoragePath(array($pathFrom, $path), true);
+            $fullTargetPath = $storageTo->buildStoragePath(array($pathTo, $path), true);
             if ($storageFrom->isObject($fullSrcPath)) {
                 //A file
                 $this->copyFile($storageFrom, $fullSrcPath, $storageTo, $fullTargetPath);
             } else {
                 //A directory
-                $this->copy($storageFrom, $fullSrcPath, $storageTo, $fullTargetPath);
+                $this->copyDir($storageFrom, $fullSrcPath, $storageTo, $fullTargetPath);
             }
         }
     }
@@ -84,10 +84,8 @@ class StorageUtil
     protected function copyFile(StorageInterface $storageFrom, $pathFrom, StorageInterface $storageTo, $pathTo)
     {
         if (!$storageFrom->isObject($pathFrom)) {
-            throw new Exception\InvalidArgumentException(sprintf("%s: '%s' is not a file in source storage", __METHOD__, $pathFrom));
-        }
-        if (!$storageTo->isObject($pathTo)) {
-            throw new Exception\InvalidArgumentException(sprintf("%s: '%s' is not a file in target storage", __METHOD__, $pathTo));
+            throw new Exception\InvalidArgumentException(sprintf("%s: '%s' is not a file in source storage",
+                                                            __METHOD__, $pathFrom));
         }
         $inputStream    = $storageFrom->read($pathFrom);
         $outputStream   = $storageTo->write($pathTo);

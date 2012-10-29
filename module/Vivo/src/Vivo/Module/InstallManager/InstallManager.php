@@ -53,9 +53,6 @@ class InstallManager implements InstallManagerInterface
      */
     protected $storageInstances      = array();
 
-    //TODO - replace all literal dir separators
-
-
     /**
      * Constructor
      * @param \Vivo\Storage\StorageInterface $storage
@@ -104,8 +101,9 @@ class InstallManager implements InstallManagerInterface
         $sourceStorage  = $this->getSourceStorage($moduleUrl);
         //Get the module name (i.e. the module namespace), which will be used as installation path
         $pathInSourceStorage    = $this->getModulePathInSourceStorage($moduleUrl);
-        $moduleDescriptor       = rtrim($pathInSourceStorage, '/') . '/' . self::MODULE_DESCRIPTOR;
-        $moduleDescJson         = $this->getJsonContent($sourceStorage, $moduleDescriptor);
+        $moduleDescriptorPath   = $sourceStorage->buildStoragePath(
+                                    array($pathInSourceStorage, self::MODULE_DESCRIPTOR), true);
+        $moduleDescJson         = $this->getJsonContent($sourceStorage, $moduleDescriptorPath);
         if (!$moduleDescJson) {
             throw new Exception\DescriptorException(
                 sprintf("%s: Cannot read module descriptor from '%s' for module URL '%s'",
@@ -124,7 +122,8 @@ class InstallManager implements InstallManagerInterface
         //TODO - Read module dependencies on other vmodules and check they have been added (otherwise throw exception)
         //TODO - Read module dependencies on libraries, throw an exception, if unsatisfied
         //Copy the module source to the module storage
-        $this->storageUtil->copy($sourceStorage, $pathInSourceStorage, $this->storage, $installPath . '/' . $moduleName);
+        $pathInTargetStorage    = $this->storage->buildStoragePath(array($installPath, $moduleName), true);
+        $this->storageUtil->copy($sourceStorage, $pathInSourceStorage, $this->storage, $pathInTargetStorage);
     }
 
     /**
@@ -141,7 +140,7 @@ class InstallManager implements InstallManagerInterface
     }
 
     /**
-     * Returns an array with information about modules added to the repo
+     * Returns an array with information about modules added to the storage
      * @return array
      */
     public function getModules()
@@ -150,18 +149,32 @@ class InstallManager implements InstallManagerInterface
         foreach ($this->modulePaths as $moduleBasePath) {
             $scan   = $this->storage->scan($moduleBasePath);
             foreach ($scan as $item) {
-                //TODO - where to get directory separator? Or use Storage::buildPath()
-                $dirSep         = '/';
-                $moduleBasePath = rtrim($moduleBasePath, $dirSep);
-                $modulePath     = $moduleBasePath . $dirSep . $item;
-                $moduleFilePath = $modulePath . $dirSep . 'Module.php';
+                $modulePath     = $this->storage->buildStoragePath(array($moduleBasePath, $item), true);
+                $moduleFilePath = $this->storage->buildStoragePath(array($moduleBasePath, $item, 'Module.php'), true);
+                $moduleJsonPath = $this->storage->buildStoragePath(array($moduleBasePath, $item, self::MODULE_DESCRIPTOR), true);
                 if ($this->storage->isObject($moduleFilePath)) {
+                    $moduleJson = $this->getJsonContent($this->storage, $moduleJsonPath);
+                    if ((!isset($moduleJson['namespace'])) || ($item != $moduleJson['namespace'])) {
+                        throw new Exception\DescriptorException(
+                            sprintf("%s: Namespace in the module descriptor does not match module name '%s'.",
+                                    __METHOD__, $item));
+                    }
                     $moduleDesc = array(
                         'namespace'     => $item,
                         'storage_path'  => $modulePath,
-                        //TODO - get real version from vivo_module.json
-                        'version'       => 'x.x.x.',
                     );
+                    //Version
+                    if (isset($moduleJson['version'])) {
+                        $moduleDesc['version']  = $moduleJson['version'];
+                    } else {
+                        $moduleDesc['version']  = null;
+                    }
+                    //Type
+                    if (isset($moduleJson['type'])) {
+                        $moduleDesc['type']  = $moduleJson['type'];
+                    } else {
+                        $moduleDesc['type']  = null;
+                    }
                     $modules[$item] = $moduleDesc;
                 }
             }
@@ -216,9 +229,10 @@ class InstallManager implements InstallManagerInterface
      */
     protected function getModulePathInSourceStorage($moduleUrl)
     {
+        $sourceStorage  = $this->getSourceStorage($moduleUrl);
         //TODO - implement based on the $moduleUrl
         //For file system storage the module is always at the root of the storage
-        $modulePath = '/';
+        $modulePath = $sourceStorage->getStoragePathSeparator();
         return $modulePath;
     }
 }

@@ -1,1 +1,1 @@
-This is the default directory for Vmodule development.
+This is the default directory for local filesystem Vivo module storage.

@@ -1,4 +1,4 @@
-Vivo 2.0 Community Edition
+Vivo 2.0 Community Project
 ==========================
 Vivo is an open source project of web portal and content management system based on original concept and programme code originally developed by Lundegaard spol. s r.o. company which is also a main sponsor of this community project as well as vendor of the enterprise-level product "CMS LARS Vivo" based on source code of this project.
 

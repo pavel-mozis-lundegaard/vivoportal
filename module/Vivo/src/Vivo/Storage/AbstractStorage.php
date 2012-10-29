@@ -30,20 +30,35 @@ abstract class AbstractStorage implements StorageInterface
      */
     public function buildStoragePath(array $elements, $absolute = false)
     {
-        //Trim all elements
+        $components = array();
+        //Get atomic components
         foreach ($elements as $key => $element) {
-            $trimmed        = $this->trimStoragePath($element, true, true);
-            if ($trimmed != '') {
-                $elements[$key] = $trimmed;
-            } else {
-                unset($elements[$key]);
-            }
+            $elementComponents  = $this->getStoragePathComponents($element);
+            $components         = array_merge($components, $elementComponents);
         }
-        $storagePath    = implode($this->getStoragePathSeparator(), $elements);
+        $storagePath    = implode($this->getStoragePathSeparator(), $components);
         if ($absolute) {
             $storagePath    = $this->getStoragePathSeparator() . $storagePath;
         }
         return $storagePath;
+    }
+
+    /**
+     * Returns an array of 'atomic' storage path components
+     * @param string $path
+     * @return array
+     */
+    public function getStoragePathComponents($path)
+    {
+        $components = explode($this->getStoragePathSeparator(), $path);
+        foreach ($components as $key => $value) {
+            if (empty($value)) {
+                unset($components[$key]);
+            }
+        }
+        //Reset array indices
+        $components = array_values($components);
+        return $components;
     }
 
     /**

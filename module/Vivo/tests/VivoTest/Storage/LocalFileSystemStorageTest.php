@@ -194,20 +194,20 @@ class LocalFileSystemStorageTest extends \PHPUnit_Framework_TestCase
      */
     public function testBuildPath()
     {
+        $sep        = $this->storage->getStoragePathSeparator();
         $elements   = array(
             'foo',
             'bar',
-            '/',
-            'baz/bat',
-            '///qux/////',
-            '//quux',
+            $sep,
+            'baz' . str_repeat($sep, 3) . 'bat',
+            str_repeat($sep, 3) . 'qux' . str_repeat($sep, 5),
+            str_repeat($sep, 2) . 'quux',
         );
-        $sep        = $this->storage->getStoragePathSeparator();
-        $expected   = 'foo' . $sep . 'bar' . $sep . 'baz/bat' . $sep . 'qux' . $sep . 'quux';
+        $expected   = 'foo' . $sep . 'bar' . $sep . 'baz'. $sep . 'bat' . $sep . 'qux' . $sep . 'quux';
         $this->assertEquals($expected, $this->storage->buildStoragePath($elements, false));
         $this->assertEquals($sep . $expected, $this->storage->buildStoragePath($elements, true));
         $elements   = array(
-            '///foo',
+            str_repeat($sep, 3) . 'foo',
             'bar',
             'baz',
         );
@@ -215,4 +215,12 @@ class LocalFileSystemStorageTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $this->storage->buildStoragePath($elements, false));
     }
 
+    public function testGetStoragePathComponents()
+    {
+        $sep        = $this->storage->getStoragePathSeparator();
+        $path       = str_repeat($sep, 5) . 'abc' . $sep . 'de' . str_repeat($sep, 2)
+                    . 'fgh' . str_repeat($sep, 2) . 'ijk' . str_repeat($sep, 2);
+        $expected   = array('abc', 'de', 'fgh', 'ijk');
+        $this->assertEquals($expected, $this->storage->getStoragePathComponents($path));
+    }
 }

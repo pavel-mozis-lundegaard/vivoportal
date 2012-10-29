@@ -16,7 +16,7 @@ class IOUtil {
 	 */
 	public function copy(InputStreamInterface $source, OutputStreamInterface $target, $bufferSize = 1) {
 		$copied = 0;
-		while ($block = $source->read($bufferSize)) {
+		while (($block = $source->read($bufferSize)) !== false) {
 			$copied += strlen($block);
 			$target->write($block);
 		}

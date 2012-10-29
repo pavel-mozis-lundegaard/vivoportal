@@ -33,8 +33,9 @@ class FileInputStream implements InputStreamInterface, CloseableInterface {
 
 	/**
 	 * Reads data from stream.
+     * Returns null when data could not be read
 	 * @param integer $bytes
-	 * @return string
+	 * @return string|bool
 	 * @throws InvalidArgumentException
 	 * @throws RuntimeException
 	 */
@@ -42,11 +43,14 @@ class FileInputStream implements InputStreamInterface, CloseableInterface {
 		if (!is_int($bytes) || $bytes < 1) {
 			throw new InvalidArgumentException('Parameter $bytes must be integer.');
 		}
-		
 		if ($this->isClosed()) {
 			throw new RuntimeException('Can not read from closed stream.');			
 		}
-		return fread($this->fp, $bytes)?:false;
+        $data   = fread($this->fp, $bytes);
+        if ($data == '') {
+            $data   = false;
+        }
+		return $data;
 	}
 
 	/**

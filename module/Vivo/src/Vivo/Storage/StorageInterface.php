@@ -107,4 +107,11 @@ interface StorageInterface {
      * @return string
      */
     public function buildStoragePath(array $elements, $absolute = false);
+
+    /**
+     * Returns an array of 'atomic' storage path components
+     * @param string $path
+     * @return array
+     */
+    public function getStoragePathComponents($path);
 }

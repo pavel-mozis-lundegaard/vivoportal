@@ -60,22 +60,4 @@ abstract class AbstractStorage implements StorageInterface
         $components = array_values($components);
         return $components;
     }
-
-    /**
-     * Trims storage path separator optionally form beginning and end of path
-     * @param string $path
-     * @param bool $left
-     * @param bool $right
-     * @return string
-     */
-    protected function trimStoragePath($path, $left = true, $right = true)
-    {
-        if ($left) {
-            $path   = ltrim($path, $this->getStoragePathSeparator());
-        }
-        if ($right) {
-            $path   = rtrim($path, $this->getStoragePathSeparator());
-        }
-        return $path;
-    }
 }

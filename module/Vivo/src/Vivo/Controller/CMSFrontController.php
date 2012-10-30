@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\Controller;
 
+use Vivo\Http\StreamResponse;
+
 use Vivo\CMS\ComponentFactory;
 use Vivo\CMS\CMS;
 use Vivo\CMS\Model\Site;
@@ -108,8 +110,11 @@ class CMSFrontController implements DispatchableInterface,
         if ($result instanceof ModelInterface) {
             $this->event->setViewModel($result);
         } elseif ($result instanceof InputStreamInterface) {
-            //TODO shortcicruit(skip rendering phase) if result is a stream
+            //skip rendering phase
+            $response->setStream($result);
+            return $response;
         } elseif (is_string($result)) {
+            //skip rendering phase
             $response->setContent($result);
             return $response;
         }

@@ -18,7 +18,8 @@ use Vivo\Util;
  *
  * @author tzajicek
  */
-class File extends Model\Content implements Model\IResource, IAutoVersionable {
+class File extends Model\Content //implements Model\IResource, IAutoVersionable {
+{
 
 	const FRONT_COMPONENT = 'Vivo\CMS\UI\Content\File';
 	const EDITOR_COMPONENT = 'Vivo\CMS\UI\Content\Editor\File';
@@ -41,8 +42,8 @@ class File extends Model\Content implements Model\IResource, IAutoVersionable {
 	 * @param string $path Entity path
 	 */
 	function __construct($path = null) {
-		parent::__construct($path);
-		$this->mime_type = self::$DEFAULT_MIME_TYPE;
+//		parent::__construct($path);
+//		$this->mime_type = self::$DEFAULT_MIME_TYPE;
 	}
 
 	/**
@@ -114,28 +115,8 @@ class File extends Model\Content implements Model\IResource, IAutoVersionable {
 		return $icon;
 	}
 
-}
+	public function getMimeType() {
+	    return $this->mime_type;
+	}
 
-Model\Entity::$FIELDS[__NAMESPACE__.'\File'] =
-	array(
-		'mime_type' => array(
-			'type' => 'string',
-			'field-type' => 'input',
-			'field-attributes' => array(
-				'readonly' => 'readonly'
-			),
-			'important' => true,
-			'index' => true,
-			'length' => 50,
-			'order' => 100
-		),
-		'filename' => array(
-			'type' => 'string',
-			'field-type' => 'input',
-			'field-attributes' => array(
-				'readonly' => 'readonly'
-			),
-			'important' => false,
-			'order' => 101
-		)
-	);
+}

@@ -1,8 +1,8 @@
 <?php
 namespace Vivo\Fake;
 
-use Vivo\IO\FileInputStream;
 
+use Vivo\IO\FileInputStream;
 use Vivo\Repository\Repository;
 
 /**
@@ -12,8 +12,6 @@ use Vivo\Repository\Repository;
  *
  */
 class CMS extends \Vivo\CMS\CMS{
-
-
 	/**
 	 * Set to use CMS class in the site context.
 	 * @var Vivo\CMS\Model\Site

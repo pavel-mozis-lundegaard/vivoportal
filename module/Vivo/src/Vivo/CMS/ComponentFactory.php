@@ -2,6 +2,7 @@
 namespace Vivo\CMS;
 
 use Vivo\CMS\CMS;
+use Vivo\CMS\UI\Content\RawComponentInterface;
 use Vivo\CMS\Model\Content;
 use Vivo\CMS\Model\Document;
 use Vivo\CMS\UI\InjectModelInterface;
@@ -49,18 +50,14 @@ class ComponentFactory
     public function getRootComponent(Document $document)
     {
         $root = $this->di->get('Vivo\CMS\UI\Root');
-
-        if ($content = $this->cms->getRawContent($document)) {
-            //component has Raw content...(file, rss, vxf etc.)
-            //TODO
-            $root->setMain($this->getContentFrontComponent($content, $document));
+        $component = $this->getFrontComponent($document);
+        if ($component instanceof RawComponentInterface) {
+            $root->setMain($component);
         } else {
             $page = $this->di->get('Vivo\UI\Page');
-            $component = $this->getFrontComponent($document);
             $page->setMain($component);
             $root->setMain($page);
         }
-
         return $root;
     }
 
@@ -89,11 +86,14 @@ class ComponentFactory
             //TODO throw exception
         }
 
+        if ($frontComponent instanceof RawComponentInterface) {
+            return $frontComponent;
+        }
+
         if ($layoutPath = $document->getLayout()) {
             $layout = $this->cms->getDocument($layoutPath);
             $frontComponent = $this->applyLayout($layout, $frontComponent);
         }
-
         return $frontComponent;
     }
 

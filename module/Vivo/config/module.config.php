@@ -174,6 +174,7 @@ return array(
             'front_component' => array (
                 'Vivo\CMS\Model\Content\Sample' => 'Vivo\CMS\UI\Content\Sample',
                 'Vivo\CMS\Model\Content\Layout' => 'Vivo\CMS\UI\Content\Layout',
+                'Vivo\CMS\Model\Content\File' => 'Vivo\CMS\UI\Content\File',
             ),
             'editor_component' => array (
 

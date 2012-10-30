@@ -18,6 +18,12 @@ class SiteConfigListener implements ListenerAggregateInterface
     protected $listeners = array();
 
     /**
+     * CMS object
+     * @var
+     */
+    protected $cms;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -56,11 +62,15 @@ class SiteConfigListener implements ListenerAggregateInterface
      */
     public function onConfig(SiteEventInterface $e)
     {
-        $siteId = $e->getSiteId();
-        if (!$siteId) {
-            throw new Exception\ConfigException(sprintf('%s: SiteId not set.', __METHOD__));
+        $host = $e->getHost();
+        if (!$host) {
+            throw new Exception\ConfigException(sprintf('%s: Host not set.', __METHOD__));
         }
         //TODO - load Site Entity from repository using the siteId and get site configuration and module names from there
+        /*
+        $siteModel  = $this->cms->getSiteByHost($host);
+        $siteConfig = $this->cms->getSiteConfig($siteModel);
+        */
         $siteConfig     = array(
             'site_config_opt_1'     => 'foo',
             'site_config_opt_2'     => 'bar',

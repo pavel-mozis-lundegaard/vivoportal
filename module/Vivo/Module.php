@@ -1,15 +1,11 @@
 <?php
 namespace Vivo;
 
-
-
 use Vivo\Module\ModuleManagerFactory;
 
 use Zend\Console\Adapter\AdapterInterface as Console;
 use Zend\ModuleManager\Feature\ConsoleBannerProviderInterface;
 use Zend\ModuleManager\Feature\ConsoleUsageProviderInterface;
-use Vivo\Module\ModuleManagerFactory;
-
 use Zend\Mvc\ModuleRouteListener;
 use Zend\ServiceManager\ServiceManager;
 

@@ -116,17 +116,4 @@ class CollectModulesListener implements ListenerAggregateInterface
             }
         }
     }
-
-    /**
-     * Converts all array values to lower case
-     * @param array $ay
-     * @return array
-     */
-    protected function arrayToLower(array $ay)
-    {
-        foreach ($ay as $key => $value) {
-            $ay[$key]   = strtolower($value);
-        }
-        return $ay;
-    }
 }

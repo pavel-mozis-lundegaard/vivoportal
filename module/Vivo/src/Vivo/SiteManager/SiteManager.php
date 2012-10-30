@@ -33,7 +33,6 @@ class SiteManager implements SiteManagerInterface,
      */
     protected $siteEvent;
 
-
     /**
      * Module manager
      * @var ModuleManager
@@ -123,7 +122,7 @@ class SiteManager implements SiteManagerInterface,
      */
     public function prepareSite()
     {
-        //Trigger events on SiteManager
+        //Trigger events
         //Init the Site
         $this->siteEvent->stopPropagation(false);
         $this->events->trigger(SiteEventInterface::EVENT_INIT, $this->siteEvent);

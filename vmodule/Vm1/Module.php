@@ -16,7 +16,7 @@ class Module
                 __DIR__ . '/autoload_classmap.php',
             ),
             */
-            'Vivo\Module\AutoloaderNs' => array(
+            'Zend\Loader\StandardAutoloader' => array(
                 'namespaces' => array(
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
                 ),

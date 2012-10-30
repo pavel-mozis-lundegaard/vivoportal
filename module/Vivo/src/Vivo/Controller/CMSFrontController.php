@@ -46,6 +46,18 @@ class CMSFrontController implements DispatchableInterface,
         $path = $this->event->getRouteMatch()->getParam('path');
         $host = $this->event->getRouteMatch()->getParam('host');
 
+        //Test SiteManager
+        $sm = $this->getServiceLocator();
+        /* @var $sm \Zend\ServiceManager\ServiceManager */
+        $siteEvent  = $sm->get('site_event');
+        /* @var $siteEvent \Vivo\SiteManager\Event\SiteEvent */
+        \Zend\Debug\Debug::dump($siteEvent->getHost(), 'getHost');
+        \Zend\Debug\Debug::dump($siteEvent->getModules(), 'getModules');
+        \Zend\Debug\Debug::dump($siteEvent->getSiteConfig(), 'getSiteConfig');
+        \Zend\Debug\Debug::dump($siteEvent->getSiteId(), 'getSiteId');
+
+        //END test SiteManager
+
         $response->setContent('CMS document for path: ' . $path);
         $response->setStatusCode(HttpResponse::STATUS_CODE_200);
         return $response;

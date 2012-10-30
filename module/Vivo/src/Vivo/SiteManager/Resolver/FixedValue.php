@@ -4,6 +4,7 @@ namespace Vivo\SiteManager\Resolver;
 /**
  * FixedValue
  * Resolves any host name to a fixed site id
+ * This resolver is only for development / testing purposes
  */
 class FixedValue implements ResolverInterface
 {

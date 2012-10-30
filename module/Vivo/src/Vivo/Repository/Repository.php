@@ -13,8 +13,6 @@ use Vivo\Repository\Indexer;
  * Repository class provides methods to works with CMS repository.
  * Repository works transactionally. The saveEntity or deleteEntity statement begins a new transaction. Commit method commits the current transaction, making its changes permanent.
  * Rollback rolls back the current transaction, canceling its changes.
- * @author tzajicek
- * @version 1.0
  */
 class Repository implements RepositoryInterface
 {
@@ -45,6 +43,10 @@ class Repository implements RepositoryInterface
 	 * @var array The list of (reource) files that are prepared to impose.
 	 */
 	private $saveFiles = array();
+	/**
+	 * @var array
+	 */
+	private $saveData = array();
 	/**
 	 * @var array The list of files that are prepared to copy.
 	 */
@@ -390,6 +392,13 @@ class Repository implements RepositoryInterface
 				$tmpFiles[$path] = $tmpPath;
 			}
 
+			foreach ($this->saveData as $path => $data) {
+				$tmpPath = $path.'.'.uniqid('tmp');
+
+				$this->storage->set($tmpPath, $data);
+				$tmpFiles[$path] = $tmpPath;
+			}
+
 			// b) resource files
 			$util = new \Vivo\IO\IOUtil();
 			foreach ($this->saveFiles as $path => $stream) {
@@ -452,6 +461,7 @@ class Repository implements RepositoryInterface
 	public function rollback()
 	{
 		$this->saveEntities = array();
+		$this->saveData = array();
 		$this->saveFiles = array();
 		$this->deletePaths = array();
 		$this->deleteEntities = array();
@@ -462,6 +472,13 @@ class Repository implements RepositoryInterface
 		$path = $entity->getPath().'/'.$name;
 
 		$this->saveFiles[$path] = $stream;
+	}
+
+	public function saveResource(\Vivo\CMS\Model\Entity $entity, $name, $data)
+	{
+		$path = $entity->getPath().'/'.$name;
+
+		$this->saveData[$path] = $data;
 	}
 
 	/**

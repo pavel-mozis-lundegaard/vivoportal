@@ -1,19 +1,17 @@
 <?php
-/**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/ZendSkeletonApplication for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
- */
-
 namespace Vivo;
 
-use Zend\Mvc\ModuleRouteListener;
-use Zend\ServiceManager\ServiceManager;
+
+
 use Vivo\Module\ModuleManagerFactory;
 
-class Module
+use Zend\Console\Adapter\AdapterInterface as Console;
+use Zend\ModuleManager\Feature\ConsoleBannerProviderInterface;
+use Zend\ModuleManager\Feature\ConsoleUsageProviderInterface;
+use Zend\Mvc\ModuleRouteListener;
+use Zend\ServiceManager\ServiceManager;
+
+class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInterface
 {
     public function onBootstrap($e)
     {
@@ -72,6 +70,22 @@ class Module
                     return $moduleManagerFactory;
                 },
             ),
+        );
+    }
+
+    public function getConsoleBanner(Console $console){
+        return
+        "==========================================================\n".
+        "    Vivo 2 CLI                                            \n".
+        "==========================================================\n"
+        ;
+    }
+
+    public function getConsoleUsage(Console $console){
+        return array('Available commands:',
+                array ('indexer', 'Perform operations on indexer..'),
+                array ('info','Show informations about CMS instance.'),
+                array ('module', 'Manage modules.'),
         );
     }
 }

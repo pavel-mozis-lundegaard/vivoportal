@@ -8,6 +8,7 @@ use Zend\ModuleManager\Feature\ConsoleBannerProviderInterface;
 use Zend\ModuleManager\Feature\ConsoleUsageProviderInterface;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\ServiceManager\ServiceManager;
+use Zend\Mvc\Controller\ControllerManager;
 
 class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInterface
 {
@@ -100,6 +101,33 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $siteManager            = $sm->get('site_manager');
                     $createSiteListener     = new \Vivo\SiteManager\Listener\CreateSiteListener($siteManager);
                     return $createSiteListener;
+                },
+                'module_install_manager'    => function(ServiceManager $sm) {
+                    $moduleStorage  = $sm->get('module_storage');
+                    /* @var $moduleStorage \Vivo\Storage\StorageInterface */
+                    $config         = $sm->get('config');
+                    $storageFactory = $sm->get('storage_factory');
+                    $modulePaths    = $config['vivo']['modules']['module_paths'];
+                    $defaultInstallPath = $moduleStorage->getStoragePathSeparator();
+                    $ioUtil         = new \Vivo\IO\IOUtil();
+                    $storageUtil    = new \Vivo\Storage\StorageUtil($ioUtil);
+                    $installMgr     = new \Vivo\Module\InstallManager\InstallManager(
+                                            $moduleStorage, $modulePaths, $defaultInstallPath, $storageUtil, $storageFactory);
+                    return $installMgr;
+                },
+            ),
+        );
+    }
+
+    public function getControllerConfig()
+    {
+        return array(
+            'factories'     => array(
+                'CLI\Module'    => function(ControllerManager $cm) {
+                    $sm             = $cm->getServiceLocator();
+                    $installManager = $sm->get('module_install_manager');
+                    $controller     = new \Vivo\Controller\CLI\ModuleController($installManager);
+                    return $controller;
                 },
             ),
         );

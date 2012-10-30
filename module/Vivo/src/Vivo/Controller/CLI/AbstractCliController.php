@@ -14,7 +14,7 @@ abstract class AbstractCliController extends AbstractActionController
     {
         $event      = $this->getEvent();
         $routeMatch = $event->getRouteMatch();
-        return sprintf("Unknow subcommand '%s'\nUsage:\n %s",$routeMatch->getParam('action'), $this->getConsoleUsage());
+        return sprintf("Unknown subcommand '%s'\nUsage:\n %s",$routeMatch->getParam('action'), $this->getConsoleUsage());
     }
 
     abstract public function getConsoleUsage();

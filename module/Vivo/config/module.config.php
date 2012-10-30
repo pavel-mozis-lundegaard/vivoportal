@@ -54,8 +54,11 @@ return array(
     ),
 
     'service_manager' => array(
+        'allow_override' => true,
         'factories' => array(
             'translator' => 'Zend\I18n\Translator\TranslatorServiceFactory',
+            'response' => 'Vivo\Mvc\Service\ResponseFactory',
+
         ),
     ),
     'translator' => array(

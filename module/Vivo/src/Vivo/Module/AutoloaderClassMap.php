@@ -2,7 +2,7 @@
 namespace Vivo\Module;
 
 use Zend\Loader\ClassMapAutoloader;
-use Vivo\Module\Exception\StreamException;
+use Zend\Loader\Exception;
 
 /**
  * AutoloaderClassMap
@@ -17,21 +17,32 @@ class AutoloaderClassMap extends ClassMapAutoloader
      * otherwise, returns whatever was returned by calling include() on the
      * location.
      * @param  string $location
-     * @throws Exception\StreamException
      * @return ClassMapAutoloader|mixed
+     * @throws Exception\InvalidArgumentException for nonexistent locations
      */
     protected function loadMapFromFile($location)
     {
-        //TODO - Phar support?
-        $path   = $location;
+        if (!file_exists($location)) {
+            require_once __DIR__ . '/Exception/InvalidArgumentException.php';
+            throw new Exception\InvalidArgumentException(sprintf(
+                'Map file provided does not exist. Map file: "%s"',
+                (is_string($location) ? $location : 'unexpected type: ' . gettype($location))
+            ));
+        }
+
+        if (!$path = static::realPharPath($location)) {
+            //realpath does not work with streams
+            //$path = realpath($location);
+            $path = $location;
+        }
+
         if (in_array($path, $this->mapsLoaded)) {
             // Already loaded this map
             return $this;
         }
+
         $map = include $path;
-        if ($map === false) {
-            throw new StreamException(sprintf("%s: Loading class map from path '%s' failed.", __METHOD__, $path));
-        }
+
         return $map;
     }
 }

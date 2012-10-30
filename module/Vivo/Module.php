@@ -1,12 +1,19 @@
 <?php
 namespace Vivo;
 
+
+
+use Vivo\Module\ModuleManagerFactory;
+
+use Zend\Console\Adapter\AdapterInterface as Console;
+use Zend\ModuleManager\Feature\ConsoleBannerProviderInterface;
+use Zend\ModuleManager\Feature\ConsoleUsageProviderInterface;
 use Vivo\Module\ModuleManagerFactory;
 
 use Zend\Mvc\ModuleRouteListener;
 use Zend\ServiceManager\ServiceManager;
 
-class Module
+class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInterface
 {
     public function onBootstrap($e)
     {
@@ -99,6 +106,22 @@ class Module
                     return $createSiteListener;
                 },
             ),
+        );
+    }
+
+    public function getConsoleBanner(Console $console){
+        return
+        "==========================================================\n".
+        "    Vivo 2 CLI                                            \n".
+        "==========================================================\n"
+        ;
+    }
+
+    public function getConsoleUsage(Console $console){
+        return array('Available commands:',
+                array ('indexer', 'Perform operations on indexer..'),
+                array ('info','Show informations about CMS instance.'),
+                array ('module', 'Manage modules.'),
         );
     }
 }

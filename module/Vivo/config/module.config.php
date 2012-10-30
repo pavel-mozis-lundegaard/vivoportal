@@ -74,7 +74,6 @@ return array(
             'ResourceFront' => 'Vivo\Controller\ResourceFrontController',
             'CLI\Indexer' => 'Vivo\Controller\CLI\IndexerController',
             'CLI\Info' => 'Vivo\Controller\CLI\InfoController',
-            //'CLI\Module' => 'Vivo\Controller\CLI\ModuleController',
         ),
     ),
     'view_manager' => array(

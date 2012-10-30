@@ -3,6 +3,7 @@ namespace Vivo\SiteManager\Listener;
 
 use Vivo\SiteManager\Event\SiteEventInterface;
 use Vivo\SiteManager\Exception;
+use Vivo\Module\InstallManager\InstallManager;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
@@ -24,12 +25,20 @@ class CollectModulesListener implements ListenerAggregateInterface
     protected $modules      = array();
 
     /**
+     * Module Installation Manager
+     * @var InstallManager
+     */
+    protected $installManager;
+
+    /**
      * Constructor
      * @param array $globalModules List of modules loaded for the global scope (ie all sites)
+     * @param \Vivo\Module\InstallManager\InstallManager $installManager
      */
-    public function __construct(array $globalModules)
+    public function __construct(array $globalModules, InstallManager $installManager)
     {
-        $this->modules    = $globalModules;
+        $this->modules          = $globalModules;
+        $this->installManager   = $installManager;
     }
 
     /**
@@ -99,8 +108,14 @@ class CollectModulesListener implements ListenerAggregateInterface
      */
     protected function getModuleDependencies($module)
     {
-        //TODO - implement
-        return array();
+        //TODO - factor out InstallManager
+        $moduleInfo = $this->installManager->getModuleInfo($module);
+        if (isset($moduleInfo['descriptor']['require'])) {
+            $dependencies   = array_keys($moduleInfo['descriptor']['require']);
+        } else {
+            $dependencies   = array();
+        }
+        return $dependencies;
     }
 
     /**

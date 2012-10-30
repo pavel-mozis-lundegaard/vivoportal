@@ -14,15 +14,17 @@ class FileInputStreamTest extends \PHPUnit_Framework_TestCase {
 	 * @var string
 	 */
 	private $file;
+
 	/**
-	 * @var Vivo\IO\FileInputStream
+	 * @var \Vivo\IO\FileInputStream
 	 */
 	private $stream;
 	
 	/**
+     * This string must contain at least one zero character (0)
 	 * @var string
 	 */
-	private $data = "Sample file content";
+	private $data = "Sample file content 0 \n\r second line.";
 
 	/**
 	 * Test setup 
@@ -79,4 +81,19 @@ class FileInputStreamTest extends \PHPUnit_Framework_TestCase {
 		$this->stream->close();
 		$this->stream->read();
 	}
+
+    /**
+     * Tests if stream->read() continues when it reads the zero character (0)
+     */
+    public function testReadContinuesOn0Char()
+    {
+        $read       = '';
+        $readCount  = 0;
+        while (($char = $this->stream->read(1)) !== false) {
+            $readCount++;
+            $read   .= $char;
+        }
+        $this->assertEquals(strlen($this->data), $readCount);
+        $this->assertEquals($this->data, $read);
+    }
 }

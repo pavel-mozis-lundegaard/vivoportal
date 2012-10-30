@@ -84,7 +84,7 @@ class ModuleController extends AbstractCliController
             return 'Usage: module add <module_url> [--force|-f]';
         }
         $force      = $request->getParam('force', false) || $request->getParam('f', false);
-        $moduleDescriptor   = $this->installManager->getModuleDescriptorByModuleUrl($moduleUrl);
+        $moduleDescriptor   = $this->installManager->getModuleDescriptor($moduleUrl);
         //Check VModule dependencies
         if (!$force && isset($moduleDescriptor['require'])) {
             $dependencies   = $moduleDescriptor['require'];

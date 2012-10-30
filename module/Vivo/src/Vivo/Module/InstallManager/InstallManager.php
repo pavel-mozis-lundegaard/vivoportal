@@ -9,7 +9,7 @@ use Vivo\Storage\Factory as StorageFactory;
 /**
  * InstallManager
  */
-class InstallManager implements InstallManagerInterface
+class InstallManager
 {
     /**
      * Name of the file containing the JSON data describing the module
@@ -87,12 +87,14 @@ class InstallManager implements InstallManagerInterface
 
     /**
      * Adds a module into storage
+     * Returns module info on success
      * @param string $moduleUrl
      * @param bool $force
      * @param string|null $installPath
+     * @throws \Vivo\Module\Exception\DependencyException
      * @throws \Vivo\Module\Exception\DescriptorException
      * @throws \Vivo\Module\Exception\InvalidArgumentException
-     * @return mixed
+     * @return array
      */
     public function addModule($moduleUrl, $force = false, $installPath = null)
     {
@@ -105,42 +107,92 @@ class InstallManager implements InstallManagerInterface
         } else {
             $installPath    = $this->defaultInstallPath;
         }
-        $sourceStorage  = $this->getSourceStorage($moduleUrl);
+        $sourceStorage  = $this->getModuleStorage($moduleUrl);
         //Get the module name (i.e. the module namespace), which will be used as installation path
-        $pathInSourceStorage    = $this->getModulePathInSourceStorage($moduleUrl);
-        $moduleDescriptorPath   = $sourceStorage->buildStoragePath(
-                                    array($pathInSourceStorage, self::MODULE_DESCRIPTOR), true);
-        $moduleDescJson         = $this->getJsonContent($sourceStorage, $moduleDescriptorPath);
-        if (!$moduleDescJson) {
+        $pathInSourceStorage    = $this->getModulePathInStorage($moduleUrl);
+        $moduleDescriptor       = $this->getModuleDescriptorByModuleUrl($moduleUrl);
+        if (!$moduleDescriptor) {
             throw new Exception\DescriptorException(
                 sprintf("%s: Cannot read module descriptor from '%s' for module URL '%s'",
                     __METHOD__, self::MODULE_DESCRIPTOR, $moduleUrl));
         }
-        if (!isset($moduleDescJson['name'])) {
+        if (!isset($moduleDescriptor['name'])) {
             throw new Exception\DescriptorException(
                 sprintf("%s: 'name' field missing in module descriptor for module URL '%s'", __METHOD__, $moduleUrl));
         }
-        $moduleName = $moduleDescJson['name'];
+        $moduleName = $moduleDescriptor['name'];
         //Check that the module name has not been added yet
         if ($this->moduleExists($moduleName)) {
             throw new Exception\InvalidArgumentException(
                 sprintf("%s: Module '%s' (%s) already exists in module storage", __METHOD__, $moduleName, $moduleUrl));
         }
-        //Read module dependencies on other vmodules and check they have been added (otherwise throw exception)
-        if (isset($moduleDescJson['require'])) {
-            $dependencies   = $moduleDescJson['require'];
-            foreach ($dependencies as $depName => $depVersion) {
-                if (!$this->moduleExists($depName, $depVersion)) {
-                    throw new Exception\DependencyException(
-                        sprintf("%s: Dependency '%s (version %s)' of module '%s' not satisfied.",
-                                __METHOD__, $depName, $depVersion, $moduleName));
-                }
+        //Read module dependencies on other vmodules and check they have been added (otherwise throw an exception)
+        if (isset($moduleDescriptor['require'])) {
+            $dependencies   = $moduleDescriptor['require'];
+            $info           = array();
+            if (!$this->checkVmoduleDependencies($dependencies, $info)) {
+                throw new Exception\DependencyException(
+                    sprintf("%s: Dependencies of module '%s' are not satisfied.", __METHOD__, $moduleName));
             }
         }
         //TODO - Read module dependencies on libraries, throw an exception, if unsatisfied
         //Copy the module source to the module storage
         $pathInTargetStorage    = $this->storage->buildStoragePath(array($installPath, $moduleName), true);
         $this->storageUtil->copy($sourceStorage, $pathInSourceStorage, $this->storage, $pathInTargetStorage);
+        //Reset cached modules info
+        $this->moduleInfo   = array();
+        $moduleInfo         = $this->getModuleInfo($moduleName);
+        return $moduleInfo;
+    }
+
+    /**
+     * Returns module descriptor from a module identified by its URL
+     * @param string $moduleUrl
+     * @return array|null
+     */
+    public function getModuleDescriptorByModuleUrl($moduleUrl)
+    {
+        $storage                = $this->getModuleStorage($moduleUrl);
+        $pathInStorage          = $this->getModulePathInStorage($moduleUrl);
+        $moduleDescriptorPath   = $storage->buildStoragePath(array($pathInStorage, self::MODULE_DESCRIPTOR), true);
+        $moduleDescriptor       = $this->getJsonContent($storage, $moduleDescriptorPath);
+        return $moduleDescriptor;
+    }
+
+    /**
+     * Returns true when the specified VModule dependencies are met
+     * Detailed info is returned in $info
+     * @param array $dependencies
+     * @param array $info
+     * @return bool
+     */
+    public function checkVmoduleDependencies(array $dependencies, array &$info)
+    {
+        $info   = array();
+        $result = true;
+        foreach ($dependencies as $depName => $depVersion) {
+            $info[$depName] = array(
+                'name'              => $depName,
+                'required_version'  => $depVersion,
+                'present_version'   => null,
+                'dependency_ok'     => false,
+            );
+            if ($this->moduleExists($depName)) {
+                $moduleInfo = $this->getModuleInfo($depName);
+                $info[$depName]['present_version']  = $moduleInfo['descriptor']['version'];
+                if ($this->moduleExists($depName, $depVersion)) {
+                    $info[$depName]['dependency_ok']    = true;
+                } else {
+                    $result                             = false;
+                    $info[$depName]['dependency_ok']    = false;
+                }
+            } else {
+                $result                             = false;
+                $info[$depName]['dependency_ok']    = false;
+                $info[$depName]['present_version']  = null;
+            }
+        }
+        return $result;
     }
 
     /**
@@ -151,7 +203,7 @@ class InstallManager implements InstallManagerInterface
      */
     public function moduleExists($moduleName, $version = null)
     {
-        $modules        = $this->getModules();
+        $modules        = $this->getModulesInfo();
         if (!array_key_exists($moduleName, $modules)) {
             return false;
         }
@@ -168,7 +220,7 @@ class InstallManager implements InstallManagerInterface
      * @throws \Vivo\Module\Exception\DescriptorException
      * @return array
      */
-    public function getModules()
+    public function getModulesInfo()
     {
         if (empty($this->moduleInfo)) {
             $this->moduleInfo   = array();
@@ -199,11 +251,27 @@ class InstallManager implements InstallManagerInterface
     }
 
     /**
+     * Returns info about a module
+     * @param string $moduleName
+     * @return array
+     * @throws \Vivo\Module\Exception\InvalidArgumentException
+     */
+    public function getModuleInfo($moduleName)
+    {
+        if (!$this->moduleExists($moduleName)) {
+            throw new Exception\InvalidArgumentException(sprintf("%s: Module '%s' does not exist", __METHOD__, $moduleName));
+        }
+        $modulesInfo    = $this->getModulesInfo();
+        $moduleInfo     = $modulesInfo[$moduleName];
+        return $moduleInfo;
+    }
+
+    /**
      * Returns storage which will be used to access the module source
      * @param string $moduleUrl
      * @return StorageInterface
      */
-    protected function getSourceStorage($moduleUrl)
+    protected function getModuleStorage($moduleUrl)
     {
         if (!array_key_exists($moduleUrl, $this->storageInstances)) {
             //TODO - configure for specific storage implementation based on the $moduleUrl
@@ -243,29 +311,13 @@ class InstallManager implements InstallManagerInterface
      * @param string $moduleUrl
      * @return string
      */
-    protected function getModulePathInSourceStorage($moduleUrl)
+    protected function getModulePathInStorage($moduleUrl)
     {
-        $sourceStorage  = $this->getSourceStorage($moduleUrl);
+        $sourceStorage  = $this->getModuleStorage($moduleUrl);
         //TODO - implement based on the $moduleUrl
         //For file system storage the module is always at the root of the storage
         $modulePath = $sourceStorage->getStoragePathSeparator();
         return $modulePath;
-    }
-
-    /**
-     * Compare the specified version strings
-     * @param string $left
-     * @param string $right
-     * @param string|null $operator
-     * @return int  -1 if the left version is older,
-     *               0 if they are the same,
-     *              +1 if the left version is newer.
-     */
-    protected function compareVersion($left, $right, $operator = null)
-    {
-        $left   = strtolower($left);
-        $right  = strtolower($right);
-        return version_compare($left, $right, $operator);
     }
 
     /**
@@ -276,6 +328,8 @@ class InstallManager implements InstallManagerInterface
      */
     protected function isVersionOk($ourVersion, $requiredVersion)
     {
+        $ourVersion         = strtolower($ourVersion);
+        $requiredVersion    = strtolower($requiredVersion);
         if (substr($requiredVersion, 0, 2) == '>=') {
             $requiredVersion    = substr($requiredVersion, 2);
             $operator           = '>=';

@@ -46,24 +46,6 @@ class CMSFrontController implements DispatchableInterface,
         $path = $this->event->getRouteMatch()->getParam('path');
         $host = $this->event->getRouteMatch()->getParam('host');
 
-        //Install manager testing
-        $moduleStorage  = $this->serviceLocator->get('module_storage');
-        $config         = $this->serviceLocator->get('config');
-        $storageFactory = $this->serviceLocator->get('storage_factory');
-        $modulePaths    = $config['vivo']['modules']['module_paths'];
-        $ioUtil         = new \Vivo\IO\IOUtil();
-        $storageUtil    = new \Vivo\Storage\StorageUtil($ioUtil);
-        $installMgr     = new \Vivo\Module\InstallManager\InstallManager($moduleStorage, $modulePaths, '/', $storageUtil, $storageFactory);
-
-        \Zend\Debug\Debug::dump($installMgr->getModules());
-        \Zend\Debug\Debug::dump($installMgr->moduleExists('Gvm1'), 'Gvm1 exists');
-        \Zend\Debug\Debug::dump($installMgr->moduleExists('Baz'), 'Baz exists');
-
-        $moduleUrl  = 'file://c:\Work\DummyModules\Vm10';
-
-        $installMgr->addModule($moduleUrl);
-        //END Install manager testing
-
         $response->setContent('CMS document for path: ' . $path);
         $response->setStatusCode(HttpResponse::STATUS_CODE_200);
         return $response;

@@ -74,7 +74,7 @@ return array(
             'ResourceFront' => 'Vivo\Controller\ResourceFrontController',
             'CLI\Indexer' => 'Vivo\Controller\CLI\IndexerController',
             'CLI\Info' => 'Vivo\Controller\CLI\InfoController',
-            'CLI\Module' => 'Vivo\Controller\CLI\ModuleController',
+            //'CLI\Module' => 'Vivo\Controller\CLI\ModuleController',
         ),
     ),
     'view_manager' => array(
@@ -130,6 +130,15 @@ return array(
                         'defaults' => array(
                             'controller' => 'CLI\Module',
                             'action'     => 'default',
+                        ),
+                    ),
+                ),
+                'module_add' => array(
+                    'options' => array(
+                        'route'    => 'module add <module_url> [--force|-f]',
+                        'defaults' => array(
+                            'controller' => 'CLI\Module',
+                            'action'     => 'add',
                         ),
                     ),
                 ),

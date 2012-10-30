@@ -19,9 +19,13 @@ class CMS {
 		$this->repository = $repository;
 	}
 
+	/**
+	 * @param string $host
+	 * @return \Vivo\CMS\Model\Site
+	 */
 	public function getSiteByHost($host) {
-		//TODO implement
-		$site = new Model\Site();
+		$site = $this->repository->getSiteByHost($host);
+
 		return $site;
 	}
 
@@ -62,10 +66,32 @@ class CMS {
 	 * @param unknown_type $site
 	 * @return Vivo\CMS\Model\Entity
 	 */
-	public function getEntity($ident, Model\Site $site = null) {
+	public function getEntity($ident, Model\Site $site = null)
+	{
 		return $this->repository->getEntity($ident);
 	}
 
+	/**
+	 * @param \Vivo\CMS\Model\Folder $folder
+	 * @return array
+	 */
+	public function getChildren(\Vivo\CMS\Model\Folder $folder)
+	{
+		return $this->repository->getChildren($folder);
+	}
+
+	/**
+	 * @param \Vivo\CMS\Model\Folder $folder
+	 * @return \Vivo\CMS\Model\Folder
+	 */
+	public function getParent(\Vivo\CMS\Model\Folder $folder)
+	{
+		return $this->repository->getParent($folder);
+	}
+
+	/**
+	 * @param \Vivo\CMS\Model\Entity $entity
+	 */
 	protected function saveEntity(\Vivo\CMS\Model\Entity $entity) {
 		$this->repository->saveEntity($entity);
 		$this->repository->commit();
@@ -121,7 +147,7 @@ class CMS {
 		return null;
 	}
 
-	public function addContent(\Vivo\CMS\Model\Document $document, Model\Content $content, $index = 0) {
+	public function addDocumentContent(\Vivo\CMS\Model\Document $document, Model\Content $content, $index = 0) {
 		$path = $document->getPath();
 
 		$version = count($this->getContents($document, $index));
@@ -140,7 +166,7 @@ class CMS {
 	 * @throws \InvalidArgumentException
 	 * @return Vivo\CMS\Model\Content
 	 */
-	public function getContent(Model\Document $document, $version, $index = 0/*, $state {PUBLISHED}*/) {
+	public function getDocumentContent(Model\Document $document, $version, $index = 0/*, $state {PUBLISHED}*/) {
 		if(!is_integer($version)) {
 			throw new \InvalidArgumentException(sprintf('Argument %d passed to %s must be an type of %s, %s given', 2, __METHOD__, 'integer', gettype($version)));
 		}
@@ -159,7 +185,7 @@ class CMS {
 	 * @throws \InvalidArgumentException
 	 * @return array
 	 */
-	public function getContents(Model\Document $document, $version, $index = 0/*, $version, $state {PUBLISHED}*/) {
+	public function getDocumentContents(Model\Document $document, $version, $index = 0/*, $version, $state {PUBLISHED}*/) {
 		if(!is_integer($version)) {
 			throw new \InvalidArgumentException(sprintf('Argument %d passed to %s must be an type of %s, %s given', 2, __METHOD__, 'integer', gettype($version)));
 		}

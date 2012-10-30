@@ -145,15 +145,14 @@ class Repository implements RepositoryInterface
 // 			$entity = CMS::convertReferencesToURLs($entity);
 // 			$entity->setPath(substr($path, 0, strrpos($path, '/'))); // set volatile path property of entity instance
 
-// 			$this->storage->
-
+			$path = $ident.'/'.self::ENTITY_FILENAME;
 			//@todo: tohle uz obsahuje metoda get
-			if($throwException && !$this->storage->contains($ident)) {
-				throw new \Exception('Entity not found: '.$ident);
+			if($throwException && !$this->storage->contains($path)) {
+				throw new \Exception(sprintf('Entity not found; ident: %s, path: %s', $ident, $path));
 			}
 
-			$entity = $this->serializer->unserialize($this->storage->get($ident));
-// print_r($entity);
+			$entity = $this->serializer->unserialize($this->storage->get($path));
+			$entity->setPath($ident); // set volatile path property of entity instance
 
 			return $entity;
 		}
@@ -185,11 +184,17 @@ class Repository implements RepositoryInterface
 			if($count) $paths[] = $path;
 		}
 
-// 		if (count($paths) > 1 && (CMS::$logger->level >= Logger::LEVEL_WARN)) {
-// 			CMS::$logger->warn("Multiple entities with the same UUID $uuid detected (".implode(', ', $paths).')');
-// 		}
-
 		return isset($paths[0]) ? $paths[0] : null;
+	}
+
+	/**
+	 * @param \Vivo\CMS\Model\Folder $folder
+	 * @return \Vivo\CMS\Model\Folder
+	 */
+	public function getParent(Model\Folder $folder)
+	{
+		$pos = strrpos($folder->getPath(), '/');
+		return $this->getEntity(substr($folder->getPath(), 0, $pos));
 	}
 
 	/**
@@ -215,19 +220,17 @@ class Repository implements RepositoryInterface
 		sort($names); // sort it in a natural way
 
 		foreach ($names as $name) {
-			if ($name{0} != '.') {
-				$child_path = "$path/$name";
-				if ($this->storage->contains($child_path)) {
-					//echo "$child_path<br>";
-					$entity = $this->getEntity($child_path, $throw_exception);
-					if ($entity/* && ($entity instanceof CMS\Model\Site || CMS::$securityManager->authorize($entity, 'Browse', false))*/)
-						$children[] = $entity;
-				}
+			$child_path = "$path/$name";
+			if (!$this->storage->isObject($child_path)) {
+				$entity = $this->getEntity($child_path, $throw_exception);
+				if ($entity/* && ($entity instanceof CMS\Model\Site || CMS::$securityManager->authorize($entity, 'Browse', false))*/)
+					$children[] = $entity;
 			}
 		}
+
 		// sorting
-		$entity = $this->getEntity($path, false);
-		if ($entity instanceof CMS\Model\Entity) {
+// 		$entity = $this->getEntity($path, false);
+// 		if ($entity instanceof CMS\Model\Entity) {
 			//@todo: sorting? jedine pre Interface "SortableInterface" ?
 // 			$sorting = method_exists($entity, 'sorting') ? $entity->sorting() : $entity->sorting;
 // 			if (Util\Object::is_a($sorting, 'Closure')) {
@@ -238,7 +241,7 @@ class Repository implements RepositoryInterface
 // 					usort($children, array($entity, $cmp_function));
 // 				}
 // 			}
-		}
+// 		}
 
 		//all descendants
 		foreach ($children as $child) {
@@ -306,6 +309,21 @@ class Repository implements RepositoryInterface
 // 			CMS::$securityManager->authorize($entity, 'Write');
 
 		return ($this->saveEntities[$entity->getPath()] = $entity);
+	}
+
+	/**
+	 * Returns site entity by host name.
+	 * @param string $host
+	 * @return Vivo\CMS\Model\Site|null
+	 */
+	function getSiteByHost($host)
+	{
+		foreach ($this->getChildren(new Model\Folder('')) as $site) {
+			if (in_array($host, $site->getHosts())) {
+				return $site;
+			}
+		}
+		return null;
 	}
 
 /**
@@ -493,9 +511,6 @@ class Repository implements RepositoryInterface
 	 */
 	public function deleteEntity(Model\Entity $entity)
 	{
-		foreach($this->getAllContents($entity) as $content) {
-			CMS::$event->invoke(CMS\Event::ENTITY_DELETE, $content);
-		}
 		//TODO kontrola, zda je entita prazdna
 		$this->deletePaths[] = $this->deleteEntities[] = $entity->getPath();
 	}

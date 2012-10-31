@@ -146,6 +146,9 @@ class LocalFileSystemStorageTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testMove() {
 		$dir = $this->temp.'/testMove';
+        if (is_dir($dir)) {
+            $this->rrmdir($dir);
+        }
 		mkdir($dir);
 		mkdir($dir.'/dir1');
 		mkdir($dir.'/dir1/dir2');

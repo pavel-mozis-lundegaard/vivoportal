@@ -116,6 +116,16 @@ return array(
             //Default path where new modules will be added
             'default_install_path'  => '/',
         ),
+        'cms'       => array(
+            'repository'    => array(
+                'storage'       =>   array(
+                    'class'     => 'Vivo\Storage\LocalFileSystemStorage',
+                    'options'   => array(
+                        'root'      => __DIR__ . '/../../../data/repository',
+                    ),
+                ),
+            ),
+        ),
     ),
     'console' => array(
         'router' => array(

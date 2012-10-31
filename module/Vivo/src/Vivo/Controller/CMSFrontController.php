@@ -46,7 +46,7 @@ class CMSFrontController implements DispatchableInterface,
         $path = $this->event->getRouteMatch()->getParam('path');
         $host = $this->event->getRouteMatch()->getParam('host');
 
-        //Test SiteManager
+        //TODO - REMOVE Test SiteManager
         $sm = $this->getServiceLocator();
         /* @var $sm \Zend\ServiceManager\ServiceManager */
         $siteEvent  = $sm->get('site_event');
@@ -55,7 +55,7 @@ class CMSFrontController implements DispatchableInterface,
         \Zend\Debug\Debug::dump($siteEvent->getModules(), 'getModules');
         \Zend\Debug\Debug::dump($siteEvent->getSiteConfig(), 'getSiteConfig');
         \Zend\Debug\Debug::dump($siteEvent->getSiteId(), 'getSiteId');
-
+        \Zend\Debug\Debug::dump($siteEvent->getSiteModel() ? get_class($siteEvent->getSiteModel()) : null, 'site model class');
         //END test SiteManager
 
         $response->setContent('CMS document for path: ' . $path);

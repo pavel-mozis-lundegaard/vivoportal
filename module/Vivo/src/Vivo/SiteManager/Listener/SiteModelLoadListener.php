@@ -1,22 +1,28 @@
 <?php
 namespace Vivo\SiteManager\Listener;
 
+use Vivo\CMS\CMS;
 use Vivo\SiteManager\Event\SiteEventInterface;
 use Vivo\SiteManager\Exception;
-use Vivo\CMS\CMS;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
 
 /**
- * SiteConfigListener
+ * SiteModelLoadListener
  */
-class SiteConfigListener implements ListenerAggregateInterface
+class SiteModelLoadListener implements ListenerAggregateInterface
 {
     /**
      * @var \Zend\Stdlib\CallbackHandler[]
      */
     protected $listeners = array();
+
+    /**
+     * Route parameter name containing the host name
+     * @var string
+     */
+    protected $routeParamHost;
 
     /**
      * CMS object
@@ -26,11 +32,13 @@ class SiteConfigListener implements ListenerAggregateInterface
 
     /**
      * Constructor
+     * @param $routeParamHost
      * @param \Vivo\CMS\CMS $cms
      */
-    public function __construct(CMS $cms)
+    public function __construct($routeParamHost, CMS $cms)
     {
-        $this->cms  = $cms;
+        $this->routeParamHost   = $routeParamHost;
+        $this->cms              = $cms;
     }
 
     /**
@@ -40,7 +48,7 @@ class SiteConfigListener implements ListenerAggregateInterface
      */
     public function attach(EventManagerInterface $events)
     {
-        $this->listeners[] = $events->attach(SiteEventInterface::EVENT_CONFIG, array($this, 'onConfig'));
+        $this->listeners[] = $events->attach(SiteEventInterface::EVENT_SITE_MODEL_LOAD, array($this, 'onSiteModelLoad'));
     }
 
     /**
@@ -58,17 +66,22 @@ class SiteConfigListener implements ListenerAggregateInterface
     }
 
     /**
-     * Listen to "config" event, get Site configuration and store it into the SiteEvent
+     * Listen to "siteModelLoad" event, get host name from RouteMatch, get site model from CMS and store it into Site Event
      * @param SiteEventInterface $e
+     * @param \Vivo\SiteManager\Event\SiteEventInterface $e
      * @return void
      */
-    public function onConfig(SiteEventInterface $e)
+    public function onSiteModelLoad(SiteEventInterface $e)
     {
-        $siteModel  = $e->getSiteModel();
-        if ($siteModel) {
-            $siteConfig = $this->cms->getSiteConfig($siteModel);
-            $e->setSiteConfig($siteConfig);
-            $e->stopPropagation(true);
+        $routeMatch = $e->getRouteMatch();
+        if ($routeMatch) {
+            $host  = $routeMatch->getParam($this->routeParamHost);
+            if ($host) {
+                $siteModel  = $this->cms->getSiteByHost($host);
+                $e->setHost($host);
+                $e->setSiteModel($siteModel);
+                $e->stopPropagation(true);
+            }
         }
     }
 }

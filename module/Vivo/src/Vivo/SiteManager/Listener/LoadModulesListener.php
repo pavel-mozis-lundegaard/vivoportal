@@ -1,7 +1,6 @@
 <?php
 namespace Vivo\SiteManager\Listener;
 
-use Vivo\SiteManager\SiteManager;
 use Vivo\SiteManager\Event\SiteEventInterface;
 use Vivo\SiteManager\Exception;
 use Vivo\Module\ModuleManagerFactory;
@@ -60,7 +59,7 @@ class LoadModulesListener implements ListenerAggregateInterface
     }
 
     /**
-     * Listen to "load_modules" event, create the module mgr, load modules, merge config
+     * Listen to "load_modules" event, create the module mgr, load modules, merge config, save module manager
      * @param SiteEventInterface $e
      * @return void
      */
@@ -79,5 +78,7 @@ class LoadModulesListener implements ListenerAggregateInterface
         }
         $siteConfig = ArrayUtils::merge($modulesConfig, $siteConfig);
         $e->setSiteConfig($siteConfig);
+        $e->setModuleManager($moduleManager);
+        $e->stopPropagation(true);
     }
 }

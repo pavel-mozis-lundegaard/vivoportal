@@ -1,6 +1,9 @@
 <?php
 namespace Vivo\SiteManager\Event;
 
+use Vivo\CMS\Model\Site as SiteModel;
+
+use Zend\ModuleManager\ModuleManager;
 use Zend\EventManager\EventInterface;
 use Zend\Mvc\Router\RouteMatch;
 
@@ -9,17 +12,16 @@ use Zend\Mvc\Router\RouteMatch;
  */
 interface SiteEventInterface extends EventInterface
 {
-    const EVENT_INIT            = 'init';
-    const EVENT_RESOLVE         = 'resolve';
+    const EVENT_SITE_MODEL_LOAD = 'site_model_load';
     const EVENT_CONFIG          = 'config';
     const EVENT_COLLECT_MODULES = 'collect_modules';
     const EVENT_LOAD_MODULES    = 'load_modules';
 
     /**
      * Sets the Site ID
-     * @param string $siteId
+     * @param string|null $siteId
      */
-    public function setSiteId($siteId);
+    public function setSiteId($siteId = null);
 
     /**
      * Returns the Site ID
@@ -28,10 +30,23 @@ interface SiteEventInterface extends EventInterface
     public function getSiteId();
 
     /**
-     * Sets the current host name
-     * @param string $host
+     * Sets the site model
+     * @param SiteModel|null $siteModel
+     * @return void
      */
-    public function setHost($host);
+    public function setSiteModel(SiteModel $siteModel = null);
+
+    /**
+     * Returns the site model
+     * @return SiteModel
+     */
+    public function getSiteModel();
+
+    /**
+     * Sets the current host name
+     * @param string|null $host
+     */
+    public function setHost($host = null);
 
     /**
      * Returns the current host name
@@ -66,13 +81,26 @@ interface SiteEventInterface extends EventInterface
 
     /**
      * Sets the RouteMatch object
-     * @param RouteMatch $routeMatch
+     * @param RouteMatch|null $routeMatch
      */
-    public function setRouteMatch(RouteMatch $routeMatch);
+    public function setRouteMatch(RouteMatch $routeMatch = null);
 
     /**
      * Returns the RouteMatch object
      * @return RouteMatch
      */
     public function getRouteMatch();
+
+    /**
+     * Sets the module manager
+     * @param ModuleManager|null $moduleManager
+     * @return void
+     */
+    public function setModuleManager(ModuleManager $moduleManager = null);
+
+    /**
+     * Returns the module manager
+     * @return ModuleManager
+     */
+    public function getModuleManager();
 }

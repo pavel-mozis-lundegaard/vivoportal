@@ -104,29 +104,31 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $moduleManagerFactory   = new ModuleManagerFactory($modulePaths, $moduleStreamName);
                     return $moduleManagerFactory;
                 },
-                'site_resolver'             => function(ServiceManager $sm) {
-                    //TODO - configure a proper SiteResolver, the FixedValue resolver is for development only
-                    $siteResolver   = new \Vivo\SiteManager\Resolver\FixedValue('abcdefgh12345678');
-                    return $siteResolver;
-                },
                 'site_event'        => function(ServiceManager $sm) {
                     $siteEvent              = new \Vivo\SiteManager\Event\SiteEvent();
                     return $siteEvent;
+                },
+                //TODO - remove the 'cms' service - will be configured by Mirek
+                'cms'               => function(ServiceManager $sm) {
+                    $cms        = new \Vivo\CMS\CMS();
+                    return $cms;
                 },
                 'site_manager'      => function(ServiceManager $sm) {
                     $siteEvents             = new \Zend\EventManager\EventManager();
                     $siteEvent              = $sm->get('site_event');
                     $routeParamHost         = 'host';
-                    $resolver               = $sm->get('site_resolver');
                     $moduleManagerFactory   = $sm->get('module_manager_factory');
                     //TODO - get list of global modules from somewhere
                     $globalModules          = array('Gvm1');
+                    $moduleStorageManager   = $sm->get('module_storage_manager');
+                    $cms                    = $sm->get('cms');
                     $siteManager            = new \Vivo\SiteManager\SiteManager($siteEvents,
                                                                                 $siteEvent,
                                                                                 $routeParamHost,
-                                                                                $resolver,
                                                                                 $moduleManagerFactory,
-                                                                                $globalModules);
+                                                                                $globalModules,
+                                                                                $moduleStorageManager,
+                                                                                $cms);
                     return $siteManager;
                 },
                 'create_site_listener'  => function(ServiceManager $sm) {

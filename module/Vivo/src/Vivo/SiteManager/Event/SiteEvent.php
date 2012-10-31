@@ -2,9 +2,11 @@
 namespace Vivo\SiteManager\Event;
 
 use Vivo\SiteManager\Exception;
+use Vivo\CMS\Model\Site as SiteModel;
 
 use Zend\EventManager\Event;
 use Zend\Mvc\Router\RouteMatch;
+use Zend\ModuleManager\ModuleManager;
 use ArrayAccess;
 
 /**
@@ -17,6 +19,12 @@ class SiteEvent extends Event implements SiteEventInterface
      * @var string
      */
     protected $siteId;
+
+    /**
+     * Site model
+     * @var SiteModel
+     */
+    protected $siteModel;
 
     /**
      * Host name currently used to access the site
@@ -43,10 +51,16 @@ class SiteEvent extends Event implements SiteEventInterface
     protected $routeMatch;
 
     /**
-     * Sets the Site ID
-     * @param string $siteId
+     * Module manager
+     * @var ModuleManager
      */
-    public function setSiteId($siteId)
+    protected $moduleManager;
+
+    /**
+     * Sets the Site ID
+     * @param string|null $siteId
+     */
+    public function setSiteId($siteId = null)
     {
         $this->siteId = $siteId;
     }
@@ -62,9 +76,9 @@ class SiteEvent extends Event implements SiteEventInterface
 
     /**
      * Sets the current host name
-     * @param string $host
+     * @param string|null $host
      */
-    public function setHost($host)
+    public function setHost($host = null)
     {
         $this->host = $host;
     }
@@ -122,9 +136,9 @@ class SiteEvent extends Event implements SiteEventInterface
 
     /**
      * Sets the RouteMatch object
-     * @param RouteMatch $routeMatch
+     * @param RouteMatch|null $routeMatch
      */
-    public function setRouteMatch(RouteMatch $routeMatch)
+    public function setRouteMatch(RouteMatch $routeMatch = null)
     {
         $this->routeMatch = $routeMatch;
     }
@@ -136,5 +150,43 @@ class SiteEvent extends Event implements SiteEventInterface
     public function getRouteMatch()
     {
         return $this->routeMatch;
+    }
+
+    /**
+     * Sets the site model
+     * @param SiteModel|null $siteModel
+     * @return void
+     */
+    public function setSiteModel(SiteModel $siteModel = null)
+    {
+        $this->siteModel    = $siteModel;
+    }
+
+    /**
+     * Returns the site model
+     * @return SiteModel
+     */
+    public function getSiteModel()
+    {
+        return $this->siteModel;
+    }
+
+    /**
+     * Sets the module manager
+     * @param ModuleManager|null $moduleManager
+     * @return void
+     */
+    public function setModuleManager(ModuleManager $moduleManager = null)
+    {
+        $this->moduleManager    = $moduleManager;
+    }
+
+    /**
+     * Returns the module manager
+     * @return ModuleManager
+     */
+    public function getModuleManager()
+    {
+        return $this->moduleManager;
     }
 }

@@ -3,7 +3,7 @@ namespace Vivo\SiteManager\Listener;
 
 use Vivo\SiteManager\Event\SiteEventInterface;
 use Vivo\SiteManager\Exception;
-use Vivo\Module\InstallManager\InstallManager;
+use Vivo\Module\StorageManager\StorageManager as ModuleStorageManager;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
@@ -25,20 +25,20 @@ class CollectModulesListener implements ListenerAggregateInterface
     protected $modules      = array();
 
     /**
-     * Module Installation Manager
-     * @var InstallManager
+     * Module Storage Manager
+     * @var ModuleStorageManager
      */
-    protected $installManager;
+    protected $moduleStorageManager;
 
     /**
      * Constructor
-     * @param array $globalModules List of modules loaded for the global scope (ie all sites)
-     * @param \Vivo\Module\InstallManager\InstallManager $installManager
+     * @param array $globalModules
+     * @param \Vivo\Module\StorageManager\StorageManager $moduleStorageManager
      */
-    public function __construct(array $globalModules, InstallManager $installManager)
+    public function __construct(array $globalModules, ModuleStorageManager $moduleStorageManager)
     {
-        $this->modules          = $globalModules;
-        $this->installManager   = $installManager;
+        $this->modules              = $globalModules;
+        $this->moduleStorageManager = $moduleStorageManager;
     }
 
     /**
@@ -68,22 +68,19 @@ class CollectModulesListener implements ListenerAggregateInterface
     /**
      * Listen to "collect_modules" event, merge list of global modules with the site modules and add modules from dependencies
      * @param SiteEventInterface $e
-     * @throws \Vivo\SiteManager\Exception\ConfigException
      * @return void
      */
     public function onCollectModules(SiteEventInterface $e)
     {
         $siteConfig = $e->getSiteConfig();
-        if (isset($siteConfig['modules'])) {
-            $siteModules    =$siteConfig['modules'];
-        } else {
-            $siteModules    = array();
+        if ($siteConfig && isset($siteConfig['modules'])) {
+            //Add modules required by site to the module stack
+            $this->addMissingValues($this->modules, $siteConfig['modules']);
         }
-        //Add modules required by site to the module stack
-        $this->addMissingValues($this->modules, $siteModules);
         //Add modules from dependencies
         $this->addMissingDependencies($this->modules);
         $e->setModules($this->modules);
+        $e->stopPropagation(true);
     }
 
     /**
@@ -108,8 +105,7 @@ class CollectModulesListener implements ListenerAggregateInterface
      */
     protected function getModuleDependencies($module)
     {
-        //TODO - factor out InstallManager
-        $moduleInfo = $this->installManager->getModuleInfo($module);
+        $moduleInfo = $this->moduleStorageManager->getModuleInfo($module);
         if (isset($moduleInfo['descriptor']['require'])) {
             $dependencies   = array_keys($moduleInfo['descriptor']['require']);
         } else {

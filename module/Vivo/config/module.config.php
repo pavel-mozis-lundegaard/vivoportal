@@ -109,9 +109,12 @@ return array(
             //Name of stream (protocol) which will be registered for Vivo Module source file access in Storage
             'stream_name'   => 'vmodule',
             //Vivo Module paths in Vivo Module Storage
-            'module_paths'             => array(
+            'module_paths'              => array(
                 '/',
             ),
+            'descriptor_name'       => 'vivo_module.json',
+            //Default path where new modules will be added
+            'default_install_path'  => '/',
         ),
     ),
     'console' => array(

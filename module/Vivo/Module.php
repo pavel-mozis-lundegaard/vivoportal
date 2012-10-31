@@ -53,6 +53,15 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
     {
         return array(
             'factories' => array(
+                'ioUtil'            => function(ServiceManager $sm) {
+                    $ioUtil     = new \Vivo\IO\IOUtil();
+                    return $ioUtil;
+                },
+                'storage_util'      => function(ServiceManager $sm) {
+                    $ioUtil         = $sm->get('ioUtil');
+                    $storageUtil    = new \Vivo\Storage\StorageUtil($ioUtil);
+                    return $storageUtil;
+                },
                 'storage_factory'   => function(ServiceManager $sm) {
                     $storageFactory = new \Vivo\Storage\Factory();
                     return $storageFactory;
@@ -65,11 +74,34 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $storage    = $storageFactory->create($storageConfig);
                     return $storage;
                 },
+                'remote_module'             => function(ServiceManager $sm) {
+                    $config                 = $sm->get('config');
+                    $descriptorName         = $config['vivo']['modules']['descriptor_name'];
+                    $storageFactory         = $sm->get('storage_factory');
+                    $remoteModule           = new \Vivo\Module\StorageManager\RemoteModule($storageFactory, $descriptorName);
+                    return $remoteModule;
+                },
+                'module_storage_manager'    => function(ServiceManager $sm) {
+                    $config                 = $sm->get('config');
+                    $modulePaths            = $config['vivo']['modules']['module_paths'];
+                    $descriptorName         = $config['vivo']['modules']['descriptor_name'];
+                    $defaultInstallPath     = $config['vivo']['modules']['default_install_path'];
+                    $storage                = $sm->get('module_storage');
+                    $storageUtil            = $sm->get('storage_util');
+                    $remoteModule           = $sm->get('remote_module');
+                    $manager    = new \Vivo\Module\StorageManager\StorageManager($storage,
+                                                                                 $modulePaths,
+                                                                                 $descriptorName,
+                                                                                 $defaultInstallPath,
+                                                                                 $storageUtil,
+                                                                                 $remoteModule);
+                    return $manager;
+                },
                 'module_manager_factory'    => function(ServiceManager $sm) {
                     $config                 = $sm->get('config');
-                    $ModulePaths            = $config['vivo']['modules']['module_paths'];
+                    $modulePaths            = $config['vivo']['modules']['module_paths'];
                     $moduleStreamName       = $config['vivo']['modules']['stream_name'];
-                    $moduleManagerFactory   = new ModuleManagerFactory($ModulePaths, $moduleStreamName);
+                    $moduleManagerFactory   = new ModuleManagerFactory($modulePaths, $moduleStreamName);
                     return $moduleManagerFactory;
                 },
                 'site_resolver'             => function(ServiceManager $sm) {
@@ -102,19 +134,6 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $createSiteListener     = new \Vivo\SiteManager\Listener\CreateSiteListener($siteManager);
                     return $createSiteListener;
                 },
-                'module_install_manager'    => function(ServiceManager $sm) {
-                    $moduleStorage  = $sm->get('module_storage');
-                    /* @var $moduleStorage \Vivo\Storage\StorageInterface */
-                    $config         = $sm->get('config');
-                    $storageFactory = $sm->get('storage_factory');
-                    $modulePaths    = $config['vivo']['modules']['module_paths'];
-                    $defaultInstallPath = $moduleStorage->getStoragePathSeparator();
-                    $ioUtil         = new \Vivo\IO\IOUtil();
-                    $storageUtil    = new \Vivo\Storage\StorageUtil($ioUtil);
-                    $installMgr     = new \Vivo\Module\InstallManager\InstallManager(
-                                            $moduleStorage, $modulePaths, $defaultInstallPath, $storageUtil, $storageFactory);
-                    return $installMgr;
-                },
             ),
         );
     }
@@ -124,9 +143,10 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         return array(
             'factories'     => array(
                 'CLI\Module'    => function(ControllerManager $cm) {
-                    $sm             = $cm->getServiceLocator();
-                    $installManager = $sm->get('module_install_manager');
-                    $controller     = new \Vivo\Controller\CLI\ModuleController($installManager);
+                    $sm                     = $cm->getServiceLocator();
+                    $moduleStorageManager   = $sm->get('module_storage_manager');
+                    $remoteModule           = $sm->get('remote_module');
+                    $controller             = new \Vivo\Controller\CLI\ModuleController($moduleStorageManager, $remoteModule);
                     return $controller;
                 },
             ),

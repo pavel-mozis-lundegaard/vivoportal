@@ -1,7 +1,8 @@
 <?php
 namespace Vivo\Controller\CLI;
 
-use Vivo\Module\InstallManager\InstallManager;
+use Vivo\Module\StorageManager\StorageManager as ModuleStorageManager;
+use Vivo\Module\StorageManager\RemoteModule;
 
 use Zend\Console\Request as ConsoleRequest;
 
@@ -13,18 +14,26 @@ class ModuleController extends AbstractCliController
     const COMMAND = 'module';
 
     /**
-     * Module Installation Manager
-     * @var InstallManager
+     * Module Storage Manager
+     * @var ModuleStorageManager
      */
-    protected $installManager;
+    protected $moduleStorageManager;
+
+    /**
+     * Remote Module
+     * @var RemoteModule
+     */
+    protected $remoteModule;
 
     /**
      * Constructor
-     * @param \Vivo\Module\InstallManager\InstallManager $installManager
+     * @param \Vivo\Module\StorageManager\StorageManager $moduleStorageManager
+     * @param \Vivo\Module\StorageManager\RemoteModule $remoteModule
      */
-    public function __construct(InstallManager $installManager)
+    public function __construct(ModuleStorageManager $moduleStorageManager, RemoteModule $remoteModule)
     {
-        $this->installManager   = $installManager;
+        $this->moduleStorageManager = $moduleStorageManager;
+        $this->remoteModule         = $remoteModule;
     }
 
     public function defaultAction()
@@ -57,7 +66,7 @@ class ModuleController extends AbstractCliController
         $output         = "\nModules in storage\n\n";
         $output         .= sprintf($rowTemplate, 'Name', 'Version', 'Description');
         $output         .= str_repeat('-', 78) . "\n";
-        $modulesInfo    = $this->installManager->getModulesInfo();
+        $modulesInfo    = $this->moduleStorageManager->getModulesInfo();
         foreach ($modulesInfo as $moduleInfo) {
             $descriptor =  $moduleInfo['descriptor'];
             if (isset($descriptor['description'])) {
@@ -84,18 +93,18 @@ class ModuleController extends AbstractCliController
             return 'Usage: module add <module_url> [--force|-f]';
         }
         $force      = $request->getParam('force', false) || $request->getParam('f', false);
-        $moduleDescriptor   = $this->installManager->getModuleDescriptorByModuleUrl($moduleUrl);
+        $moduleDescriptor   = $this->remoteModule->getModuleDescriptor($moduleUrl);
         //Check VModule dependencies
-        if (!$force && isset($moduleDescriptor['require'])) {
+        if ((!$force) && (isset($moduleDescriptor['require']))) {
             $dependencies   = $moduleDescriptor['require'];
             $info           = array();
-            if (!$this->installManager->checkVmoduleDependencies($dependencies, $info)) {
+            if (!$this->moduleStorageManager->checkVmoduleDependencies($dependencies, $info)) {
                 $output     = sprintf("\nSome dependencies of module '%s' are missing.\n", $moduleDescriptor['name']);
                 $output     .= $this->formatDependencyTable($info);
                 return $output;
             }
         }
-        $moduleInfo = $this->installManager->addModule($moduleUrl, $force);
+        $moduleInfo = $this->moduleStorageManager->addModule($moduleUrl, $force);
         $output     = sprintf("\nModule '%s' has been added to storage.\n", $moduleInfo['name']);
         $output     .= $this->formatModuleInfo($moduleInfo);
         return $output;

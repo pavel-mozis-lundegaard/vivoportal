@@ -4,6 +4,7 @@ namespace Vivo\Module\StorageManager;
 use Vivo\Storage\StorageInterface;
 use Vivo\Module\Exception;
 use Vivo\Storage\StorageUtil;
+use Vivo\Module\StorageManager\RemoteModule;
 
 /**
  * StorageManager
@@ -27,7 +28,7 @@ class StorageManager
      * Name of the file containing the JSON data describing the module
      * @var string
      */
-    protected $moduleDescriptorName;
+    protected $descriptorName;
 
     /**
      * Array of info about modules present in storage
@@ -48,19 +49,27 @@ class StorageManager
     protected $storageUtil;
 
     /**
+     * Remote module access
+     * @var RemoteModule
+     */
+    protected $remoteModule;
+
+    /**
      * Constructor
      * @param \Vivo\Storage\StorageInterface $storage
      * @param array $modulePaths
-     * @param string $moduleDescriptorName
+     * @param string $descriptorName
      * @param string|null $defaultInstallPath
      * @param \Vivo\Storage\StorageUtil $storageUtil
+     * @param RemoteModule $remoteModule
      * @throws \Vivo\Module\Exception\InvalidArgumentException
      */
     public function __construct(StorageInterface $storage,
                                 array $modulePaths,
-                                $moduleDescriptorName,
+                                $descriptorName,
                                 $defaultInstallPath = null,
-                                StorageUtil $storageUtil)
+                                StorageUtil $storageUtil,
+                                RemoteModule $remoteModule)
     {
         if (is_null($defaultInstallPath)) {
             //Default install path not specified, use the storage root as default
@@ -72,9 +81,10 @@ class StorageManager
         }
         $this->storage              = $storage;
         $this->modulePaths          = $modulePaths;
-        $this->moduleDescriptorName = $moduleDescriptorName;
+        $this->descriptorName       = $descriptorName;
         $this->defaultInstallPath   = $defaultInstallPath;
         $this->storageUtil          = $storageUtil;
+        $this->remoteModule         = $remoteModule;
     }
 
     /**
@@ -91,7 +101,7 @@ class StorageManager
                 foreach ($scan as $item) {
                     $modulePath     = $this->storage->buildStoragePath(array($moduleBasePath, $item), true);
                     $moduleFilePath = $this->storage->buildStoragePath(array($moduleBasePath, $item, 'Module.php'), true);
-                    $moduleJsonPath = $this->storage->buildStoragePath(array($moduleBasePath, $item, self::MODULE_DESCRIPTOR), true);
+                    $moduleJsonPath = $this->storage->buildStoragePath(array($moduleBasePath, $item, $this->descriptorName), true);
                     if ($this->storage->isObject($moduleFilePath)) {
                         $moduleJson = $this->getJsonContent($this->storage, $moduleJsonPath);
                         if ((!isset($moduleJson['name'])) || ($item != $moduleJson['name'])) {
@@ -203,15 +213,17 @@ class StorageManager
     }
 
     /**
-     * Adds a new module to the storage
-     * Does not perform any checks on the source module! To add a new module, use the InstallManager::addModule()
-     * @param $sourceStorage
-     * @param $pathInSourceStorage
-     * @param $moduleName
-     * @param null $path
+     * Adds a module to the module storage
+     * Returns module info on success
+     * @param string $moduleUrl
+     * @param bool $force Should the module be added even though dependencies are not satisfied?
+     * @param string|null $path Path in module storage where the module should be placed (null = default install path)
+     * @return array Module info
+     * @throws \Vivo\Module\Exception\DependencyException
+     * @throws \Vivo\Module\Exception\DescriptorException
      * @throws \Vivo\Module\Exception\InvalidArgumentException
      */
-    public function addModuleToStorage($sourceStorage, $pathInSourceStorage, $moduleName, $path = null)
+    public function addModule($moduleUrl, $force = false, $path = null)
     {
         if (is_null($path)) {
             $path   = $this->defaultInstallPath;
@@ -221,8 +233,42 @@ class StorageManager
                     sprintf("%s: The path '%s' is not a module path.", __METHOD__, $path));
             }
         }
+        $remoteStorage          = $this->remoteModule->getStorage($moduleUrl);
+        $pathInRemoteStorage    = $this->remoteModule->getModulePathInStorage($moduleUrl);
+        $moduleDescriptor       = $this->remoteModule->getModuleDescriptor($moduleUrl);
+        if (!$moduleDescriptor) {
+            throw new Exception\DescriptorException(
+                sprintf("%s: Cannot read module descriptor from '%s' for module at URL '%s'",
+                    __METHOD__, $this->descriptorName, $moduleUrl));
+        }
+        if (!$this->isDescriptorValid($moduleDescriptor)) {
+            throw new Exception\DescriptorException(
+                sprintf("%s: Invalid descriptor (%s) for module at URL '%s'",
+                    __METHOD__, $this->descriptorName, $moduleUrl));
+        }
+        $moduleName = $moduleDescriptor['name'];
+        //Check that the module name has not been added yet
+        if ($this->moduleExists($moduleName)) {
+            throw new Exception\InvalidArgumentException(
+                sprintf("%s: Module '%s' (%s) already exists in module storage", __METHOD__, $moduleName, $moduleUrl));
+        }
+        //Read module dependencies on other vmodules and check they have been added (otherwise throw an exception)
+        if ((!$force) && (isset($moduleDescriptor['require']))) {
+            $dependencies   = $moduleDescriptor['require'];
+            $info           = array();
+            if (!$this->checkVmoduleDependencies($dependencies, $info)) {
+                throw new Exception\DependencyException(
+                    sprintf("%s: Dependencies of module '%s' are not satisfied.", __METHOD__, $moduleName));
+            }
+        }
+        //TODO - Read module dependencies on libraries, throw an exception, if unsatisfied
+        //Copy the module source to the module storage
         $fullPath   = $this->storage->buildStoragePath(array($path, $moduleName), true);
-        $this->storageUtil->copy($sourceStorage, $pathInSourceStorage, $this->storage, $fullPath);
+        $this->storageUtil->copy($remoteStorage, $pathInRemoteStorage, $this->storage, $fullPath);
+        //Reset the cached info about modules
+        $this->modulesInfo  = array();
+        $moduleInfo         = $this->getModuleInfo($moduleName);
+        return $moduleInfo;
     }
 
     /**
@@ -246,5 +292,24 @@ class StorageManager
         }
         $result = version_compare($ourVersion, $requiredVersion, $operator);
         return $result;
+    }
+
+    /**
+     * Returns true if the descriptor is valid
+     * @param array $descriptor
+     * @return bool
+     */
+    protected function isDescriptorValid(array $descriptor)
+    {
+        if (!isset($descriptor['name'])) {
+            return false;
+        }
+        if (!isset($descriptor['version'])) {
+            return false;
+        }
+        if ((!isset($descriptor['type'])) || (!in_array($descriptor['type'], array('site', 'core')))) {
+            return false;
+        }
+        return true;
     }
 }

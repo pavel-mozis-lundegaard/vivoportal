@@ -46,8 +46,6 @@ class CMSFrontController implements DispatchableInterface,
         $path = $this->event->getRouteMatch()->getParam('path');
         $host = $this->event->getRouteMatch()->getParam('host');
 
-        //$this->serviceLocator->get('cms');
-
         $response->setContent('CMS document for path: ' . $path);
         $response->setStatusCode(HttpResponse::STATUS_CODE_200);
         return $response;

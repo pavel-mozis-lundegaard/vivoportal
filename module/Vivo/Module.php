@@ -101,7 +101,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     return $moduleManagerFactory;
                 },
                 'indexer'                   => function(ServiceManager $sm) {
-                    $indexer                = new \Vivo\Repository\Indexer\Solr();
+                    $indexer                = new \Vivo\Indexer\Indexer();
                     return $indexer;
                 },
                 'repository'                => function(ServiceManager $sm) {

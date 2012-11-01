@@ -27,10 +27,23 @@ class ResourceManager
     protected $storage;
 
     /**
-     * Path to module resources
+     * Storage path where resources are placed in a module (relative to module root)
      * @var string
      */
     protected $resourcePath;
+
+    /**
+     * Constructor
+     * @param \Zend\ModuleManager\ModuleManager $moduleManager
+     * @param \Vivo\Storage\StorageInterface $storage
+     * @param string $resourcePath Storage path where resources are placed in a module (relative to module root)
+     */
+    public function __construct(ModuleManager $moduleManager, StorageInterface $storage, $resourcePath)
+    {
+        $this->moduleManager    = $moduleManager;
+        $this->storage          = $storage;
+        $this->resourcePath     = $resourcePath;
+    }
 
     /**
      * Returns the resource data

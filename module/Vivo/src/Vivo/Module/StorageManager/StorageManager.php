@@ -342,17 +342,42 @@ class StorageManager
      * @param string $moduleName
      * @param string $pathInModule
      * @return string
+     */
+    public function getFileData($moduleName, $pathInModule)
+    {
+        $fullPath   = $this->getFullPathToFile($moduleName, $pathInModule);
+        $data       = $this->storage->get($fullPath);
+        return $data;
+    }
+
+    /**
+     * Returns stream for a file in module storage
+     * @param string $moduleName
+     * @param string $pathInModule
+     * @return \Vivo\IO\InputStreamInterface
+     */
+    public function getFileStream($moduleName, $pathInModule)
+    {
+        $fullPath   = $this->getFullPathToFile($moduleName, $pathInModule);
+        $stream     = $this->storage->read($fullPath);
+        return $stream;
+    }
+
+    /**
+     * Builds and returns a full absolute path to a file in a module
+     * @param string $moduleName
+     * @param string $pathInModule Path to a file relative to the module root
+     * @return string
      * @throws \Vivo\Module\Exception\InvalidArgumentException
      */
-    public function getFile($moduleName, $pathInModule)
+    public function getFullPathToFile($moduleName, $pathInModule)
     {
         $components = array($this->getPathToModule($moduleName), $pathInModule);
-        $fullPath   = $this->storage->buildStoragePath($components, true);
+        $fullPath   = $this->pathBuilder->buildStoragePath($components, true);
         if (!$this->storage->isObject($fullPath)) {
             throw new Exception\InvalidArgumentException(
                 sprintf("%s: Path '%s' not found in module '%s'", __METHOD__, $pathInModule, $moduleName));
         }
-        $data       = $this->storage->get($fullPath);
-        return $data;
+        return $fullPath;
     }
 }

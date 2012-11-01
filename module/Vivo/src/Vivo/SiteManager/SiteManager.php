@@ -9,6 +9,8 @@ use Vivo\SiteManager\Listener\LoadModulesListener;
 use Vivo\SiteManager\Listener\CollectModulesListener;
 use Vivo\Module\ModuleManagerFactory;
 use Vivo\Module\StorageManager\StorageManager as ModuleStorageManager;
+use Vivo\SiteManager\Listener\InjectModuleManagerListener;
+use Vivo\Module\ResourceManager\ResourceManager as ModuleResourceManager;
 use Vivo\CMS\CMS;
 
 use Zend\EventManager\EventManagerInterface;
@@ -84,6 +86,11 @@ class SiteManager implements SiteManagerInterface,
     protected $serviceManager;
 
     /**
+     * @var ModuleResourceManager
+     */
+    protected $moduleResourceManager;
+
+    /**
      * Constructor
      * @param \Zend\EventManager\EventManagerInterface $events
      * @param Event\SiteEventInterface $siteEvent
@@ -93,6 +100,7 @@ class SiteManager implements SiteManagerInterface,
      * @param \Vivo\Module\StorageManager\StorageManager $moduleStorageManager
      * @param \Vivo\CMS\CMS $cms
      * @param \Zend\ServiceManager\ServiceManager $serviceManager
+     * @param \Vivo\Module\ResourceManager\ResourceManager $moduleResourceManager
      * @param \Zend\Mvc\Router\RouteMatch $routeMatch
      */
     public function __construct(EventManagerInterface $events,
@@ -103,6 +111,7 @@ class SiteManager implements SiteManagerInterface,
                                 ModuleStorageManager $moduleStorageManager,
                                 CMS $cms,
                                 ServiceManager $serviceManager,
+                                ModuleResourceManager $moduleResourceManager,
                                 RouteMatch $routeMatch = null)
     {
         $this->setEventManager($events);
@@ -113,6 +122,7 @@ class SiteManager implements SiteManagerInterface,
         $this->moduleStorageManager = $moduleStorageManager;
         $this->cms                  = $cms;
         $this->serviceManager       = $serviceManager;
+        $this->moduleResourceManager    = $moduleResourceManager;
         $this->setRouteMatch($routeMatch);
     }
 
@@ -136,6 +146,9 @@ class SiteManager implements SiteManagerInterface,
         //Attach Load modules listener
         $loadModulesListener    = new LoadModulesListener($this->moduleManagerFactory, $this->serviceManager);
         $loadModulesListener->attach($this->events);
+        //Attach InjectModuleManagerListener
+        $injectModuleManagerListener    = new InjectModuleManagerListener($this->moduleResourceManager);
+        $injectModuleManagerListener->attach($this->events);
     }
 
     /**
@@ -156,6 +169,9 @@ class SiteManager implements SiteManagerInterface,
         //Load site modules
         $this->siteEvent->stopPropagation(false);
         $this->events->trigger(SiteEventInterface::EVENT_LOAD_MODULES, $this->siteEvent);
+        //Perform post module loading tasks
+        $this->siteEvent->stopPropagation(false);
+        $this->events->trigger(SiteEventInterface::EVENT_LOAD_MODULES_POST, $this->siteEvent);
     }
 
     /**

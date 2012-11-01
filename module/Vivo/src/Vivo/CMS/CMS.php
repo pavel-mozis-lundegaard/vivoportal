@@ -79,6 +79,16 @@ class CMS
 	}
 
 	/**
+	 * @param string $path Relative document path in site.
+	 * @param \Vivo\CMS\Model\Site $site
+	 * @return \Vivo\CMS\Model\Document
+	 */
+	public function getSiteDocument($path, \Vivo\CMS\Model\Site $site)
+	{
+		return $this->repository->getEntity($site->getPath().'/ROOT/'.$path);
+	}
+
+	/**
 	 * @param \Vivo\CMS\Model\Document $document
 	 * @return \Vivo\CMS\Workflow\AbstractWorkflow
 	 */
@@ -88,13 +98,10 @@ class CMS
 	}
 
 	/**
-	 * @todo SITE
-	 *
 	 * @param string $ident
-	 * @param unknown_type $site
 	 * @return Vivo\CMS\Model\Entity
 	 */
-	public function getEntity($ident, Model\Site $site = null)
+	public function getEntity($ident)
 	{
 		return $this->repository->getEntity($ident);
 	}

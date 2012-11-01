@@ -2,15 +2,17 @@
 namespace Vivo\IO;
 
 /**
- * @author kormik
  *
  */
-interface InputStreamInterface {
+interface InputStreamInterface
+{
 
-	/**
-	 * Reads from stream.
-	 * @param integer $bytes
-	 */
-	public function read($bytes = 1);
+    /**
+     * Reads from stream
+     * Returns the data read or false when data cannot be read
+     * @param integer $bytes Number of bytes to read
+     * @return string|bool
+     */
+    public function read($bytes = 1);
 
 }

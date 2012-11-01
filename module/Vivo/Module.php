@@ -1,19 +1,16 @@
 <?php
-/**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/ZendSkeletonApplication for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
- */
-
 namespace Vivo;
 
-use Zend\Mvc\ModuleRouteListener;
-use Zend\ServiceManager\ServiceManager;
 use Vivo\Module\ModuleManagerFactory;
 
-class Module
+use Zend\Console\Adapter\AdapterInterface as Console;
+use Zend\ModuleManager\Feature\ConsoleBannerProviderInterface;
+use Zend\ModuleManager\Feature\ConsoleUsageProviderInterface;
+use Zend\Mvc\ModuleRouteListener;
+use Zend\ServiceManager\ServiceManager;
+use Zend\Mvc\Controller\ControllerManager;
+
+class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInterface
 {
     public function onBootstrap($e)
     {
@@ -52,6 +49,15 @@ class Module
     {
         return array(
             'factories' => array(
+                'ioUtil'            => function(ServiceManager $sm) {
+                    $ioUtil     = new \Vivo\IO\IOUtil();
+                    return $ioUtil;
+                },
+                'storage_util'      => function(ServiceManager $sm) {
+                    $ioUtil         = $sm->get('ioUtil');
+                    $storageUtil    = new \Vivo\Storage\StorageUtil($ioUtil);
+                    return $storageUtil;
+                },
                 'storage_factory'   => function(ServiceManager $sm) {
                     $storageFactory = new \Vivo\Storage\Factory();
                     return $storageFactory;
@@ -64,14 +70,68 @@ class Module
                     $storage    = $storageFactory->create($storageConfig);
                     return $storage;
                 },
+                'remote_module'             => function(ServiceManager $sm) {
+                    $config                 = $sm->get('config');
+                    $descriptorName         = $config['vivo']['modules']['descriptor_name'];
+                    $storageFactory         = $sm->get('storage_factory');
+                    $remoteModule           = new \Vivo\Module\StorageManager\RemoteModule($storageFactory, $descriptorName);
+                    return $remoteModule;
+                },
+                'module_storage_manager'    => function(ServiceManager $sm) {
+                    $config                 = $sm->get('config');
+                    $modulePaths            = $config['vivo']['modules']['module_paths'];
+                    $descriptorName         = $config['vivo']['modules']['descriptor_name'];
+                    $defaultInstallPath     = $config['vivo']['modules']['default_install_path'];
+                    $storage                = $sm->get('module_storage');
+                    $storageUtil            = $sm->get('storage_util');
+                    $remoteModule           = $sm->get('remote_module');
+                    $manager    = new \Vivo\Module\StorageManager\StorageManager($storage,
+                                                                                 $modulePaths,
+                                                                                 $descriptorName,
+                                                                                 $defaultInstallPath,
+                                                                                 $storageUtil,
+                                                                                 $remoteModule);
+                    return $manager;
+                },
                 'module_manager_factory'    => function(ServiceManager $sm) {
                     $config                 = $sm->get('config');
-                    $ModulePaths            = $config['vivo']['modules']['module_paths'];
+                    $modulePaths            = $config['vivo']['modules']['module_paths'];
                     $moduleStreamName       = $config['vivo']['modules']['stream_name'];
-                    $moduleManagerFactory   = new ModuleManagerFactory($ModulePaths, $moduleStreamName);
+                    $moduleManagerFactory   = new ModuleManagerFactory($modulePaths, $moduleStreamName);
                     return $moduleManagerFactory;
                 },
             ),
+        );
+    }
+
+    public function getControllerConfig()
+    {
+        return array(
+            'factories'     => array(
+                'CLI\Module'    => function(ControllerManager $cm) {
+                    $sm                     = $cm->getServiceLocator();
+                    $moduleStorageManager   = $sm->get('module_storage_manager');
+                    $remoteModule           = $sm->get('remote_module');
+                    $controller             = new \Vivo\Controller\CLI\ModuleController($moduleStorageManager, $remoteModule);
+                    return $controller;
+                },
+            ),
+        );
+    }
+
+    public function getConsoleBanner(Console $console){
+        return
+        "==========================================================\n".
+        "    Vivo 2 CLI                                            \n".
+        "==========================================================\n"
+        ;
+    }
+
+    public function getConsoleUsage(Console $console){
+        return array('Available commands:',
+                array ('indexer', 'Perform operations on indexer..'),
+                array ('info','Show informations about CMS instance.'),
+                array ('module', 'Manage modules.'),
         );
     }
 }

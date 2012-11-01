@@ -39,8 +39,7 @@ class CMSFrontController implements DispatchableInterface,
      * @param Response $response
      * @return Response
      */
-    public function dispatch(Request $request,
-        Response $response = null)
+    public function dispatch(Request $request, Response $response = null)
     {
         //TODO find document in repository and return it
         $path = $this->event->getRouteMatch()->getParam('path');

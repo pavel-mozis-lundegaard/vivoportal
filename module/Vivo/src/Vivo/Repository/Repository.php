@@ -7,7 +7,7 @@ use Vivo\CMS\Model;
 use Vivo\CMS\Security;
 use Vivo\Util;
 use Vivo\Storage;
-use Vivo\Repository\Indexer;
+use Vivo\Indexer\Indexer;
 
 /**
  * Repository class provides methods to works with CMS repository.
@@ -28,7 +28,7 @@ class Repository implements RepositoryInterface
 	 */
 	private $storage;
 	/**
-	 * @var \Vivo\Repository\Indexer\IndexerInterface
+	 * @var \Vivo\Indexer\Indexer
 	 */
 	private $indexer;
 	/**
@@ -63,10 +63,10 @@ class Repository implements RepositoryInterface
 	/**
 	 * @param \Vivo\Storage\StorageInterface $storage
 	 * @param object $cache
-	 * @param \Vivo\Repository\Indexer\IndexerInterface $indexer
+	 * @param \Vivo\Indexer\Indexer $indexer
 	 * @param \Zend\Serializer\Adapter\AdapterInterface $serializer
 	 */
-	public function __construct(Storage\StorageInterface $storage, $cache, Indexer\IndexerInterface $indexer, \Zend\Serializer\Adapter\AdapterInterface $serializer)
+	public function __construct(Storage\StorageInterface $storage, $cache, Indexer $indexer, \Zend\Serializer\Adapter\AdapterInterface $serializer)
 	{
 		$this->storage = $storage;
 		$this->indexer = $indexer;

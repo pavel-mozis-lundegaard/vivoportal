@@ -312,4 +312,35 @@ class StorageManager
         }
         return true;
     }
+
+    /**
+     * Returns path to a module in the storage
+     * @param string $moduleName
+     * @return string
+     */
+    public function getPathToModule($moduleName)
+    {
+        $moduleInfo = $this->getModuleInfo($moduleName);
+        $pathToModule   = $moduleInfo['storage_path'];
+        return $pathToModule;
+    }
+
+    /**
+     * Returns contents of a file in module storage
+     * @param string $moduleName
+     * @param string $pathInModule
+     * @return string
+     * @throws \Vivo\Module\Exception\InvalidArgumentException
+     */
+    public function getFile($moduleName, $pathInModule)
+    {
+        $components = array($this->getPathToModule($moduleName), $pathInModule);
+        $fullPath   = $this->storage->buildStoragePath($components, true);
+        if (!$this->storage->isObject($fullPath)) {
+            throw new Exception\InvalidArgumentException(
+                sprintf("%s: Path '%s' not found in module '%s'", __METHOD__, $pathInModule, $moduleName));
+        }
+        $data       = $this->storage->get($fullPath);
+        return $data;
+    }
 }

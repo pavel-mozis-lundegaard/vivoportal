@@ -119,4 +119,8 @@ class File extends Model\Content //implements Model\IResource, IAutoVersionable 
 	    return $this->mime_type;
 	}
 
+	public function getFilename() {
+	    return $this->filename;
+	}
+
 }

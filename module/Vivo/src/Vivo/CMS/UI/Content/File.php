@@ -1,16 +1,22 @@
 <?php
 namespace Vivo\CMS\UI\Content;
 
-use Vivo\Fake\CMS;
+use Vivo\CMS\CMS;
+use Vivo\CMS\Model\Content;
+use Vivo\CMS\Model\Document;
 use Vivo\CMS\UI\Component;
+use Vivo\CMS\UI\InjectModelInterface;
+use Vivo\UI;
 use Vivo\Util\MIME;
 
+use Zend\Http\Headers;
 use Zend\Http\Response;
 
 /**
  * UI component for content file.
+ * @todo add logic for various file types, when the file is not main content of page
  */
-class File extends Component implements RawComponentInterface
+class File extends UI\File implements RawComponentInterface, InjectModelInterface
 {
 
     /**
@@ -19,14 +25,14 @@ class File extends Component implements RawComponentInterface
     private $cms;
 
     /**
-     * @var InputStreamInterface
+     * @var Document
      */
-    private $inputStream;
+    private $document;
 
     /**
-     * @var Response
+     * @var Content
      */
-    private $response;
+    private $content;
 
     /**
      * @param CMS $cms
@@ -34,24 +40,34 @@ class File extends Component implements RawComponentInterface
      */
     public function __construct(CMS $cms, Response $response)
     {
+        parent::__construct($response);
         $this->cms = $cms;
-        $this->response = $response;
     }
 
     public function init()
     {
         //TODO validate mimetype
-        //TODO determine resource filename
+        //TODO determine resource filename and mimetype
+        if (!$this->content instanceof Content\File) {
+            throw new \Exception ("Incompatible model.");
+        }
+
         $mimeType = $this->content->getMimeType();
-        $this->response->getHeaders()
-            ->addHeaderLine('Content-Type: ' . $mimeType);
         $resourceFile = 'resource' . MIME::getExt($mimeType);
-        $this->inputStream = $this->cms
-            ->readResource($this->content, $resourceFile);
+        $this
+            ->setInputStream(
+                $this->cms->readResource($this->content, $resourceFile));
+
+        $this->setFilename($this->content->getFilename());
     }
 
-    public function view()
+    public function setContent(Content $content)
     {
-        return $this->inputStream;
+        $this->content = $content;
+    }
+
+    public function setDocument(Document $document)
+    {
+        $this->document = $document;
     }
 }

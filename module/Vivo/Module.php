@@ -108,25 +108,20 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $siteEvent              = new \Vivo\SiteManager\Event\SiteEvent();
                     return $siteEvent;
                 },
-                //TODO - remove the 'cms' service - will be configured by Mirek
-                'cms'               => function(ServiceManager $sm) {
-                    $cms        = new \Vivo\CMS\CMS();
-                    return $cms;
-                },
                 'site_manager'      => function(ServiceManager $sm) {
+                    $config                 = $sm->get('config');
+                    $coreModules            = $config['vivo']['modules']['core_modules'];
                     $siteEvents             = new \Zend\EventManager\EventManager();
                     $siteEvent              = $sm->get('site_event');
                     $routeParamHost         = 'host';
                     $moduleManagerFactory   = $sm->get('module_manager_factory');
-                    //TODO - get list of global modules from somewhere
-                    $globalModules          = array('Gvm1');
                     $moduleStorageManager   = $sm->get('module_storage_manager');
                     $cms                    = $sm->get('cms');
                     $siteManager            = new \Vivo\SiteManager\SiteManager($siteEvents,
                                                                                 $siteEvent,
                                                                                 $routeParamHost,
                                                                                 $moduleManagerFactory,
-                                                                                $globalModules,
+                                                                                $coreModules,
                                                                                 $moduleStorageManager,
                                                                                 $cms);
                     return $siteManager;

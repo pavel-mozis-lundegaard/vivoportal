@@ -59,10 +59,10 @@ class SiteManager implements SiteManagerInterface,
     protected $moduleManagerFactory;
 
     /**
-     * List of names of global modules
+     * List of names of core modules (loaded for all sites)
      * @var array
      */
-    protected $globalModules    = array();
+    protected $coreModules    = array();
 
     /**
      * Module Storage Manager
@@ -76,11 +76,22 @@ class SiteManager implements SiteManagerInterface,
      */
     protected $cms;
 
+    /**
+     * Constructor
+     * @param \Zend\EventManager\EventManagerInterface $events
+     * @param Event\SiteEventInterface $siteEvent
+     * @param string $routeParamHost Name of route parameter containing the host name
+     * @param \Vivo\Module\ModuleManagerFactory $moduleManagerFactory
+     * @param array $coreModules
+     * @param \Vivo\Module\StorageManager\StorageManager $moduleStorageManager
+     * @param \Vivo\CMS\CMS $cms
+     * @param \Zend\Mvc\Router\RouteMatch $routeMatch
+     */
     public function __construct(EventManagerInterface $events,
                                 SiteEventInterface $siteEvent,
                                 $routeParamHost,
                                 ModuleManagerFactory $moduleManagerFactory,
-                                array $globalModules,
+                                array $coreModules,
                                 ModuleStorageManager $moduleStorageManager,
                                 CMS $cms,
                                 RouteMatch $routeMatch = null)
@@ -89,7 +100,7 @@ class SiteManager implements SiteManagerInterface,
         $this->siteEvent            = $siteEvent;
         $this->routeParamHost       = $routeParamHost;
         $this->moduleManagerFactory = $moduleManagerFactory;
-        $this->globalModules        = $globalModules;
+        $this->coreModules          = $coreModules;
         $this->moduleStorageManager = $moduleStorageManager;
         $this->cms                  = $cms;
         $this->setRouteMatch($routeMatch);
@@ -110,7 +121,7 @@ class SiteManager implements SiteManagerInterface,
         $configListener         = new SiteConfigListener($this->cms);
         $configListener->attach($this->events);
         //Attach Collect modules listener
-        $collectModulesListener = new CollectModulesListener($this->globalModules, $this->moduleStorageManager);
+        $collectModulesListener = new CollectModulesListener($this->coreModules, $this->moduleStorageManager);
         $collectModulesListener->attach($this->events);
         //Attach Load modules listener
         $loadModulesListener    = new LoadModulesListener($this->moduleManagerFactory);

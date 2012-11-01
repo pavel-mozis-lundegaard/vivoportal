@@ -100,6 +100,27 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $moduleManagerFactory   = new ModuleManagerFactory($modulePaths, $moduleStreamName);
                     return $moduleManagerFactory;
                 },
+                'indexer'                   => function(ServiceManager $sm) {
+                    $indexer                = new \Vivo\Indexer\Indexer();
+                    return $indexer;
+                },
+                'repository'                => function(ServiceManager $sm) {
+                    $config                 = $sm->get('config');
+                    $storageConfig          = $config['vivo']['cms']['repository']['storage'];
+                    $storageFactory         = $sm->get('storage_factory');
+                    /* @var $storageFactory \Vivo\Storage\Factory */
+                    $storage                = $storageFactory->create($storageConfig);
+                    $indexer                = $sm->get('indexer');
+                    $serializer             = new \Vivo\Serializer\Adapter\Entity();
+                    //TODO - supply a real cache
+                    $repository             = new \Vivo\Repository\Repository($storage, null, $indexer, $serializer);
+                    return $repository;
+                },
+                'cms'                       => function(ServiceManager $sm) {
+                    $repository             = $sm->get('repository');
+                    $cms                    = new \Vivo\CMS\CMS($repository);
+                    return $cms;
+                }
             ),
         );
     }

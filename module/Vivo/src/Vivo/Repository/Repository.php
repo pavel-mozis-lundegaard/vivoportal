@@ -512,9 +512,9 @@ class Repository implements RepositoryInterface
 // 		if($entity instanceof CMS\Model\Document) {
 
 		//@todo:
-			$count = $entity->getContentCount();
+			$count = $document->getContentCount();
 			for ($index = 1; $index <= $count; $index++) {
-				$return = array_merge($return, $entity->getContents($index));
+				$return = array_merge($return, $document->getContents($index));
 			}
 		//--------------
 

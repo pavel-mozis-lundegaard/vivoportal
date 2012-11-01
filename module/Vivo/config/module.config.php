@@ -117,7 +117,6 @@ return array(
             'default_install_path'  => '/',
             //List of core modules loaded for all sites
             'core_modules'          => array(
-
             ),
         ),
         'cms'       => array(

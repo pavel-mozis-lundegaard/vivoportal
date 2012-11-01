@@ -15,6 +15,7 @@ use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\ModuleManager\ModuleManager;
 use Zend\Mvc\Router\RouteMatch;
+use Zend\ServiceManager\ServiceManager;
 
 /**
  * SiteManager
@@ -77,6 +78,12 @@ class SiteManager implements SiteManagerInterface,
     protected $cms;
 
     /**
+     * Application's service manager
+     * @var ServiceManager
+     */
+    protected $serviceManager;
+
+    /**
      * Constructor
      * @param \Zend\EventManager\EventManagerInterface $events
      * @param Event\SiteEventInterface $siteEvent
@@ -85,6 +92,7 @@ class SiteManager implements SiteManagerInterface,
      * @param array $coreModules
      * @param \Vivo\Module\StorageManager\StorageManager $moduleStorageManager
      * @param \Vivo\CMS\CMS $cms
+     * @param \Zend\ServiceManager\ServiceManager $serviceManager
      * @param \Zend\Mvc\Router\RouteMatch $routeMatch
      */
     public function __construct(EventManagerInterface $events,
@@ -94,6 +102,7 @@ class SiteManager implements SiteManagerInterface,
                                 array $coreModules,
                                 ModuleStorageManager $moduleStorageManager,
                                 CMS $cms,
+                                ServiceManager $serviceManager,
                                 RouteMatch $routeMatch = null)
     {
         $this->setEventManager($events);
@@ -103,6 +112,7 @@ class SiteManager implements SiteManagerInterface,
         $this->coreModules          = $coreModules;
         $this->moduleStorageManager = $moduleStorageManager;
         $this->cms                  = $cms;
+        $this->serviceManager       = $serviceManager;
         $this->setRouteMatch($routeMatch);
     }
 
@@ -124,7 +134,7 @@ class SiteManager implements SiteManagerInterface,
         $collectModulesListener = new CollectModulesListener($this->coreModules, $this->moduleStorageManager);
         $collectModulesListener->attach($this->events);
         //Attach Load modules listener
-        $loadModulesListener    = new LoadModulesListener($this->moduleManagerFactory);
+        $loadModulesListener    = new LoadModulesListener($this->moduleManagerFactory, $this->serviceManager);
         $loadModulesListener->attach($this->events);
     }
 

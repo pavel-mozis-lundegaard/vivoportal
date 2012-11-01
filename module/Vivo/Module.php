@@ -123,7 +123,8 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                                                                                 $moduleManagerFactory,
                                                                                 $coreModules,
                                                                                 $moduleStorageManager,
-                                                                                $cms);
+                                                                                $cms,
+                                                                                $sm);
                     return $siteManager;
                 },
                 'create_site_listener'  => function(ServiceManager $sm) {

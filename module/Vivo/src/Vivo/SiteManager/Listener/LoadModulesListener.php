@@ -7,6 +7,7 @@ use Vivo\Module\ModuleManagerFactory;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
+use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\ArrayUtils;
 
 /**
@@ -26,12 +27,20 @@ class LoadModulesListener implements ListenerAggregateInterface
     protected $moduleManagerFactory;
 
     /**
+     * Application's service manager
+     * @var ServiceManager
+     */
+    protected $serviceManager;
+
+    /**
      * Constructor
      * @param \Vivo\Module\ModuleManagerFactory $moduleManagerFactory
+     * @param \Zend\ServiceManager\ServiceManager $sm
      */
-    public function __construct(ModuleManagerFactory $moduleManagerFactory)
+    public function __construct(ModuleManagerFactory $moduleManagerFactory, ServiceManager $sm)
     {
         $this->moduleManagerFactory = $moduleManagerFactory;
+        $this->serviceManager       = $sm;
     }
 
     /**
@@ -68,6 +77,7 @@ class LoadModulesListener implements ListenerAggregateInterface
         $moduleNames = $e->getModules();
         //Create module manager
         $moduleManager  = $this->moduleManagerFactory->getModuleManager($moduleNames);
+        $e->setModuleManager($moduleManager);
         //Load modules
         $moduleManager->loadModules();
         //Merge modules config with the site config (site config overrides the modules config)
@@ -76,9 +86,13 @@ class LoadModulesListener implements ListenerAggregateInterface
         if (!$siteConfig) {
             $siteConfig = array();
         }
+        //Merge site config into the modules config and use it as site config
         $siteConfig = ArrayUtils::merge($modulesConfig, $siteConfig);
         $e->setSiteConfig($siteConfig);
-        $e->setModuleManager($moduleManager);
+        //Merge site config into the main config and update main config in SM
+        $mainConfig = $this->serviceManager->get('config');
+        $mainConfig = ArrayUtils::merge($mainConfig, $siteConfig);
+        $this->serviceManager->setService('config', $mainConfig);
         $e->stopPropagation(true);
     }
 }

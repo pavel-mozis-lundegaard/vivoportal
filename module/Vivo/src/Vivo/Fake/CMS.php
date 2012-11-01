@@ -11,11 +11,6 @@ use Vivo\Repository\Repository;
  */
 class CMS extends \Vivo\CMS\CMS{
 
-	/**
-	 * @var Vivo
-	 */
-	private $repository;
-
 
 	/**
 	 * Set to use CMS class in the site context.
@@ -24,7 +19,7 @@ class CMS extends \Vivo\CMS\CMS{
 	private $site;
 
 	public function __construct(Repository $repository) {
-		$this->repository = $repository;
+		parent::__construct($repository);
 	}
 
 	public function getSiteByHost($host) {

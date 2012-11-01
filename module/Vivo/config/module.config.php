@@ -160,8 +160,11 @@ return array(
                 '/',
             ),
             'descriptor_name'       => 'vivo_module.json',
-            //Default path where new modules will be added
+            //Default path where new modules will be added (in the module storage)
             'default_install_path'  => '/',
+            //List of core modules loaded for all sites
+            'core_modules'          => array(
+            ),
         ),
         'cms'       => array(
             'repository'    => array(

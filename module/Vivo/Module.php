@@ -28,6 +28,10 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         /* @var $sm ServiceManager */
         $config = $sm->get('config');
 
+        //Attach a listener to set up the SiteManager object
+        $createSiteListener = $sm->get('create_site_listener');
+        $createSiteListener->attach($eventManager);
+
         //Register Vmodule stream
         $moduleStorage  = $sm->get('module_storage');
         $streamName     = $config['vivo']['modules']['stream_name'];
@@ -154,6 +158,34 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $resolver = new ComponentResolver($sm->get('config'));
                     $cf->setResolver($resolver);
                     return $cf;
+                },
+                'site_event'        => function(ServiceManager $sm) {
+                    $siteEvent              = new \Vivo\SiteManager\Event\SiteEvent();
+                    return $siteEvent;
+                },
+                'site_manager'      => function(ServiceManager $sm) {
+                    $config                 = $sm->get('config');
+                    $coreModules            = $config['vivo']['modules']['core_modules'];
+                    $siteEvents             = new \Zend\EventManager\EventManager();
+                    $siteEvent              = $sm->get('site_event');
+                    $routeParamHost         = 'host';
+                    $moduleManagerFactory   = $sm->get('module_manager_factory');
+                    $moduleStorageManager   = $sm->get('module_storage_manager');
+                    $cms                    = $sm->get('cms');
+                    $siteManager            = new \Vivo\SiteManager\SiteManager($siteEvents,
+                                                                                $siteEvent,
+                                                                                $routeParamHost,
+                                                                                $moduleManagerFactory,
+                                                                                $coreModules,
+                                                                                $moduleStorageManager,
+                                                                                $cms,
+                                                                                $sm);
+                    return $siteManager;
+                },
+                'create_site_listener'  => function(ServiceManager $sm) {
+                    $siteManager            = $sm->get('site_manager');
+                    $createSiteListener     = new \Vivo\SiteManager\Listener\CreateSiteListener($siteManager);
+                    return $createSiteListener;
                 },
                 'indexer'                   => function(ServiceManager $sm) {
                     $indexer                = new \Vivo\Indexer\Indexer();

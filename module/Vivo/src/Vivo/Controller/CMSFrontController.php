@@ -2,7 +2,7 @@
 namespace Vivo\Controller;
 
 use Vivo\CMS\ComponentFactory;
-use Vivo\CMS;
+use Vivo\CMS\CMS;
 use Vivo\CMS\Model\Site;
 use Vivo\Controller\Exception;
 use Vivo\IO\InputStreamInterface;

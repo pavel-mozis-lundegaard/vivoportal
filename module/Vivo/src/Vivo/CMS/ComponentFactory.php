@@ -1,7 +1,7 @@
 <?php
 namespace Vivo\CMS;
 
-use Vivo\CMS;
+use Vivo\CMS\CMS;
 use Vivo\CMS\Model\Content;
 use Vivo\CMS\Model\Document;
 use Vivo\CMS\UI\InjectModelInterface;

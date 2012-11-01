@@ -1,19 +1,41 @@
 <?php
 namespace Vivo\CMS\Model;
 
-class Site extends Entity {
-	
+/**
+ * Represents web site as VIVO model.
+ */
+class Site extends Folder {
 	/**
-	 * Non persistent value, set at runtime (in FS repository it could be name of the site folder)
-	 * @var string
+	 * @var string Security domain name.
 	 */
-	private $name;
-	
-	public function __construct() {
-		
+	protected $domain;
+	/**
+	 * @var string Parent site name.
+	 * @example META-SITE
+	 */
+	protected $parentSite;
+	/**
+	 * @var array Hosts are domain address under which you accessed the site.
+	 */
+	protected $hosts = array();
+
+	/**
+	 * @param string Path to entity.
+	 * @param Vivo\CMS\Model\Entity\Security
+	 */
+	function __construct($path = null, $security = null) {
+		parent::__construct($path, $security);
 	}
-	
-	public function getName() {
-		return $this->name;
+
+	public function setDomain($domain) {
+		$this->domain = $domain;
+	}
+
+	public function setHosts(array $hosts) {
+		$this->hosts = $hosts;
+	}
+
+	public function getHosts() {
+		return $this->hosts;
 	}
 }

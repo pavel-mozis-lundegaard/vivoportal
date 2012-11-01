@@ -82,7 +82,6 @@ return array(
             'ResourceFront' => 'Vivo\Controller\ResourceFrontController',
             'CLI\Indexer' => 'Vivo\Controller\CLI\IndexerController',
             'CLI\Info' => 'Vivo\Controller\CLI\InfoController',
-            'CLI\Module' => 'Vivo\Controller\CLI\ModuleController',
         ),
     ),
     'view_manager' => array(
@@ -157,8 +156,21 @@ return array(
             //Name of stream (protocol) which will be registered for Vivo Module source file access in Storage
             'stream_name'   => 'vmodule',
             //Vivo Module paths in Vivo Module Storage
-            'module_paths'             => array(
+            'module_paths'              => array(
                 '/',
+            ),
+            'descriptor_name'       => 'vivo_module.json',
+            //Default path where new modules will be added
+            'default_install_path'  => '/',
+        ),
+        'cms'       => array(
+            'repository'    => array(
+                'storage'       =>   array(
+                    'class'     => 'Vivo\Storage\LocalFileSystemStorage',
+                    'options'   => array(
+                        'root'      => __DIR__ . '/../../../data/repository',
+                    ),
+                ),
             ),
         ),
         'templates' => array (
@@ -194,6 +206,15 @@ return array(
                         'defaults' => array(
                             'controller' => 'CLI\Module',
                             'action'     => 'default',
+                        ),
+                    ),
+                ),
+                'module_add' => array(
+                    'options' => array(
+                        'route'    => 'module add <module_url> [--force|-f]',
+                        'defaults' => array(
+                            'controller' => 'CLI\Module',
+                            'action'     => 'add',
                         ),
                     ),
                 ),

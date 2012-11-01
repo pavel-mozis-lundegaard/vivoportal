@@ -5,6 +5,7 @@ use Vivo\Storage\StorageInterface;
 use Vivo\Module\Exception;
 use Vivo\Storage\StorageUtil;
 use Vivo\Module\StorageManager\RemoteModule;
+use Vivo\Storage\PathBuilder\PathBuilderInterface as PathBuilder;
 
 /**
  * StorageManager
@@ -55,6 +56,12 @@ class StorageManager
     protected $remoteModule;
 
     /**
+     * Path builder
+     * @var PathBuilder
+     */
+    protected $pathBuilder;
+
+    /**
      * Constructor
      * @param \Vivo\Storage\StorageInterface $storage
      * @param array $modulePaths
@@ -62,6 +69,7 @@ class StorageManager
      * @param string|null $defaultInstallPath
      * @param \Vivo\Storage\StorageUtil $storageUtil
      * @param RemoteModule $remoteModule
+     * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
      * @throws \Vivo\Module\Exception\InvalidArgumentException
      */
     public function __construct(StorageInterface $storage,
@@ -69,11 +77,12 @@ class StorageManager
                                 $descriptorName,
                                 $defaultInstallPath = null,
                                 StorageUtil $storageUtil,
-                                RemoteModule $remoteModule)
+                                RemoteModule $remoteModule,
+                                PathBuilder $pathBuilder)
     {
         if (is_null($defaultInstallPath)) {
             //Default install path not specified, use the storage root as default
-            $defaultInstallPath = $storage->getStoragePathSeparator();
+            $defaultInstallPath = $pathBuilder->getStoragePathSeparator();
         }
         if (!in_array($defaultInstallPath, $modulePaths)) {
             throw new Exception\InvalidArgumentException(
@@ -85,6 +94,7 @@ class StorageManager
         $this->defaultInstallPath   = $defaultInstallPath;
         $this->storageUtil          = $storageUtil;
         $this->remoteModule         = $remoteModule;
+        $this->pathBuilder          = $pathBuilder;
     }
 
     /**
@@ -99,9 +109,9 @@ class StorageManager
             foreach ($this->modulePaths as $moduleBasePath) {
                 $scan   = $this->storage->scan($moduleBasePath);
                 foreach ($scan as $item) {
-                    $modulePath     = $this->storage->buildStoragePath(array($moduleBasePath, $item), true);
-                    $moduleFilePath = $this->storage->buildStoragePath(array($moduleBasePath, $item, 'Module.php'), true);
-                    $moduleJsonPath = $this->storage->buildStoragePath(array($moduleBasePath, $item, $this->descriptorName), true);
+                    $modulePath     = $this->pathBuilder->buildStoragePath(array($moduleBasePath, $item), true);
+                    $moduleFilePath = $this->pathBuilder->buildStoragePath(array($moduleBasePath, $item, 'Module.php'), true);
+                    $moduleJsonPath = $this->pathBuilder->buildStoragePath(array($moduleBasePath, $item, $this->descriptorName), true);
                     if ($this->storage->isObject($moduleFilePath)) {
                         $moduleJson = $this->getJsonContent($this->storage, $moduleJsonPath);
                         if ((!isset($moduleJson['name'])) || ($item != $moduleJson['name'])) {
@@ -236,6 +246,7 @@ class StorageManager
         $remoteStorage          = $this->remoteModule->getStorage($moduleUrl);
         $pathInRemoteStorage    = $this->remoteModule->getModulePathInStorage($moduleUrl);
         $moduleDescriptor       = $this->remoteModule->getModuleDescriptor($moduleUrl);
+        $remotePathBuilder      = $this->remoteModule->getPathBuilder();
         if (!$moduleDescriptor) {
             throw new Exception\DescriptorException(
                 sprintf("%s: Cannot read module descriptor from '%s' for module at URL '%s'",
@@ -263,8 +274,9 @@ class StorageManager
         }
         //TODO - Read module dependencies on libraries, throw an exception, if unsatisfied
         //Copy the module source to the module storage
-        $fullPath   = $this->storage->buildStoragePath(array($path, $moduleName), true);
-        $this->storageUtil->copy($remoteStorage, $pathInRemoteStorage, $this->storage, $fullPath);
+        $fullPath   = $this->pathBuilder->buildStoragePath(array($path, $moduleName), true);
+        $this->storageUtil->copy($remoteStorage, $pathInRemoteStorage, $remotePathBuilder,
+                                 $this->storage, $fullPath, $this->pathBuilder);
         //Reset the cached info about modules
         $this->modulesInfo  = array();
         $moduleInfo         = $this->getModuleInfo($moduleName);

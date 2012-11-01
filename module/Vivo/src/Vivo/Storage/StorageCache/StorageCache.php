@@ -2,8 +2,9 @@
 namespace Vivo\Storage\StorageCache;
 
 use Vivo\Storage\StorageInterface;
-use Zend\Cache\Storage\StorageInterface as ZendCache;
 use Vivo\Storage\StorageCache\KeyNormalizer\KeyNormalizerInterface;
+
+use Zend\Cache\Storage\StorageInterface as ZendCache;
 
 /**
  * StorageCache
@@ -177,6 +178,7 @@ class StorageCache implements StorageCacheInterface
     /**
      * Scans the storage and returns list of child items
      * @param string $path to item
+     * @return array
      */
     public function scan($path)
     {
@@ -222,35 +224,5 @@ class StorageCache implements StorageCacheInterface
         $this->cache->removeItem($cacheKey);
         $stream     = $this->storage->write($path);
         return $stream;
-    }
-
-    /**
-     * Returns character used as a separator in storage paths
-     * @return string
-     */
-    public function getStoragePathSeparator()
-    {
-        return $this->storage->getStoragePathSeparator();
-    }
-
-    /**
-     * Builds storage path from submitted elements
-     * @param array $elements
-     * @param bool $absolute If true, builds an absolute path starting with the storage path separator
-     * @return string
-     */
-    public function buildStoragePath(array $elements, $absolute = false)
-    {
-        return $this->storage->buildStoragePath($elements, $absolute);
-    }
-
-    /**
-     * Returns an array of 'atomic' storage path components
-     * @param string $path
-     * @return array
-     */
-    public function getStoragePathComponents($path)
-    {
-        return $this->storage->getStoragePathComponents($path);
     }
 }

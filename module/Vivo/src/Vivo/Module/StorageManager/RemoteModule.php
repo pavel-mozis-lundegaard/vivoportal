@@ -3,6 +3,7 @@ namespace Vivo\Module\StorageManager;
 
 use Vivo\Storage\Factory as StorageFactory;
 use Vivo\Storage\StorageInterface;
+use Vivo\Storage\PathBuilder\PathBuilderInterface as PathBuilder;
 
 /**
  * RemoteModule
@@ -29,14 +30,22 @@ class RemoteModule
     protected $descriptorName;
 
     /**
+     * PathBuilder object
+     * @var PathBuilder
+     */
+    protected $pathBuilder;
+
+    /**
      * Constructor
      * @param \Vivo\Storage\Factory $storageFactory
-     * @param $descriptorName
+     * @param string $descriptorName
+     * @param PathBuilder $pathBuilder
      */
-    public function __construct(StorageFactory $storageFactory, $descriptorName)
+    public function __construct(StorageFactory $storageFactory, $descriptorName, PathBuilder $pathBuilder)
     {
         $this->storageFactory   = $storageFactory;
         $this->descriptorName   = $descriptorName;
+        $this->pathBuilder      = $pathBuilder;
     }
 
     /**
@@ -53,7 +62,8 @@ class RemoteModule
             $storageConfig  = array(
                 'class'     => 'Vivo\Storage\LocalFileSystemStorage',
                 'options'   => array(
-                    'root'      => $root,
+                    'root'          => $root,
+                    'path_builder'  => $this->pathBuilder,
                 ),
             );
             $this->storageInstances[$moduleUrl] = $this->storageFactory->create($storageConfig);
@@ -68,10 +78,9 @@ class RemoteModule
      */
     public function getModulePathInStorage($moduleUrl)
     {
-        $storage    = $this->getStorage($moduleUrl);
         //TODO - implement based on the $moduleUrl
         //For file system storage the module is always at the root of the storage
-        $modulePath = $storage->getStoragePathSeparator();
+        $modulePath = $this->pathBuilder->getStoragePathSeparator();
         return $modulePath;
     }
 
@@ -85,7 +94,7 @@ class RemoteModule
     {
         $storage        = $this->getStorage($moduleUrl);
         $path           = $this->getModulePathInStorage($moduleUrl);
-        $descriptorPath = $storage->buildStoragePath(array($path, $this->descriptorName), true);
+        $descriptorPath = $this->pathBuilder->buildStoragePath(array($path, $this->descriptorName), true);
         if ($storage->isObject($descriptorPath)) {
             $data           = $storage->get($descriptorPath);
             $jsonContent    = json_decode($data, true);
@@ -93,5 +102,14 @@ class RemoteModule
             $jsonContent    = null;
         }
         return $jsonContent;
+    }
+
+    /**
+     * Returns the path builder
+     * @return \Vivo\Storage\PathBuilder\PathBuilderInterface
+     */
+    public function getPathBuilder()
+    {
+        return $this->pathBuilder;
     }
 }

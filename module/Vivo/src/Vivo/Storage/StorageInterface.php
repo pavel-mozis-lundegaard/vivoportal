@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\Storage;
 
+use Vivo\Storage\PathBuilder\PathBuilderInterface;
+
 /**
  * StorageInterface
  */
@@ -94,25 +96,4 @@ interface StorageInterface {
 	 * @return \Vivo\IO\OutputStreamInterface
 	 */
 	public function write($path);
-
-    /**
-     * Returns character used as a separator in storage paths
-     * @return string
-     */
-    public function getStoragePathSeparator();
-
-    /**
-     * Builds storage path from submitted elements
-     * @param array $elements
-     * @param bool $absolute If true, builds an absolute path starting with the storage path separator
-     * @return string
-     */
-    public function buildStoragePath(array $elements, $absolute = false);
-
-    /**
-     * Returns an array of 'atomic' storage path components
-     * @param string $path
-     * @return array
-     */
-    public function getStoragePathComponents($path);
 }

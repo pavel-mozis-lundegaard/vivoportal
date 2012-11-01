@@ -154,6 +154,9 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     ->addSharedInstance($sm->get('request'), 'Zend\Http\Request');
                     $di->instanceManager()
                     ->addSharedInstance($sm->get('response'), 'Zend\Http\Response');
+                    $di->instanceManager()
+                    ->addSharedInstance($sm->get('cms'), 'Vivo\CMS\CMS');
+
                     $cf = new ComponentFactory($di, $sm->get('cms'));
                     $resolver = new ComponentResolver($sm->get('config'));
                     $cf->setResolver($resolver);

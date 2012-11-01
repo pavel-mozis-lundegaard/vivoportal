@@ -51,10 +51,14 @@ class StreamWrapper extends ZendViewStream
      * @link http://cz.php.net/manual/en/streamwrapper.url-stat.php
      * @param string $path
      * @param int $flags
+     * @throws Exception\StreamException
      * @return array
      */
-    public function url_stat($path, $flags)
+    public function url_stat($path = null, $flags = null)
     {
+        if (is_null($path)) {
+            throw new StreamException(sprintf('%s: Path cannot be null', __METHOD__));
+        }
         $path   = $this->getBarePath($path);
         if (self::$storage->isObject($path)) {
             $stat   = array(

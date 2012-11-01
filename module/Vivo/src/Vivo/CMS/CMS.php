@@ -13,7 +13,7 @@ use Zend\Config;
 class CMS
 {
 	/**
-	 * @var Vivo\Repository\Repository
+	 * @var \Vivo\Repository\Repository
 	 */
 	private $repository;
 
@@ -37,7 +37,7 @@ class CMS
 	 * @param string $name
 	 * @param string $domain
 	 * @param array $hosts
-	 * @return Vivo\CMS\Model\Site
+	 * @return \Vivo\CMS\Model\Site
 	 */
 	public function createSite($name, $domain, array $hosts)
 	{
@@ -92,7 +92,7 @@ class CMS
 	 *
 	 * @param string $ident
 	 * @param unknown_type $site
-	 * @return Vivo\CMS\Model\Entity
+	 * @return \Vivo\CMS\Model\Entity
 	 */
 	public function getEntity($ident, Model\Site $site = null)
 	{
@@ -161,8 +161,8 @@ class CMS
 	}
 
 	/**
-	 * @param Vivo\CMS\Model\Content $content
-	 * @return Vivo\CMS\Model\Document
+	 * @param \Vivo\CMS\Model\Content $content
+	 * @return \Vivo\CMS\Model\Document
 	 */
 	public function getContentDocument(Model\Content $content)
 	{
@@ -194,11 +194,11 @@ class CMS
 	}
 
 	/**
-	 * @param Vivo\CMS\Model\Document $document
+	 * @param \Vivo\CMS\Model\Document $document
 	 * @param int $version
 	 * @param int $index
 	 * @throws \InvalidArgumentException
-	 * @return Vivo\CMS\Model\Content
+	 * @return \Vivo\CMS\Model\Content
 	 */
 	public function getDocumentContent(Model\Document $document, $version, $index = 0/*, $state {PUBLISHED}*/)
 	{
@@ -215,7 +215,7 @@ class CMS
 	}
 
 	/**
-	 * @param Vivo\CMS\Model\Document $document
+	 * @param \Vivo\CMS\Model\Document $document
 	 * @param int $index
 	 * @throws \InvalidArgumentException
 	 * @return array
@@ -290,9 +290,9 @@ class CMS
 	}
 
 	/**
-	 * @param Vivo\CMS\Model\Document $document
+	 * @param \Vivo\CMS\Model\Document $document
 	 * @param int $index
-	 * @return Vivo\CMS\Model\Content
+	 * @return \Vivo\CMS\Model\Content
 	 */
 	public function getPublishedContent(Model\Document $document, $index = 0)
 	{

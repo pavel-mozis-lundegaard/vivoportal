@@ -8,6 +8,7 @@ use Vivo\IO;
  * Implementation of the virtual file system over local filesystem.
  */
 class LocalFileSystemStorage extends AbstractStorage {
+
 	/**
 	 * Root path.
 	 * @var string $root
@@ -19,10 +20,14 @@ class LocalFileSystemStorage extends AbstractStorage {
 	 * @throws \Vivo\Storage\Exception\InvalidArgumentException
 	 */
 	public function __construct(array $options) {
-		if(!isset($options['root'])) {
-			throw new Exception\InvalidArgumentException('Root is not defined');
+		if (!isset($options['root'])) {
+			throw new Exception\InvalidArgumentException(sprintf('%s: Root is not defined', __METHOD__));
 		}
-		$root = $this->normalizePath($options['root']);
+        if (!isset($options['path_builder'])) {
+            throw new Exception\InvalidArgumentException(sprintf('%s: PathBuilder object is not defined', __METHOD__));
+        }
+        $this->setPathBuilder($options['path_builder']);
+		$root               = $this->normalizePath($options['root']);
 		if(!is_dir($root)) {
 			throw new Exception\InvalidArgumentException(sprintf('Root %s is not a directory', $root));
 		}
@@ -268,9 +273,9 @@ class LocalFileSystemStorage extends AbstractStorage {
 	public function write($path) {
         //The directory must exist prior to instantiating the output stream, otherwise stream opening fails
         //The file will be also created beforehand for consistency reasons
-        $components = $this->getStoragePathComponents($path);
+        $components = $this->pathBuilder->getStoragePathComponents($path);
         array_pop($components);
-        $storageDir = $this->buildStoragePath($components, true);
+        $storageDir = $this->pathBuilder->buildStoragePath($components, true);
         $fsFullPath = $this->getAbsolutePath($path);
         $this->mkdir($storageDir);
         $this->touch($path);

@@ -3,6 +3,7 @@ namespace Vivo\Storage;
 
 use Vivo\Storage\Exception;
 use Vivo\IO\IOUtil;
+use Vivo\Storage\PathBuilder\PathBuilderInterface;
 
 /**
  * StorageUtil
@@ -29,15 +30,18 @@ class StorageUtil
      * Copies directories as well as files
      * @param StorageInterface $storageFrom
      * @param string $pathFrom
+     * @param PathBuilderInterface $pathBuilderFrom
      * @param StorageInterface $storageTo
      * @param string $pathTo
+     * @param PathBuilderInterface $pathBuilderTo
      */
-    public function copy(StorageInterface $storageFrom, $pathFrom, StorageInterface $storageTo, $pathTo)
+    public function copy(StorageInterface $storageFrom, $pathFrom, PathBuilderInterface $pathBuilderFrom,
+                         StorageInterface $storageTo, $pathTo, PathBuilderInterface $pathBuilderTo)
     {
         if ($storageFrom->isObject($pathFrom)) {
             $this->copyFile($storageFrom, $pathFrom, $storageTo, $pathTo);
         } else {
-            $this->copyDir($storageFrom, $pathFrom, $storageTo, $pathTo);
+            $this->copyDir($storageFrom, $pathFrom, $pathBuilderFrom, $storageTo, $pathTo, $pathBuilderTo);
         }
     }
 
@@ -45,11 +49,14 @@ class StorageUtil
      * Copies a directory between storages
      * @param StorageInterface $storageFrom
      * @param string $pathFrom
+     * @param PathBuilderInterface $pathBuilderFrom
      * @param StorageInterface $storageTo
      * @param string $pathTo The directory to copy the *contents* of $pathFrom to
+     * @param PathBuilderInterface $pathBuilderTo
      * @throws Exception\InvalidArgumentException
      */
-    protected function copyDir(StorageInterface $storageFrom, $pathFrom, StorageInterface $storageTo, $pathTo)
+    protected function copyDir(StorageInterface $storageFrom, $pathFrom, PathBuilderInterface $pathBuilderFrom,
+                               StorageInterface $storageTo, $pathTo, PathBuilderInterface $pathBuilderTo)
     {
         if (!$storageFrom->contains($pathFrom)) {
             throw new Exception\InvalidArgumentException(sprintf("%s: Path '%s' does not exist in source storage",
@@ -61,14 +68,15 @@ class StorageUtil
         }
         $scan   = $storageFrom->scan($pathFrom);
         foreach ($scan as $path) {
-            $fullSrcPath    = $storageFrom->buildStoragePath(array($pathFrom, $path), true);
-            $fullTargetPath = $storageTo->buildStoragePath(array($pathTo, $path), true);
+            $fullSrcPath    = $pathBuilderFrom->buildStoragePath(array($pathFrom, $path), true);
+            $fullTargetPath = $pathBuilderTo->buildStoragePath(array($pathTo, $path), true);
             if ($storageFrom->isObject($fullSrcPath)) {
                 //A file
                 $this->copyFile($storageFrom, $fullSrcPath, $storageTo, $fullTargetPath);
             } else {
                 //A directory
-                $this->copyDir($storageFrom, $fullSrcPath, $storageTo, $fullTargetPath);
+                $this->copyDir($storageFrom, $fullSrcPath, $pathBuilderFrom,
+                               $storageTo, $fullTargetPath, $pathBuilderTo);
             }
         }
     }
@@ -89,6 +97,6 @@ class StorageUtil
         }
         $inputStream    = $storageFrom->read($pathFrom);
         $outputStream   = $storageTo->write($pathTo);
-        $this->ioUtil->copy($inputStream, $outputStream);
+        $this->ioUtil->copy($inputStream, $outputStream, 1024);
     }
 }

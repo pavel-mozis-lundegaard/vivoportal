@@ -306,35 +306,4 @@ class StorageCacheTest extends TestCase
         $stream = $this->storageCache->write($path);
         $this->assertInstanceOf('\Vivo\IO\OutputStreamInterface', $stream);
     }
-
-    public function testGetStoragePathSeparator()
-    {
-        $sep    = '/';
-        $this->storage->expects($this->once())
-            ->method('getStoragePathSeparator')
-            ->will($this->returnValue($sep));
-        $this->assertEquals($sep, $this->storageCache->getStoragePathSeparator());
-    }
-
-    public function testBuildStoragePath()
-    {
-        $elements   = array('a', 'b', 'c');
-        $path       = '/a/b/c';
-        $this->storage->expects($this->once())
-            ->method('buildStoragePath')
-            ->with($this->equalTo($elements), $this->equalTo(true))
-            ->will($this->returnValue($path));
-        $this->assertEquals($path, $this->storageCache->buildStoragePath($elements, true));
-    }
-
-    public function testGetStoragePathComponents()
-    {
-        $elements   = array('a', 'b', 'c');
-        $path       = '/a/b/c';
-        $this->storage->expects($this->once())
-            ->method('getStoragePathComponents')
-            ->with($this->equalTo($path))
-            ->will($this->returnValue($elements));
-        $this->assertEquals($elements, $this->storageCache->getStoragePathComponents($path));
-    }
 }

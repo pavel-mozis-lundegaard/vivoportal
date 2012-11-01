@@ -99,13 +99,6 @@ return array(
     'vivo'      => array(
         //Vivo Modules configuration
         'modules'  => array(
-            //Storage config
-            'storage'   => array(
-                'class'     => 'Vivo\Storage\LocalFileSystemStorage',
-                'options'   => array(
-                    'root'      => __DIR__ . '/../../../vmodule',
-                ),
-            ),
             //Name of stream (protocol) which will be registered for Vivo Module source file access in Storage
             'stream_name'   => 'vmodule',
             //Vivo Module paths in Vivo Module Storage
@@ -121,12 +114,6 @@ return array(
         ),
         'cms'       => array(
             'repository'    => array(
-                'storage'       =>   array(
-                    'class'     => 'Vivo\Storage\LocalFileSystemStorage',
-                    'options'   => array(
-                        'root'      => __DIR__ . '/../../../data/repository',
-                    ),
-                ),
             ),
         ),
     ),

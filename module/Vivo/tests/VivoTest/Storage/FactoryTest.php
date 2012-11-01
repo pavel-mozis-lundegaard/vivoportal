@@ -2,7 +2,6 @@
 namespace VivoTest\Storage;
 
 use Vivo\Storage\Factory as StorageFactory;
-use Vivo\Storage\LocalFs;
 
 /**
  * FactoryTest
@@ -38,10 +37,11 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateLocalFs()
     {
+        $pathBuilder  = $this->getMock('Vivo\Storage\PathBuilder\PathBuilderInterface', array(), array(), '', false);
         $class  = '\Vivo\Storage\LocalFileSystemStorage';
         $config = array(
             'class'     => $class,
-            'options'   => array('root' => __DIR__),
+            'options'   => array('root' => __DIR__, 'path_builder' => $pathBuilder),
         );
         $storage    = $this->factory->create($config);
         $this->assertInstanceOf($class, $storage);

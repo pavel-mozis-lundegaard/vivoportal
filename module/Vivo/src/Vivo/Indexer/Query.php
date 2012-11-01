@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Repository\Indexer;
+namespace Vivo\Indexer;
 
 class Query {
 	/**

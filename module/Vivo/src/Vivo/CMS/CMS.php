@@ -207,13 +207,13 @@ class CMS
 	 * @throws \InvalidArgumentException
 	 * @return Vivo\CMS\Model\Content
 	 */
-	public function getDocumentContent(Model\Document $document, $index, $version/*, , $state {PUBLISHED}*/)
+	public function getDocumentContent(Model\Document $document, $index, $version/*, $state {PUBLISHED}*/)
 	{
 		if(!is_integer($version)) {
-			throw new \InvalidArgumentException(sprintf('Argument %d passed to %s must be an type of %s, %s given', 2, __METHOD__, 'integer', gettype($version)));
+			throw new Exception\InvalidArgumentException(sprintf('Argument %d passed to %s must be an type of %s, %s given', 2, __METHOD__, 'integer', gettype($version)));
 		}
 		if(!is_integer($index)) {
-			throw new \InvalidArgumentException(sprintf('Argument %d passed to %s must be an type of %s, %s given', 3, __METHOD__, 'integer', gettype($index)));
+			throw new Exception\InvalidArgumentException(sprintf('Argument %d passed to %s must be an type of %s, %s given', 3, __METHOD__, 'integer', gettype($index)));
 		}
 
 		$path = $document->getPath().'/Contents.'.$index.'/'.$version;
@@ -230,7 +230,7 @@ class CMS
 	public function getDocumentContents(Model\Document $document, $index/*, $state {PUBLISHED}*/)
 	{
 		if(!is_integer($index)) {
-			throw new \InvalidArgumentException(sprintf('Argument %d passed to %s must be an type of integer, %s given', 2, __METHOD__, gettype($version)));
+			throw new Exception\InvalidArgumentException(sprintf('Argument %d passed to %s must be an type of integer, %s given', 2, __METHOD__, gettype($index)));
 		}
 
 		$path = $document->getPath().'/Contents.'.$index;
@@ -276,7 +276,7 @@ class CMS
 		$states = $workflow->getAllStates();
 
 		if(!in_array($state, $states)) {
-			throw new \InvalidArgumentException('Unknow state value. Available: '.implode(', ', $states));
+			throw new Exception\InvalidArgumentException('Unknow state value. Available: '.implode(', ', $states));
 		}
 
 		if(true /* uzivatel ma pravo na change*/) {

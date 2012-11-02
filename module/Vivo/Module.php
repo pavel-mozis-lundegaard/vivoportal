@@ -100,9 +100,18 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $storageFactory = new \Vivo\Storage\Factory();
                     return $storageFactory;
                 },
+                'path_builder'      => function(ServiceManager $sm) {
+                    $pathBuilder    = new \Vivo\Storage\PathBuilder\PathBuilder('/');
+                    return $pathBuilder;
+                },
                 'module_storage'    => function(ServiceManager $sm) {
-                    $config         = $sm->get('config');
-                    $storageConfig  = $config['vivo']['modules']['storage'];
+                    $storageConfig  = array(
+                        'class'     => 'Vivo\Storage\LocalFileSystemStorage',
+                        'options'   => array(
+                            'root'          => __DIR__ . '/../../vmodule',
+                            'path_builder'  => $sm->get('path_builder'),
+                        ),
+                    );
                     $storageFactory = $sm->get('storage_factory');
                     /* @var $storageFactory \Vivo\Storage\Factory */
                     $storage    = $storageFactory->create($storageConfig);
@@ -112,7 +121,10 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $config                 = $sm->get('config');
                     $descriptorName         = $config['vivo']['modules']['descriptor_name'];
                     $storageFactory         = $sm->get('storage_factory');
-                    $remoteModule           = new \Vivo\Module\StorageManager\RemoteModule($storageFactory, $descriptorName);
+                    $pathBuilder            = $sm->get('path_builder');
+                    $remoteModule           = new \Vivo\Module\StorageManager\RemoteModule($storageFactory,
+                                                                                           $descriptorName,
+                                                                                           $pathBuilder);
                     return $remoteModule;
                 },
                 'module_storage_manager'    => function(ServiceManager $sm) {
@@ -123,12 +135,14 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $storage                = $sm->get('module_storage');
                     $storageUtil            = $sm->get('storage_util');
                     $remoteModule           = $sm->get('remote_module');
+                    $pathBuilder            = $sm->get('path_builder');
                     $manager    = new \Vivo\Module\StorageManager\StorageManager($storage,
                                                                                  $modulePaths,
                                                                                  $descriptorName,
                                                                                  $defaultInstallPath,
                                                                                  $storageUtil,
-                                                                                 $remoteModule);
+                                                                                 $remoteModule,
+                                                                                 $pathBuilder);
                     return $manager;
                 },
                 'module_manager_factory'    => function(ServiceManager $sm) {
@@ -196,7 +210,13 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                 },
                 'repository'                => function(ServiceManager $sm) {
                     $config                 = $sm->get('config');
-                    $storageConfig          = $config['vivo']['cms']['repository']['storage'];
+                    $storageConfig          = array(
+                        'class'     => 'Vivo\Storage\LocalFileSystemStorage',
+                        'options'   => array(
+                            'root'          => __DIR__ . '/../../data/repository',
+                            'path_builder'  => $sm->get('path_builder'),
+                        ),
+                    );
                     $storageFactory         = $sm->get('storage_factory');
                     /* @var $storageFactory \Vivo\Storage\Factory */
                     $storage                = $storageFactory->create($storageConfig);

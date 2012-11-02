@@ -2,6 +2,7 @@
 namespace VivoTest\Storage;
 
 use Vivo\Storage\LocalFileSystemStorage;
+use Vivo\Storage\PathBuilder\PathBuilderInterface;
 
 /**
  * Local file system storage test case.
@@ -13,6 +14,11 @@ class LocalFileSystemStorageTest extends \PHPUnit_Framework_TestCase
 	 */
 	private $temp;
 
+    /**
+     * @var PathBuilderInterface
+     */
+    protected $pathBuilder;
+
 	/**
 	 * @var \Vivo\Storage\LocalFileSystemStorage
 	 */
@@ -20,7 +26,9 @@ class LocalFileSystemStorageTest extends \PHPUnit_Framework_TestCase
 
 	protected function setUp() {
 		$this->temp = sys_get_temp_dir();
-		$this->storage = new LocalFileSystemStorage(array('root'=>$this->temp));
+        $this->pathBuilder  = $this->getMock('Vivo\Storage\PathBuilder\PathBuilderInterface',
+                                             array(), array(), '', false);
+		$this->storage = new LocalFileSystemStorage(array('root'=>$this->temp, 'path_builder' => $this->pathBuilder));
 	}
 
 	/**
@@ -192,49 +200,25 @@ class LocalFileSystemStorageTest extends \PHPUnit_Framework_TestCase
 		$this->storage->read(sprintf('temp_%s', time()));
 	}
 
-    /**
-     * Tests building storage paths
-     */
-    public function testBuildPath()
-    {
-        $sep        = $this->storage->getStoragePathSeparator();
-        $elements   = array(
-            'foo',
-            'bar',
-            $sep,
-            'baz' . str_repeat($sep, 3) . 'bat',
-            str_repeat($sep, 3) . 'qux' . str_repeat($sep, 5),
-            str_repeat($sep, 2) . 'quux',
-        );
-        $expected   = 'foo' . $sep . 'bar' . $sep . 'baz'. $sep . 'bat' . $sep . 'qux' . $sep . 'quux';
-        $this->assertEquals($expected, $this->storage->buildStoragePath($elements, false));
-        $this->assertEquals($sep . $expected, $this->storage->buildStoragePath($elements, true));
-        $elements   = array(
-            str_repeat($sep, 3) . 'foo',
-            'bar',
-            'baz',
-        );
-        $expected   = 'foo' . $sep . 'bar' . $sep . 'baz';
-        $this->assertEquals($expected, $this->storage->buildStoragePath($elements, false));
-    }
-
-    public function testGetStoragePathComponents()
-    {
-        $sep        = $this->storage->getStoragePathSeparator();
-        $path       = str_repeat($sep, 5) . 'abc' . $sep . 'de' . str_repeat($sep, 2)
-                    . 'fgh' . str_repeat($sep, 2) . 'ijk' . str_repeat($sep, 2);
-        $expected   = array('abc', 'de', 'fgh', 'ijk');
-        $this->assertEquals($expected, $this->storage->getStoragePathComponents($path));
-    }
-
     public function testWrite()
     {
         $sysTmp     = sys_get_temp_dir();
         $testDir    = $sysTmp . DIRECTORY_SEPARATOR . 'TestDir';
         $this->rrmdir($testDir);
         mkdir($testDir, 0777, true);
-        $storage    = new LocalFileSystemStorage(array('root' => $testDir));
-        $file       = $storage->buildStoragePath(array('a', 'b', 'c', 'file.txt'), true);
+        $file       = '/a/b/c/file.txt';
+        $components = array('a', 'b', 'c', 'file.txt');
+        $this->pathBuilder->expects($this->once())
+            ->method('getStoragePathComponents')
+            ->with($this->equalTo($file))
+            ->will($this->returnValue($components));
+        array_pop($components);
+        $this->pathBuilder->expects($this->once())
+            ->method('buildStoragePath')
+            ->with($this->equalTo($components), $this->equalTo(true))
+            ->will($this->returnValue('/a/b/c'));
+        $storage    = new LocalFileSystemStorage(array('root' => $testDir, 'path_builder' => $this->pathBuilder));
+
         $output     = $storage->write($file);
         $data       = 'foo bar baz';
         $bytes      = $output->write($data);

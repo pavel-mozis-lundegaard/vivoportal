@@ -3,6 +3,7 @@ namespace VivoTest\Storage;
 
 use Vivo\Storage\StorageInterface;
 use Vivo\Storage\LocalFileSystemStorage;
+use Vivo\Storage\PathBuilder\PathBuilder;
 
 use PHPUnit_Framework_TestCase as TestCase;
 
@@ -22,20 +23,28 @@ class StorageUtilTest extends TestCase
     protected $storage2;
 
     /**
+     * @var PathBuilder
+     */
+    protected $pathBuilder;
+
+    /**
      * @var string
      */
     protected $sysTmp;
 
     protected function setUp()
     {
+        $this->pathBuilder  = new PathBuilder('/');
         $this->sysTmp = sys_get_temp_dir();
         $this->cleanUp($this->sysTmp);
         $storageRoot1   = $this->sysTmp . DIRECTORY_SEPARATOR . self::STORAGE_SUBDIR_1;
         $storageRoot2   = $this->sysTmp . DIRECTORY_SEPARATOR . self::STORAGE_SUBDIR_2;
         mkdir($storageRoot1);
         mkdir($storageRoot2);
-        $this->storage1 = new LocalFileSystemStorage(array('root' => $storageRoot1));
-        $this->storage2 = new LocalFileSystemStorage(array('root' => $storageRoot2));
+        $this->storage1 = new LocalFileSystemStorage(
+                                array('root' => $storageRoot1, 'path_builder' => $this->pathBuilder));
+        $this->storage2 = new LocalFileSystemStorage(
+                                array('root' => $storageRoot2, 'path_builder' => $this->pathBuilder));
     }
 
     protected function tearDown()
@@ -74,7 +83,7 @@ class StorageUtilTest extends TestCase
     public function testCopy()
     {
         //TODO - implement testCopy()
-        $this->assertTrue(true);
+        $this->markTestIncomplete(sprintf('%s not implemented', __METHOD__));
     }
 }
 

@@ -8,6 +8,11 @@ use Vivo\CMS\Security;
 use Vivo\Util;
 use Vivo\Storage;
 use Vivo\Indexer\Indexer;
+use Vivo\Repository\UuidConvertor\UuidConvertorInterface;
+use Vivo\Repository\Watcher;
+use Vivo\Storage\PathBuilder\PathBuilderInterface;
+
+use Zend\Cache\Storage\StorageInterface as Cache;
 
 /**
  * Repository class provides methods to works with CMS repository.
@@ -27,14 +32,41 @@ class Repository implements RepositoryInterface
 	 * @var \Vivo\Storage\StorageInterface
 	 */
 	private $storage;
+
 	/**
 	 * @var \Vivo\Indexer\Indexer
 	 */
 	private $indexer;
+
+    /**
+     * UUID Convertor
+     * @var UuidConvertorInterface
+     */
+    protected $uuidConvertor;
+
+    /**
+     * Object watcher
+     * @var Watcher
+     */
+    protected $watcher;
+
 	/**
 	 * @var \Zend\Serializer\Adapter\AdapterInterface
 	 */
 	private $serializer;
+
+    /**
+     * The cache object
+     * @var Cache
+     */
+    protected $cache;
+
+    /**
+     * PathBuilder
+     * @var PathBuilderInterface
+     */
+    protected $pathBuilder;
+
 	/**
 	 * @var array The list of entities that are prepared to impose.
 	 */
@@ -60,17 +92,29 @@ class Repository implements RepositoryInterface
 	 */
 	private $deleteEntities = array();
 
-	/**
-	 * @param \Vivo\Storage\StorageInterface $storage
-	 * @param object $cache
-	 * @param \Vivo\Indexer\Indexer $indexer
-	 * @param \Zend\Serializer\Adapter\AdapterInterface $serializer
-	 */
-	public function __construct(Storage\StorageInterface $storage, $cache, Indexer $indexer, \Zend\Serializer\Adapter\AdapterInterface $serializer)
+    /**
+     * Constructor
+     * @param \Vivo\Storage\StorageInterface $storage
+     * @param \Zend\Cache\Storage\StorageInterface $cache
+     * @param \Vivo\Indexer\Indexer $indexer
+     * @param \Zend\Serializer\Adapter\AdapterInterface $serializer
+     * @param UuidConvertor\UuidConvertorInterface $uuidConvertor
+     * @param Watcher $watcher
+     * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
+     */
+    public function __construct(Storage\StorageInterface $storage, Cache $cache = null, Indexer $indexer,
+                                \Zend\Serializer\Adapter\AdapterInterface $serializer,
+                                UuidConvertorInterface $uuidConvertor,
+                                Watcher $watcher,
+                                PathBuilderInterface $pathBuilder)
 	{
-		$this->storage = $storage;
-		$this->indexer = $indexer;
-		$this->serializer = $serializer;
+		$this->storage          = $storage;
+        $this->cache            = $cache;
+		$this->indexer          = $indexer;
+		$this->serializer       = $serializer;
+        $this->uuidConvertor    = $uuidConvertor;
+        $this->watcher          = $watcher;
+        $this->pathBuilder      = $pathBuilder;
 	}
 
 	/**
@@ -147,7 +191,7 @@ class Repository implements RepositoryInterface
 // 			$entity = CMS::convertReferencesToURLs($entity);
 // 			$entity->setPath(substr($path, 0, strrpos($path, '/'))); // set volatile path property of entity instance
 
-			$path = $ident.'/'.self::ENTITY_FILENAME;
+			$path = $ident . '/' . self::ENTITY_FILENAME;
 			//@todo: tohle uz obsahuje metoda get
 			if($throwException && !$this->storage->contains($path)) {
 				throw new \Exception(sprintf('Entity not found; ident: %s, path: %s', $ident, $path));
@@ -159,6 +203,63 @@ class Repository implements RepositoryInterface
 			return $entity;
 		}
 	}
+
+    public function getEntity_New($ident)
+    {
+        $uuid   = null;
+        $path   = null;
+        if (preg_match('/^'.self::UUID_PATTERN.'$/i', $ident)) {
+            //UUID
+            $uuid = strtoupper($ident);
+        } elseif (preg_match('/^\[ref:('.self::UUID_PATTERN.')\]$/i', $ident, $matches)) {
+            //Symbolic reference in [ref:uuid] format
+            $uuid = strtoupper($matches[1]);
+        } else {
+            //Attempt conversion from path
+            $uuid = $this->uuidConvertor->getUuidFromPath($ident);
+            if ($uuid) {
+                $path   = $ident;
+            }
+        }
+        if (!$uuid) {
+            throw new Exception\EntityNotFoundException(
+                sprintf("%s: Cannot get UUID for entity identifier '%s'", __METHOD__, $ident));
+        }
+        //Get entity from watcher (level 1)
+        $entity = $this->watcher->get($uuid);
+        if ($entity) {
+            return $entity;
+        }
+        //Get entity from cache (level 2)
+        if ($this->cache) {
+            $cacheSuccess   = null;
+            $entity         = $this->cache->getItem($uuid, $cacheSuccess);
+            if ($cacheSuccess) {
+                $this->watcher->add($entity);
+                return $entity;
+            }
+        }
+        //Get entity from storage
+        if (!$path) {
+            $path   = $this->uuidConvertor->getPathFromUuid($uuid);
+            if (!$path) {
+                throw new Exception\EntityNotFoundException(
+                    sprintf("%s: Cannot get path for UUID = '%s'", __METHOD__, $uuid));
+            }
+        }
+        $pathComponents = array($path, self::ENTITY_FILENAME);
+        $fullPath       = $this->pathBuilder->buildStoragePath($pathComponents, true);
+        $entitySer      = $this->storage->get($fullPath);
+        $entity         = $this->serializer->unserialize($entitySer);
+        /* @var $entity \Vivo\CMS\Model\Entity */
+        //TODO - why setPath()?
+        $entity->setPath($ident); // set volatile path property of entity instance
+        $this->watcher->add($entity);
+        if ($this->cache) {
+            $this->cache->addItem($uuid, $entity);
+        }
+        return $entity;
+    }
 
 	/**
 	 * Convert entity UUID to repository path.

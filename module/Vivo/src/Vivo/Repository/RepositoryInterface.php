@@ -8,20 +8,22 @@ interface RepositoryInterface extends TransactionalInterface {
 
 	/**
 	 * @param string $ident
-	 * @return Vivo\CMS\Model\Entity
+	 * @return \Vivo\CMS\Model\Entity
 	 */
 	public function getEntity($ident);
 
 	public function saveEntity(Model\Entity $entity);
 
 	public function deleteEntity(Model\Entity $entity);
-	/**
-	 * @param Vivo\CMS\Model\Entity $entity
+
+    /**
+	 * @param \Vivo\CMS\Model\Entity $entity
 	 * @param string $target
 	 */
 	public function moveEntity(Model\Entity $entity, $target);
-	/**
-	 * @param Vivo\CMS\Model\Entity $entity
+
+    /**
+	 * @param \Vivo\CMS\Model\Entity $entity
 	 * @param string $target
 	 */
 	public function copyEntity(Model\Entity $entity, $target);

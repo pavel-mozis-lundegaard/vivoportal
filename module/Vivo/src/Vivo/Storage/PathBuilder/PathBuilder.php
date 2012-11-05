@@ -37,7 +37,7 @@ class PathBuilder implements PathBuilderInterface
      * @param bool $absolute If true, builds an absolute path starting with the storage path separator
      * @return string
      */
-    public function buildStoragePath(array $elements, $absolute = false)
+    public function buildStoragePath(array $elements, $absolute = true)
     {
         $components = array();
         //Get atomic components

@@ -45,11 +45,6 @@ class CMSFrontController implements DispatchableInterface,
         $path = $this->event->getRouteMatch()->getParam('path');
         $host = $this->event->getRouteMatch()->getParam('host');
 
-        $resourceManager    = $this->serviceLocator->get('module_resource_manager');
-        /* @var $resourceManager \Vivo\Module\ResourceManager\ResourceManager */
-        $data = $resourceManager->getResource('Gvm1', 'foo/my.txt');
-        \Zend\Debug\Debug::dump($data, 'Resource data');
-
         $response->setContent('CMS document for path: ' . $path);
         $response->setStatusCode(HttpResponse::STATUS_CODE_200);
         return $response;

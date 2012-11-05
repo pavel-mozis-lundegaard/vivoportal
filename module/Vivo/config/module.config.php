@@ -110,8 +110,6 @@ return array(
             'default_install_path'  => '/',
             //List of core modules loaded for all sites
             'core_modules'          => array(
-                //TODO - remove core module
-                'Gvm1',
             ),
             //Module folder where module resources are stored (relative to the module root)
             'resource_base'         => 'resource',

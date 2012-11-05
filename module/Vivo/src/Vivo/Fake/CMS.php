@@ -66,4 +66,7 @@ class CMS extends \Vivo\CMS\CMS{
 	public  function readResource($entity, $resource) {
 	    return new FileInputStream(__DIR__.'/'.$resource);
 	}
+	public function getResource($entity, $resourceFile) {
+	    return $data = 'sample stream content';
+	}
 }

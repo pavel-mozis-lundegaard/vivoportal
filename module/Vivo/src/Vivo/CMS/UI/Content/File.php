@@ -16,7 +16,7 @@ use Zend\Http\Response;
  * UI component for content file.
  * @todo add logic for various file types, when the file is not main content of page
  */
-class File extends UI\File implements RawComponentInterface, InjectModelInterface
+class File extends Component
 {
 
     /**
@@ -25,14 +25,9 @@ class File extends UI\File implements RawComponentInterface, InjectModelInterfac
     private $cms;
 
     /**
-     * @var Document
+     * @var string
      */
-    private $document;
-
-    /**
-     * @var Content
-     */
-    private $content;
+    private $templateVariant;
 
     /**
      * @param CMS $cms
@@ -48,26 +43,28 @@ class File extends UI\File implements RawComponentInterface, InjectModelInterfac
     {
         //TODO validate mimetype
         //TODO determine resource filename and mimetype
+        //TODO include phtml resource, tpl resource
+
         if (!$this->content instanceof Content\File) {
             throw new \Exception ("Incompatible model.");
         }
 
         $mimeType = $this->content->getMimeType();
         $resourceFile = 'resource' . MIME::getExt($mimeType);
-        $this
-            ->setInputStream(
-                $this->cms->readResource($this->content, $resourceFile));
-
-        $this->setFilename($this->content->getFilename());
+        if ($mimeType == 'text/html') {
+            $this->view->content = $this->cms->getResource($this->content, $resourceFile);
+            $this->templateVariant = 'html';
+        } elseif ($mimeType == 'text/plain') {
+            $this->view->content = $this->cms->getResource($this->content, $resourceFile);
+            $this->templateVariant = 'plain';
+        } elseif ($mimeType == 'application/x-shockwave-flash') {
+            $this->templateVariant = 'flash';
+        } else {
+            $this->templateVariant = null;
+        }
     }
 
-    public function setContent(Content $content)
-    {
-        $this->content = $content;
-    }
-
-    public function setDocument(Document $document)
-    {
-        $this->document = $document;
+    public function getTemplate() {
+        return parent::getTemplate() . ($this->templateVariant ? ':'. $this->templateVariant :'');
     }
 }

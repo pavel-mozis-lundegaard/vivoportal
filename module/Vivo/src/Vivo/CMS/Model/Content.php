@@ -55,7 +55,7 @@ class Content extends Entity {
 	 * @return int
 	 */
 	public function getIndex() {
-		return preg_match('~\/Contents\.(\d{1,2})\/~', $this->getPath(), $matches) ? $matches[1] : false;
+		return preg_match('~\/Contents\.(\d{1,2})\/~', $this->getPath(), $matches) ? intval($matches[1]) : false;
 	}
 
 	/**

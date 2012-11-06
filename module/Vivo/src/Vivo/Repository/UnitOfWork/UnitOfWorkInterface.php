@@ -7,6 +7,7 @@ use Vivo\TransactionalInterface;
 
 /**
  * UnitOfWorkInterface
+ * Unit of work implementation for Repository
  */
 interface UnitOfWorkInterface extends TransactionalInterface
 {

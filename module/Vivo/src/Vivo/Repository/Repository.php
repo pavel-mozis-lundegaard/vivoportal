@@ -9,8 +9,6 @@ use Vivo\Indexer\Indexer;
 use Vivo\Repository\UuidConvertor\UuidConvertorInterface;
 use Vivo\Repository\Watcher;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
-use Vivo\Uuid\GeneratorInterface as UuidGenerator;
-use Vivo\IO\IOUtil;
 use Vivo\Repository\UnitOfWork\UnitOfWorkInterface;
 
 use Zend\Cache\Storage\StorageInterface as Cache;
@@ -70,24 +68,12 @@ class Repository implements RepositoryInterface
     protected $pathBuilder;
 
     /**
-     * UUID Generator
-     * @var UuidGenerator
-     */
-    protected $uuidGenerator;
-
-    /**
-     * @var IOUtil
-     */
-    protected $ioUtil;
-
-    /**
      * Unit of work
      * @var UnitOfWorkInterface
      */
     protected $unitOfWork;
 
-    /**
-     * Constructor
+    /** Constructor
      * @param \Vivo\Storage\StorageInterface $storage
      * @param \Zend\Cache\Storage\StorageInterface $cache
      * @param \Vivo\Indexer\Indexer $indexer
@@ -95,8 +81,6 @@ class Repository implements RepositoryInterface
      * @param UuidConvertor\UuidConvertorInterface $uuidConvertor
      * @param Watcher $watcher
      * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
-     * @param \Vivo\Uuid\GeneratorInterface $uuidGenerator
-     * @param \Vivo\IO\IOUtil $ioUtil
      * @param UnitOfWork\UnitOfWorkInterface $unitOfWork
      */
     public function __construct(Storage\StorageInterface $storage, Cache $cache = null, Indexer $indexer,
@@ -104,8 +88,6 @@ class Repository implements RepositoryInterface
                                 UuidConvertorInterface $uuidConvertor,
                                 Watcher $watcher,
                                 PathBuilderInterface $pathBuilder,
-                                UuidGenerator $uuidGenerator,
-                                IOUtil $ioUtil,
                                 UnitOfWorkInterface $unitOfWork)
 	{
 		$this->storage          = $storage;
@@ -115,8 +97,6 @@ class Repository implements RepositoryInterface
         $this->uuidConvertor    = $uuidConvertor;
         $this->watcher          = $watcher;
         $this->pathBuilder      = $pathBuilder;
-        $this->uuidGenerator    = $uuidGenerator;
-        $this->ioUtil           = $ioUtil;
         $this->unitOfWork       = $unitOfWork;
 	}
 
@@ -252,7 +232,6 @@ class Repository implements RepositoryInterface
             $entitySer      = $this->storage->get($fullPath);
             $entity         = $this->serializer->unserialize($entitySer);
             /* @var $entity \Vivo\CMS\Model\Entity */
-            //TODO - why setPath()?
             $entity->setPath($ident); // set volatile path property of entity instance
             $this->watcher->add($entity);
             if ($this->cache) {
@@ -407,11 +386,11 @@ class Repository implements RepositoryInterface
 	}
 
 	/**
-	 * No effect - always transactional.
+	 * Begins transaction
 	 */
 	public function begin()
 	{
-		trigger_error('No effect - always transactional.');
+        $this->unitOfWork->begin();
 	}
 
 	/**
@@ -422,17 +401,20 @@ class Repository implements RepositoryInterface
         $this->unitOfWork->commit();
 	}
 
-	protected function reset()
+    /**
+     * Resets the changes scheduled for this transaction
+     */
+    public function reset()
 	{
 		$this->unitOfWork->reset();
 	}
 
 	/**
-	 * Rollback rolls back the current transaction, canceling its changes.
+	 * Rollback rolls back the current transaction, canceling changes
 	 */
 	public function rollback()
 	{
-        $this->unitOfWork->reset();
+        $this->unitOfWork->rollback();
 	}
 
 	public function writeResource(Model\Entity $entity, $name, \Vivo\IO\InputStreamInterface $stream)
@@ -610,10 +592,13 @@ class Repository implements RepositoryInterface
      */
     public function reindex(Model\Entity $entity, $deep = false)
 	{
+        //TODO - refactor reindex()
+        throw new \Exception(sprintf('%s: method not refactored yet', __METHOD__));
         //TODO - undefined Entity methods
 		$count = 1;
 		$this->indexer->save($entity);
 		if ($entity instanceof Vivo\CMS\Model\Document) {
+            /* @var $entity \Vivo\CMS\Model\Document */
 			for ($index = 1; $index <= $entity->getContentCount(); $index++)
 				foreach ($entity->getContents($index) as $content)
 					$count += $this->reindex($content, true);

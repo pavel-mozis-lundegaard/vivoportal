@@ -3,6 +3,13 @@ namespace Vivo\Repository\UnitOfWork;
 
 use Vivo\CMS\Model;
 use Vivo\IO;
+use Vivo\Storage\PathBuilder\PathBuilderInterface;
+use Vivo\Storage\StorageInterface;
+use Vivo\Uuid\GeneratorInterface as UuidGenerator;
+use Vivo\IO\IOUtil;
+use Vivo\Repository\Exception;
+
+use Zend\Serializer\Adapter\AdapterInterface as Serializer;
 
 /**
  * UnitOfWork
@@ -19,7 +26,7 @@ class UnitOfWork implements UnitOfWorkInterface
      * List of streams that are prepared to be persisted
      * @var IO\InputStreamInterface[]
      */
-    protected $saveFiles            = array();
+    protected $saveStreams          = array();
 
     /**
      * List of data items prepared to be persisted
@@ -40,10 +47,51 @@ class UnitOfWork implements UnitOfWorkInterface
     protected $deletePaths          = array();
 
     /**
-     * List of paths of entities that are prepared to be deleted
+     * List of temporary files which will be moved to their final place if everything is well in commit
+     * Map: path => tempPath
      * @var string[]
      */
-    protected $deleteEntityPaths    = array();
+    protected $tmpFiles             = array();
+
+    /**
+     * List of temporary paths which will be deleted if everything is well in commit
+     * Map: path => tempPath
+     * @var string[]
+     */
+    protected $tmpDelFiles          = array();
+
+    /**
+     * PathBuilder
+     * @var PathBuilderInterface
+     */
+    protected $pathBuilder;
+
+    /**
+     * Storage
+     * @var StorageInterface
+     */
+    protected $storage;
+
+    /**
+     * @var UuidGenerator
+     */
+    protected $uuidGenerator;
+
+    /**
+     * Entity filename
+     * @var string
+     */
+    protected $entityFilename;
+
+    /**
+     * @var Serializer
+     */
+    protected $serializer;
+
+    /**
+     * @var IOUtil
+     */
+    protected $ioUtil;
 
     /**
      * Adds the entity to the list of entities to be saved
@@ -63,7 +111,7 @@ class UnitOfWork implements UnitOfWorkInterface
      */
     public function saveStream(IO\InputStreamInterface $stream, $path)
     {
-        $this->saveFiles[$path] = $stream;
+        $this->saveStreams[$path] = $stream;
     }
 
     /**
@@ -84,7 +132,6 @@ class UnitOfWork implements UnitOfWorkInterface
      */
     public function deleteEntity(Model\Entity $entity)
     {
-        $this->deleteEntityPaths[]  = $entity->getPath();
         $this->deletePaths[]        = $entity->getPath();
     }
 
@@ -100,42 +147,84 @@ class UnitOfWork implements UnitOfWorkInterface
 
     /**
      * Resets / clears all lists of entities / data scheduled for processing
+     * Calling this function on uncommitted transaction may lead to data loss!
      * @return void
      */
     public function reset()
     {
         $this->copyFiles            = array();
-        $this->deleteEntityPaths    = array();
         $this->deletePaths          = array();
         $this->saveData             = array();
         $this->saveEntities         = array();
-        $this->saveFiles            = array();
+        $this->saveStreams          = array();
+        $this->removeTempFiles();
     }
 
     /**
-     * Commit commits the current transaction, making its changes permanent.
-     * @throws Exception
+     * Removes temporary files
+     */
+    protected function removeTempFiles()
+    {
+        //TempDelFiles
+        foreach ($this->tmpDelFiles as $tmpPath) {
+            try {
+                $this->storage->remove($tmpPath);
+            } catch (\Exception $e) {
+                //Just continue, we should try to remove all temp files even though an exception has been thrown
+            }
+        }
+        $this->tmpDelFiles          = array();
+        //TempFiles
+        foreach ($this->tmpFiles as $path) {
+            try {
+                $this->storage->remove($path);
+            } catch (\Exception $e) {
+                //Just continue, we should try to remove all temp files even though an exception has been thrown
+            }
+        }
+        $this->tmpFiles             = array();
+    }
+
+    /**
+     * Commits the current transaction and starts a new one
+     */
+    public function begin()
+    {
+        $this->commit();
+        //A transaction is always open so there is no specific action to start a new one
+    }
+
+    /**
+     * Rolls back current transaction and starts a new one
+     */
+    public function rollback()
+    {
+        //Move back everything that was moved during Delete Phase 1
+        foreach ($this->tmpDelFiles as $path => $tmpPath) {
+            try {
+                $this->storage->move($tmpPath, $path);
+            } catch (\Exception $e) {
+                //Just continue
+            }
+        }
+        //Reset also deletes remaining temp files
+        $this->reset();
+    }
+
+    /**
+     * Commit commits the current transaction, making its changes permanent, then starts a new transaction
+     * @throws Exception\Exception
      */
     public function commit()
     {
-        $tmpFiles       = array();
-        $tmpDelFiles    = array();
         try {
             //Delete - Phase 1 (move to temp files)
-            try {
-                foreach ($this->deletePaths as $path) {
-                    $tmpDelFiles[$path] = $this->pathBuilder->buildStoragePath(array(uniqid('del-')), true);
-                    $this->storage->move($path, $tmpDelFiles[$path]);
-                }
+            foreach ($this->deletePaths as $path) {
+                $this->tmpDelFiles[$path]   = $this->pathBuilder->buildStoragePath(array(uniqid('del-')), true);
+                $this->storage->move($path, $this->tmpDelFiles[$path]);
             }
-            catch (\Exception $e) {
-                //Move back everything that was moved
-                foreach ($tmpDelFiles as $path => $tmpPath)
-                    $this->storage->move($tmpPath, $path);
-                throw $e;
-            }
-            //Save - Phase faze 1 (serialize entities and files into temp files)
-            //a) entity
+            //Save - Phase 1 (serialize entities and files into temp files)
+            //a) Entity
             $now = new \DateTime();
             foreach ($this->saveEntities as $entity) {
                 if (!$entity->getCreated() instanceof \DateTime) {
@@ -151,34 +240,32 @@ class UnitOfWork implements UnitOfWorkInterface
                 $entity->setModified($now);
                 //TODO - set entity modifier
                 //$entity->setModifiedBy($username);
-                $pathElements       = array($entity->getPath(), self::ENTITY_FILENAME);
-                $path               = $this->pathBuilder->buildStoragePath($pathElements, true);
-                $tmpPath            = $path . '.' . uniqid('tmp-');
-                $entitySer          = $this->serializer->serialize($entity);
-                $this->storage->set($tmpPath, $entitySer);
-                $tmpFiles[$path]    = $tmpPath;
+                $pathElements           = array($entity->getPath(), $this->entityFilename);
+                $path                   = $this->pathBuilder->buildStoragePath($pathElements, true);
+                $this->tmpFiles[$path]  = $path . '.' . uniqid('tmp-');
+                $entitySer              = $this->serializer->serialize($entity);
+                $this->storage->set($this->tmpFiles[$path], $entitySer);
             }
+            //b) Data
             foreach ($this->saveData as $path => $data) {
-                $tmpPath            = $path . '.' . uniqid('tmp-');
-                $this->storage->set($tmpPath, $data);
-                $tmpFiles[$path] = $tmpPath;
+                $this->tmpFiles[$path]  = $path . '.' . uniqid('tmp-');
+                $this->storage->set($this->tmpFiles[$path], $data);
             }
-            //b) Resource files
-            foreach ($this->saveFiles as $path => $stream) {
-                $tmpPath    = $path . '.' . uniqid('tmp-');
-                //TODO - a bug? Shouldn't be ->write($tmpPath)?
-                $output     = $this->storage->write($path);
+            //c) Streams
+            foreach ($this->saveStreams as $path => $stream) {
+                $this->tmpFiles[$path]  = $path . '.' . uniqid('tmp-');
+                $output                 = $this->storage->write($this->tmpFiles[$path]);
                 $this->ioUtil->copy($stream, $output);
-                $tmpFiles[$path] = $tmpPath;
             }
             //Delete - Phase 2 (delete the temp files)
-            foreach ($tmpDelFiles as $tmpDelFile)
+            foreach ($this->tmpDelFiles as $tmpDelFile) {
                 $this->storage->remove($tmpDelFile);
+            }
             //Save Phase 2 (rename temp files to real ones)
-            foreach ($tmpFiles as $path => $tmpPath) {
+            foreach ($this->tmpFiles as $path => $tmpPath) {
                 if (!$this->storage->move($tmpPath, $path)) {
                     throw new Exception\Exception(
-                        sprintf("%s: Commit failed; source: '%s', destination: '%s'", __METHOD__, $tmpPath, $path));
+                        sprintf("%s: Move failed; source: '%s', destination: '%s'", __METHOD__, $tmpPath, $path));
                 }
             }
             //TODO - delete entities from index?
@@ -194,26 +281,8 @@ class UnitOfWork implements UnitOfWorkInterface
 // 			$this->indexer->commit();
             $this->reset();
         } catch (\Exception $e) {
-            //Delete all temp files created during commit
-            foreach ($tmpFiles as $path)
-                $this->storage->remove($path);
-            // ...and empty the dirty entities and files array (done by rollback)
             $this->rollback();
             throw $e;
         }
-    }
-
-    /**
-     * Commits the current transaction and starts a new one
-     */
-    public function begin()
-    {
-        $this->commit();
-        //A transaction is always open so there is no specific action to start a new one
-    }
-
-    public function rollback()
-    {
-        // TODO: Implement rollback() method.
     }
 }

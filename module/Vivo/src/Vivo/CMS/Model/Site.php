@@ -23,18 +23,27 @@ class Site extends Folder {
 	 * @param string Path to entity.
 	 * @param Vivo\CMS\Model\Entity\Security
 	 */
-	function __construct($path = null, $security = null) {
+	public function __construct($path = null, $security = null) {
 		parent::__construct($path, $security);
 	}
 
+	/**
+	 * @param string $domain Security domain name.
+	 */
 	public function setDomain($domain) {
 		$this->domain = $domain;
 	}
 
+	/**
+	 * @param array $hosts
+	 */
 	public function setHosts(array $hosts) {
 		$this->hosts = $hosts;
 	}
 
+	/**
+	 * @return array
+	 */
 	public function getHosts() {
 		return $this->hosts;
 	}

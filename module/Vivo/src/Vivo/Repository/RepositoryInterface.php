@@ -29,7 +29,7 @@ interface RepositoryInterface extends TransactionalInterface {
 	public function copyEntity(Model\Entity $entity, $target);
 
 	//                          Model\Entity $entity?
-	public function getChildren(Model\Entity $entity, $class_name = false, $deep = false, $throw_exception = true);
+	public function getChildren(Model\Entity $entity, $className = false, $deep = false);
 
 
 	public function reindex(Model\Entity $entity, $deep = false);

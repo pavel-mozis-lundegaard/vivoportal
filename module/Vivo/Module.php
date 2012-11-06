@@ -57,6 +57,10 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $ioUtil     = new \Vivo\IO\IOUtil();
                     return $ioUtil;
                 },
+                'uuid_generator'    => function(ServiceManager $sm) {
+                    $uuidGenerator  = new \Vivo\Uuid\Generator();
+                    return $uuidGenerator;
+                },
                 'storage_util'      => function(ServiceManager $sm) {
                     $ioUtil         = $sm->get('ioUtil');
                     $storageUtil    = new \Vivo\Storage\StorageUtil($ioUtil);

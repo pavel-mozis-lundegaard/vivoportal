@@ -59,7 +59,9 @@ class Component implements ComponentInterface
 
     public function view()
     {
-        $this->view->setTemplate($this->getTemplate());
+        if ($this->view->getTemplate() == '') {
+            $this->view->setTemplate($this->getDefaultTemplate());
+        }
         $this->view->setVariable('component', $this);
         $this->view->setVariable('cpath', $this->getPath());
         return $this->view;
@@ -87,9 +89,9 @@ class Component implements ComponentInterface
         $this->template = $template;
     }
 
-    public function getTemplate()
+    public function getDefaultTemplate()
     {
-        return $this->template ? : get_class($this);
+        return get_class($this);
     }
 
     /**

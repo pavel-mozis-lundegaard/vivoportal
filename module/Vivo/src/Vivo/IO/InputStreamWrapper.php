@@ -1,0 +1,149 @@
+<?php
+namespace Vivo\IO;
+
+/**
+ * Wrapper for input streams. It is usefull when you need include file from InputStream.
+ * @todo must be checked and refactored
+ */
+class InputStreamWrapper {
+
+	const STREAM_NAME = 'io.stream';
+
+	private static $registeredInputStreams = array();
+
+	private static $lastStreamId = 0;
+
+	private static $registered = false;
+
+    protected $pos = 0;
+
+
+    /**
+     * Stream stats.
+     *
+     * @var array
+     */
+    protected $stat;
+
+    /**
+     * Opens the script file and converts markup.
+     */
+    public function stream_open($path, $mode, $options, &$opened_path)
+    {
+        // get the view script source
+        $path        = str_replace(self::STREAM_NAME.'://', '', $path);
+        $this->is = self::$registeredInputStreams[$path];
+
+        /**
+         * If reading the file failed, update our local stat store
+         * to reflect the real stat of the file, then return on failure
+         */
+        return true;
+    }
+
+    /**
+     * Included so that __FILE__ returns the appropriate info
+     *
+     * @return array
+     */
+    public function url_stat($path)
+    {
+        $path        = str_replace(self::STREAM_NAME.'://', '', $path);
+        if (isset(self::$registeredInputStreams[$path])) {
+
+            $fileStat = array('dev' => 0,
+                          'ino' => 0,
+                          'mode' => 'r',
+                          'nlink' => 0,
+                          'uid' => 0,
+                          'gid' => 0,
+                          'rdev' => 0,
+                          'size' => 0,
+                          'atime' => 0,
+                          'mtime' => 0,
+                          'ctime' => 0,
+                          'blksize' => -1,
+                          'blocks' => -1
+                    );
+
+            return $fileStat;
+        }
+        return false;    }
+
+    /**
+     * Reads from the stream.
+     */
+    public function stream_read($count)
+    {
+        $ret = $this->is->read($count);
+        $this->pos += strlen($ret);
+        $this->eof = strlen($ret) < $count;
+        return $ret;
+    }
+
+
+    /**
+     * Tells the current position in the stream.
+     */
+    public function stream_tell()
+    {
+        return $this->pos;
+    }
+
+
+    /**
+     * Tells if we are at the end of the stream.
+     */
+    public function stream_eof()
+    {
+        //return $this->pos >= strlen($this->data);
+    }
+
+
+    /**
+     * Stream statistics.
+     */
+    public function stream_stat()
+    {
+            $fileStat = array('dev' => 0,
+                          'ino' => 0,
+                          'mode' => 'r',
+                          'nlink' => 0,
+                          'uid' => 0,
+                          'gid' => 0,
+                          'rdev' => 0,
+                          'size' => 0,
+                          'atime' => 0,
+                          'mtime' => 0,
+                          'ctime' => 0,
+                          'blksize' => -1,
+                          'blocks' => -1
+                    );
+
+            return $fileStat;
+    }
+
+    /**
+     * Seek to a specific point in the stream.
+     */
+    public function stream_seek($offset, $whence)
+    {
+        //not allowed
+    }
+
+	public static function register() {
+		return stream_wrapper_register(self::STREAM_NAME, __CLASS__);
+	}
+
+	public static function registerInputStream($is, $path = null) {
+        if (!self::$registered) {
+            self::$registered = self::register();
+        }
+	    if (isset(self::$registeredInputStreams[$path])) {
+	        throw new \Exception('Path is already used.');
+	    }
+
+	    self::$registeredInputStreams[$path] = $is;
+        return self::STREAM_NAME.'://'.$path;
+	}
+}

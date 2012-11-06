@@ -43,6 +43,10 @@ class TemplateResolver implements ResolverInterface
 
     public function resolve($name, RendererInterface $renderer = null)
     {
+        if (file_exists($name)) {
+            return $name;
+        }
+
         if (isset($this->templateMap[$name])) {
             return $this->templateMap[$name];
         } else {

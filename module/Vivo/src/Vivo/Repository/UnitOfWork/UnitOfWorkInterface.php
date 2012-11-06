@@ -3,11 +3,12 @@ namespace Vivo\Repository\UnitOfWork;
 
 use Vivo\CMS\Model;
 use Vivo\IO;
+use Vivo\TransactionalInterface;
 
 /**
  * UnitOfWorkInterface
  */
-interface UnitOfWorkInterface
+interface UnitOfWorkInterface extends TransactionalInterface
 {
     /**
      * Adds the entity to the list of entities to be saved
@@ -32,4 +33,23 @@ interface UnitOfWorkInterface
      */
     public function saveData($data, $path);
 
+    /**
+     * Adds the entity to the list of entities to be deleted
+     * @param \Vivo\CMS\Model\Entity $entity
+     * @return void
+     */
+    public function deleteEntity(Model\Entity $entity);
+
+    /**
+     * Deletes an item (object) specified by $path
+     * @param string $path
+     * @return mixed
+     */
+    public function deleteItem($path);
+
+    /**
+     * Resets / clears all lists of entities / data scheduled for processing
+     * @return void
+     */
+    public function reset();
 }

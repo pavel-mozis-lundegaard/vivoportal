@@ -415,99 +415,16 @@ class Repository implements RepositoryInterface
 	}
 
 	/**
-	 * Commit commits the current transaction, making its changes permanent.
-	 * @throws Exception
+	 * Commit commits the current transaction, making its changes permanent
 	 */
 	public function commit()
 	{
-		$tmpFiles       = array();
-		$tmpDelFiles    = array();
-		try {
-			//Delete - Phase 1 (move to temp files)
-			try {
-				foreach ($this->deletePaths as $path) {
-                    $tmpDelFiles[$path] = $this->pathBuilder->buildStoragePath(array(uniqid('del-')), true);
-                    $this->storage->move($path, $tmpDelFiles[$path]);
-				}
-			}
-			catch (\Exception $e) {
-				//Move back everything that was moved
-				foreach ($tmpDelFiles as $path => $tmpPath)
-					$this->storage->move($tmpPath, $path);
-				throw $e;
-			}
-			//Save - Phase faze 1 (serialize entities and files into temp files)
-			//a) entity
-			$now = new \DateTime();
-			foreach ($this->saveEntities as $entity) {
-				if (!$entity->getCreated() instanceof \DateTime) {
-					$entity->setCreated($now);
-				}
-				if (!$entity->getCreatedBy()) {
-                    //TODO - what to do when an entity does not have its creator set?
-					//$entity->setCreatedBy($username);
-				}
-				if(!$entity->getUuid()) {
-					$entity->setUuid($this->uuidGenerator->create());
-				}
-				$entity->setModified($now);
-                //TODO - set entity modifier
-				//$entity->setModifiedBy($username);
-                $pathElements       = array($entity->getPath(), self::ENTITY_FILENAME);
-				$path               = $this->pathBuilder->buildStoragePath($pathElements, true);
-				$tmpPath            = $path . '.' . uniqid('tmp-');
-                $entitySer          = $this->serializer->serialize($entity);
-				$this->storage->set($tmpPath, $entitySer);
-				$tmpFiles[$path]    = $tmpPath;
-			}
-			foreach ($this->saveData as $path => $data) {
-                $tmpPath            = $path . '.' . uniqid('tmp-');
-				$this->storage->set($tmpPath, $data);
-				$tmpFiles[$path] = $tmpPath;
-			}
-			//b) Resource files
-			foreach ($this->saveFiles as $path => $stream) {
-				$tmpPath    = $path . '.' . uniqid('tmp-');
-                //TODO - a bug? Shouldn't be ->write($tmpPath)?
-				$output     = $this->storage->write($path);
-				$this->ioUtil->copy($stream, $output);
-				$tmpFiles[$path] = $tmpPath;
-			}
-			//Delete - Phase 2 (delete the temp files)
- 			foreach ($tmpDelFiles as $tmpDelFile)
- 				$this->storage->remove($tmpDelFile);
-			//Save Phase 2 (rename temp files to real ones)
-			foreach ($tmpFiles as $path => $tmpPath) {
-				if (!$this->storage->move($tmpPath, $path)) {
-					throw new Exception\Exception(
-                        sprintf("%s: Commit failed; source: '%s', destination: '%s'", __METHOD__, $tmpPath, $path));
-				}
-			}
-            //TODO - delete entities from index?
-// 			foreach ($this->deleteEntities as $path) {
-// 				$path = str_replace(' ', '\\ ', $path);
-// 				$query = new Indexer\Query('DELETE Vivo\CMS\Model\Entity\path = :path OR Vivo\CMS\Model\Entity\path = :path/*');
-// 				$query->setParameter('path', $path);
-
-// 				$this->indexer->execute($query);
-// 			}
-// 			foreach ($this->saveEntities as $entity)
-// 				$this->indexer->save($entity); // (re)index entity
-// 			$this->indexer->commit();
-			$this->reset();
-		} catch (\Exception $e) {
-			//Delete all temp files created during commit
-			foreach ($tmpFiles as $path)
-				$this->storage->remove($path);
-			// ...and empty the dirty entities and files array (done by rollback)
-			$this->rollback();
-			throw $e;
-		}
+        $this->unitOfWork->commit();
 	}
 
-	private function reset()
+	protected function reset()
 	{
-		$this->rollback();
+		$this->unitOfWork->reset();
 	}
 
 	/**
@@ -515,11 +432,7 @@ class Repository implements RepositoryInterface
 	 */
 	public function rollback()
 	{
-		$this->saveEntities = array();
-		$this->saveData = array();
-		$this->saveFiles = array();
-		$this->deletePaths = array();
-		$this->deleteEntities = array();
+        $this->unitOfWork->reset();
 	}
 
 	public function writeResource(Model\Entity $entity, $name, \Vivo\IO\InputStreamInterface $stream)
@@ -582,20 +495,18 @@ class Repository implements RepositoryInterface
 
 	/**
 	 * @param \Vivo\CMS\Model\Entity $entity Entity object.
-	 * @throws \Vivo\CMS\EntityNotFoundException
 	 */
 	public function deleteEntity(Model\Entity $entity)
 	{
-		//TODO kontrola, zda je entita prazdna
-        $this->deleteEntities[] = $entity->getPath();
-		$this->deletePaths[]    = $entity->getPath();
+		//TODO - check that the entity is empty
+        $this->unitOfWork->deleteEntity($entity);
 	}
 
 	public function deleteResource(Model\Entity $entity, $name)
 	{
         $pathComponents         = array($entity->getPath(), $name);
         $path                   = $this->pathBuilder->buildStoragePath($pathComponents, true);
-        $this->deletePaths[]    = $path;
+        $this->unitOfWork->deleteItem($path);
 	}
 
 	/**

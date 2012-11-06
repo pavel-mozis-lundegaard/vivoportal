@@ -1,12 +1,11 @@
 <?php
 namespace Vivo;
 
-
 use Vivo\CMS\ComponentFactory;
 use Vivo\CMS\ComponentResolver;
 use Vivo\Module\ModuleManagerFactory;
 use Vivo\View\Helper\Action;
-use Vivo\View\Strategy\UIRenderingStrategy;
+use Vivo\View\Strategy\PhtmlRenderingStrategy;
 
 use Zend\Console\Adapter\AdapterInterface as Console;
 use Zend\ModuleManager\Feature\ConsoleBannerProviderInterface;
@@ -37,7 +36,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         $streamName     = $config['vivo']['modules']['stream_name'];
         \Vivo\Module\StreamWrapper::register($streamName, $moduleStorage);
 
-        $eventManager->attach('render', array ($this, 'registerUIRenderingStrategy'), 100);
+        $eventManager->attach('render', array ($this, 'registerUIRenderingStrategies'), 100);
         $eventManager->attach('render', array ($this, 'registerViewHelpers'), 100);
     }
 
@@ -63,13 +62,13 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
      *
      * @param unknown_type $e
      */
-    public function registerUIRenderingStrategy($e)
+    public function registerUIRenderingStrategies($e)
     {
         $app          = $e->getTarget();
         $locator      = $app->getServiceManager();
         $view         = $locator->get('Zend\View\View');
-        $UIRendererStrategy = $locator->get('Vivo\View\Strategy\UIRenderingStrategy');
-        $view->getEventManager()->attach($UIRendererStrategy, 100);
+        $phtmlRenderingStrategy = $locator->get('Vivo\View\Strategy\PhtmlRenderingStrategy');
+        $view->getEventManager()->attach($phtmlRenderingStrategy, 100);
     }
 
     public function registerViewHelpers($e) {
@@ -152,12 +151,13 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $moduleManagerFactory   = new ModuleManagerFactory($modulePaths, $moduleStreamName);
                     return $moduleManagerFactory;
                 },
-                'Vivo\View\Strategy\UIRenderingStrategy' => function(ServiceManager $sm) {
+                'Vivo\View\Strategy\PhtmlRenderingStrategy' => function(ServiceManager $sm) {
                     $config = $sm->get('config');
-                    $resolver = new \Vivo\View\Resolver\UIResolver($config['vivo']['templates']);
-                    $renderer = new \Vivo\View\Renderer\UIRenderer($resolver);
+                    $resolver = new \Vivo\View\Resolver\TemplateResolver($config['vivo']['templates']);
+                    $renderer = new \Vivo\View\Renderer\PhtmlRenderer();
+                    $renderer->setResolver($resolver);
                     $renderer->setHelperPluginManager($sm->get('ViewHelperManager'));
-                    $strategy = new UIRenderingStrategy($renderer);
+                    $strategy = new PhtmlRenderingStrategy($renderer, $resolver);
                     return $strategy;
                 },
                 'Vivo\CMS\ComponentFactory' => function(ServiceManager $sm) {

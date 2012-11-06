@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\View\Strategy;
 
+use Zend\View\Resolver\ResolverInterface;
+
 use Vivo\View\Model\UIViewModel;
 use Vivo\View\Renderer\UIRenderer;
 
@@ -10,10 +12,10 @@ use Zend\View\Renderer\RendererInterface;
 use Zend\View\ViewEvent;
 
 /**
- * Rendering strategy for renderign view model of UI components(or component tree).
+ * Rendering strategy for rendering phtml templates.
  *
  */
-class UIRenderingStrategy implements ListenerAggregateInterface
+class PhtmlRenderingStrategy implements ListenerAggregateInterface
 {
 
     /**
@@ -22,11 +24,17 @@ class UIRenderingStrategy implements ListenerAggregateInterface
     private $renderer;
 
     /**
+     * @var ResolverInterface
+     */
+    private $resolver;
+
+    /**
      * @param RendererInterface $renderer
      */
-    public function __construct(RendererInterface $renderer)
+    public function __construct(RendererInterface $renderer, ResolverInterface $resolver)
     {
         $this->setRenderer($renderer);
+        $this->resolver = $resolver;
     }
 
     /**
@@ -51,8 +59,13 @@ class UIRenderingStrategy implements ListenerAggregateInterface
      */
     public function selectRenderer(ViewEvent $e)
     {
-        if ($e->getModel() instanceof UIViewModel) {
-            return $this->renderer;
+        $model = $e->getModel();
+        if ($model instanceof UIViewModel) {
+            $filename = $this->resolver->resolve($model->getTemplate());
+            $ext = pathinfo($filename, PATHINFO_EXTENSION);
+            if ($ext == 'phtml') {
+                return $this->renderer;
+            }
         }
         return null;
     }

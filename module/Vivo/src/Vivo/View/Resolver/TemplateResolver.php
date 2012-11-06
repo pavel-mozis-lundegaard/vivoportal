@@ -1,6 +1,14 @@
 <?php
 namespace Vivo\View\Resolver;
 
+use Vivo\View\Exception\TemplateNotFoundException;
+
+use Vivo\IO\InputStreamInterface;
+
+use Vivo\IO\FileInputStream;
+
+use Vivo\View\Model\UIViewModel;
+
 use Vivo\View\Stream\Template;
 
 use Zend\Config\Config;
@@ -12,7 +20,7 @@ use Zend\View\Resolver\ResolverInterface;
  * Resolver determines wich template file should by used for rendering.
  *
  */
-class UIResolver implements ResolverInterface
+class TemplateResolver implements ResolverInterface
 {
 
     /**
@@ -23,34 +31,24 @@ class UIResolver implements ResolverInterface
     public function __construct($config)
     {
         $this->configure($config);
-        Template::register();
     }
 
     public function configure($config = array())
     {
         if (isset($config['templateMap'])) {
             $this->templateMap = array_merge($this->templateMap,
-                $config['templateMap']);
+                            $config['templateMap']);
         }
     }
 
     public function resolve($name, RendererInterface $renderer = null)
     {
-        return $this->getFile($name);
-    }
-
-    /**
-     * @param string $name
-     * @return string
-     */
-    protected function getFile($name)
-    {
         if (isset($this->templateMap[$name])) {
-            $file = $this->templateMap[$name];
-        } elseif (class_exists($name)) {
-            //template isn't in template map, but it is classname
-            $file = str_replace('\\', '/', $name) . '.phtml';
+            return $this->templateMap[$name];
+        } else {
+            throw new TemplateNotFoundException(
+                            sprintf("%s: Template for '%s'not found.",
+                                            __METHOD__, $name));
         }
-        return Template::STREAM_NAME . '://' . $file;
     }
 }

@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\View\Renderer;
 
+use Vivo\IO\InputStreamWrapper;
+
 use Vivo\View\Resolver\UIResolver;
 use Vivo\View\Exception;
 
@@ -14,37 +16,28 @@ use Zend\View\Variables;
  * Renderer for rendering UI view models. Templates are included in it's context.
  * Object properties and local variables are double-underscored, to prevent naming collisions with included templates.
  */
-class UIRenderer implements Renderer
+class PhtmlRenderer implements Renderer
 {
-
-    /**
-     * @var ResolverInterface
-     */
-    private $__resolver;
 
     /**
      * @var ModelInterface
      */
     private $__currentModel;
 
-    /**
-     * @param ResolverInterface $resolver
-     */
-    public function __construct(ResolverInterface $resolver)
-    {
-        $this->setResolver($resolver);
-    }
-
     public function getEngine()
     {
         return $this;
     }
 
-    public function setResolver(ResolverInterface $resolver)
-    {
-        $this->__resolver = $resolver;
+    /**
+     * Set the resolver used to map a template name to a resource the renderer may consume.
+     *
+     * @param  ResolverInterface $resolver
+     * @return RendererInterface
+    */
+    public function setResolver(ResolverInterface $resolver) {
+        $this->resolver = $resolver;
     }
-
     /**
      * Returns currently rendered model.
      */
@@ -86,7 +79,8 @@ class UIRenderer implements Renderer
         extract($__vars);
         unset($__vars); // remove $__vars from local scope
 
-        $this->__file = $this->__resolver->resolve($model->getTemplate());
+        $this->__file = $this->resolver->resolve($model->getTemplate());
+
         try {
             ob_start();
             include $this->__file;

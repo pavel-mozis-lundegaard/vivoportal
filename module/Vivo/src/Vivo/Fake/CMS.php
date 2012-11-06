@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\Fake;
 
+use Vivo\IO\FileInputStream;
+
 use Vivo\Repository\Repository;
 
 /**
@@ -61,5 +63,9 @@ class CMS extends \Vivo\CMS\CMS{
 		$class = implode('\\', $pieces);
 
 		return class_exists($class)? new $class(): false;
+	}
+
+	public  function readResource($entity, $resource) {
+	    return new FileInputStream(__DIR__.'/'.$resource);
 	}
 }

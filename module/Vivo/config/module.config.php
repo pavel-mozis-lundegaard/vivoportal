@@ -164,9 +164,11 @@ return array(
             ),
         ),
         'templates' => array (
-        		'templateMap' => array(
-        		//    			'Vivo\CMS\UI\Content\Sample' => 'page.phtml',
-        		),
+            'templateMap' => array(
+                'Vivo\UI\Page' => __DIR__.'/../view/Vivo/UI/Page.phtml',
+                'Vivo\CMS\UI\Content\Sample' => __DIR__.'/../view/Vivo/CMS/UI/Content/Sample.phtml',
+                'Vivo\CMS\UI\Content\Layout' => __DIR__.'/../view/Vivo/CMS/UI/Content/Layout.phtml',
+            ),
         ),
         'component_mapping' => array (
             'front_component' => array (

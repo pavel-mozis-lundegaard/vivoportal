@@ -79,6 +79,16 @@ class CMS
 	}
 
 	/**
+	 * @param string $path Relative document path in site.
+	 * @param \Vivo\CMS\Model\Site $site
+	 * @return \Vivo\CMS\Model\Document
+	 */
+	public function getSiteDocument($path, \Vivo\CMS\Model\Site $site)
+	{
+		return $this->repository->getEntity($site->getPath().'/ROOT/'.$path);
+	}
+
+	/**
 	 * @param \Vivo\CMS\Model\Document $document
 	 * @return \Vivo\CMS\Workflow\AbstractWorkflow
 	 */
@@ -88,13 +98,15 @@ class CMS
 	}
 
 	/**
-	 * @todo SITE
-	 *
 	 * @param string $ident
+<<<<<<< HEAD
 	 * @param unknown_type $site
 	 * @return \Vivo\CMS\Model\Entity
+=======
+	 * @return Vivo\CMS\Model\Entity
+>>>>>>> feature/cms
 	 */
-	public function getEntity($ident, Model\Site $site = null)
+	public function getEntity($ident)
 	{
 		return $this->repository->getEntity($ident);
 	}
@@ -120,7 +132,8 @@ class CMS
 	/**
 	 * @param \Vivo\CMS\Model\Entity $entity
 	 */
-	protected function saveEntity(\Vivo\CMS\Model\Entity $entity) {
+	protected function saveEntity(\Vivo\CMS\Model\Entity $entity)
+	{
 		$this->repository->saveEntity($entity);
 		$this->repository->commit();
 	}
@@ -148,7 +161,7 @@ class CMS
 		$this->repository->commit();
 	}
 
-	public function removeEntity(Model\Entity $entity)
+	private function removeEntity(Model\Entity $entity)
 	{
 		$this->repository->deleteEntity($entity);
 		$this->repository->commit();
@@ -156,8 +169,7 @@ class CMS
 
 	public function removeDocument(Model\Document $document)
 	{
-		$this->repository->deleteEntity($document);
-		$this->repository->commit();
+		$this->removeEntity($document);
 	}
 
 	/**
@@ -184,29 +196,34 @@ class CMS
 	{
 		$path = $document->getPath();
 
-		$version = count($this->getContents($document, $index));
+		$version = count($this->getDocumentContents($document, $index));
 		$contentPath = $path."/Contents.$index/$version";
 		$content->setPath($contentPath);
+		$content->setState(Workflow\AbstractWorkflow::STATE_NEW);
 
 		$this->repository->saveEntity($content);
-		$this->repository->saveEntity($document);
 		$this->repository->commit();
 	}
 
 	/**
+<<<<<<< HEAD
 	 * @param \Vivo\CMS\Model\Document $document
 	 * @param int $version
+=======
+	 * @param Vivo\CMS\Model\Document $document
+>>>>>>> feature/cms
 	 * @param int $index
+	 * @param int $version
 	 * @throws \InvalidArgumentException
 	 * @return \Vivo\CMS\Model\Content
 	 */
-	public function getDocumentContent(Model\Document $document, $version, $index = 0/*, $state {PUBLISHED}*/)
+	public function getDocumentContent(Model\Document $document, $index, $version/*, $state {PUBLISHED}*/)
 	{
 		if(!is_integer($version)) {
-			throw new \InvalidArgumentException(sprintf('Argument %d passed to %s must be an type of %s, %s given', 2, __METHOD__, 'integer', gettype($version)));
+			throw new Exception\InvalidArgumentException(sprintf('Argument %d passed to %s must be an type of %s, %s given', 2, __METHOD__, 'integer', gettype($version)));
 		}
 		if(!is_integer($index)) {
-			throw new \InvalidArgumentException(sprintf('Argument %d passed to %s must be an type of %s, %s given', 3, __METHOD__, 'integer', gettype($index)));
+			throw new Exception\InvalidArgumentException(sprintf('Argument %d passed to %s must be an type of %s, %s given', 3, __METHOD__, 'integer', gettype($index)));
 		}
 
 		$path = $document->getPath().'/Contents.'.$index.'/'.$version;
@@ -220,24 +237,21 @@ class CMS
 	 * @throws \InvalidArgumentException
 	 * @return array
 	 */
-	public function getDocumentContents(Model\Document $document, $version, $index = 0/*, $version, $state {PUBLISHED}*/)
+	public function getDocumentContents(Model\Document $document, $index/*, $state {PUBLISHED}*/)
 	{
-		if(!is_integer($version)) {
-			throw new \InvalidArgumentException(sprintf('Argument %d passed to %s must be an type of %s, %s given', 2, __METHOD__, 'integer', gettype($version)));
-		}
 		if(!is_integer($index)) {
-			throw new \InvalidArgumentException(sprintf('Argument %d passed to %s must be an type of %s, %s given', 3, __METHOD__, 'integer', gettype($index)));
+			throw new Exception\InvalidArgumentException(sprintf('Argument %d passed to %s must be an type of integer, %s given', 2, __METHOD__, gettype($index)));
 		}
 
-		$path = $document->getPath().'/Contents.'.$index.'/'.$version;
+		$path = $document->getPath().'/Contents.'.$index;
 
-		return $this->repository->getChildren($path);
+		return $this->repository->getChildren(new Model\Entity($path));
 	}
 
 	public function publishContent(Model\Content $content)
 	{
 		$document = $this->getContentDocument($content);
-		$oldConent = $this->getPublishedContent($document);
+		$oldConent = $this->getPublishedContent($document, $content->getIndex());
 
 		if($oldConent) {
 			$oldConent->setState(Workflow\AbstractWorkflow::STATE_ARCHIVED);
@@ -262,7 +276,7 @@ class CMS
 	/**
 	 * Nasetuje "libovolny" workflow stav obsahu.
 	 * @param Model\Content $content
-	 * @param unknown_type $state
+	 * @param string $state
 	 * @throws \InvalidArgumentException
 	 */
 	public function setState(Model\Content $content, $state)
@@ -272,7 +286,7 @@ class CMS
 		$states = $workflow->getAllStates();
 
 		if(!in_array($state, $states)) {
-			throw new \InvalidArgumentException('Unknow state value. Available: '.implode(', ', $states));
+			throw new Exception\InvalidArgumentException('Unknow state value. Available: '.implode(', ', $states));
 		}
 
 		if(true /* uzivatel ma pravo na change*/) {
@@ -294,10 +308,10 @@ class CMS
 	 * @param int $index
 	 * @return \Vivo\CMS\Model\Content
 	 */
-	public function getPublishedContent(Model\Document $document, $index = 0)
+	public function getPublishedContent(Model\Document $document, $index)
 	{
 		$index = $index ? $index : 0; //@todo: exception na is_int($index);
-		$contents = $this->getContents($document, $index);
+		$contents = $this->getDocumentContents($document, $index);
 		foreach ($contents as $content) {
 			if($content->getState() == Workflow\AbstractWorkflow::STATE_PUBLISHED) {
 				return $content;

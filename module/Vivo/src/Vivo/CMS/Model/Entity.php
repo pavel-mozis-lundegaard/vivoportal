@@ -17,7 +17,6 @@ class Entity {
 	/**
 	 * Universally Unique Identifier (UUID) of the entity instance.
 	 * Value is set when entity is being instantiated. Never set or change value of this property.
-	 * @see __construct
 	 * @var string
 	 */
 	protected $uuid;
@@ -59,9 +58,8 @@ class Entity {
 	protected $modifiedBy;
 
 	/**
-	 * Constructor. Sets uuid property by value obtained from static method create_uuid().
+	 * Constructor.
 	 * @param string $path Path to entity. If not set, it will be undefined and can be set later before persisting entity using saveEntity method of Repository.
-	 * @see Vivo\CMS\DAO\Repository::saveEntity()
 	 */
 	public function __construct($path = null) {
 		$this->path = $path;

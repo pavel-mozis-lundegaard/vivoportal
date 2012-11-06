@@ -1,6 +1,7 @@
 <?php
 namespace Vivo\CMS\Exception;
 
-interface ExceptionInterface {
-
+interface ExceptionInterface
+{
 }
+

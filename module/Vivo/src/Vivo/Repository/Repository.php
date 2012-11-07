@@ -9,8 +9,14 @@ use Vivo\Indexer\Indexer;
 use Vivo\Repository\UuidConvertor\UuidConvertorInterface;
 use Vivo\Repository\Watcher;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
-use Vivo\Repository\UnitOfWork\UnitOfWorkInterface;
 
+use Vivo\IO;
+use Vivo\Storage\StorageInterface;
+use Vivo\Uuid\GeneratorInterface as UuidGenerator;
+use Vivo\IO\IOUtil;
+use Vivo\Repository\Exception;
+
+use Zend\Serializer\Adapter\AdapterInterface as Serializer;
 use Zend\Cache\Storage\StorageInterface as Cache;
 
 /**
@@ -51,7 +57,7 @@ class Repository implements RepositoryInterface
     protected $watcher;
 
 	/**
-	 * @var \Zend\Serializer\Adapter\AdapterInterface
+	 * @var Serializer
 	 */
 	private $serializer;
 
@@ -68,12 +74,69 @@ class Repository implements RepositoryInterface
     protected $pathBuilder;
 
     /**
-     * Unit of work
-     * @var UnitOfWorkInterface
+     * @var UuidGenerator
      */
-    protected $unitOfWork;
+    protected $uuidGenerator;
 
-    /** Constructor
+    /**
+     * @var IOUtil
+     */
+    protected $ioUtil;
+
+    /**
+     * List of entities that are prepared to be persisted
+     * @var Model\Entity[]
+     */
+    protected $saveEntities         = array();
+
+    /**
+     * List of streams that are prepared to be persisted
+     * Map: path => stream
+     * @var IO\InputStreamInterface[]
+     */
+    protected $saveStreams          = array();
+
+    /**
+     * List of data items prepared to be persisted
+     * Map: path => data
+     * @var string[]
+     */
+    protected $saveData             = array();
+
+    /**
+     * List of files that are prepared to be copied
+     * @var array
+     */
+    protected $copyFiles            = array();
+
+    /**
+     * List of entities prepared for deletion
+     * @var Model\Entity[]
+     */
+    protected $deleteEntities       = array();
+
+    /**
+     * List of paths that are prepared to be deleted
+     * @var string[]
+     */
+    protected $deletePaths          = array();
+
+    /**
+     * List of temporary files which will be moved to their final place if everything is well in commit
+     * Map: path => tempPath
+     * @var string[]
+     */
+    protected $tmpFiles             = array();
+
+    /**
+     * List of temporary paths which will be deleted if everything is well in commit
+     * Map: path => tempPath
+     * @var string[]
+     */
+    protected $tmpDelFiles          = array();
+
+    /**
+     * Constructor
      * @param \Vivo\Storage\StorageInterface $storage
      * @param \Zend\Cache\Storage\StorageInterface $cache
      * @param \Vivo\Indexer\Indexer $indexer
@@ -81,15 +144,31 @@ class Repository implements RepositoryInterface
      * @param UuidConvertor\UuidConvertorInterface $uuidConvertor
      * @param Watcher $watcher
      * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
-     * @param UnitOfWork\UnitOfWorkInterface $unitOfWork
+     * @param \Vivo\Uuid\GeneratorInterface $uuidGenerator
+     * @param \Vivo\IO\IOUtil $ioUtil
+     * @throws Exception\Exception
      */
-    public function __construct(Storage\StorageInterface $storage, Cache $cache = null, Indexer $indexer,
-                                \Zend\Serializer\Adapter\AdapterInterface $serializer,
+    public function __construct(Storage\StorageInterface $storage,
+                                Cache $cache = null,
+                                Indexer $indexer,
+                                Serializer $serializer,
                                 UuidConvertorInterface $uuidConvertor,
                                 Watcher $watcher,
                                 PathBuilderInterface $pathBuilder,
-                                UnitOfWorkInterface $unitOfWork)
+                                UuidGenerator $uuidGenerator,
+                                IOUtil $ioUtil)
 	{
+        if ($cache) {
+            //Check that cache supports all required data types
+            $requiredTypes  = array('NULL', 'boolean', 'integer', 'double', 'string', 'array', 'object');
+            $supportedTypes = $cache->getCapabilities()->getSupportedDatatypes();
+            foreach ($requiredTypes as $requiredType) {
+                if (!$supportedTypes[$requiredType]) {
+                    throw new Exception\Exception(sprintf(
+                        "%s: The Repository Cache must support data type '%s'", __METHOD__, $requiredType));
+                }
+            }
+        }
 		$this->storage          = $storage;
         $this->cache            = $cache;
 		$this->indexer          = $indexer;
@@ -97,7 +176,8 @@ class Repository implements RepositoryInterface
         $this->uuidConvertor    = $uuidConvertor;
         $this->watcher          = $watcher;
         $this->pathBuilder      = $pathBuilder;
-        $this->unitOfWork       = $unitOfWork;
+        $this->uuidGenerator    = $uuidGenerator;
+        $this->ioUtil           = $ioUtil;
 	}
 
 	/**
@@ -235,7 +315,7 @@ class Repository implements RepositoryInterface
             $entity->setPath($ident); // set volatile path property of entity instance
             $this->watcher->add($entity);
             if ($this->cache) {
-                $this->cache->addItem($uuid, $entity);
+                $this->cache->setItem($uuid, $entity);
             }
         } else {
             $entity = null;
@@ -354,7 +434,7 @@ class Repository implements RepositoryInterface
         $entityPath = $entity->getPath();
 		if (!$entityPath) {
 			throw new Exception\Exception(
-                sprintf("%s: Entity with UUID = '%' has no path set", __METHOD__, $entity->getUuid()));
+                sprintf("%s: Entity with UUID = '%s' has no path set", __METHOD__, $entity->getUuid()));
 		}
 		//@todo: tohle nemelo by vyhazovat exception, misto zmeny path? - nema tohle resit jina metoda,
         //treba pathValidator; pak asi entitu ani nevracet
@@ -366,8 +446,8 @@ class Repository implements RepositoryInterface
 					? $entityPath{$i} : '-';
 		}
 		$entity->setPath($path);
-        $this->unitOfWork->saveEntity($entity);
-		return $entity;
+        $this->saveEntities[$path]  = $entity;
+        return $entity;
 	}
 
 	/**
@@ -385,50 +465,31 @@ class Repository implements RepositoryInterface
 		return null;
 	}
 
-	/**
-	 * Begins transaction
-	 */
-	public function begin()
+    /**
+     * Adds a stream to the list of streams to be saved
+     * @param \Vivo\CMS\Model\Entity $entity
+     * @param string $name
+     * @param \Vivo\IO\InputStreamInterface $stream
+     * @return void
+     */
+    public function writeResource(Model\Entity $entity, $name, \Vivo\IO\InputStreamInterface $stream)
 	{
-        $this->unitOfWork->begin();
-	}
-
-	/**
-	 * Commit commits the current transaction, making its changes permanent
-	 */
-	public function commit()
-	{
-        $this->unitOfWork->commit();
+        $pathComponents             = array($entity->getPath(), $name);
+		$path                       = $this->pathBuilder->buildStoragePath($pathComponents, true);
+        $this->saveStreams[$path]   = $stream;
 	}
 
     /**
-     * Resets the changes scheduled for this transaction
+     * Adds an entity resource (data) to the list of resources to be saved
+     * @param \Vivo\CMS\Model\Entity $entity
+     * @param string $name Name of resource
+     * @param string $data
      */
-    public function reset()
-	{
-		$this->unitOfWork->reset();
-	}
-
-	/**
-	 * Rollback rolls back the current transaction, canceling changes
-	 */
-	public function rollback()
-	{
-        $this->unitOfWork->rollback();
-	}
-
-	public function writeResource(Model\Entity $entity, $name, \Vivo\IO\InputStreamInterface $stream)
-	{
-        $pathComponents         = array($entity->getPath(), $name);
-		$path                   = $this->pathBuilder->buildStoragePath($pathComponents, true);
-		$this->unitOfWork->saveStream($stream, $path);
-	}
-
-	public function saveResource(Model\Entity $entity, $name, $data)
+    public function saveResource(Model\Entity $entity, $name, $data)
 	{
         $pathComponents         = array($entity->getPath(), $name);
         $path                   = $this->pathBuilder->buildStoragePath($pathComponents, true);
-		$this->unitOfWork->saveData($data, $path);
+        $this->saveData[$path]  = $data;
 	}
 
 	/**
@@ -475,20 +536,26 @@ class Repository implements RepositoryInterface
 		return $return;
 	}
 
-	/**
-	 * @param \Vivo\CMS\Model\Entity $entity Entity object.
-	 */
-	public function deleteEntity(Model\Entity $entity)
+    /**
+     * Adds an entity to the list of entities to be deleted
+     * @param \Vivo\CMS\Model\Entity $entity
+     */
+    public function deleteEntity(Model\Entity $entity)
 	{
 		//TODO - check that the entity is empty
-        $this->unitOfWork->deleteEntity($entity);
+        $this->deleteEntities[]     = $entity;
 	}
 
-	public function deleteResource(Model\Entity $entity, $name)
+    /**
+     * Adds an entity's resource to the list of resources to be deleted
+     * @param \Vivo\CMS\Model\Entity $entity
+     * @param string $name Name of the resource
+     */
+    public function deleteResource(Model\Entity $entity, $name)
 	{
         $pathComponents         = array($entity->getPath(), $name);
         $path                   = $this->pathBuilder->buildStoragePath($pathComponents, true);
-        $this->unitOfWork->deleteItem($path);
+        $this->deletePaths[]    = $path;
 	}
 
 	/**
@@ -608,4 +675,184 @@ class Repository implements RepositoryInterface
 				$count += $this->reindex($child, $deep);
 		return $count;
 	}
+
+    /**
+     * Begins transaction
+     * A transaction is always open, do not call 'begin()' explicitly
+     */
+    public function begin()
+    {
+        throw new Exception\Exception("%s: A transaction is always open, do not call 'begin()' explicitly", __METHOD__);
+    }
+
+    /**
+     * Commit commits the current transaction, making its changes permanent
+     */
+    public function commit()
+    {
+        try {
+            //Delete - Phase 1 (move to temp files)
+            //a) Entities
+            foreach ($this->deleteEntities as $entity) {
+                $path                       = $entity->getPath();
+                //TODO - check the path is not null!
+                $tmpPath                    = $this->pathBuilder->buildStoragePath(array(uniqid('del-')), true);
+                $this->tmpDelFiles[$path]   = $tmpPath;
+                $this->storage->move($path, $tmpPath);
+            }
+            //b) Resources
+            foreach ($this->deletePaths as $path) {
+                $tmpPath                    = $this->pathBuilder->buildStoragePath(array(uniqid('del-')), true);
+                $this->tmpDelFiles[$path]   = $tmpPath;
+                $this->storage->move($path, $tmpPath);
+            }
+            //Save - Phase 1 (serialize entities and files into temp files)
+            //a) Entity
+            $now = new \DateTime();
+            foreach ($this->saveEntities as $entity) {
+                if (!$entity->getCreated() instanceof \DateTime) {
+                    $entity->setCreated($now);
+                }
+                if (!$entity->getCreatedBy()) {
+                    //TODO - what to do when an entity does not have its creator set?
+                    //$entity->setCreatedBy($username);
+                }
+                if(!$entity->getUuid()) {
+                    $entity->setUuid($this->uuidGenerator->create());
+                }
+                $entity->setModified($now);
+                //TODO - set entity modifier
+                //$entity->setModifiedBy($username);
+                $pathElements           = array($entity->getPath(), self::ENTITY_FILENAME);
+                $path                   = $this->pathBuilder->buildStoragePath($pathElements, true);
+                $tmpPath                = $path . '.' . uniqid('tmp-');
+                $this->tmpFiles[$path]  = $tmpPath;
+                $entitySer              = $this->serializer->serialize($entity);
+                $this->storage->set($tmpPath, $entitySer);
+            }
+            //b) Data
+            foreach ($this->saveData as $path => $data) {
+                $tmpPath                = $path . '.' . uniqid('tmp-');
+                $this->tmpFiles[$path]  = $tmpPath;
+                $this->storage->set($tmpPath, $data);
+            }
+            //c) Streams
+            foreach ($this->saveStreams as $path => $stream) {
+                $tmpPath                = $path . '.' . uniqid('tmp-');
+                $this->tmpFiles[$path]  = $tmpPath;
+                $output                 = $this->storage->write($tmpPath);
+                $this->ioUtil->copy($stream, $output, 1024);
+            }
+            //Delete - Phase 2 (delete the temp files)
+            //This is done in removeTempFiles
+            //Save Phase 2 (rename temp files to real ones)
+            foreach ($this->tmpFiles as $path => $tmpPath) {
+                if (!$this->storage->move($tmpPath, $path)) {
+                    throw new Exception\Exception(
+                        sprintf("%s: Move failed; source: '%s', destination: '%s'", __METHOD__, $tmpPath, $path));
+                }
+            }
+            //Delete entities from Watcher, Cache and Indexer
+ 			foreach ($this->deleteEntities as $entity) {
+                 $uuid   = $entity->getUuid();
+                if ($uuid) {
+                    //Watcher
+                    $this->watcher->remove($uuid);
+                    //Cache
+                    if ($this->cache) {
+                        $this->cache->removeItem($uuid);
+                    }
+                }
+                //Indexer
+                //TODO - interact with indexer using object approach
+                $path   = $entity->getPath();
+                //TODO - check the path is not null
+ 				$path   = str_replace(' ', '\\ ', $path);
+ 				$query  = new \Vivo\Indexer\Query(
+                     'DELETE Vivo\CMS\Model\Entity\path = :path OR Vivo\CMS\Model\Entity\path = :path/*');
+ 				$query->setParameter('path', $path);
+ 				$this->indexer->execute($query);
+ 			}
+            //Save entities to Watcher, Cache and Indexer
+ 			foreach ($this->saveEntities as $entity) {
+                //Watcher
+                $this->watcher->add($entity);
+                //Cache
+                if ($this->cache) {
+                    $this->cache->setItem($entity->getUuid(), $entity);
+                }
+                //Indexer
+ 			    $this->indexer->save($entity); // (re)index entity
+            }
+            //TODO - is indexer transactional?
+ 			//$this->indexer->commit();
+
+            //Clean-up after commit
+            $this->reset();
+        } catch (\Exception $e) {
+            $this->rollback();
+            throw $e;
+        }
+    }
+
+    /**
+     * Resets/clears the changes scheduled for this transaction
+     * Calling this function on uncommitted transaction may lead to data loss!
+     */
+    public function reset()
+    {
+        $this->copyFiles            = array();
+        $this->deletePaths          = array();
+        $this->deleteEntities       = array();
+        $this->saveData             = array();
+        $this->saveEntities         = array();
+        $this->saveStreams          = array();
+        $this->removeTempFiles();
+    }
+
+    /**
+     * Rollback rolls back the current transaction, canceling changes
+     */
+    public function rollback()
+    {
+        //Move back everything that was moved during Delete Phase 1
+        foreach ($this->tmpDelFiles as $path => $tmpPath) {
+            try {
+                $this->storage->move($tmpPath, $path);
+            } catch (\Exception $e) {
+                //Just continue
+            }
+        }
+        //Delete remaining temp files - done by reset()
+        $this->reset();
+    }
+
+    /**
+     * Removes temporary files created during commit
+     */
+    protected function removeTempFiles()
+    {
+        //TempDelFiles
+        foreach ($this->tmpDelFiles as $tmpPath) {
+            try {
+                if ($this->storage->contains($tmpPath)) {
+                    $this->storage->remove($tmpPath);
+                }
+            } catch (\Exception $e) {
+                //Just continue, we should try to remove all temp files even though an exception has been thrown
+            }
+        }
+        $this->tmpDelFiles          = array();
+        //TempFiles
+        foreach ($this->tmpFiles as $path) {
+            try {
+                if ($this->storage->contains($path)) {
+                    $this->storage->remove($path);
+                }
+            } catch (\Exception $e) {
+                //Just continue, we should try to remove all temp files even though an exception has been thrown
+            }
+        }
+        $this->tmpFiles             = array();
+    }
 }

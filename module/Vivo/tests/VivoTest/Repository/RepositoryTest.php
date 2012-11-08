@@ -156,7 +156,7 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
         $this->cache->setData(null);
         $this->cache->setSuccess(false);
         $this->uuidConvertor->expects($this->once())
-            ->method('getPathFromUuid')
+            ->method('getPath')
             ->with($this->equalTo($ident))
             ->will($this->returnValue($path));
         $this->pathBuilder->expects($this->once())
@@ -228,7 +228,7 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
             ->method('setItem')
             ->with($this->equalTo($uuid), $this->equalTo($this->entity));
         $this->uuidConvertor->expects($this->once())
-            ->method('getPathFromUuid')
+            ->method('getPath')
             ->with($this->equalTo($ident))
             ->will($this->returnValue($path));
         $this->pathBuilder->expects($this->once())
@@ -272,7 +272,7 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
             ->method('setItem')
             ->with($this->equalTo($uuid), $this->equalTo($this->entity));
         $this->uuidConvertor->expects($this->once())
-            ->method('getUuidFromPath')
+            ->method('getUuid')
             ->with($this->equalTo($ident))
             ->will($this->returnValue($uuid));
         $this->pathBuilder->expects($this->once())

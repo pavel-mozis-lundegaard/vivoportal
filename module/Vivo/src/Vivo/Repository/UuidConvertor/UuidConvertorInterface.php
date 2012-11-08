@@ -13,7 +13,7 @@ interface UuidConvertorInterface
      * @param string $path
      * @return null|string
      */
-    public function getUuidFromPath($path);
+    public function getUuid($path);
 
     /**
      * Returns entity path based on its UUID
@@ -21,6 +21,27 @@ interface UuidConvertorInterface
      * @param string $uuid
      * @return null|string
      */
-    public function getPathFromUuid($uuid);
+    public function getPath($uuid);
 
+    /**
+     * Sets a conversion result (uuid and its associated path) into the result cache
+     * Overwrites previously cached results
+     * @param string $uuid
+     * @param string $path
+     */
+    public function set($uuid, $path);
+
+    /**
+     * Removes a conversion result (uuid and its associated path) from the result cache
+     * If $uuid is not found in cached results, does nothing
+     * @param string $uuid
+     */
+    public function removeByUuid($uuid);
+
+    /**
+     * Removes a conversion result (path and its associated uuid) from the result cache
+     * If $path is not found in cached results, does nothing
+     * @param string $path
+     */
+    public function removeByPath($path);
 }

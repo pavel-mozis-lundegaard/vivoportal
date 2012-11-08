@@ -46,7 +46,7 @@ class UuidConvertor implements UuidConvertorInterface
      * @param string $path
      * @return null|string
      */
-    public function getUuidFromPath($path)
+    public function getUuid($path)
     {
         if (isset($this->pathToUuid[$path])) {
             $uuid   = $this->pathToUuid[$path];
@@ -58,7 +58,7 @@ class UuidConvertor implements UuidConvertorInterface
             if ($docs) {
                 $doc    = $docs[0];
                 $uuid   = $doc['uuid'];
-                $this->addToResultCache($uuid, $path);
+                $this->set($uuid, $path);
             } else {
                 $uuid   = null;
             }
@@ -72,7 +72,7 @@ class UuidConvertor implements UuidConvertorInterface
      * @param string $uuid
      * @return null|string
      */
-    public function getPathFromUuid($uuid)
+    public function getPath($uuid)
     {
         if (isset($this->uuidToPath[$uuid])) {
             $path   = $this->uuidToPath[$uuid];
@@ -84,7 +84,7 @@ class UuidConvertor implements UuidConvertorInterface
             if ($docs) {
                 $doc    = $docs[0];
                 $path   = $doc['path'];
-                $this->addToResultCache($uuid, $path);
+                $this->set($uuid, $path);
             } else {
                 $path   = null;
             }
@@ -93,21 +93,23 @@ class UuidConvertor implements UuidConvertorInterface
     }
 
     /**
-     * Caches conversion results
+     * Sets a conversion result (uuid and its associated path) into the result cache
+     * Overwrites previously cached results
      * @param string $uuid
      * @param string $path
      */
-    public function addToResultCache($uuid, $path)
+    public function set($uuid, $path)
     {
         $this->uuidToPath[$uuid]    = $path;
         $this->pathToUuid[$path]    = $uuid;
     }
 
     /**
-     * Removes a uuid and its associated path from the result cache
+     * Removes a conversion result (uuid and its associated path) from the result cache
+     * If $uuid is not found in cached results, does nothing
      * @param string $uuid
      */
-    public function removeFromResultCacheByUuid($uuid)
+    public function removeByUuid($uuid)
     {
         if (isset($this->uuidToPath[$uuid])) {
             $path   = $this->uuidToPath[$uuid];
@@ -117,10 +119,11 @@ class UuidConvertor implements UuidConvertorInterface
     }
 
     /**
-     * Removes a path and its associated uuid from the result cache
+     * Removes a conversion result (path and its associated uuid) from the result cache
+     * If $path is not found in cached results, does nothing
      * @param string $path
      */
-    public function removeFromResultCacheByPath($path)
+    public function removeByPath($path)
     {
         if (isset($this->pathToUuid[$path])) {
             $uuid   = $this->pathToUuid[$path];

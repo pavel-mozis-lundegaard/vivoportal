@@ -165,7 +165,7 @@ class Repository implements RepositoryInterface
             foreach ($requiredTypes as $requiredType) {
                 if (!$supportedTypes[$requiredType]) {
                     throw new Exception\Exception(sprintf(
-                        "%s: The Repository Cache must support data type '%s'", __METHOD__, $requiredType));
+                        "%s: The cache used for Repository must support data type '%s'", __METHOD__, $requiredType));
                 }
             }
         }
@@ -275,7 +275,7 @@ class Repository implements RepositoryInterface
             $uuid = strtoupper($matches[1]);
         } else {
             //Attempt conversion from path
-            $uuid = $this->uuidConvertor->getUuidFromPath($ident);
+            $uuid = $this->uuidConvertor->getUuid($ident);
             if ($uuid) {
                 $path   = $ident;
             }
@@ -300,7 +300,7 @@ class Repository implements RepositoryInterface
         }
         //Get entity from storage
         if (!$path) {
-            $path   = $this->uuidConvertor->getPathFromUuid($uuid);
+            $path   = $this->uuidConvertor->getPath($uuid);
             if (!$path) {
                 throw new Exception\EntityNotFoundException(
                     sprintf("%s: Cannot get path for UUID = '%s'", __METHOD__, $uuid));
@@ -743,8 +743,7 @@ class Repository implements RepositoryInterface
                 $output                 = $this->storage->write($tmpPath);
                 $this->ioUtil->copy($stream, $output, 1024);
             }
-            //Delete - Phase 2 (delete the temp files)
-            //This is done in removeTempFiles
+            //Delete - Phase 2 (delete the temp files) - this is done in removeTempFiles
             //Save Phase 2 (rename temp files to real ones)
             foreach ($this->tmpFiles as $path => $tmpPath) {
                 if (!$this->storage->move($tmpPath, $path)) {
@@ -752,9 +751,12 @@ class Repository implements RepositoryInterface
                         sprintf("%s: Move failed; source: '%s', destination: '%s'", __METHOD__, $tmpPath, $path));
                 }
             }
-            //Delete entities from Watcher, Cache and Indexer
+
+            //The actual commit is successfully done, now process references to entities in other objects
+
+            //Delete entities from Watcher, Cache and Indexer, remove cached results from UuidConverter
  			foreach ($this->deleteEntities as $entity) {
-                 $uuid   = $entity->getUuid();
+                $uuid   = $entity->getUuid();
                 if ($uuid) {
                     //Watcher
                     $this->watcher->remove($uuid);
@@ -762,6 +764,8 @@ class Repository implements RepositoryInterface
                     if ($this->cache) {
                         $this->cache->removeItem($uuid);
                     }
+                    //UuidConvertor
+                    $this->uuidConvertor->removeByUuid($uuid);
                 }
                 //Indexer
                 //TODO - interact with indexer using object approach
@@ -773,7 +777,7 @@ class Repository implements RepositoryInterface
  				$query->setParameter('path', $path);
  				$this->indexer->execute($query);
  			}
-            //Save entities to Watcher, Cache and Indexer
+            //Save entities to Watcher, Cache and Indexer, update cached results in UuidConverter
  			foreach ($this->saveEntities as $entity) {
                 //Watcher
                 $this->watcher->add($entity);
@@ -783,6 +787,8 @@ class Repository implements RepositoryInterface
                 }
                 //Indexer
  			    $this->indexer->save($entity); // (re)index entity
+                //UuidConvertor
+                $this->uuidConvertor->set($entity->getUuid(), $entity->getPath());
             }
             //TODO - is indexer transactional?
  			//$this->indexer->commit();

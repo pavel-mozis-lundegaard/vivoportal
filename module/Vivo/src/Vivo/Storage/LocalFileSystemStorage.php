@@ -49,22 +49,39 @@ class LocalFileSystemStorage extends AbstractStorage {
     }
 
     /**
-     * @param string $path
-     * @throws \Vivo\Storage\Exception\InvalidArgumentException
+     * Returns an absolute file system path for the given absolute storage path
+     * @param string $storagePath
+     * @throws Exception\InvalidArgumentException
      * @return string
      */
-    private function getAbsolutePath($path) {
-        $path = $this->normalizePath($path);
-        if ($path) {
-            //Only paths starting with '/' (i.e. explicitly starting from the Storage root) are currently supported
-            if (substr($path, 0, 1) != '/') {
-                throw new Exception\InvalidArgumentException(sprintf('%s: Only absolute paths supported (%s)', __METHOD__, $path));
-            }
-            $absPath = $this->root . $path;
-        } else {
-            $absPath = $this->root;
+    protected function getFsPath($storagePath) {
+        //For empty path return root
+        if ($storagePath == '') {
+            return $this->root;
         }
-		return $absPath;
+        //Only paths starting with the path separator (i.e. explicitly starting from the Storage root)
+        //are currently supported
+        if (substr($storagePath, 0, 1) != $this->pathBuilder->getStoragePathSeparator()) {
+            throw new Exception\InvalidArgumentException(
+                sprintf('%s: Only absolute paths supported (%s)', __METHOD__, $storagePath));
+        }
+        $elements   = $this->pathBuilder->getStoragePathComponents($storagePath);
+        array_unshift($elements, $this->root);
+        $fsPath     = implode('/', $elements);
+        return $fsPath;
+
+//        $path = $this->normalizePath($path);
+//        if ($path) {
+//            //Only paths starting with '/' (i.e. explicitly starting from the Storage root) are currently supported
+//            if (substr($path, 0, 1) != '/') {
+//                throw new Exception\InvalidArgumentException(
+//                    sprintf('%s: Only absolute paths supported (%s)', __METHOD__, $path));
+//            }
+//            $absPath = $this->root . $path;
+//        } else {
+//            $absPath = $this->root;
+//        }
+//		return $absPath;
 	}
 
 	/**
@@ -84,7 +101,7 @@ class LocalFileSystemStorage extends AbstractStorage {
 	 * @throws Exception\IOException Cannot create directory.
 	 */
 	private function mkdir($path) {
-		$absPath = $this->getAbsolutePath($path);
+		$absPath = $this->getFsPath($path);
 		clearstatcache(true);
 		if (!is_dir($absPath)) {
 			clearstatcache(true);
@@ -108,7 +125,7 @@ class LocalFileSystemStorage extends AbstractStorage {
      * @return bool
      */
 	public function contains($path) {
-		$absPath = $this->getAbsolutePath($path);
+		$absPath = $this->getFsPath($path);
 		return file_exists($absPath);
 	}
 
@@ -117,7 +134,7 @@ class LocalFileSystemStorage extends AbstractStorage {
 	 * @return bool
 	 */
 	public function isObject($path) {
-		return is_file($this->getAbsolutePath($path));
+		return is_file($this->getFsPath($path));
 	}
 
 	/**
@@ -126,7 +143,7 @@ class LocalFileSystemStorage extends AbstractStorage {
 	 * @return int|false
 	 */
 	public function mtime($path) {
-		$absPath = $this->getAbsolutePath($path);
+		$absPath = $this->getFsPath($path);
 		return file_exists($absPath) ? filemtime($absPath) : false;
 	}
 
@@ -138,7 +155,7 @@ class LocalFileSystemStorage extends AbstractStorage {
 	 */
 	public function get($path) {
 		if ($this->isObject($path)) {
-			$absPath = $this->getAbsolutePath($path);
+			$absPath = $this->getFsPath($path);
 			return file_get_contents($absPath);
 		}
 		else {
@@ -154,7 +171,7 @@ class LocalFileSystemStorage extends AbstractStorage {
 	 */
 	public function set($path, $data) {
 		$this->mkdir($this->dirname($path));
-		$absPath = $this->getAbsolutePath($path);
+		$absPath = $this->getFsPath($path);
 
 		$result = file_put_contents($absPath, $data);
 		if ($result === false) {
@@ -173,7 +190,7 @@ class LocalFileSystemStorage extends AbstractStorage {
 	 * @param string $path The name of the file being touched.
 	 */
 	public function touch($path) {
-		$absPath = $this->getAbsolutePath($path);
+		$absPath = $this->getFsPath($path);
 		touch($absPath);
 		clearstatcache(true, $absPath);
 	}
@@ -194,7 +211,7 @@ class LocalFileSystemStorage extends AbstractStorage {
 			}
 		} else {
 			$this->mkdir($this->dirname($target));
-			return rename($this->getAbsolutePath($path), $this->getAbsolutePath($target));
+			return rename($this->getFsPath($path), $this->getFsPath($target));
 		}
 	}
 
@@ -207,13 +224,13 @@ class LocalFileSystemStorage extends AbstractStorage {
 	public function copy($path, $target) {
 		$count = 0;
 		$this->mkdir($target);
-		if (is_dir($this->getAbsolutePath($path))) {
+		if (is_dir($this->getFsPath($path))) {
 			$this->mkdir($target);
 			foreach ($this->scan($path) as $name) {
 				$count += $this->copy("$path/$name", "$target/$name");
 			}
 		} else {
-			$count += copy($this->getAbsolutePath($path), $this->getAbsolutePath($target));
+			$count += copy($this->getFsPath($path), $this->getFsPath($target));
 		}
 		return $count;
 	}
@@ -225,7 +242,7 @@ class LocalFileSystemStorage extends AbstractStorage {
 	 */
 	public function scan($path) {
 		$names = array();
-		$absPath = $this->getAbsolutePath($path);
+		$absPath = $this->getFsPath($path);
 		if ($dir = @scandir($absPath)) {
 			foreach ($dir as $name) {
 				if ($name != '.' && $name != '..') {
@@ -243,7 +260,7 @@ class LocalFileSystemStorage extends AbstractStorage {
 	 */
 	public function remove($path) {
 		$count = 0;
-		$absPath = $this->getAbsolutePath($path);
+		$absPath = $this->getFsPath($path);
 		if (is_dir($absPath)) {
 			foreach ($this->scan($path) as $name)
 				$count += $this->remove("$path/$name");
@@ -262,7 +279,7 @@ class LocalFileSystemStorage extends AbstractStorage {
      * @return \Vivo\IO\InputStreamInterface
      */
 	public function read($path) {
-		return new IO\FileInputStream($this->getAbsolutePath($path));
+		return new IO\FileInputStream($this->getFsPath($path));
 	}
 
     /**
@@ -276,9 +293,44 @@ class LocalFileSystemStorage extends AbstractStorage {
         $components = $this->pathBuilder->getStoragePathComponents($path);
         array_pop($components);
         $storageDir = $this->pathBuilder->buildStoragePath($components, true);
-        $fsFullPath = $this->getAbsolutePath($path);
+        $fsFullPath = $this->getFsPath($path);
         $this->mkdir($storageDir);
         $this->touch($path);
 		return new IO\FileOutputStream($fsFullPath);
 	}
+
+    /**
+     * Returns size of the file in bytes
+     * If $path is not a file, returns null
+     * @param string $path
+     * @return integer
+     */
+    public function size($path)
+    {
+        if ($this->isObject($path)) {
+            $fsPath     = $this->getFsPath($path);
+            $size       = filesize($fsPath);
+        } else {
+            $size   = null;
+        }
+        return $size;
+    }
+
+    /**
+     * Returns input/output stream for reading and writing to resource
+     * @param string $path
+     * @return \Vivo\IO\InOutStreamInterface
+     */
+    public function readWrite($path)
+    {
+        //The directory must exist prior to instantiating the input/output stream, otherwise stream opening fails
+        //The file will be also created beforehand for consistency reasons
+        $components = $this->pathBuilder->getStoragePathComponents($path);
+        array_pop($components);
+        $storageDir = $this->pathBuilder->buildStoragePath($components, true);
+        $fsFullPath = $this->getFsPath($path);
+        $this->mkdir($storageDir);
+        $this->touch($path);
+        return new IO\FileInOutStream($fsFullPath);
+    }
 }

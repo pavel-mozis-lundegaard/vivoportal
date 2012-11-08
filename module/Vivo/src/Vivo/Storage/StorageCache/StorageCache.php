@@ -3,6 +3,7 @@ namespace Vivo\Storage\StorageCache;
 
 use Vivo\Storage\StorageInterface;
 use Vivo\Storage\StorageCache\KeyNormalizer\KeyNormalizerInterface;
+use Vivo\Storage\PathBuilder\PathBuilderInterface;
 
 use Zend\Cache\Storage\StorageInterface as ZendCache;
 
@@ -207,8 +208,6 @@ class StorageCache implements StorageCacheInterface
      */
     public function read($path)
     {
-        $cacheKey   = $this->normalizeCacheKey($path);
-        $this->cache->removeItem($cacheKey);
         $stream     = $this->storage->read($path);
         return $stream;
     }
@@ -220,9 +219,44 @@ class StorageCache implements StorageCacheInterface
      */
     public function write($path)
     {
+        //Remove from the item from cache
         $cacheKey   = $this->normalizeCacheKey($path);
         $this->cache->removeItem($cacheKey);
         $stream     = $this->storage->write($path);
+        return $stream;
+    }
+
+    /**
+     * Returns PathBuilder for this storage
+     * @return PathBuilderInterface
+     */
+    public function getPathBuilder()
+    {
+        return $this->storage->getPathBuilder();
+    }
+
+    /**
+     * Returns size of the file in bytes
+     * If $path is not a file, returns null
+     * @param string $path
+     * @return integer
+     */
+    public function size($path)
+    {
+        return $this->storage->size($path);
+    }
+
+    /**
+     * Returns input/output stream for reading and writing to resource
+     * @param string $path
+     * @return \Vivo\IO\InOutStreamInterface
+     */
+    public function readWrite($path)
+    {
+        //Remove the item from cache
+        $cacheKey   = $this->normalizeCacheKey($path);
+        $this->cache->removeItem($cacheKey);
+        $stream     = $this->storage->readWrite($path);
         return $stream;
     }
 }

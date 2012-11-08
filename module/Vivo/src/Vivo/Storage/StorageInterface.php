@@ -31,6 +31,14 @@ interface StorageInterface {
 	 */
 	public function mtime($path);
 
+    /**
+     * Returns size of the file in bytes
+     * If $path is not a file, returns null
+     * @param string $path
+     * @return integer
+     */
+    public function size($path);
+
 	/**
 	 * Retrieves an item from storage and returns it
 	 * If the item doesn't exist under specified path returns NULL
@@ -55,14 +63,14 @@ interface StorageInterface {
 	public function touch($path);
 
 	/**
-	 * Renames/moves an item (equivalent to the standard UNIX command cp (copy))
+	 * Renames/moves an item (equivalent to the standard UNIX command mv (move))
 	 * @param string $path to item
 	 * @param string $target path
 	 */
 	public function move($path, $target);
 
 	/**
-	 * Copies an item to another location (equivalent to standard UNIX command mv (move))
+	 * Copies an item to another location (equivalent to standard UNIX command cp (copy))
 	 * @param string $path to item
 	 * @param string $target path
 	 */
@@ -96,4 +104,17 @@ interface StorageInterface {
 	 * @return \Vivo\IO\OutputStreamInterface
 	 */
 	public function write($path);
+
+    /**
+     * Returns input/output stream for reading and writing to resource
+     * @param string $path
+     * @return \Vivo\IO\InOutStreamInterface
+     */
+    public function readWrite($path);
+
+    /**
+     * Returns PathBuilder for this storage
+     * @return PathBuilderInterface
+     */
+    public function getPathBuilder();
 }

@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\Storage\PathBuilder;
 
+use Vivo\Storage\Exception;
+
 /**
  * PathBuilder
  * Storage paths manipulation
@@ -11,14 +13,19 @@ class PathBuilder implements PathBuilderInterface
      * Character used as a separator for paths in storage
      * @var string
      */
-    protected $separator   = '/';
+    protected $separator;
 
     /**
      * Constructor
      * @param string $separator Path components separator
+     * @throws \Vivo\Storage\Exception\InvalidArgumentException
      */
     public function __construct($separator)
     {
+        if (strlen($separator) != 1) {
+            throw new Exception\InvalidArgumentException(
+                sprintf("%s: Only single character separators supported; '%s' given", __METHOD__, $separator));
+        }
         $this->separator    = $separator;
     }
 

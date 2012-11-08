@@ -45,6 +45,28 @@ class CMSFrontController implements DispatchableInterface,
         $path = $this->event->getRouteMatch()->getParam('path');
         $host = $this->event->getRouteMatch()->getParam('host');
 
+//        $filename   = 'c:\Work\x\testfile.txt';
+//        $fh         = fopen($filename, 'r+b');
+//        echo '<br>' . fread($fh, 4);
+//        fwrite($fh, 'BMW');
+//        echo '<br>' . fread($fh, 4);
+//        fwrite($fh, 'GUZZI');
+//        echo '<br>' . fread($fh, 4) . '<br>';
+//        fclose($fh);
+
+//        $index  = \ZendSearch\Lucene\Lucene::create('c:\Work\LuceneTest');
+//        $doc1   = new \ZendSearch\Lucene\Document();
+//        $doc1->addField(\ZendSearch\Lucene\Document\Field::text('path', '/abc/def/ghi'));
+//        $doc1->addField(\ZendSearch\Lucene\Document\Field::text('title', 'My first indexed document'));
+//        $doc1->addField(\ZendSearch\Lucene\Document\Field::unStored('content', 'This is the content of the document'));
+//        $index->addDocument($doc1);
+//        $doc2   = new \ZendSearch\Lucene\Document();
+//        $doc2->addField(\ZendSearch\Lucene\Document\Field::text('path', '/foo/bar/bat'));
+//        $doc2->addField(\ZendSearch\Lucene\Document\Field::text('title', 'And now for something completely different'));
+//        $doc2->addField(\ZendSearch\Lucene\Document\Field::unStored('content', 'Lorem ipsum dolor sit amet.'));
+//        $index->addDocument($doc2);
+
+
         $response->setContent('CMS document for path: ' . $path);
         $response->setStatusCode(HttpResponse::STATUS_CODE_200);
         return $response;

@@ -9,7 +9,8 @@ interface OutputStreamInterface {
 
 	/**
 	 * Writes to stream
-	 * @param string $bytes
+	 * @param string $data
+     * @return integer
 	 */
 	public function write($data);
 

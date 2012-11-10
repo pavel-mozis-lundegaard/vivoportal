@@ -34,8 +34,8 @@ class CMS
 	}
 
 	/**
-	 * @param string $name
-	 * @param string $domain
+	 * @param string $name Site name.
+	 * @param string $domain Security domain.
 	 * @param array $hosts
 	 * @return \Vivo\CMS\Model\Site
 	 */
@@ -99,12 +99,7 @@ class CMS
 
 	/**
 	 * @param string $ident
-<<<<<<< HEAD
-	 * @param unknown_type $site
 	 * @return \Vivo\CMS\Model\Entity
-=======
-	 * @return Vivo\CMS\Model\Entity
->>>>>>> feature/cms
 	 */
 	public function getEntity($ident)
 	{
@@ -152,7 +147,7 @@ class CMS
 	}
 
 	/**
-	 * @param Model\Document $document
+	 * @param \Vivo\CMS\Model\Document $document
 	 * @param string $target Path.
 	 */
 	public function moveDocument(Model\Document $document, $target)
@@ -206,15 +201,10 @@ class CMS
 	}
 
 	/**
-<<<<<<< HEAD
 	 * @param \Vivo\CMS\Model\Document $document
-	 * @param int $version
-=======
-	 * @param Vivo\CMS\Model\Document $document
->>>>>>> feature/cms
 	 * @param int $index
 	 * @param int $version
-	 * @throws \InvalidArgumentException
+	 * @throws \Vivo\CMS\Exception\InvalidArgumentException
 	 * @return \Vivo\CMS\Model\Content
 	 */
 	public function getDocumentContent(Model\Document $document, $index, $version/*, $state {PUBLISHED}*/)
@@ -234,7 +224,7 @@ class CMS
 	/**
 	 * @param \Vivo\CMS\Model\Document $document
 	 * @param int $index
-	 * @throws \InvalidArgumentException
+	 * @throws \Vivo\CMS\Exception\InvalidArgumentException
 	 * @return array
 	 */
 	public function getDocumentContents(Model\Document $document, $index/*, $state {PUBLISHED}*/)
@@ -248,6 +238,9 @@ class CMS
 		return $this->repository->getChildren(new Model\Entity($path));
 	}
 
+	/**
+	 * @param \Vivo\CMS\Model\Content $content
+	 */
 	public function publishContent(Model\Content $content)
 	{
 		$document = $this->getContentDocument($content);
@@ -275,9 +268,9 @@ class CMS
 
 	/**
 	 * Nasetuje "libovolny" workflow stav obsahu.
-	 * @param Model\Content $content
+	 * @param \Vivo\CMS\Model\Content $content
 	 * @param string $state
-	 * @throws \InvalidArgumentException
+	 * @throws \Vivo\CMS\Exception\InvalidArgumentException
 	 */
 	public function setState(Model\Content $content, $state)
 	{
@@ -329,4 +322,16 @@ class CMS
 
 // 		return $this->repository->getChildren($document->getPath().'/Contents.'.$index);
 // 	}
+
+
+	/**
+	 * @param \Vivo\CMS\Model\Entity $entity
+	 * @param string $name
+	 * @param string $data
+	 */
+	public function saveResource(Model\Entity $entity, $name, $data)
+	{
+	    $this->repository->saveResource($entity, $name, $data);
+	    $this->repository->commit();
+	}
 }

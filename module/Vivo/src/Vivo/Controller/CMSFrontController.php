@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\Controller;
 
+use Vivo\SiteManager\Event\SiteEvent;
+
 use Vivo\Http\StreamResponse;
 
 use Vivo\CMS\ComponentFactory;
@@ -40,7 +42,7 @@ class CMSFrontController implements DispatchableInterface,
     /**
      * @var \Vivo\Model\Site
      */
-    private $site;
+    private $siteEvent;
 
     /**
      * @var \Vivo\CMS\ComponentFactory
@@ -71,9 +73,9 @@ class CMSFrontController implements DispatchableInterface,
     /**
      * @param Site $site
      */
-    public function setSite(Site $site)
+    public function setSiteEvent(SiteEvent $siteEvent)
     {
-        $this->site = $site;
+        $this->siteEvent = $siteEvent;
     }
 
     /**
@@ -91,7 +93,7 @@ class CMSFrontController implements DispatchableInterface,
                 'X-Generated-At: ' . gmdate('D, d M Y H:i:s', time()) . ' GMT');
 
         $documentPath = $this->event->getRouteMatch()->getParam('path');
-        $document = $this->cms->getDocument($documentPath, $this->site);
+        $document = $this->cms->getSiteDocument($documentPath, $this->siteEvent->getSiteModel());
         $root = $this->componentFactory->getRootComponent($document);
 
         $this->treeUtil->setRoot($root);

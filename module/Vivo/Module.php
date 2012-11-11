@@ -171,7 +171,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $di->instanceManager()
                     ->addSharedInstance($sm->get('cms'), 'Vivo\CMS\CMS');
 
-                    $cf = new ComponentFactory($di, $sm->get('cms'));
+                    $cf = new ComponentFactory($di, $sm->get('cms'), $sm->get('site_event')->getSiteModel());
                     $resolver = new ComponentResolver($sm->get('config'));
                     $cf->setResolver($resolver);
                     return $cf;
@@ -245,7 +245,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $fc->setTreeUtil($sm->get('Vivo\UI\TreeUtil'));
                     $fc->setCMS($sm->get('cms'));
                     //TODO get site from SiteManager
-                    $fc->setSite(new \Vivo\CMS\Model\Site());
+                    $fc->setSiteEvent($sm->get('site_event'));
                     return $fc;
                 },
                 'CLI\Module'    => function(ControllerManager $cm) {

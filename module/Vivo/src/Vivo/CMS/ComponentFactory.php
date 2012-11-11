@@ -5,6 +5,7 @@ use Vivo\CMS\CMS;
 use Vivo\CMS\UI\Content\RawComponentInterface;
 use Vivo\CMS\Model\Content;
 use Vivo\CMS\Model\Document;
+use Vivo\CMS\Model\Site;
 use Vivo\CMS\UI\InjectModelInterface;
 use Vivo\CMS\UI\Content\Layout;
 use Vivo\UI\ComponentInterface;
@@ -36,10 +37,11 @@ class ComponentFactory
      * @param CMS $cms
      * @param Di $di
      */
-    public function __construct(Di $di, CMS $cms)
+    public function __construct(Di $di, CMS $cms, Site $site)
     {
         $this->cms = $cms;
         $this->di = $di;
+        $this->site = $site;
     }
 
     /**
@@ -70,7 +72,7 @@ class ComponentFactory
      */
     public function getFrontComponent(Document $document, $options = array())
     {
-        $contents = $this->cms->getDocumentContents($document);
+        $contents = $this->cms->getPublishedContents($document);
 
         if (count($contents) > 1) {
             $frontComponent = $this->di->get('Vivo\UI\ComponentContainer');
@@ -81,7 +83,8 @@ class ComponentFactory
             }
 
         } elseif (count($contents) === 1) {
-            $frontComponent = $this->getContentFrontComponent(reset($contents), $document);
+            $frontComponent = $this
+                    ->getContentFrontComponent(reset($contents), $document);
         } else {
             //TODO throw exception
         }
@@ -91,7 +94,7 @@ class ComponentFactory
         }
 
         if ($layoutPath = $document->getLayout()) {
-            $layout = $this->cms->getDocument($layoutPath);
+            $layout = $this->cms->getSiteDocument($layoutPath, $this->site);
             $frontComponent = $this->applyLayout($layout, $frontComponent);
         }
         return $frontComponent;
@@ -112,9 +115,12 @@ class ComponentFactory
 
         $layoutComponent->setMain($component);
 
-        if ($parentLayout = $this->cms->getParentDocument($layout)) {
-            if ($component = $this->applyLayout($parentLayout, $layoutComponent)) {
-                $layoutComponent = $component;
+        if ($parentLayout = $this->cms->getParent($layout)) {
+            if ($parentLayout instanceof Document) {
+                if ($component = $this
+                        ->applyLayout($parentLayout, $layoutComponent)) {
+                    $layoutComponent = $component;
+                }
             }
         }
         return $layoutComponent;
@@ -127,10 +133,8 @@ class ComponentFactory
      * @return \Vivo\UI\Component
      */
     public function getContentFrontComponent(Content $content,
-        Document $document)
+            Document $document)
     {
-        //TODO How to find UI component class?
-//        $className = $content->getFrontComponentClass();
         $className = $this->resolver->resolve($content);
         $component = $this->di->newInstance($className);
         if ($component instanceof InjectModelInterface) {
@@ -155,7 +159,8 @@ class ComponentFactory
     /**
      * @param ComponentResolver $resolver
      */
-    public function setResolver(ComponentResolver $resolver) {
+    public function setResolver(ComponentResolver $resolver)
+    {
         $this->resolver = $resolver;
     }
 

@@ -178,4 +178,13 @@ class Document extends Folder {
 	public function getType() {
 		return get_class($this);
 	}
+
+	/**
+	 * Returns path of layout document.
+	 * @return string
+	 */
+	public function getLayout()
+	{
+        return $this->layout;
+	}
 }

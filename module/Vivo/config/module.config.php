@@ -111,6 +111,8 @@ return array(
             //List of core modules loaded for all sites
             'core_modules'          => array(
             ),
+            //Module folder where module resources are stored (relative to the module root)
+            'resource_base'         => 'resource',
         ),
         'cms'       => array(
             'repository'    => array(

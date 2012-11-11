@@ -131,6 +131,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $moduleManagerFactory   = $sm->get('module_manager_factory');
                     $moduleStorageManager   = $sm->get('module_storage_manager');
                     $cms                    = $sm->get('cms');
+                    $moduleResourceManager    = $sm->get('module_resource_manager');
                     $siteManager            = new \Vivo\SiteManager\SiteManager($siteEvents,
                                                                                 $siteEvent,
                                                                                 $routeParamHost,
@@ -138,7 +139,8 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                                                                                 $coreModules,
                                                                                 $moduleStorageManager,
                                                                                 $cms,
-                                                                                $sm);
+                                                                                $sm,
+                                                                                $moduleResourceManager);
                     return $siteManager;
                 },
                 'create_site_listener'  => function(ServiceManager $sm) {
@@ -151,7 +153,6 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     return $indexer;
                 },
                 'repository'                => function(ServiceManager $sm) {
-                    $config                 = $sm->get('config');
                     $storageConfig          = array(
                         'class'     => 'Vivo\Storage\LocalFileSystemStorage',
                         'options'   => array(
@@ -172,7 +173,17 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $repository             = $sm->get('repository');
                     $cms                    = new \Vivo\CMS\CMS($repository);
                     return $cms;
-                }
+                },
+                'module_resource_manager'   => function(ServiceManager $sm) {
+                    $config                 = $sm->get('config');
+                    $resourceBase           = $config['vivo']['modules']['resource_base'];
+                    $moduleStorageManager   = $sm->get('module_storage_manager');
+                    $pathBuilder            = $sm->get('path_builder');
+                    $moduleResourceManager  = new \Vivo\Module\ResourceManager\ResourceManager($moduleStorageManager,
+                                                                                               $resourceBase,
+                                                                                               $pathBuilder);
+                    return $moduleResourceManager;
+                },
             ),
         );
     }

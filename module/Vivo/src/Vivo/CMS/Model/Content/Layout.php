@@ -3,11 +3,25 @@ namespace Vivo\CMS\Model\Content;
 
 use Vivo\CMS\Model;
 
+/**
+ * Model Layout represents page container. Layout carries information about the appearance of the page. Defines the layout of the components and their interdependence.
+ */
 class Layout extends Model\Content {
-	//TODO
-	const FRONT_COMPONENT = 'Vivo\CMS\UI\Content\Layout';
-	
-	public function getFrontComponentClass() {
-		return self::FRONT_COMPONENT;
+
+	/**
+	 * @var array of paths of documents for layout panels
+	 */
+	private $panels = array();
+
+	/**
+	 * Setting default values
+	 * @param string $path Entity path
+	 */
+	public function __construct($path = null) {
+		parent::__construct($path);
 	}
+
+    public function getLayoutPanels() {
+        return $this->panels;
+    }
 }

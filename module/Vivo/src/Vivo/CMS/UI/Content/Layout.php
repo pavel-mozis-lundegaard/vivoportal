@@ -1,10 +1,10 @@
 <?php
 namespace Vivo\CMS\UI\Content;
 
+use Vivo\CMS\ComponentFactory;
+
 use Vivo\IO\InputStreamWrapper;
-
 use Vivo\CMS\CMS;
-
 use Vivo\UI\ComponentInterface;
 use Vivo\UI\ComponentContainer;
 use Vivo\CMS\UI\Component;
@@ -14,10 +14,15 @@ use Vivo\CMS\UI\Component;
  */
 class Layout extends Component
 {
-
     const MAIN_COMPONENT_NAME = 'param';
 
-    public function __construct(CMS $cms) {
+    /**
+     * @var CMS
+     */
+    protected $cms;
+
+    public function __construct(CMS $cms)
+    {
         $this->cms = $cms;
     }
 
@@ -26,21 +31,23 @@ class Layout extends Component
         $this->addComponent($component, self::MAIN_COMPONENT_NAME);
     }
 
-    public function init() {
+    public function init()
+    {
         parent::init();
         $this->prepareViewModel();
     }
 
-    protected function prepareViewModel() {
+    protected function prepareViewModel()
+    {
         //TODO use child model to enable global template for layout component
         $is = $this->cms->readResource($this->content, 'resource.phtml');
-        $path = $this->document->getPath().'/resource.phtml';
+        $path = $this->document->getPath() . '/resource.phtml';
         $filename = InputStreamWrapper::registerInputStream($is, $path);
         $this->view->setTemplate($filename);
     }
 
-    public function createPanels()
+    public function getLayoutPanels()
     {
-        //TODO
+        return $this->content->getLayoutPanels();
     }
 }

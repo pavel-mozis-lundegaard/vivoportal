@@ -24,6 +24,6 @@ class CMS extends \Vivo\CMS\CMS
 
     public function getPublishedContents($document)
     {
-        return array($this->getDocumentContent($document, 1, 1));
+        return array($this->getDocumentContent($document, 1, 1));//,$this->getDocumentContent($document, 1, 1));
     }
 }

@@ -1,6 +1,10 @@
 <?php
 namespace Vivo\CMS;
 
+use Vivo\CMS\Exception\LogicException;
+
+use Vivo\UI\ComponentContainer;
+
 use Vivo\CMS\CMS;
 use Vivo\CMS\UI\Content\RawComponentInterface;
 use Vivo\CMS\Model\Content;
@@ -95,7 +99,8 @@ class ComponentFactory
 
         if ($layoutPath = $document->getLayout()) {
             $layout = $this->cms->getSiteDocument($layoutPath, $this->site);
-            $frontComponent = $this->applyLayout($layout, $frontComponent);
+            $panels = $document->getLayoutPanels();
+            $frontComponent = $this->applyLayout($layout, $frontComponent, $panels);
         }
         return $frontComponent;
     }
@@ -106,19 +111,39 @@ class ComponentFactory
      * @param Component $component
      * @return \Vivo\UI\Component
      */
-    public function applyLayout(Document $layout, ComponentInterface $component)
+    public function applyLayout(Document $layout, ComponentInterface $component, $panels = array())
     {
         $layoutComponent = $this->getFrontComponent($layout);
+
         if (!$layoutComponent instanceof Layout) {
-            //TODO throw exception
+            //this is usualy caused when the document hasn't layout content or has more then one content 
+            throw new LogicException(
+                    sprintf(
+                            "%s: Front component for layout must be instance of 'Vivo\CMS\UI\Content\Layout', '%s' given.",
+                            __METHOD__, get_class($layoutComponent)));
         }
 
         $layoutComponent->setMain($component);
+        $layoutPanels = $layoutComponent->getLayoutPanels();
+
+        //document could override only panels that are defined in layout, other panels are ignored
+        //TODO log warning when document tries to set panel that is not defined in layout
+        $mergedPanels = array();
+        foreach ($layoutPanels as $name=>$panel) {
+            if (isset($layoutPanels[$name])) {
+                $mergedPanels[$name] = isset($panels[$name]) ? $panels[$name] : $layoutPanels[$name];
+            }
+        }
+
+        foreach ($mergedPanels as $name => $path) {
+            $panelDocument = $this->cms->getSiteDocument($path, $this->site);
+            $layoutComponent->addComponent($this->getFrontComponent($panelDocument), $name);
+        }
 
         if ($parentLayout = $this->cms->getParent($layout)) {
             if ($parentLayout instanceof Document) {
                 if ($component = $this
-                        ->applyLayout($parentLayout, $layoutComponent)) {
+                        ->applyLayout($parentLayout, $layoutComponent, $panels)) {
                     $layoutComponent = $component;
                 }
             }

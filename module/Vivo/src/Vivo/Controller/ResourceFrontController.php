@@ -2,9 +2,10 @@
 namespace Vivo\Controller;
 
 use Vivo\Controller\Exception;
-use Vivo\IO\Exception\ExceptionInterface  as IOException;
-
+use Vivo\IO\Exception\ExceptionInterface as IOException;
 use Vivo\IO\FileInputStream;
+use Vivo\Module\ResourceManager\ResourceManager;
+use Vivo\Util;
 
 use Zend\Mvc\InjectApplicationEventInterface;
 use Zend\Stdlib\DispatchableInterface;
@@ -17,7 +18,7 @@ use Zend\Http\Response as HttpResponse;
  * Controller for giving all resource files
  */
 class ResourceFrontController implements DispatchableInterface,
-    InjectApplicationEventInterface
+        InjectApplicationEventInterface
 {
 
     /**
@@ -25,24 +26,41 @@ class ResourceFrontController implements DispatchableInterface,
      */
     protected $event;
 
+    /**
+     * @var ResourceManager
+     */
+    protected $resourceManager;
+
     public function dispatch(Request $request, Response $response = null)
     {
-        //TODO find resource file by path and return it
-        $path = $this->event->getRouteMatch()->getParam('path');
-        $module = $this->event->getRouteMatch()->getParam('module');
+        $pathToResource = $this->event->getRouteMatch()->getParam('path');
+        $moduleName = $this->event->getRouteMatch()->getParam('module');
 
-        //TODO set apropriate headers
-
-        if ($module === 'vivo') {
+        if ($moduleName === 'vivo') {
             //it's vivo core resource
             try {
-                $resourceStream = new FileInputStream(__DIR__.'/../../../resources/'.$path);
+                $resourceStream = new FileInputStream(
+                        __DIR__ . '/../../../resource/' . $pathToResource);
             } catch (IOException $e) {
-                throw new Exception\FileNotFoundException("Resource file not found.", null, $e);
+                throw new Exception\FileNotFoundException(
+                        "Resource file not found.", null, $e);
             }
+        } elseif ($moduleName === 'entity') {
+            //it's entity resource
+            //TODO
         } else {
-            //TODO load resource from module
+            //it's module resource
+            $resourceStream = $this->resourceManager
+                    ->getResourceStream($moduleName, $pathToResource);
         }
+        $filename = pathinfo($pathToResource, PATHINFO_FILENAME);
+        $ext = pathinfo($pathToResource, PATHINFO_EXTENSION);
+
+        $mimeType = Util\MIME::getType($ext);
+        $response->getHeaders()->addHeaderLine('Content-Type: ' . $mimeType)
+                ->addHeaderLine(
+                        'Content-Disposition: inline; filename="' . $filename
+                                . ($ext ? ".$ext" : '') . '"');
 
         $response->setStream($resourceStream);
         return $response;
@@ -62,5 +80,10 @@ class ResourceFrontController implements DispatchableInterface,
     public function getEvent()
     {
         return $this->event;
+    }
+
+    public function setResourceManager(ResourceManager $resourceManager)
+    {
+        $this->resourceManager = $resourceManager;
     }
 }

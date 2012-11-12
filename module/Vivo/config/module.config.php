@@ -74,7 +74,6 @@ return array(
     'controllers' => array(
         'invokables' => array(
             'CMSFront' => 'Vivo\Controller\CMSFrontController',
-            'ResourceFront' => 'Vivo\Controller\ResourceFrontController',
             'CLI\Indexer' => 'Vivo\Controller\CLI\IndexerController',
             'CLI\Info' => 'Vivo\Controller\CLI\InfoController',
         ),

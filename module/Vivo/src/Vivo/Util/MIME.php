@@ -3,6 +3,7 @@ namespace Vivo\Util;
 
 /**
  * MIME provides methods to works with Content-types and MIME types.
+ * @todo cleanup & refactoring
  */
 class MIME
 {

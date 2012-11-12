@@ -1,1 +1,0 @@
-Namespace for fake classes used instead real clases that are not implemented.

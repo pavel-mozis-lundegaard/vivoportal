@@ -229,7 +229,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                 },
                 'cms'                       => function(ServiceManager $sm) {
                     $repository             = $sm->get('repository');
-                    $cms                    = new \Vivo\Fake\CMS($repository);
+                    $cms                    = new \Vivo\CMS\CMS($repository);
                     return $cms;
                 },
                 'module_resource_manager'   => function(ServiceManager $sm) {

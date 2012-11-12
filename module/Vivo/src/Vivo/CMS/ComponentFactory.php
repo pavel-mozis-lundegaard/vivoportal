@@ -1,17 +1,16 @@
 <?php
 namespace Vivo\CMS;
 
-use Vivo\CMS\Exception\LogicException;
-
-use Vivo\UI\ComponentContainer;
-
 use Vivo\CMS\CMS;
-use Vivo\CMS\UI\Content\RawComponentInterface;
+use Vivo\CMS\Exception\Exception;
+use Vivo\CMS\Exception\LogicException;
 use Vivo\CMS\Model\Content;
 use Vivo\CMS\Model\Document;
 use Vivo\CMS\Model\Site;
 use Vivo\CMS\UI\InjectModelInterface;
 use Vivo\CMS\UI\Content\Layout;
+use Vivo\CMS\UI\Content\RawComponentInterface;
+use Vivo\UI\ComponentContainer;
 use Vivo\UI\ComponentInterface;
 
 use Zend\Di\Di;
@@ -90,7 +89,7 @@ class ComponentFactory
             $frontComponent = $this
                     ->getContentFrontComponent(reset($contents), $document);
         } else {
-            //TODO throw exception
+            throw new Exception(sprintf("%s: Document hasn't any published content.", __METHOD__));
         }
 
         if ($frontComponent instanceof RawComponentInterface) {
@@ -116,7 +115,7 @@ class ComponentFactory
         $layoutComponent = $this->getFrontComponent($layout);
 
         if (!$layoutComponent instanceof Layout) {
-            //this is usualy caused when the document hasn't layout content or has more then one content 
+            //this is usualy caused when the document hasn't layout content or has more then one content
             throw new LogicException(
                     sprintf(
                             "%s: Front component for layout must be instance of 'Vivo\CMS\UI\Content\Layout', '%s' given.",

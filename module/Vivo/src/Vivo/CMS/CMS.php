@@ -1,6 +1,10 @@
 <?php
 namespace Vivo\CMS;
 
+use Vivo\CMS\Model\Entity;
+
+use Vivo\CMS\Model\Document;
+
 use Vivo\CMS\Model;
 use Vivo\CMS\Workflow;
 use Vivo\CMS\Exception;
@@ -333,5 +337,27 @@ class CMS
 	{
 	    $this->repository->saveResource($entity, $name, $data);
 	    $this->repository->commit();
+	}
+
+	public function getPublishedContents(Document $document) {
+	    //TODO
+	    throw new \Exception('Not implemented');
+	}
+
+	public function readResource(Entity $entity, $resource)
+	{
+	    //TODO
+	    throw new \Exception('Not implemented');
+	}
+
+	public function getResource(Entity $entity, $resourceFile)
+	{
+	    //TODO
+	    throw new \Exception('Not implemented');
+	}
+
+	public function getEntityUrl(Entity $entity) {
+	    //TODO
+	    throw new \Exception('Not implemented');
 	}
 }

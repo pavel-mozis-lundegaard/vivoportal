@@ -266,6 +266,12 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $controller             = new \Vivo\Controller\CLI\ModuleController($moduleStorageManager, $remoteModule);
                     return $controller;
                 },
+                'ResourceFront'    => function(ControllerManager $cm) {
+                    $sm                     = $cm->getServiceLocator();
+                    $controller             = new \Vivo\Controller\ResourceFrontController();
+                    $controller->setResourceManager($sm->get('module_resource_manager'));
+                    return $controller;
+                },
             ),
         );
     }

@@ -40,10 +40,10 @@ class File extends Model\Content
      * Returns file mimetype.
      * @return string
      */
-    public function getMineType() {
+    public function getMimeType() {
     	return $this->mimeType;
     }
-    
+
     /**
      * Retuns the original file name.
      * @return string

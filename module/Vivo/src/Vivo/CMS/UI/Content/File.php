@@ -64,7 +64,7 @@ class File extends Component
         }
     }
 
-    public function getTemplate() {
-        return parent::getTemplate() . ($this->templateVariant ? ':'. $this->templateVariant :'');
+    public function getDefaultTemplate() {
+        return parent::getDefaultTemplate() . ($this->templateVariant ? ':'. $this->templateVariant :'');
     }
 }

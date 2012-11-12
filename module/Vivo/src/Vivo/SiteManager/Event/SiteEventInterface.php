@@ -12,10 +12,11 @@ use Zend\Mvc\Router\RouteMatch;
  */
 interface SiteEventInterface extends EventInterface
 {
-    const EVENT_SITE_MODEL_LOAD = 'site_model_load';
-    const EVENT_CONFIG          = 'config';
-    const EVENT_COLLECT_MODULES = 'collect_modules';
-    const EVENT_LOAD_MODULES    = 'load_modules';
+    const EVENT_SITE_MODEL_LOAD     = 'site_model_load';
+    const EVENT_CONFIG              = 'config';
+    const EVENT_COLLECT_MODULES     = 'collect_modules';
+    const EVENT_LOAD_MODULES        = 'load_modules';
+    const EVENT_LOAD_MODULES_POST   = 'load_modules.post';
 
     /**
      * Sets the Site ID

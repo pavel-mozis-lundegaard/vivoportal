@@ -1,6 +1,7 @@
 <?php
-namespace Vivo\Controller\Exception;
+namespace Vivo\View\Exception;
 
 interface ExceptionInterface
 {
+
 }

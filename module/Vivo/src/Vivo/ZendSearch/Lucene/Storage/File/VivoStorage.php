@@ -45,42 +45,39 @@ class VivoStorage extends AbstractLuceneFile
      */
     public function seek($offset, $whence = SEEK_SET)
     {
-        // TODO: Implement seek() method.
+        return $this->stream->seek($offset, $whence);
     }
 
     /**
      * Get file position.
-     *
      * @return integer
      */
     public function tell()
     {
-        // TODO: Implement tell() method.
+        return $this->stream->tell();
     }
 
     /**
      * Flush output.
-     *
      * Returns true on success or false on failure.
-     *
      * @return boolean
      */
     public function flush()
     {
-        // TODO: Implement flush() method.
+        return $this->stream->streamFlush();
     }
 
     /**
      * Lock file
-     *
      * Lock type may be a LOCK_SH (shared lock) or a LOCK_EX (exclusive lock)
-     *
      * @param integer $lockType
+     * @param bool $nonBlockinLock
      * @return boolean
      */
     public function lock($lockType, $nonBlockinLock = false)
     {
-        // TODO: Implement lock() method.
+        //Locking not supported
+        return true;
     }
 
     /**
@@ -88,7 +85,8 @@ class VivoStorage extends AbstractLuceneFile
      */
     public function unlock()
     {
-        // TODO: Implement unlock() method.
+        //Locking not supported
+        return true;
     }
 
     /**
@@ -108,8 +106,7 @@ class VivoStorage extends AbstractLuceneFile
     /**
      * Writes $length number of bytes (all, if $length===null) to the end of the file.
      * @param string $data
-     * @param integer $length
-     * @throws \ZendSearch\Lucene\Exception\InvalidArgumentException
+     * @param integer|null $length
      * @return void
      */
     protected function _fwrite($data, $length = null)
@@ -117,8 +114,7 @@ class VivoStorage extends AbstractLuceneFile
         if ($length === null ) {
             $this->stream->write($data);
         } else {
-            throw new Exception\InvalidArgumentException(
-                sprintf("%s: 'length' parameter not supported in this implementation", __METHOD__));
+            $this->stream->write($data, $length);
         }
     }
 

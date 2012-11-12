@@ -66,6 +66,34 @@ class CMSFrontController implements DispatchableInterface,
 //        $doc2->addField(\ZendSearch\Lucene\Document\Field::unStored('content', 'Lorem ipsum dolor sit amet.'));
 //        $index->addDocument($doc2);
 
+//        $pathBuilder        = new \Vivo\Storage\PathBuilder\PathBuilder('/');
+//        $storageOpts        = array('root' => 'c:\Work\LuceneStorageTest', 'path_builder' => $pathBuilder);
+//        $storage            = new \Vivo\Storage\LocalFileSystemStorage($storageOpts);
+//        $luceneDirectory    = new \Vivo\ZendSearch\Lucene\Storage\Directory\VivoStorage($storage, '/luceneStorage');
+        //$luceneDirectory    = 'c:\Work\LuceneTest';
+
+
+        $pathBuilder        = new \Vivo\Storage\PathBuilder\PathBuilder('/');
+        $storageOpts        = array('root' => 'c:\Work\LuceneStorageTest', 'path_builder' => $pathBuilder);
+        $storage            = new \Vivo\Storage\LocalFileSystemStorage($storageOpts);
+        \Vivo\Storage\StreamWrapper::register('lucene', $storage);
+        $luceneDirectory    = 'lucene:///abc';
+        //$luceneDirectory    = 'c:\Work\LuceneTest';
+
+        $index  = \ZendSearch\Lucene\Lucene::create($luceneDirectory);
+        //$index  = \ZendSearch\Lucene\Lucene::open($luceneDirectory);
+        $doc1   = new \ZendSearch\Lucene\Document();
+        $doc1->addField(\ZendSearch\Lucene\Document\Field::text('path', '/abc/def/ghi'));
+        $doc1->addField(\ZendSearch\Lucene\Document\Field::text('title', 'My first indexed document'));
+        $doc1->addField(\ZendSearch\Lucene\Document\Field::unStored('content', 'This is the content of the document'));
+        $index->addDocument($doc1);
+//        $doc2   = new \ZendSearch\Lucene\Document();
+//        $doc2->addField(\ZendSearch\Lucene\Document\Field::text('path', '/foo/bar/bat'));
+//        $doc2->addField(\ZendSearch\Lucene\Document\Field::text('title', 'And now for something completely different'));
+//        $doc2->addField(\ZendSearch\Lucene\Document\Field::unStored('content', 'Lorem ipsum dolor sit amet.'));
+//        $index->addDocument($doc2);
+
+
 
         $response->setContent('CMS document for path: ' . $path);
         $response->setStatusCode(HttpResponse::STATUS_CODE_200);

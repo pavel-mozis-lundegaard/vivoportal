@@ -38,6 +38,18 @@ class VivoStorage implements DirectoryInterface
     protected $fileHandles  = array();
 
     /**
+     * Constructor
+     * @param \Vivo\Storage\StorageInterface $storage
+     * @param string $path Path in storage where the Lucene directory is placed
+     */
+    public function __construct(StorageInterface $storage, $path)
+    {
+        $this->storage      = $storage;
+        $this->path         = $path;
+        $this->pathBuilder  = $storage->getPathBuilder();
+    }
+
+    /**
      * Closes the store.
      * @return void
      */
@@ -192,6 +204,12 @@ class VivoStorage implements DirectoryInterface
     public function getFileObject($filename, $shareHandler = true)
     {
         $fullPath   = $this->getFullPath($filename);
+
+        //TODO - will this work?
+        if (!$this->storage->isObject($fullPath)) {
+            throw new \ZendSearch\Lucene\Exception\InvalidArgumentException('File \'' . $filename . '\' is not readable.');
+        }
+
         if (!$shareHandler) {
             $inOutStream    = $this->storage->readWrite($fullPath);
             return new LuceneFile($inOutStream);

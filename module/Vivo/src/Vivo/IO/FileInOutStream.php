@@ -79,14 +79,61 @@ class FileInOutStream implements InOutStreamInterface, CloseableInterface
     /**
      * Writes to stream
      * @param string $data
+     * @param null $length
      * @throws Exception\RuntimeException
-     * @return int
+     * @return integer
      */
-    public function write($data)
+    public function write($data, $length = null)
     {
         if ($this->isClosed()) {
             throw new Exception\RuntimeException('Cannot write to closed stream.');
         }
-        return fwrite($this->fp, $data);
+        if (is_null($length)) {
+            return fwrite($this->fp, $data);
+        } else {
+            return fwrite($this->fp, $data, $length);
+        }
+    }
+
+    /**
+     * Sets the file position indicator and advances the file pointer.
+     * The new position, measured in bytes from the beginning of the file,
+     * is obtained by adding offset to the position specified by whence,
+     * whose values are defined as follows:
+     * SEEK_SET - Set position equal to offset bytes.
+     * SEEK_CUR - Set position to current location plus offset.
+     * SEEK_END - Set position to end-of-file plus offset. (To move to
+     * a position before the end-of-file, you need to pass a negative value
+     * in offset.)
+     * SEEK_CUR is the only supported offset type for compound files
+     *
+     * Upon success, returns 0; otherwise, returns -1
+     *
+     * @param integer $offset
+     * @param integer $whence
+     * @return integer
+     */
+    public function seek($offset, $whence = SEEK_SET)
+    {
+        return fseek($this->fp, $offset, $whence);
+    }
+
+    /**
+     * Get file position.
+     * @return integer
+     */
+    public function tell()
+    {
+        return ftell($this->fp);
+    }
+
+    /**
+     * Flush output.
+     * Returns true on success or false on failure.
+     * @return boolean
+     */
+    public function streamFlush()
+    {
+        return fflush($this->fp);
     }
 }

@@ -27,8 +27,8 @@ return array(
                     'resources' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
-                            'regex'    => '/resources/(?<module>.*?)/(?<path>.*)',
-                            'spec'    => '/resources/%module%/%path%',
+                            'regex'    => '/.res.(?<module>.*?)/(?<path>.*)',
+                            'spec'    => '/.res.%module%/%path%',
                             'defaults' => array(
                                 'controller' => 'ResourceFront',
                                 'path' => '',

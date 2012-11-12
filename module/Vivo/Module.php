@@ -246,9 +246,10 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         );
     }
 
-    public function getControllerConfig() {
+    public function getControllerConfig()
+    {
         return array(
-            'factories' => array(
+            'factories'     => array(
                 'CMSFront' => function (ControllerManager $cm) {
                     $fc = new \Vivo\Controller\CMSFrontController();
                     $sm = $cm->getServiceLocator();

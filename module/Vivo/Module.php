@@ -1,6 +1,8 @@
 <?php
 namespace Vivo;
 
+use Vivo\View\Helper\Resource;
+
 use Vivo\CMS\ComponentFactory;
 use Vivo\CMS\ComponentResolver;
 use Vivo\Module\ModuleManagerFactory;
@@ -77,6 +79,10 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         $plugins      = $serviceLocator->get('view_helper_manager');
         $plugins->setFactory('action', function($sm) use($serviceLocator) {
             $helper = new Action($sm->get('url'));
+            return $helper;
+        });
+        $plugins->setFactory('resource', function($sm) use($serviceLocator) {
+            $helper = new Resource($sm->get('url'));
             return $helper;
         });
     }

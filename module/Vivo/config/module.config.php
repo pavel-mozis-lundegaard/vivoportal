@@ -30,7 +30,7 @@ return array(
                         ),
                     ),
 
-                    'resources' => array(
+                    'resource' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
                             'regex'    => '/.res.(?<module>.*?)/(?<path>.*)',

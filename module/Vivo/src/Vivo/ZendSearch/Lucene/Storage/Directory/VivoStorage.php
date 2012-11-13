@@ -33,6 +33,11 @@ class VivoStorage implements DirectoryInterface
     protected $pathBuilder;
 
     /**
+     * @var StorageHandle[]
+     */
+    protected $storageHandles   = array();
+
+    /**
      * Constructor
      * @param \Vivo\Storage\StorageInterface $storage
      * @param string $path Path in storage where the Lucene directory is placed
@@ -51,6 +56,7 @@ class VivoStorage implements DirectoryInterface
     public function close()
     {
         //No closing necessary
+        $this->storageHandles   = array();
     }
 
     /**
@@ -82,6 +88,7 @@ class VivoStorage implements DirectoryInterface
         $this->storage->touch($fullPath);
         $fileHandle                     = new FileHandle($this->storage, $fullPath);
         $storageHandle                  = new StorageHandle($fileHandle);
+        $this->storageHandles[$filename]    = $storageHandle;
         return $storageHandle;
     }
 
@@ -108,6 +115,11 @@ class VivoStorage implements DirectoryInterface
     public function purgeFile($filename)
     {
         //No purging necessary
+        if (isset($this->storageHandles[$filename])) {
+            $this->storageHandles[$filename]->flush();
+            $this->storageHandles[$filename]->close();
+            unset($this->storageHandles[$filename]);
+        }
     }
 
     /**
@@ -117,6 +129,9 @@ class VivoStorage implements DirectoryInterface
      */
     public function fileExists($filename)
     {
+        if (isset($this->storageHandles[$filename])) {
+            return true;
+        }
         $fullPath   = $this->getFullPath($filename);
         if ($this->storage->isObject($fullPath)) {
             return true;
@@ -194,11 +209,21 @@ class VivoStorage implements DirectoryInterface
         $fullPath = $this->getFullPath($filename);
         //Index is not created without this exception
         if (!$this->storage->isObject($fullPath)) {
-            throw new \ZendSearch\Lucene\Exception\InvalidArgumentException('File \'' . $filename . '\' is not readable.');
+            throw new \ZendSearch\Lucene\Exception\InvalidArgumentException(
+                'File \'' . $filename . '\' is not readable.');
         }
-
+        if (!$shareHandler) {
+            $fileHandle     = new FileHandle($this->storage, $fullPath);
+            $storageHandle  = new StorageHandle($fileHandle);
+            return $storageHandle;
+        }
+        if (isset($this->storageHandles[$filename])) {
+            $this->storageHandles[$filename]->seek(0);
+            return $this->storageHandles[$filename];
+        }
         $fileHandle     = new FileHandle($this->storage, $fullPath);
         $storageHandle  = new StorageHandle($fileHandle);
+        $this->storageHandles[$filename]    = $storageHandle;
         return $storageHandle;
     }
 

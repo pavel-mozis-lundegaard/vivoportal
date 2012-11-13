@@ -1,6 +1,10 @@
 <?php
 namespace Vivo\Storage;
 
+/**
+ * FileHandle
+ *
+ */
 class FileHandle
 {
     /**

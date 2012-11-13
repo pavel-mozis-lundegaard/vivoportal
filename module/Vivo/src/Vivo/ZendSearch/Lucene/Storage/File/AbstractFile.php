@@ -5,6 +5,8 @@ use ZendSearch\Lucene\Storage\File\AbstractFile as ZendSearchAbstractFile;
 
 /**
  * AbstractFile
+ * Abstract Lucene file
+ * Adds abstract methods missing in the ZendSearch\Lucene\Storage\File\AbstractFile
  */
 abstract class AbstractFile extends ZendSearchAbstractFile
 {

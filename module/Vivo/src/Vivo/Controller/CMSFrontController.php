@@ -81,8 +81,8 @@ class CMSFrontController implements DispatchableInterface,
 //        $luceneDirectory    = 'lucene:///abc';
 //        $luceneDirectory    = 'c:\Work\LuceneTest';
         $luceneDirectory    = new \Vivo\ZendSearch\Lucene\Storage\Directory\VivoStorage($storage, '/abc');
-//        $index  = \ZendSearch\Lucene\Lucene::create($luceneDirectory);
-        $index  = \ZendSearch\Lucene\Lucene::open($luceneDirectory);
+        $index  = \ZendSearch\Lucene\Lucene::create($luceneDirectory);
+//        $index  = \ZendSearch\Lucene\Lucene::open($luceneDirectory);
 //        $doc1   = new \ZendSearch\Lucene\Document();
 //        $doc1->addField(\ZendSearch\Lucene\Document\Field::text('uuid', '0123456789AB'));
 //        $doc1->addField(\ZendSearch\Lucene\Document\Field::text('path', '/abc/def/ghi'));
@@ -103,16 +103,18 @@ class CMSFrontController implements DispatchableInterface,
 //        }
 
         $hits    = $index->find('alpha');
-//        foreach ($hits as $hit) {
-//            /* @var $hit \ZendSearch\Lucene\Search\QueryHit */
-//            echo '<br>id: ' .  $hit->id;
-//            echo '<br>score: ' .  $hit->score;
-//            echo '<br>uuid: ' .  $hit->uuid;
-//            echo '<br>';
-//        }
+        $i       = 0;
+        foreach ($hits as $hit) {
+            /* @var $hit \ZendSearch\Lucene\Search\QueryHit */
+            $i++;
+            echo '<br>id: ' .  $hit->id;
+            echo '<br>score: ' .  $hit->score;
+            echo '<br>uuid: ' .  $hit->uuid;
+            echo '<br>';
+        }
 //        \Zend\Debug\Debug::dump($hits);
 //        $index->optimize();
-        die('END');
+        die('END ' . $i);
 
 
 

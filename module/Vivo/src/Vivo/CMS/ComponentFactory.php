@@ -98,7 +98,7 @@ class ComponentFactory
 
         if ($layoutPath = $document->getLayout()) {
             $layout = $this->cms->getSiteDocument($layoutPath, $this->site);
-            $panels = $document->getLayoutPanels();
+            $panels = $this->getDocumentLayoutPanels($document);
             $frontComponent = $this->applyLayout($layout, $frontComponent, $panels);
         }
         return $frontComponent;
@@ -128,7 +128,12 @@ class ComponentFactory
         //document could override only panels that are defined in layout, other panels are ignored
         //TODO log warning when document tries to set panel that is not defined in layout
         $mergedPanels = array();
-        foreach ($layoutPanels as $name=>$panel) {
+        foreach ($layoutPanels as $name => $panel) {
+            $parts = explode('#', $name);
+            if (count($parts) == 2 && $this->cms->getEntityUrl($layout) == $parts[0]) {
+                $name = $parts[1];
+            }
+
             if (isset($layoutPanels[$name])) {
                 $mergedPanels[$name] = isset($panels[$name]) ? $panels[$name] : $layoutPanels[$name];
             }
@@ -139,6 +144,9 @@ class ComponentFactory
             $layoutComponent->addComponent($this->getFrontComponent($panelDocument), $name);
         }
 
+        $layoutDocumentPanels = $layout->getLayoutPanels();
+        $panels = array_merge($layoutDocumentPanels, $panels);
+
         if ($parentLayout = $this->cms->getParent($layout)) {
             if ($parentLayout instanceof Document) {
                 if ($component = $this
@@ -148,6 +156,20 @@ class ComponentFactory
             }
         }
         return $layoutComponent;
+    }
+
+    /**
+     * Returns panels for document and its parents.
+     * @param Document $document
+     * @todo this should be cached
+     */
+    public function getDocumentLayoutPanels(Document $document) {
+        $panels = array();
+        while($document instanceof Document) {
+            $panels = array_merge($document->getLayoutPanels(), $panels);
+            $document = $this->cms->getParent($document);
+        }
+        return $panels;
     }
 
     /**

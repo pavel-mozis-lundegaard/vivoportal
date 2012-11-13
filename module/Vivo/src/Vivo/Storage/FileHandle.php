@@ -21,6 +21,12 @@ class FileHandle
     protected $position = 0;
 
     /**
+     * Cached file data
+     * @var string
+     */
+    protected $data;
+
+    /**
      * Constructor
      * @param StorageInterface $storage
      * @param string $path
@@ -30,6 +36,15 @@ class FileHandle
         $this->storage  = $storage;
         $this->path     = $path;
         $this->position = 0;
+    }
+
+    /**
+     * Returns size of the file
+     * @return int
+     */
+    public function size()
+    {
+        return $this->storage->size($this->path);
     }
 
     /**
@@ -95,8 +110,10 @@ class FileHandle
      */
     public function read($length = 1)
     {
-        $data   = $this->storage->get($this->path);
-        $chunk  = substr($data, $this->position, $length);
+        if (!$this->data) {
+            $this->data = $this->storage->get($this->path);
+        }
+        $chunk  = substr($this->data, $this->position, $length);
         $this->position += strlen($chunk);
         return $chunk;
     }
@@ -108,21 +125,23 @@ class FileHandle
      */
     public function write($data, $length = null)
     {
+        if (!$this->data) {
+            $this->data = $this->storage->get($this->path);
+        }
         $dataLength = strlen($data);
         if (!is_null($length) && ($length > $dataLength)) {
             $length = $dataLength;
         }
-        $storageData    = $this->storage->get($this->path);
         if ($length) {
-            $storageData    = substr_replace($storageData, $data, $this->position, $length);
+            $this->data     = substr_replace($this->data, $data, $this->position, $length);
             $written        = $length;
             $this->position += $written;
         } else {
-            $storageData    = substr_replace($storageData, $data, $this->position);
+            $this->data     = substr_replace($this->data, $data, $this->position);
             $written        = $dataLength;
             $this->position += $written;
         }
-        $this->storage->set($this->path, $storageData);
+        $this->storage->set($this->path, $this->data);
         return $written;
     }
 }

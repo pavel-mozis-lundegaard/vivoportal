@@ -3,7 +3,8 @@ namespace Vivo\ZendSearch\Lucene\Storage\Directory;
 
 use Vivo\Storage\StorageInterface;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
-use Vivo\ZendSearch\Lucene\Storage\File\Memory as MemoryFile;
+use Vivo\Storage\FileHandle;
+use Vivo\ZendSearch\Lucene\Storage\File\StorageHandle;
 
 use ZendSearch\Lucene\Storage\Directory\DirectoryInterface;
 
@@ -32,12 +33,6 @@ class VivoStorage implements DirectoryInterface
     protected $pathBuilder;
 
     /**
-     * Cache for file objects
-     * @var MemoryFile[]
-     */
-    protected $fileHandles  = array();
-
-    /**
      * Constructor
      * @param \Vivo\Storage\StorageInterface $storage
      * @param string $path Path in storage where the Lucene directory is placed
@@ -49,34 +44,13 @@ class VivoStorage implements DirectoryInterface
         $this->pathBuilder  = $storage->getPathBuilder();
     }
 
-    public function __destruct()
-    {
-        $this->close();
-    }
-
     /**
      * Closes the store.
      * @return void
      */
     public function close()
     {
-        foreach ($this->fileHandles as $filename => $fileHandle) {
-            $this->saveFile($filename, $fileHandle);
-        }
-        $this->fileHandles  = array();
-    }
-
-    /**
-     * Saves a memory file into directory
-     * @param string $filename
-     * @param MemoryFile $file
-     * @return void
-     */
-    protected function saveFile($filename, MemoryFile $file)
-    {
-        $fullPath   = $this->getFullPath($filename);
-        $data       = $file->getData();
-        $this->storage->set($fullPath, $data);
+        //No closing necessary
     }
 
     /**
@@ -99,16 +73,16 @@ class VivoStorage implements DirectoryInterface
     /**
      * Creates a new, empty file in the directory with the given $filename.
      * @param string $filename
-     * @return \ZendSearch\Lucene\Storage\File\FileInterface
+     * @return StorageHandle
      */
     public function createFile($filename)
     {
         $this->deleteFile($filename);
         $fullPath                       = $this->getFullPath($filename);
         $this->storage->touch($fullPath);
-        $file                           = new MemoryFile('');
-        $this->fileHandles[$filename]   = $file;
-        return $file;
+        $fileHandle                     = new FileHandle($this->storage, $fullPath);
+        $storageHandle                  = new StorageHandle($fileHandle);
+        return $storageHandle;
     }
 
     /**
@@ -133,10 +107,7 @@ class VivoStorage implements DirectoryInterface
      */
     public function purgeFile($filename)
     {
-        if (isset($this->fileHandles[$filename])) {
-            $this->saveFile($filename, $this->fileHandles[$filename]);
-            unset($this->fileHandles[$filename]);
-        }
+        //No purging necessary
     }
 
     /**
@@ -146,9 +117,6 @@ class VivoStorage implements DirectoryInterface
      */
     public function fileExists($filename)
     {
-        if (isset($this->fileHandles[$filename])) {
-            return true;
-        }
         $fullPath   = $this->getFullPath($filename);
         if ($this->storage->isObject($fullPath)) {
             return true;
@@ -163,14 +131,6 @@ class VivoStorage implements DirectoryInterface
      */
     public function fileLength($filename)
     {
-        if (isset($this->fileHandles[$filename])) {
-            $file   = $this->fileHandles[$filename];
-            $pos    = $file->tell();
-            $file->seek(0, SEEK_END);
-            $length = $file->tell();
-            $file->seek($pos, SEEK_SET);
-            return $length;
-        }
         $fullPath   = $this->getFullPath($filename);
         $length     = $this->storage->size($fullPath);
         return $length;
@@ -225,35 +185,21 @@ class VivoStorage implements DirectoryInterface
      * Non-shared handlers are useful for stream file reading (especial for compound files).
      * @param string $filename
      * @param boolean $shareHandler
-     * @return MemoryFile
+     * @return StorageHandle
      */
     public function getFileObject($filename, $shareHandler = true)
     {
-        $fullPath   = $this->getFullPath($filename);
-        //TODO - will this work? Index is not created without this exception...
+        //Shared handlers are not supported in this implementation
+
+        $fullPath = $this->getFullPath($filename);
+        //Index is not created without this exception
         if (!$this->storage->isObject($fullPath)) {
             throw new \ZendSearch\Lucene\Exception\InvalidArgumentException('File \'' . $filename . '\' is not readable.');
         }
 
-        //TODO - $shareHandler?
-        if (!$shareHandler ) {
-            if (isset($this->fileHandles[$filename])) {
-                $this->saveFile($filename, $this->fileHandles[$filename]);
-            }
-            $data                           = $this->storage->get($fullPath);
-            $file                           = new MemoryFile($data);
-            return $file;
-        }
-
-        if (isset($this->fileHandles[$filename])) {
-            $this->fileHandles[$filename]->seek(0);
-            return $this->fileHandles[$filename];
-        }
-
-        $data                           = $this->storage->get($fullPath);
-        $file                           = new MemoryFile($data);
-        $this->fileHandles[$filename]   = $file;
-        return $file;
+        $fileHandle     = new FileHandle($this->storage, $fullPath);
+        $storageHandle  = new StorageHandle($fileHandle);
+        return $storageHandle;
     }
 
     /**

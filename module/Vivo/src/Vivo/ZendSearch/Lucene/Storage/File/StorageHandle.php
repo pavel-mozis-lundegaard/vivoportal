@@ -10,7 +10,7 @@ class StorageHandle extends AbstractFile
      * Resource of the open file
      * @var FileHandle
      */
-    protected $_fileHandle;
+    protected $fileHandle;
 
     /**
      * Constructor
@@ -18,7 +18,7 @@ class StorageHandle extends AbstractFile
      */
     public function __construct(FileHandle $fileHandle)
     {
-        $this->_fileHandle  = $fileHandle;
+        $this->fileHandle  = $fileHandle;
     }
 
     /**
@@ -41,7 +41,7 @@ class StorageHandle extends AbstractFile
      */
     public function seek($offset, $whence = SEEK_SET)
     {
-        return $this->_fileHandle->seek($offset, $whence);
+        return $this->fileHandle->seek($offset, $whence);
     }
 
 
@@ -52,7 +52,7 @@ class StorageHandle extends AbstractFile
      */
     public function tell()
     {
-        return $this->_fileHandle->tell();
+        return $this->fileHandle->tell();
     }
 
     /**
@@ -64,7 +64,7 @@ class StorageHandle extends AbstractFile
      */
     public function flush()
     {
-        return $this->_fileHandle->flush();
+        return $this->fileHandle->flush();
     }
 
     /**
@@ -72,9 +72,9 @@ class StorageHandle extends AbstractFile
      */
     public function close()
     {
-        if ($this->_fileHandle !== null ) {
-            $this->_fileHandle->close();
-            $this->_fileHandle = null;
+        if ($this->fileHandle !== null ) {
+            $this->fileHandle->close();
+            $this->fileHandle = null;
         }
     }
 
@@ -85,11 +85,7 @@ class StorageHandle extends AbstractFile
      */
     public function size()
     {
-        $position   = $this->_fileHandle->tell();
-        $this->_fileHandle->seek(0, SEEK_END);
-        $size       = $this->_fileHandle->tell();
-        $this->_fileHandle->seek($position, SEEK_SET);
-        return $size;
+        return $this->fileHandle->size();
     }
 
     /**
@@ -103,10 +99,10 @@ class StorageHandle extends AbstractFile
             return '';
         }
         if ($length < 1024) {
-            return $this->_fileHandle->read($length);
+            return $this->fileHandle->read($length);
         }
         $data = '';
-        while ($length > 0 && ($nextBlock = $this->_fileHandle->read($length)) != false) {
+        while ($length > 0 && ($nextBlock = $this->fileHandle->read($length)) != false) {
             $data .= $nextBlock;
             $length -= strlen($nextBlock);
         }
@@ -123,9 +119,9 @@ class StorageHandle extends AbstractFile
     protected function _fwrite($data, $length = null)
     {
         if ($length === null ) {
-            $this->_fileHandle->write($data);
+            $this->fileHandle->write($data);
         } else {
-            $this->_fileHandle->write($data, $length);
+            $this->fileHandle->write($data, $length);
         }
     }
 
@@ -144,9 +140,9 @@ class StorageHandle extends AbstractFile
         return true;
 
 //        if ($nonBlockingLock) {
-//            return flock($this->_fileHandle, $lockType | LOCK_NB);
+//            return flock($this->fileHandle, $lockType | LOCK_NB);
 //        } else {
-//            return flock($this->_fileHandle, $lockType);
+//            return flock($this->fileHandle, $lockType);
 //        }
     }
 
@@ -162,8 +158,8 @@ class StorageHandle extends AbstractFile
         //TODO - Locking not supported
         return true;
 
-//        if ($this->_fileHandle !== null ) {
-//            return flock($this->_fileHandle, LOCK_UN);
+//        if ($this->fileHandle !== null ) {
+//            return flock($this->fileHandle, LOCK_UN);
 //        } else {
 //            return true;
 //        }

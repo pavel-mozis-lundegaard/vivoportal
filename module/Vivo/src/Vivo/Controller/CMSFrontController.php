@@ -80,7 +80,7 @@ class CMSFrontController implements DispatchableInterface,
 //        \Vivo\Storage\StreamWrapper::register('lucene', $storage);
 //        $luceneDirectory    = 'lucene:///abc';
 //        $luceneDirectory    = 'c:\Work\LuceneTest';
-        $luceneDirectory    = new \Vivo\ZendSearch\Lucene\Storage\Directory\VivoStorage2($storage, '/abc');
+        $luceneDirectory    = new \Vivo\ZendSearch\Lucene\Storage\Directory\VivoStorage($storage, '/abc');
 //        $index  = \ZendSearch\Lucene\Lucene::create($luceneDirectory);
         $index  = \ZendSearch\Lucene\Lucene::open($luceneDirectory);
         $doc1   = new \ZendSearch\Lucene\Document();

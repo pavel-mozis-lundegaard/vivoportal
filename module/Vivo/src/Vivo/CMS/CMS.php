@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\CMS;
 
+use Vivo\CMS\Model\Site;
+
 use Vivo\CMS\Model\Entity;
 
 use Vivo\CMS\Model\Document;
@@ -358,6 +360,12 @@ class CMS
 
 	public function getEntityUrl(Entity $entity) {
 	    //TODO
+	    throw new \Exception('Not implemented');
+	}
+	/**
+	 * Returns entity by relative path within site.
+	 */
+	public function getSiteEntity($entityPath, Site $site) {
 	    throw new \Exception('Not implemented');
 	}
 }

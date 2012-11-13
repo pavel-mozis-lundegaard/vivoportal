@@ -1,10 +1,12 @@
 <?php
 namespace Vivo\Controller;
 
+use Vivo\CMS\CMS;
 use Vivo\Controller\Exception;
 use Vivo\IO\Exception\ExceptionInterface as IOException;
 use Vivo\IO\FileInputStream;
 use Vivo\Module\ResourceManager\ResourceManager;
+use Vivo\SiteManager\Event\SiteEvent;
 use Vivo\Util;
 
 use Zend\Mvc\InjectApplicationEventInterface;
@@ -22,6 +24,11 @@ class ResourceFrontController implements DispatchableInterface,
 {
 
     /**
+     * @var CMS
+     */
+    protected $cms;
+
+    /**
      * @var Event
      */
     protected $event;
@@ -31,13 +38,18 @@ class ResourceFrontController implements DispatchableInterface,
      */
     protected $resourceManager;
 
+    /**
+     *
+     * @var SiteEvent
+     */
+    protected $siteEvent;
+
     public function dispatch(Request $request, Response $response = null)
     {
         $pathToResource = $this->event->getRouteMatch()->getParam('path');
-        $moduleName = $this->event->getRouteMatch()->getParam('module');
-
-        if ($moduleName === 'vivo') {
-            //it's vivo core resource
+        $source = $this->event->getRouteMatch()->getParam('source');
+        if ($source === 'vivo') {
+            //it's vivo core resource - the core resources should be moved into own module
             try {
                 $resourceStream = new FileInputStream(
                         __DIR__ . '/../../../resource/' . $pathToResource);
@@ -45,14 +57,17 @@ class ResourceFrontController implements DispatchableInterface,
                 throw new Exception\FileNotFoundException(
                         "Resource file not found.", null, $e);
             }
-        } elseif ($moduleName === 'entity') {
+        } elseif ($source === 'entity') {
             //it's entity resource
-            //TODO
+            $entityPath = $this->event->getRouteMatch()->getParam('entity');
+            $entity = $this->cms->getSiteEntity($entityPath, $this->siteEvent->getSiteModel());
+            $resourceStream = $this->cms->readResource($entity, $pathToResource);
         } else {
             //it's module resource
             $resourceStream = $this->resourceManager
-                    ->getResourceStream($moduleName, $pathToResource);
+                    ->getResourceStream($source, $pathToResource);
         }
+
         $filename = pathinfo($pathToResource, PATHINFO_FILENAME);
         $ext = pathinfo($pathToResource, PATHINFO_EXTENSION);
 
@@ -64,6 +79,13 @@ class ResourceFrontController implements DispatchableInterface,
 
         $response->setStream($resourceStream);
         return $response;
+    }
+
+    /**
+     * @param CMS $cms
+     */
+    public function setCMS(CMS $cms) {
+        $this->cms = $cms;
     }
 
     /* (non-PHPdoc)
@@ -82,8 +104,19 @@ class ResourceFrontController implements DispatchableInterface,
         return $this->event;
     }
 
+    /**
+     * @param ResourceManager $resourceManager
+     */
     public function setResourceManager(ResourceManager $resourceManager)
     {
         $this->resourceManager = $resourceManager;
+    }
+
+    /**
+     * @param Site $site
+     */
+    public function setSiteEvent(SiteEvent $siteEvent)
+    {
+        $this->siteEvent = $siteEvent;
     }
 }

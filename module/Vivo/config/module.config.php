@@ -33,15 +33,29 @@ return array(
                     'resource' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
-                            'regex'    => '/.res.(?<module>.*?)/(?<path>.*)',
-                            'spec'    => '/.res.%module%/%path%',
+                            'regex'    => '/\.res\.(?<source>.+?)/(?<path>.+)',
+                            'spec'    => '/.res.%source%/%path%',
                             'defaults' => array(
                                 'controller' => 'ResourceFront',
                                 'path' => '',
-                                'module' => '',
+                                'source' => '',
                             ),
                         ),
                     ),
+
+                    'resource_entity' => array(
+                            'type' => 'Zend\Mvc\Router\Http\Regex',
+                            'options' => array(
+                                    'regex'    => '/\.res\.entity/(?<entity>.+?)((/\.res\.path/(?<path>.+)))',
+                                    'spec'    => '/.res.entity/%entity%/.res.path/%path%',
+                                    'defaults' => array(
+                                            'controller' => 'ResourceFront',
+                                            'path' => '',
+                                            'source' => 'entity',
+                                    ),
+                            ),
+                    ),
+
                     'backend' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(

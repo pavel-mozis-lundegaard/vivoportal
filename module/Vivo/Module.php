@@ -262,7 +262,6 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $fc->setComponentFactory($sm->get('Vivo\CMS\ComponentFactory'));
                     $fc->setTreeUtil($sm->get('Vivo\UI\TreeUtil'));
                     $fc->setCMS($sm->get('cms'));
-                    //TODO get site from SiteManager
                     $fc->setSiteEvent($sm->get('site_event'));
                     return $fc;
                 },
@@ -276,7 +275,9 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                 'ResourceFront'    => function(ControllerManager $cm) {
                     $sm                     = $cm->getServiceLocator();
                     $controller             = new \Vivo\Controller\ResourceFrontController();
+                    $controller->setCMS($sm->get('cms'));
                     $controller->setResourceManager($sm->get('module_resource_manager'));
+                    $controller->setSiteEvent($sm->get('site_event'));
                     return $controller;
                 },
             ),

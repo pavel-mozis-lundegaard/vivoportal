@@ -2,7 +2,7 @@
 namespace Vivo\Module;
 
 use Zend\ModuleManager\ModuleManager as ZendModuleManager;
-use Zend\EventManager\EventManager;
+use Zend\EventManager\EventManagerInterface;
 
 /**
  * ModuleManager
@@ -12,22 +12,22 @@ class ModuleManager extends ZendModuleManager implements ModuleManagerInterface
 {
     /**
      * Application's event manager
-     * @var EventManager
+     * @var EventManagerInterface
      */
     protected $appEvents;
 
     /**
      * Sets the application's event manager
-     * @param \Zend\EventManager\EventManager $appEvents
+     * @param EventManagerInterface $appEvents
      */
-    public function setAppEventManager(EventManager $appEvents)
+    public function setAppEventManager(EventManagerInterface $appEvents)
     {
         $this->appEvents    = $appEvents;
     }
 
     /**
      * Returns application's event manager
-     * @return \Zend\EventManager\EventManager
+     * @return EventManagerInterface
      */
     public function getAppEventManager()
     {

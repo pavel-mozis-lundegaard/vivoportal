@@ -2,6 +2,7 @@
 namespace Vivo\Module;
 
 use Zend\ModuleManager\ModuleManagerInterface as ZendModuleManagerInterface;
+use Zend\EventManager\EventManagerInterface;
 
 /**
  * ModuleManagerInterface
@@ -10,7 +11,7 @@ interface ModuleManagerInterface extends ZendModuleManagerInterface
 {
     /**
      * Returns application's event manager
-     * @return \Zend\EventManager\EventManager
+     * @return EventManagerInterface
      */
     public function getAppEventManager();
 }

@@ -1,18 +1,26 @@
 <?php
 namespace Vivo\Indexer;
 
-use Vivo\CMS\Model;
+use Vivo\CMS\Model\Entity;
+use ZendSearch\Lucene\Search\Query\AbstractQuery;
 
 class Indexer
 {
 
-	public function execute(Query $query)
+	public function find(AbstractQuery $query)
 	{
 
 	}
 
-	public function save(Model\Entity $entity)
-	{
+    public function delete(AbstractQuery $query)
+    {
 
-	}
+    }
+
+    public function get($docId)
+    {
+
+    }
+
+    public function termDocs()
 }

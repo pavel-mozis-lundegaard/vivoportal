@@ -58,6 +58,7 @@ interface StorageInterface {
 	/**
 	 * Touches item in the storage
 	 * Resets the item modification time to the current system time (equivalent to the standard UNIX command touch)
+     * If item does not exist, creates it
 	 * @param string $path to item
 	 */
 	public function touch($path);

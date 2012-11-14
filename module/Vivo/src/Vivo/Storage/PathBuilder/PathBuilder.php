@@ -76,4 +76,34 @@ class PathBuilder implements PathBuilderInterface
         $components = array_values($components);
         return $components;
     }
+
+    /**
+     * Returns directory name for the given path
+     * If there is no parent directory for the given $path, returns null
+     * @param string $path
+     * @return string|null
+     */
+    public function dirname($path)
+    {
+        $components = $this->getStoragePathComponents($path);
+        array_pop($components);
+        if (count($components) > 0) {
+            $absolute   = $this->isAbsolute($path);
+            $dir        = $this->buildStoragePath($components, $absolute);
+        } else {
+            $dir        = null;
+        }
+        return $dir;
+    }
+
+    /**
+     * Returns true when the $path denotes an absolute path
+     * @param string $path
+     * @return boolean
+     */
+    public function isAbsolute($path)
+    {
+        $firstChar  = substr($path, 0, 1);
+        return $firstChar == $this->getStoragePathSeparator();
+    }
 }

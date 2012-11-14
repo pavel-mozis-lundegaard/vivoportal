@@ -64,4 +64,21 @@ class PathBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $this->pathBuilder->getStoragePathComponents($path));
     }
 
+    public function testIsAbsolute()
+    {
+        $absPath    = $this->pathBuilder->getStoragePathSeparator() . 'abc';
+        $relPath    = 'abc';
+        $this->assertTrue($this->pathBuilder->isAbsolute($absPath));
+        $this->assertFalse($this->pathBuilder->isAbsolute($relPath));
+    }
+
+    public function testDirname()
+    {
+        $sep        = $this->pathBuilder->getStoragePathSeparator();
+        $dir        = implode($sep, array('abc', 'def', 'ghi', 'jkl'));
+        $path       = implode($sep, array($dir, 'file.txt'));
+        $this->assertEquals($dir, $this->pathBuilder->dirname($path));
+        $this->assertNull($this->pathBuilder->dirname('xyz'));
+        $this->assertNull($this->pathBuilder->dirname(''));
+    }
 }

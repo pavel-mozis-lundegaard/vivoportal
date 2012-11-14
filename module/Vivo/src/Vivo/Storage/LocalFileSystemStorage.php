@@ -69,19 +69,6 @@ class LocalFileSystemStorage extends AbstractStorage {
         array_unshift($elements, $this->root);
         $fsPath     = implode('/', $elements);
         return $fsPath;
-
-//        $path = $this->normalizePath($path);
-//        if ($path) {
-//            //Only paths starting with '/' (i.e. explicitly starting from the Storage root) are currently supported
-//            if (substr($path, 0, 1) != '/') {
-//                throw new Exception\InvalidArgumentException(
-//                    sprintf('%s: Only absolute paths supported (%s)', __METHOD__, $path));
-//            }
-//            $absPath = $this->root . $path;
-//        } else {
-//            $absPath = $this->root;
-//        }
-//		return $absPath;
 	}
 
 	/**
@@ -96,8 +83,8 @@ class LocalFileSystemStorage extends AbstractStorage {
 	}
 
 	/**
-	 * Creates dir recursive.
-	 * @param string $path
+	 * Creates dir recursive
+	 * @param string $path Path in Storage (this is a storage path, not a file system path!)
 	 * @throws Exception\IOException Cannot create directory.
 	 */
 	private function mkdir($path) {
@@ -187,10 +174,15 @@ class LocalFileSystemStorage extends AbstractStorage {
 
 	/**
 	 * Sets access and modification time of file.
+     * Creates the file if it does not exist
 	 * @param string $path The name of the file being touched.
 	 */
 	public function touch($path) {
-		$absPath = $this->getFsPath($path);
+		$absPath    = $this->getFsPath($path);
+        $storageDir = $this->pathBuilder->dirname($path);
+        if ($storageDir) {
+            $this->mkdir($storageDir);
+        }
 		touch($absPath);
 		clearstatcache(true, $absPath);
 	}

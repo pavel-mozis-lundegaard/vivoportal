@@ -206,7 +206,7 @@ class VivoStorage implements DirectoryInterface
     public function getFileObject($filename, $shareHandler = true)
     {
         $fullPath = $this->getFullPath($filename);
-        //Index is not created without this exception
+        //Index is not created without this exception (the exact wording 'is not readable' is required!
         if (!$this->storage->isObject($fullPath)) {
             throw new \ZendSearch\Lucene\Exception\InvalidArgumentException(
                 'File \'' . $filename . '\' is not readable.');

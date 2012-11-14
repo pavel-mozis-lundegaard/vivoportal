@@ -86,7 +86,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
     {
         return array(
             'factories' => array(
-                'ioUtil'            => function(ServiceManager $sm) {
+                'io_util'            => function(ServiceManager $sm) {
                     $ioUtil     = new \Vivo\IO\IOUtil();
                     return $ioUtil;
                 },
@@ -94,8 +94,17 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $uuidGenerator  = new \Vivo\Uuid\Generator();
                     return $uuidGenerator;
                 },
+                'uuid_convertor'    => function(ServiceManager $sm) {
+                    $indexer        = $sm->get('indexer');
+                    $uuidConvertor  =  new \Vivo\Repository\UuidConvertor\UuidConvertor($indexer);
+                    return $uuidConvertor;
+                },
+                'watcher'           => function(ServiceManager $sm) {
+                    $watcher        = new \Vivo\Repository\Watcher();
+                    return $watcher;
+                },
                 'storage_util'      => function(ServiceManager $sm) {
-                    $ioUtil         = $sm->get('ioUtil');
+                    $ioUtil         = $sm->get('io_util');
                     $storageUtil    = new \Vivo\Storage\StorageUtil($ioUtil);
                     return $storageUtil;
                 },
@@ -255,8 +264,19 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $storage                = $storageFactory->create($storageConfig);
                     $indexer                = $sm->get('indexer');
                     $serializer             = new \Vivo\Serializer\Adapter\Entity();
+                    $uuidConvertor          = $sm->get('uuid_convertor');
+                    $watcher                = $sm->get('watcher');
+                    $uuidGenerator          = $sm->get('uuid_generator');
+                    $ioUtil                 = $sm->get('io_util');
                     //TODO - supply a real cache
-                    $repository             = new \Vivo\Repository\Repository($storage, null, $indexer, $serializer);
+                    $repository             = new \Vivo\Repository\Repository($storage,
+                                                                              null,
+                                                                              $indexer,
+                                                                              $serializer,
+                                                                              $uuidConvertor,
+                                                                              $watcher,
+                                                                              $uuidGenerator,
+                                                                              $ioUtil);
                     return $repository;
                 },
                 'cms'                       => function(ServiceManager $sm) {

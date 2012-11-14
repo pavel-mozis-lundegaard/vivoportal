@@ -307,22 +307,4 @@ class LocalFileSystemStorage extends AbstractStorage {
         }
         return $size;
     }
-
-    /**
-     * Returns input/output stream for reading and writing to resource
-     * @param string $path
-     * @return \Vivo\IO\InOutStreamInterface
-     */
-    public function readWrite($path)
-    {
-        //The directory must exist prior to instantiating the input/output stream, otherwise stream opening fails
-        //The file will be also created beforehand for consistency reasons
-        $components = $this->pathBuilder->getStoragePathComponents($path);
-        array_pop($components);
-        $storageDir = $this->pathBuilder->buildStoragePath($components, true);
-        $fsFullPath = $this->getFsPath($path);
-        $this->mkdir($storageDir);
-        $this->touch($path);
-        return new IO\FileInOutStream($fsFullPath);
-    }
 }

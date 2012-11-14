@@ -219,7 +219,7 @@ class StorageCache implements StorageCacheInterface
      */
     public function write($path)
     {
-        //Remove from the item from cache
+        //Remove the item from cache
         $cacheKey   = $this->normalizeCacheKey($path);
         $this->cache->removeItem($cacheKey);
         $stream     = $this->storage->write($path);
@@ -244,19 +244,5 @@ class StorageCache implements StorageCacheInterface
     public function size($path)
     {
         return $this->storage->size($path);
-    }
-
-    /**
-     * Returns input/output stream for reading and writing to resource
-     * @param string $path
-     * @return \Vivo\IO\InOutStreamInterface
-     */
-    public function readWrite($path)
-    {
-        //Remove the item from cache
-        $cacheKey   = $this->normalizeCacheKey($path);
-        $this->cache->removeItem($cacheKey);
-        $stream     = $this->storage->readWrite($path);
-        return $stream;
     }
 }

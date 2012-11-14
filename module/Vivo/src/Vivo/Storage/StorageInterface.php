@@ -107,13 +107,6 @@ interface StorageInterface {
 	public function write($path);
 
     /**
-     * Returns input/output stream for reading and writing to resource
-     * @param string $path
-     * @return \Vivo\IO\InOutStreamInterface
-     */
-    public function readWrite($path);
-
-    /**
      * Returns PathBuilder for this storage
      * @return PathBuilderInterface
      */

@@ -26,8 +26,7 @@ class LocalFileSystemStorageTest extends \PHPUnit_Framework_TestCase
 
 	protected function setUp() {
 		$this->temp = sys_get_temp_dir();
-        $this->pathBuilder  = $this->getMock('Vivo\Storage\PathBuilder\PathBuilderInterface',
-                                             array(), array(), '', false);
+        $this->pathBuilder  = new \Vivo\Storage\PathBuilder\PathBuilder('/');
 		$this->storage = new LocalFileSystemStorage(array('root'=>$this->temp, 'path_builder' => $this->pathBuilder));
 	}
 
@@ -208,17 +207,8 @@ class LocalFileSystemStorageTest extends \PHPUnit_Framework_TestCase
         mkdir($testDir, 0777, true);
         $file       = '/a/b/c/file.txt';
         $components = array('a', 'b', 'c', 'file.txt');
-        $this->pathBuilder->expects($this->once())
-            ->method('getStoragePathComponents')
-            ->with($this->equalTo($file))
-            ->will($this->returnValue($components));
         array_pop($components);
-        $this->pathBuilder->expects($this->once())
-            ->method('buildStoragePath')
-            ->with($this->equalTo($components), $this->equalTo(true))
-            ->will($this->returnValue('/a/b/c'));
         $storage    = new LocalFileSystemStorage(array('root' => $testDir, 'path_builder' => $this->pathBuilder));
-
         $output     = $storage->write($file);
         $data       = 'foo bar baz';
         $bytes      = $output->write($data);
@@ -226,6 +216,21 @@ class LocalFileSystemStorageTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($data, $storage->get($file));
         //Permission denied?
         //$this->rrmdir($testDir);
+    }
+
+    public function testSize()
+    {
+        $storagePath    = '/sizeTest.txt';
+        $fileName       = $this->temp . $storagePath;
+        $contents       = 'Lorem ipsum dolor sit amet.';
+        $written        = file_put_contents($fileName, $contents);
+        $this->assertGreaterThan(0, $written);
+        $this->assertEquals($written, $this->storage->size($storagePath));
+    }
+
+    public function testGetPathBuilder()
+    {
+        $this->assertSame($this->pathBuilder, $this->storage->getPathBuilder());
     }
 
     /**

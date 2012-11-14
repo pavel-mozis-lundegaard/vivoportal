@@ -206,6 +206,31 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $createSiteListener     = new \Vivo\SiteManager\Listener\CreateSiteListener($siteManager);
                     return $createSiteListener;
                 },
+                'lucene' => function(ServiceManager $sm) {
+                    $storageConfig  = array(
+                        'class'     => 'Vivo\Storage\LocalFileSystemStorage',
+                        'options'   => array(
+                            'root'          => __DIR__ . '/../../data/lucene',
+                            'path_builder'  => $sm->get('path_builder'),
+                        ),
+                    );
+                    $storageFactory = $sm->get('storage_factory');
+                    /* @var $storageFactory \Vivo\Storage\Factory */
+                    $storage    = $storageFactory->create($storageConfig);
+                    $luceneDirPath  = '/';
+                    $luceneDir  = new \Vivo\ZendSearch\Lucene\Storage\Directory\VivoStorage($storage, $luceneDirPath);
+                    try {
+                        $index      = \ZendSearch\Lucene\Lucene::open($luceneDir);
+                    } catch (\ZendSearch\Lucene\Exception\RuntimeException $e) {
+                        if ($e->getMessage() == 'Index doesn\'t exists in the specified directory.') {
+                            //Index not created yet, create it
+                            $index      = \ZendSearch\Lucene\Lucene::create($luceneDir);
+                        } else {
+                            throw $e;
+                        }
+                    }
+                    return $index;
+                },
                 'indexer'                   => function(ServiceManager $sm) {
                     $indexer                = new \Vivo\Indexer\Indexer();
                     return $indexer;

@@ -40,6 +40,7 @@ class FileOutputStream implements OutputStreamInterface, CloseableInterface
     /**
      * Writes data to the stream.
      * @param string $data
+     * @throws Exception\RuntimeException
      * @return integer
      */
     public function write($data)

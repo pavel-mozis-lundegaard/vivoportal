@@ -148,7 +148,10 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $config                 = $sm->get('config');
                     $modulePaths            = $config['vivo']['modules']['module_paths'];
                     $moduleStreamName       = $config['vivo']['modules']['stream_name'];
-                    $moduleManagerFactory   = new ModuleManagerFactory($modulePaths, $moduleStreamName);
+                    $application            = $sm->get('application');
+                    /* @var $application \Zend\Mvc\Application */
+                    $appEvents              = $application->getEventManager();
+                    $moduleManagerFactory   = new ModuleManagerFactory($modulePaths, $moduleStreamName, $appEvents);
                     return $moduleManagerFactory;
                 },
                 'Vivo\View\Strategy\PhtmlRenderingStrategy' => function(ServiceManager $sm) {

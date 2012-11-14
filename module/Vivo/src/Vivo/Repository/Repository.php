@@ -62,7 +62,8 @@ class Repository implements RepositoryInterface
 	private $serializer;
 
     /**
-     * The cache object
+     * The cache for objects of the model
+     * The entities are passed to this cache as objects, thus the cache has to support serialization
      * @var Cache
      */
     protected $cache;
@@ -143,7 +144,6 @@ class Repository implements RepositoryInterface
      * @param \Zend\Serializer\Adapter\AdapterInterface $serializer
      * @param UuidConvertor\UuidConvertorInterface $uuidConvertor
      * @param Watcher $watcher
-     * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
      * @param \Vivo\Uuid\GeneratorInterface $uuidGenerator
      * @param \Vivo\IO\IOUtil $ioUtil
      * @throws Exception\Exception
@@ -154,7 +154,6 @@ class Repository implements RepositoryInterface
                                 Serializer $serializer,
                                 UuidConvertorInterface $uuidConvertor,
                                 Watcher $watcher,
-                                PathBuilderInterface $pathBuilder,
                                 UuidGenerator $uuidGenerator,
                                 IOUtil $ioUtil)
 	{
@@ -175,9 +174,9 @@ class Repository implements RepositoryInterface
 		$this->serializer       = $serializer;
         $this->uuidConvertor    = $uuidConvertor;
         $this->watcher          = $watcher;
-        $this->pathBuilder      = $pathBuilder;
         $this->uuidGenerator    = $uuidGenerator;
         $this->ioUtil           = $ioUtil;
+        $this->pathBuilder      = $this->storage->getPathBuilder();
 	}
 
 	/**
@@ -752,7 +751,7 @@ class Repository implements RepositoryInterface
                 }
             }
 
-            //The actual commit is successfully done, now process references to entities in other objects
+            //The actual commit is successfully done, now process references to entities in Watcher, Cache, Indexer, etc
 
             //Delete entities from Watcher, Cache and Indexer, remove cached results from UuidConverter
  			foreach ($this->deleteEntities as $entity) {
@@ -768,14 +767,8 @@ class Repository implements RepositoryInterface
                     $this->uuidConvertor->removeByUuid($uuid);
                 }
                 //Indexer
-                //TODO - interact with indexer using object approach
                 $path   = $entity->getPath();
-                //TODO - check the path is not null
- 				$path   = str_replace(' ', '\\ ', $path);
- 				$query  = new \Vivo\Indexer\Query(
-                     'DELETE Vivo\CMS\Model\Entity\path = :path OR Vivo\CMS\Model\Entity\path = :path/*');
- 				$query->setParameter('path', $path);
- 				$this->indexer->execute($query);
+                 $this->indexer->delete($path);
  			}
             //Save entities to Watcher, Cache and Indexer, update cached results in UuidConverter
  			foreach ($this->saveEntities as $entity) {

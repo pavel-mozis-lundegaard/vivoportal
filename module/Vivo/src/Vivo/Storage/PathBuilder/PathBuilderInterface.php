@@ -26,4 +26,19 @@ interface PathBuilderInterface
      * @return array
      */
     public function getStoragePathComponents($path);
+
+    /**
+     * Returns true when the $path denotes an absolute path
+     * @param string $path
+     * @return boolean
+     */
+    public function isAbsolute($path);
+
+    /**
+     * Returns directory name for the given path
+     * If there is no parent directory for the given $path, returns null
+     * @param string $path
+     * @return string|null
+     */
+    public function dirname($path);
 }

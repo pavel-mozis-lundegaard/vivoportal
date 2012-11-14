@@ -52,7 +52,9 @@ class AutoloaderModule extends ModuleAutoloader
         if (!$this->vModuleStreamName) {
             throw new StreamException(sprintf('%s: Vmodule stream name (protocol) not set.', __METHOD__));
         }
-        $moduleFileUrl = $this->vModuleStreamName . '://' . $dirPath . '/Module.php';
+        //Convert backslashes to forward slashes
+        $dirPath        = str_replace('\\', '/', $dirPath);
+        $moduleFileUrl  = $this->vModuleStreamName . '://' . $dirPath . '/Module.php';
         //We must use include not require, otherwise the execution stops when the $moduleFileUrl is not found
         //We are suppressing output in php log, otherwise there are warnings logged
         @include_once $moduleFileUrl;

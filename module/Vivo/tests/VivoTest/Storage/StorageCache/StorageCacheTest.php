@@ -230,9 +230,6 @@ class StorageCacheTest extends TestCase
     {
         $inputStream  = $this->getMock('Vivo\IO\InputStreamInterface', array(), array(), '', false);
         $path   = 'foo/bar';
-        $this->cache->expects($this->once())
-            ->method('removeItem')
-            ->with($this->equalTo($path));
         $this->storage->expects($this->once())
             ->method('read')
             ->with($this->equalTo($path))

@@ -51,7 +51,7 @@ class Document extends Folder {
 	/**
 	 * @var array Panels in layout.
 	 */
-	protected $layoutPanels;
+	protected $layoutPanels = array();
 	/**
 	 * If this property is set, the document will appear in the lists of sub-documents (subpages)
 	 * on the front-end (overviews, sitemaps, menu, navigation, etc.)
@@ -177,5 +177,19 @@ class Document extends Folder {
 
 	public function getType() {
 		return get_class($this);
+	}
+
+	/**
+	 * Returns path of layout document.
+	 * @return string
+	 */
+	public function getLayout()
+	{
+        return $this->layout;
+	}
+
+	public function getLayoutPanels()
+	{
+	     return $this->layoutPanels;
 	}
 }

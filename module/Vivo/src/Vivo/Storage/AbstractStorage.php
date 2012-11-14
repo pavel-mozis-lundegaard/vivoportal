@@ -23,4 +23,13 @@ abstract class AbstractStorage implements StorageInterface
     {
         $this->pathBuilder = $pathBuilder;
     }
+
+    /**
+     * Returns PathBuilder for this storage
+     * @return PathBuilderInterface
+     */
+    public function getPathBuilder()
+    {
+        return $this->pathBuilder;
+    }
 }

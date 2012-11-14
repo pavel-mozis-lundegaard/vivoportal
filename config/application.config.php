@@ -3,6 +3,7 @@ return array(
     'modules' => array(
         'Vivo',
         'ZF2NetteDebug',
+        'ZendSearch',
     ),
     'module_listener_options' => array(
         'config_glob_paths'    => array(

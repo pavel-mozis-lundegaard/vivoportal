@@ -23,12 +23,11 @@ class Hostname implements RouteInterface
 
     public function assemble(array $params = array(), array $options = array())
     {
-        // TODO: Auto-generated method stub
-
+        return '';
     }
 
     public function getAssembledParams()
     {
-        return $this->assembledParams;
+        return array ('host');
     }
 }

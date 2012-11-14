@@ -1,14 +1,18 @@
 <?php
 namespace Vivo;
 
+use Vivo\CMS\ComponentFactory;
+use Vivo\CMS\ComponentResolver;
 use Vivo\Module\ModuleManagerFactory;
+use Vivo\View\Helper\Action;
+use Vivo\View\Strategy\PhtmlRenderingStrategy;
 
 use Zend\Console\Adapter\AdapterInterface as Console;
 use Zend\ModuleManager\Feature\ConsoleBannerProviderInterface;
 use Zend\ModuleManager\Feature\ConsoleUsageProviderInterface;
+use Zend\Mvc\Controller\ControllerManager;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\ServiceManager\ServiceManager;
-use Zend\Mvc\Controller\ControllerManager;
 
 class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInterface
 {
@@ -31,6 +35,9 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         $moduleStorage  = $sm->get('module_storage');
         $streamName     = $config['vivo']['modules']['stream_name'];
         \Vivo\Module\StreamWrapper::register($streamName, $moduleStorage);
+
+        $eventManager->attach('render', array ($this, 'registerUIRenderingStrategies'), 100);
+        $eventManager->attach('render', array ($this, 'registerViewHelpers'), 100);
     }
 
     public function getConfig()
@@ -48,6 +55,32 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
             ),
         );
     }
+
+
+    /**
+     * Register rendering strategy fo Vivo UI.
+     *
+     * @param unknown_type $e
+     */
+    public function registerUIRenderingStrategies($e)
+    {
+        $app          = $e->getTarget();
+        $locator      = $app->getServiceManager();
+        $view         = $locator->get('Zend\View\View');
+        $phtmlRenderingStrategy = $locator->get('Vivo\View\Strategy\PhtmlRenderingStrategy');
+        $view->getEventManager()->attach($phtmlRenderingStrategy, 100);
+    }
+
+    public function registerViewHelpers($e) {
+        $app          = $e->getTarget();
+        $serviceLocator      = $app->getServiceManager();
+        $plugins      = $serviceLocator->get('view_helper_manager');
+        $plugins->setFactory('action', function($sm) use($serviceLocator) {
+            $helper = new Action($sm->get('url'));
+            return $helper;
+        });
+    }
+
 
     public function getServiceConfig()
     {
@@ -119,8 +152,36 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $config                 = $sm->get('config');
                     $modulePaths            = $config['vivo']['modules']['module_paths'];
                     $moduleStreamName       = $config['vivo']['modules']['stream_name'];
-                    $moduleManagerFactory   = new ModuleManagerFactory($modulePaths, $moduleStreamName);
+                    $application            = $sm->get('application');
+                    /* @var $application \Zend\Mvc\Application */
+                    $appEvents              = $application->getEventManager();
+                    $moduleManagerFactory   = new ModuleManagerFactory($modulePaths, $moduleStreamName, $appEvents);
                     return $moduleManagerFactory;
+                },
+                'Vivo\View\Strategy\PhtmlRenderingStrategy' => function(ServiceManager $sm) {
+                    $config = $sm->get('config');
+                    $resolver = new \Vivo\View\Resolver\TemplateResolver($config['vivo']['templates']);
+                    $renderer = new \Vivo\View\Renderer\PhtmlRenderer();
+                    $renderer->setResolver($resolver);
+                    $renderer->setHelperPluginManager($sm->get('ViewHelperManager'));
+                    $strategy = new PhtmlRenderingStrategy($renderer, $resolver);
+                    return $strategy;
+                },
+                'Vivo\CMS\ComponentFactory' => function(ServiceManager $sm) {
+                    $di = $sm->get('di');
+                    //setup DI with shared instances from Vivo
+                    //TODO move di setup somewhere else
+                    $di->instanceManager()
+                    ->addSharedInstance($sm->get('request'), 'Zend\Http\Request');
+                    $di->instanceManager()
+                    ->addSharedInstance($sm->get('response'), 'Zend\Http\Response');
+                    $di->instanceManager()
+                    ->addSharedInstance($sm->get('cms'), 'Vivo\CMS\CMS');
+
+                    $cf = new ComponentFactory($di, $sm->get('cms'), $sm->get('site_event')->getSiteModel());
+                    $resolver = new ComponentResolver($sm->get('config'));
+                    $cf->setResolver($resolver);
+                    return $cf;
                 },
                 'site_event'        => function(ServiceManager $sm) {
                     $siteEvent              = new \Vivo\SiteManager\Event\SiteEvent();
@@ -135,6 +196,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $moduleManagerFactory   = $sm->get('module_manager_factory');
                     $moduleStorageManager   = $sm->get('module_storage_manager');
                     $cms                    = $sm->get('cms');
+                    $moduleResourceManager    = $sm->get('module_resource_manager');
                     $siteManager            = new \Vivo\SiteManager\SiteManager($siteEvents,
                                                                                 $siteEvent,
                                                                                 $routeParamHost,
@@ -142,7 +204,8 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                                                                                 $coreModules,
                                                                                 $moduleStorageManager,
                                                                                 $cms,
-                                                                                $sm);
+                                                                                $sm,
+                                                                                $moduleResourceManager);
                     return $siteManager;
                 },
                 'create_site_listener'  => function(ServiceManager $sm) {
@@ -150,12 +213,36 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $createSiteListener     = new \Vivo\SiteManager\Listener\CreateSiteListener($siteManager);
                     return $createSiteListener;
                 },
+                'lucene' => function(ServiceManager $sm) {
+                    $storageConfig  = array(
+                        'class'     => 'Vivo\Storage\LocalFileSystemStorage',
+                        'options'   => array(
+                            'root'          => __DIR__ . '/../../data/lucene',
+                            'path_builder'  => $sm->get('path_builder'),
+                        ),
+                    );
+                    $storageFactory = $sm->get('storage_factory');
+                    /* @var $storageFactory \Vivo\Storage\Factory */
+                    $storage    = $storageFactory->create($storageConfig);
+                    $luceneDirPath  = '/';
+                    $luceneDir  = new \Vivo\ZendSearch\Lucene\Storage\Directory\VivoStorage($storage, $luceneDirPath);
+                    try {
+                        $index      = \ZendSearch\Lucene\Lucene::open($luceneDir);
+                    } catch (\ZendSearch\Lucene\Exception\RuntimeException $e) {
+                        if ($e->getMessage() == 'Index doesn\'t exists in the specified directory.') {
+                            //Index not created yet, create it
+                            $index      = \ZendSearch\Lucene\Lucene::create($luceneDir);
+                        } else {
+                            throw $e;
+                        }
+                    }
+                    return $index;
+                },
                 'indexer'                   => function(ServiceManager $sm) {
                     $indexer                = new \Vivo\Indexer\Indexer();
                     return $indexer;
                 },
                 'repository'                => function(ServiceManager $sm) {
-                    $config                 = $sm->get('config');
                     $storageConfig          = array(
                         'class'     => 'Vivo\Storage\LocalFileSystemStorage',
                         'options'   => array(
@@ -176,7 +263,17 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $repository             = $sm->get('repository');
                     $cms                    = new \Vivo\CMS\CMS($repository);
                     return $cms;
-                }
+                },
+                'module_resource_manager'   => function(ServiceManager $sm) {
+                    $config                 = $sm->get('config');
+                    $resourceBase           = $config['vivo']['modules']['resource_base'];
+                    $moduleStorageManager   = $sm->get('module_storage_manager');
+                    $pathBuilder            = $sm->get('path_builder');
+                    $moduleResourceManager  = new \Vivo\Module\ResourceManager\ResourceManager($moduleStorageManager,
+                                                                                               $resourceBase,
+                                                                                               $pathBuilder);
+                    return $moduleResourceManager;
+                },
             ),
         );
     }
@@ -185,11 +282,27 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
     {
         return array(
             'factories'     => array(
+                'CMSFront' => function (ControllerManager $cm) {
+                    $fc = new \Vivo\Controller\CMSFrontController();
+                    $sm = $cm->getServiceLocator();
+                    $fc->setComponentFactory($sm->get('Vivo\CMS\ComponentFactory'));
+                    $fc->setTreeUtil($sm->get('Vivo\UI\TreeUtil'));
+                    $fc->setCMS($sm->get('cms'));
+                    //TODO get site from SiteManager
+                    $fc->setSiteEvent($sm->get('site_event'));
+                    return $fc;
+                },
                 'CLI\Module'    => function(ControllerManager $cm) {
                     $sm                     = $cm->getServiceLocator();
                     $moduleStorageManager   = $sm->get('module_storage_manager');
                     $remoteModule           = $sm->get('remote_module');
                     $controller             = new \Vivo\Controller\CLI\ModuleController($moduleStorageManager, $remoteModule);
+                    return $controller;
+                },
+                'ResourceFront'    => function(ControllerManager $cm) {
+                    $sm                     = $cm->getServiceLocator();
+                    $controller             = new \Vivo\Controller\ResourceFrontController();
+                    $controller->setResourceManager($sm->get('module_resource_manager'));
                     return $controller;
                 },
             ),

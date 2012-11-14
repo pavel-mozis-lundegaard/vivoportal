@@ -22,13 +22,19 @@ return array(
                                 'path' => '',
                             ),
                         ),
+                        'may_terminate' => true,
+                        'child_routes' => array(
+                            'query' => array(
+                                'type' => 'Query',
+                            ),
+                        ),
                     ),
 
                     'resources' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
-                            'regex'    => '/resources/(?<module>.*?)/(?<path>.*)',
-                            'spec'    => '/resources/%module%/%path%',
+                            'regex'    => '/.res.(?<module>.*?)/(?<path>.*)',
+                            'spec'    => '/.res.%module%/%path%',
                             'defaults' => array(
                                 'controller' => 'ResourceFront',
                                 'path' => '',
@@ -73,8 +79,6 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-            'CMSFront' => 'Vivo\Controller\CMSFrontController',
-            'ResourceFront' => 'Vivo\Controller\ResourceFrontController',
             'CLI\Indexer' => 'Vivo\Controller\CLI\IndexerController',
             'CLI\Info' => 'Vivo\Controller\CLI\InfoController',
         ),
@@ -96,6 +100,48 @@ return array(
         ),
     ),
 
+    'view_helpers' => array(
+            'invokables' => array(
+            ),
+    ),
+
+    'di' => array(
+    	'instance' => array (
+    		'alias' => array (
+    			'cms' => 'Vivo\Fake\CMS',
+    			'viewModel' =>  'Vivo\View\Model\UIViewModel',
+    		),
+
+    		'viewModel' => array (
+    				'shared' => false,
+    		),
+    		'Vivo\CMS\ComponentFactory' => array (
+	    		'parameters' => array (
+	    			'cms' => 'cms',
+	    		),
+    		),
+	    	'Vivo\UI\Page' => array (
+	    			'parameters' => array (
+	    					'options' => array (
+	    						'doctype' => '<!DOCTYPE html>',
+							),
+	    			),
+	    	),
+	    	'Vivo\CMS\UI\Content\Sample' => array (
+	    			'parameters' => array (
+	    					'options' => array (
+	    							'template' => 'someTemplate.phtml',
+	    					),
+	    			),
+			),
+ 			'Vivo\UI\Component' => array (
+ 	    			'parameters' => array (
+ 	    					'view' => 'viewModel',
+ 	    			),
+ 	    	),
+    	),
+    ),
+
     'vivo'      => array(
         //Vivo Modules configuration
         'modules'  => array(
@@ -111,9 +157,28 @@ return array(
             //List of core modules loaded for all sites
             'core_modules'          => array(
             ),
+            //Module folder where module resources are stored (relative to the module root)
+            'resource_base'         => 'resource',
         ),
         'cms'       => array(
             'repository'    => array(
+            ),
+        ),
+        'templates' => array (
+            'templateMap' => array(
+                'Vivo\UI\Page' => __DIR__.'/../view/Vivo/UI/Page.phtml',
+                'Vivo\CMS\UI\Content\Sample' => __DIR__.'/../view/Vivo/CMS/UI/Content/Sample.phtml',
+                'Vivo\CMS\UI\Content\Layout' => __DIR__.'/../view/Vivo/CMS/UI/Content/Layout.phtml',
+            ),
+        ),
+        'component_mapping' => array (
+            'front_component' => array (
+                'Vivo\CMS\Model\Content\Sample' => 'Vivo\CMS\UI\Content\Sample',
+                'Vivo\CMS\Model\Content\Layout' => 'Vivo\CMS\UI\Content\Layout',
+                'Vivo\CMS\Model\Content\File' => 'Vivo\CMS\UI\Content\File',
+            ),
+            'editor_component' => array (
+
             ),
         ),
     ),

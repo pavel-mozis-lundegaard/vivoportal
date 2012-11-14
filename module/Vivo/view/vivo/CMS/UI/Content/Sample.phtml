@@ -1,0 +1,12 @@
+SAMPLE:
+
+<?= isset($call)?$call:'';?>
+
+<a href="<?echo $this->url(null, array('act'=>'root->param->param->'),true);?>">Link 1</a>
+
+<a href="<?= $this->action('submit');?>">Link 2</a>
+
+<a href="<?= $this->action('submit', array('value1', 'value2'));?>">Link 3</a>
+
+
+

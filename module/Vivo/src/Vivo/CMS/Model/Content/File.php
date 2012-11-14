@@ -36,7 +36,14 @@ class File extends Model\Content
     {
         $this->mimeType = $mimeType;
     }
-
+    /**
+     * Returns file mimetype.
+     * @return string
+     */
+    public function getMineType() {
+    	return $this->mimeType;
+    }
+    
     /**
      * Retuns the original file name.
      * @return string
@@ -45,5 +52,4 @@ class File extends Model\Content
     {
         return $this->fileName;
     }
-
 }

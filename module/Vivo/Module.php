@@ -278,6 +278,8 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     ->addSharedInstance($sm->get('response'), 'Zend\Http\Response');
                     $di->instanceManager()
                     ->addSharedInstance($sm->get('cms'), 'Vivo\CMS\CMS');
+                    $di->instanceManager()
+                    ->addSharedInstance($sm->get('site_event'), 'Vivo\SiteManager\Event\SiteEvent');
 
                     $di->configure(new Config($diConfig));
                     return $di;

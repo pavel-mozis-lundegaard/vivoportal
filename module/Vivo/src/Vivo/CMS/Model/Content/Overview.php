@@ -71,4 +71,16 @@ class Overview extends Model\Content {
 		return parent::getTextContent(array_merge($field_names, array('overview_path', 'overview_items')));
 	}
 
+	public function getOverviewPath() {
+	    return $this->overviewPath;
+	}
+
+	public function getOverviewItems() {
+	    return $this->overviewItems;
+	}
+
+	public function getOverviewType() {
+	    return $this->overviewType;
+	}
+
 }

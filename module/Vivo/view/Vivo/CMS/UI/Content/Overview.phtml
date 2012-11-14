@@ -1,0 +1,7 @@
+<? if(count($children)) : ?>
+	<ul class="overviewDefault">
+	<? foreach($children as $child) : ?>
+		<li><?=$child->getTitle().$child->getPath();;?></li>
+	<? endforeach; ?>
+	</ul>
+<? endif; ?>

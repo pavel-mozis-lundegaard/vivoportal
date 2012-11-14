@@ -222,11 +222,16 @@ class Repository implements RepositoryInterface
 		sort($names); // sort it in a natural way
 
 		foreach ($names as $name) {
-			$child_path = "$path/$name";
+try {
+		    $child_path = "$path/$name";
 			if (!$this->storage->isObject($child_path)) {
-				$entity = $this->getEntity($child_path, $throw_exception);
+		        $entity = $this->getEntity($child_path, $throw_exception);
 				if ($entity/* && ($entity instanceof CMS\Model\Site || CMS::$securityManager->authorize($entity, 'Browse', false))*/)
 					$children[] = $entity;
+			}
+}
+			catch (\Exception $e) {
+//TODO fix the case when exists directory without Entity.object
 			}
 		}
 

@@ -33,6 +33,10 @@ class StreamResponse extends PHPResponse
      * @return \Vivo\IO\InputStreamInterface
      */
     public function getInputStream() {
+        if ($this->inputStream == null) {
+            $this->inputStream = new ByteArrayInputStream($this->content);
+        }
+
         return $this->inputStream;
     }
 
@@ -69,10 +73,7 @@ class StreamResponse extends PHPResponse
             return $this;
         }
 
-        if (!$source = $this->getInputStream()) {
-            $source = new ByteArrayInputStream($this->content);
-        }
-
+        $source = $this->getInputStream();
         $target = $this->getOutputStream();
         $util = new IOUtil();
         $util->copy($source, $target);

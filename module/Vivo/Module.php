@@ -1,6 +1,10 @@
 <?php
 namespace Vivo;
 
+use Zend\Di\Config;
+
+use Zend\Di\Di;
+
 use Vivo\CMS\ComponentFactory;
 use Vivo\CMS\ComponentResolver;
 use Vivo\Module\ModuleManagerFactory;
@@ -161,16 +165,9 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     return $strategy;
                 },
                 'Vivo\CMS\ComponentFactory' => function(ServiceManager $sm) {
-                    $di = $sm->get('di');
+                    $di = $sm->get('ui_di');
                     //setup DI with shared instances from Vivo
                     //TODO move di setup somewhere else
-                    $di->instanceManager()
-                    ->addSharedInstance($sm->get('request'), 'Zend\Http\Request');
-                    $di->instanceManager()
-                    ->addSharedInstance($sm->get('response'), 'Zend\Http\Response');
-                    $di->instanceManager()
-                    ->addSharedInstance($sm->get('cms'), 'Vivo\CMS\CMS');
-
                     $cf = new ComponentFactory($di, $sm->get('cms'), $sm->get('site_event')->getSiteModel());
                     $resolver = new ComponentResolver($sm->get('config'));
                     $cf->setResolver($resolver);
@@ -242,6 +239,20 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                                                                                                $pathBuilder);
                     return $moduleResourceManager;
                 },
+                'ui_di' => function (ServiceManager $sm) {
+                    $config                 = $sm->get('config');
+                    $diConfig           = $config['vivo']['ui_di'];
+                    $di = new Di();
+                    $di->instanceManager()
+                    ->addSharedInstance($sm->get('request'), 'Zend\Http\Request');
+                    $di->instanceManager()
+                    ->addSharedInstance($sm->get('response'), 'Zend\Http\Response');
+                    $di->instanceManager()
+                    ->addSharedInstance($sm->get('cms'), 'Vivo\CMS\CMS');
+
+                    $di->configure(new Config($diConfig));
+                    return $di;
+                }
             ),
         );
     }

@@ -1,14 +1,11 @@
 <?php
 namespace Vivo\CMS;
 
-use Vivo\CMS\Model\Entity;
-
-use Vivo\CMS\Model\Document;
-
 use Vivo\CMS\Model;
 use Vivo\CMS\Workflow;
 use Vivo\CMS\Exception;
 use Vivo\Repository\Repository;
+
 use Zend\Config;
 
 /**
@@ -16,348 +13,418 @@ use Zend\Config;
  */
 class CMS
 {
-	/**
-	 * @var \Vivo\Repository\Repository
-	 */
-	private $repository;
+    /**
+     * @var \Vivo\Repository\Repository
+     */
+    private $repository;
 
-	public function __construct(Repository $repository)
-	{
-		$this->repository = $repository;
-	}
+    public function __construct(Repository $repository)
+    {
+        $this->repository = $repository;
+    }
 
-	/**
-	 * @param string $host
-	 * @return \Vivo\CMS\Model\Site
-	 */
-	public function getSiteByHost($host)
-	{
-		$site = $this->repository->getSiteByHost($host);
+    /**
+     * Returns Site matching given hostname.
+     * @param string $host
+     * @return Model\Site
+     */
+    public function getSiteByHost($host)
+    {
+        $site = $this->repository->getSiteByHost($host);
+        return $site;
+    }
 
-		return $site;
-	}
+    /**
+     * @param string $name Site name.
+     * @param string $domain Security domain.
+     * @param array $hosts
+     * @return Model\Site
+     */
+    public function createSite($name, $domain, array $hosts)
+    {
+        $site = new Model\Site("/$name");
+        $site->setDomain($domain);
+        $site->setHosts($hosts);
 
-	/**
-	 * @param string $name Site name.
-	 * @param string $domain Security domain.
-	 * @param array $hosts
-	 * @return \Vivo\CMS\Model\Site
-	 */
-	public function createSite($name, $domain, array $hosts)
-	{
-		$site = new Model\Site("/$name");
-		$site->setDomain($domain);
-		$site->setHosts($hosts);
+        $config = "[config]\nvalue = \"data\"\n";
 
-		$config = "[config]\nvalue = \"data\"\n";
+        $root = new Model\Document("/$name/ROOT");
+        $root->setTitle('Home');
+        $root->setWorkflow('Vivo\CMS\Workflow\Basic');
 
-		$root = new Model\Document("/$name/ROOT");
-		$root->setTitle('Home');
-		$root->setWorkflow('Vivo\CMS\Workflow\Basic');
+        $this->repository->saveEntity($site);
+        $this->repository->saveResource($site, 'config.ini', $config);
+        $this->repository->saveEntity($root);
+        $this->repository->commit();
 
-		$this->repository->saveEntity($site);
-		$this->repository->saveResource($site, 'config.ini', $config);
-		$this->repository->saveEntity($root);
-		$this->repository->commit();
+        return $site;
+    }
 
-		return $site;
-	}
+    /**
+     * @param Model\Site $site
+     * @return array
+     */
+    public function getSiteConfig(Model\Site $site)
+    {
+        try {
+            $string = $this->repository->getResource($site, 'config.ini');
+        } catch (\Vivo\Storage\Exception\IOException $e) {
+            return array();
+        }
 
-	/**
-	 * @param \Vivo\CMS\Model\Site $site
-	 * @return array
-	 */
-	public function getSiteConfig(\Vivo\CMS\Model\Site $site)
-	{
-		try {
-			$string = $this->repository->getResource($site, 'config.ini');
-		}
-		catch(\Vivo\Storage\Exception\IOException $e) {
-			return array();
-		}
+        $reader = new Config\Reader\Ini();
+        $config = $reader->fromString($string);
 
-		$reader = new Config\Reader\Ini();
-		$config = $reader->fromString($string);
+        return $config;
+    }
 
-		return $config;
-	}
+    /**
+     * @param string $path Relative document path in site.
+     * @param Model\Site $site
+     * @return Model\Document
+     */
+    public function getSiteDocument($path, Model\Site $site)
+    {
+        return $this->repository->getEntity($site->getPath() . '/ROOT/' . $path);
+    }
 
-	/**
-	 * @param string $path Relative document path in site.
-	 * @param \Vivo\CMS\Model\Site $site
-	 * @return \Vivo\CMS\Model\Document
-	 */
-	public function getSiteDocument($path, \Vivo\CMS\Model\Site $site)
-	{
-		return $this->repository->getEntity($site->getPath().'/ROOT/'.$path);
-	}
+    /**
+     * @param Model\Document $document
+     * @return \Vivo\CMS\Workflow\AbstractWorkflow
+     */
+    public function getWorkflow(Model\Document $document)
+    {
+        return Workflow\Factory::get($document->getWorkflow());
+    }
 
-	/**
-	 * @param \Vivo\CMS\Model\Document $document
-	 * @return \Vivo\CMS\Workflow\AbstractWorkflow
-	 */
-	public function getWorkflow(\Vivo\CMS\Model\Document $document)
-	{
-		return Workflow\Factory::get($document->getWorkflow());
-	}
+    /**
+     * @param string $ident
+     * @return Model\Entity
+     */
+    public function getEntity($ident)
+    {
+        return $this->repository->getEntity($ident);
+    }
 
-	/**
-	 * @param string $ident
-	 * @return \Vivo\CMS\Model\Entity
-	 */
-	public function getEntity($ident)
-	{
-		return $this->repository->getEntity($ident);
-	}
+    /**
+     * @param Model\Folder $folder
+     * @return array
+     */
+    public function getChildren(Model\Folder $folder)
+    {
+        return $this->repository->getChildren($folder);
+    }
 
-	/**
-	 * @param \Vivo\CMS\Model\Folder $folder
-	 * @return array
-	 */
-	public function getChildren(\Vivo\CMS\Model\Folder $folder)
-	{
-		return $this->repository->getChildren($folder);
-	}
+    /**
+     * @param Model\Folder $folder
+     * @return Model\Folder
+     */
+    public function getParent(Model\Folder $folder)
+    {
+        return $this->repository->getParent($folder);
+    }
 
-	/**
-	 * @param \Vivo\CMS\Model\Folder $folder
-	 * @return \Vivo\CMS\Model\Folder
-	 */
-	public function getParent(\Vivo\CMS\Model\Folder $folder)
-	{
-		return $this->repository->getParent($folder);
-	}
+    /**
+     * @param Model\Entity $entity
+     */
+    protected function saveEntity(Model\Entity $entity)
+    {
+        $this->repository->saveEntity($entity);
+        $this->repository->commit();
+    }
 
-	/**
-	 * @param \Vivo\CMS\Model\Entity $entity
-	 */
-	protected function saveEntity(\Vivo\CMS\Model\Entity $entity)
-	{
-		$this->repository->saveEntity($entity);
-		$this->repository->commit();
-	}
+    public function saveDocument(Model\Document $document/*, $parent = null*/)
+    {
+        /*
+                if($parent != null && !$parent instanceof Model\Document && !$parent instanceof Model\Site) {
+                    throw new \InvalidArgumentException(sprintf('Argument %d passed to %s must be an instance of %s',
+                        2, __METHOD__, implode(', ', array('Vivo\Model\Document', 'Vivo\Model\Site')))
+                    );
+                }
+         */
+        $this->repository->saveEntity($document);
+        $this->repository->commit();
+    }
 
-	public function saveDocument(Model\Document $document/*, $parent = null*/)
-	{
-/*
-		if($parent != null && !$parent instanceof Model\Document && !$parent instanceof Model\Site) {
-			throw new \InvalidArgumentException(sprintf('Argument %d passed to %s must be an instance of %s',
-				2, __METHOD__, implode(', ', array('Vivo\Model\Document', 'Vivo\Model\Site')))
-			);
-		}
-*/
-		$this->repository->saveEntity($document);
-		$this->repository->commit();
-	}
+    /**
+     * @param Model\Document $document
+     * @param string $target Path.
+     */
+    public function moveDocument(Model\Document $document, $target)
+    {
+        $this->repository->moveEntity($document, $target);
+        $this->repository->commit();
+    }
 
-	/**
-	 * @param \Vivo\CMS\Model\Document $document
-	 * @param string $target Path.
-	 */
-	public function moveDocument(Model\Document $document, $target)
-	{
-		$this->repository->moveEntity($document, $target);
-		$this->repository->commit();
-	}
+    private function removeEntity(Model\Entity $entity)
+    {
+        $this->repository->deleteEntity($entity);
+        $this->repository->commit();
+    }
 
-	private function removeEntity(Model\Entity $entity)
-	{
-		$this->repository->deleteEntity($entity);
-		$this->repository->commit();
-	}
+    public function removeDocument(Model\Document $document)
+    {
+        $this->removeEntity($document);
+    }
 
-	public function removeDocument(Model\Document $document)
-	{
-		$this->removeEntity($document);
-	}
+    /**
+     * @param Model\Content $content
+     * @return Model\Document
+     */
+    public function getContentDocument(Model\Content $content)
+    {
+        $path = $content->getPath();
+        $path = substr($path, 0, strrpos($path, '/') - 1);
+        $path = substr($path, 0, strrpos($path, '/'));
 
-	/**
-	 * @param \Vivo\CMS\Model\Content $content
-	 * @return \Vivo\CMS\Model\Document
-	 */
-	public function getContentDocument(Model\Content $content)
-	{
-		$path = $content->getPath();
-		$path = substr($path, 0, strrpos($path, '/') - 1);
-		$path = substr($path, 0, strrpos($path, '/'));
+        $document = $this->repository->getEntity($path);
 
-		$document = $this->repository->getEntity($path);
+        if ($document instanceof Model\Document) {
+            return $document;
+        }
 
-		if($document instanceof Model\Document) {
-			return $document;
-		}
+        //@todo: nebo exception
+        return null;
+    }
 
-		//@todo: nebo exception
-		return null;
-	}
+    public function addDocumentContent(Model\Document $document,
+            Model\Content $content, $index = 0)
+    {
+        $path = $document->getPath();
 
-	public function addDocumentContent(\Vivo\CMS\Model\Document $document, Model\Content $content, $index = 0)
-	{
-		$path = $document->getPath();
+        $version = count($this->getDocumentContents($document, $index));
+        $contentPath = $path . "/Contents.$index/$version";
+        $content->setPath($contentPath);
+        $content->setState(Workflow\AbstractWorkflow::STATE_NEW);
 
-		$version = count($this->getDocumentContents($document, $index));
-		$contentPath = $path."/Contents.$index/$version";
-		$content->setPath($contentPath);
-		$content->setState(Workflow\AbstractWorkflow::STATE_NEW);
+        $this->repository->saveEntity($content);
+        $this->repository->commit();
+    }
 
-		$this->repository->saveEntity($content);
-		$this->repository->commit();
-	}
+    /**
+     * @param Model\Document $document
+     * @param int $index
+     * @param int $version
+     * @throws \Vivo\CMS\Exception\InvalidArgumentException
+     * @return Model\Content
+     */
+    public function getDocumentContent(Model\Document $document, $index,
+            $version/*, $state {PUBLISHED}*/)
+    {
+        if (!is_integer($version)) {
+            throw new Exception\InvalidArgumentException(
+                    sprintf(
+                            'Argument %d passed to %s must be an type of %s, %s given',
+                            2, __METHOD__, 'integer', gettype($version)));
+        }
+        if (!is_integer($index)) {
+            throw new Exception\InvalidArgumentException(
+                    sprintf(
+                            'Argument %d passed to %s must be an type of %s, %s given',
+                            3, __METHOD__, 'integer', gettype($index)));
+        }
 
-	/**
-	 * @param \Vivo\CMS\Model\Document $document
-	 * @param int $index
-	 * @param int $version
-	 * @throws \Vivo\CMS\Exception\InvalidArgumentException
-	 * @return \Vivo\CMS\Model\Content
-	 */
-	public function getDocumentContent(Model\Document $document, $index, $version/*, $state {PUBLISHED}*/)
-	{
-		if(!is_integer($version)) {
-			throw new Exception\InvalidArgumentException(sprintf('Argument %d passed to %s must be an type of %s, %s given', 2, __METHOD__, 'integer', gettype($version)));
-		}
-		if(!is_integer($index)) {
-			throw new Exception\InvalidArgumentException(sprintf('Argument %d passed to %s must be an type of %s, %s given', 3, __METHOD__, 'integer', gettype($index)));
-		}
+        $path = $document->getPath() . '/Contents.' . $index . '/' . $version;
 
-		$path = $document->getPath().'/Contents.'.$index.'/'.$version;
+        return $this->repository->getEntity($path);
+    }
 
-		return $this->repository->getEntity($path);
-	}
+    /**
+     * @param Model\Document $document
+     * @param int $index
+     * @throws \Vivo\CMS\Exception\InvalidArgumentException
+     * @return array
+     */
+    public function getDocumentContents(Model\Document $document, $index/*, $state {PUBLISHED}*/)
+    {
+        if (!is_integer($index)) {
+            throw new Exception\InvalidArgumentException(
+                    sprintf(
+                            'Argument %d passed to %s must be an type of integer, %s given',
+                            2, __METHOD__, gettype($index)));
+        }
 
-	/**
-	 * @param \Vivo\CMS\Model\Document $document
-	 * @param int $index
-	 * @throws \Vivo\CMS\Exception\InvalidArgumentException
-	 * @return array
-	 */
-	public function getDocumentContents(Model\Document $document, $index/*, $state {PUBLISHED}*/)
-	{
-		if(!is_integer($index)) {
-			throw new Exception\InvalidArgumentException(sprintf('Argument %d passed to %s must be an type of integer, %s given', 2, __METHOD__, gettype($index)));
-		}
+        $path = $document->getPath() . '/Contents.' . $index;
 
-		$path = $document->getPath().'/Contents.'.$index;
+        return $this->repository->getChildren(new Model\Entity($path));
+    }
 
-		return $this->repository->getChildren(new Model\Entity($path));
-	}
+    /**
+     * @param Model\Content $content
+     */
+    public function publishContent(Model\Content $content)
+    {
+        $document = $this->getContentDocument($content);
+        $oldConent = $this
+                ->getPublishedContent($document, $content->getIndex());
 
-	/**
-	 * @param \Vivo\CMS\Model\Content $content
-	 */
-	public function publishContent(Model\Content $content)
-	{
-		$document = $this->getContentDocument($content);
-		$oldConent = $this->getPublishedContent($document, $content->getIndex());
+        if ($oldConent) {
+            $oldConent->setState(Workflow\AbstractWorkflow::STATE_ARCHIVED);
+            $this->repository->saveEntity($oldConent);
+        }
 
-		if($oldConent) {
-			$oldConent->setState(Workflow\AbstractWorkflow::STATE_ARCHIVED);
-			$this->repository->saveEntity($oldConent);
-		}
+        $content->setState(Workflow\AbstractWorkflow::STATE_PUBLISHED);
+        $this->repository->saveEntity($content);
+        $this->repository->commit();
+    }
 
-		$content->setState(Workflow\AbstractWorkflow::STATE_PUBLISHED);
-		$this->repository->saveEntity($content);
-		$this->repository->commit();
-	}
+    public function getAllStates(Model\Document $document)
+    {
 
-	public function getAllStates(Model\Document $document)
-	{
+    }
 
-	}
+    public function getAvailableStates(Model\Document $document)
+    {
 
-	public function getAvailableStates(Model\Document $document)
-	{
+    }
 
-	}
+    /**
+     * Nasetuje "libovolny" workflow stav obsahu.
+     * @param Model\Content $content
+     * @param string $state
+     * @throws \Vivo\CMS\Exception\InvalidArgumentException
+     */
+    public function setState(Model\Content $content, $state)
+    {
+        $document = $this->getContentDocument($content);
+        $workflow = $this->getWorkflow($document);
+        $states = $workflow->getAllStates();
 
-	/**
-	 * Nasetuje "libovolny" workflow stav obsahu.
-	 * @param \Vivo\CMS\Model\Content $content
-	 * @param string $state
-	 * @throws \Vivo\CMS\Exception\InvalidArgumentException
-	 */
-	public function setState(Model\Content $content, $state)
-	{
-		$document = $this->getContentDocument($content);
-		$workflow = $this->getWorkflow($document);
-		$states = $workflow->getAllStates();
+        if (!in_array($state, $states)) {
+            throw new Exception\InvalidArgumentException(
+                    'Unknow state value. Available: ' . implode(', ', $states));
+        }
 
-		if(!in_array($state, $states)) {
-			throw new Exception\InvalidArgumentException('Unknow state value. Available: '.implode(', ', $states));
-		}
+        if (true /* uzivatel ma pravo na change*/) {
 
-		if(true /* uzivatel ma pravo na change*/) {
+        }
 
-		}
+        if ($state == Workflow\AbstractWorkflow::STATE_PUBLISHED) {
+            $this->publishContent($content);
+        } else {
+            $content->setState($state);
+            $this->repository->saveEntity($content);
+            $this->repository->commit();
+        }
+    }
 
-		if($state == Workflow\AbstractWorkflow::STATE_PUBLISHED) {
-			$this->publishContent($content);
-		}
-		else {
-			$content->setState($state);
-			$this->repository->saveEntity($content);
-			$this->repository->commit();
-		}
-	}
+//     /**
+//      * @param Model\Document $document
+//      * @param int $index
+//      * @return Model\Content
+//      */
+//     public function getPublishedContent(Model\Document $document, $index)
+//     {
+//         $index = $index ? $index : 0; //@todo: exception na is_int($index);
+//         $contents = $this->getDocumentContents($document, $index);
+//         foreach ($contents as $content) {
+//             if($content->getState() == Workflow\AbstractWorkflow::STATE_PUBLISHED) {
+//                 return $content;
+//             }
+//         }
+//
+//         return null;
+//     }
+//
+//     public function getContents(Model\Document $document, $index)
+//     {
+//         if(!is_integer($index)) {
+//             throw new \InvalidArgumentException(sprintf('Argument %d passed to %s must be an type of %s, %s given', 2, __METHOD__, 'integer', gettype($index)));
+//         }
+//
+//         return $this->repository->getChildren($document->getPath().'/Contents.'.$index);
+//     }
 
-	/**
-	 * @param \Vivo\CMS\Model\Document $document
-	 * @param int $index
-	 * @return \Vivo\CMS\Model\Content
-	 */
-	public function getPublishedContent(Model\Document $document, $index)
-	{
-		$index = $index ? $index : 0; //@todo: exception na is_int($index);
-		$contents = $this->getDocumentContents($document, $index);
-		foreach ($contents as $content) {
-			if($content->getState() == Workflow\AbstractWorkflow::STATE_PUBLISHED) {
-				return $content;
-			}
-		}
+    /**
+     * @param Model\Entity $entity
+     * @param string $name
+     * @param string $data
+     */
+    public function saveResource(Model\Entity $entity, $name, $data)
+    {
+        $this->repository->saveResource($entity, $name, $data);
+        $this->repository->commit();
+    }
 
-		return null;
-	}
+    /**
+     * Returns array of published contents of given document.
+     * @param Document $document
+     * @return Content[]
+     */
+    public function getPublishedContents(Model\Document $document)
+    {
+        $containers = $this->repository
+                ->getChildren($document, 'Vivo\CMS\Model\ContentContainer');
+        $contents = array();
 
-// 	public function getContents(Model\Document $document, $index)
-// 	{
-// 		if(!is_integer($index)) {
-// 			throw new \InvalidArgumentException(sprintf('Argument %d passed to %s must be an type of %s, %s given', 2, __METHOD__, 'integer', gettype($index)));
-// 		}
+        usort($containers,
+                function (Model\ContentContainer $a, Model\ContentContainer $b)
+                {
+                    return $a->getOrder() < $b->getOrder();
+                });
+        foreach ($containers as $container) {
+            if ($content = $this->getPublishedContent($container)) {
+                $contents[] = $content;
+            }
+        }
+        return $contents;
+    }
 
-// 		return $this->repository->getChildren($document->getPath().'/Contents.'.$index);
-// 	}
+    /**
+     * Finds published content in ContentContainer,
+     * @param Model\ContentContainer $container
+     * @return Model\Content|false
+     * @throws Exception\LogicException when there are more than one published content
+     */
+    public function getPublishedContent(Model\ContentContainer $container)
+    {
+        $result = array();
+        $contents = $this->repository
+                ->getChildren($container, 'Vivo\CMS\Model\Content');
+        foreach ($contents as $content) {
+            /* @var $content Model\Content */
+            if ($content->getState() == Workflow\Basic::STATE_PUBLISHED) {
+                $result[] = $content;
+            }
+        }
 
+        if (count($result) == 1) {
+            return $result[0];
+        } elseif (count($result) == 0) {
+            return false;
+        } else {
+            throw new Exception\LogicException(
+                    sprintf(
+                            "%s: The ContentContainer '%s' contains more than one published content.",
+                            __METHOD__, $container->getPath()));
+        }
+    }
 
-	/**
-	 * @param \Vivo\CMS\Model\Entity $entity
-	 * @param string $name
-	 * @param string $data
-	 */
-	public function saveResource(Model\Entity $entity, $name, $data)
-	{
-	    $this->repository->saveResource($entity, $name, $data);
-	    $this->repository->commit();
-	}
+    /**
+     * Returns input stream for resource of entity.
+     * @param Model\Entity $entity
+     * @param string $resourcePath
+     * @return \Vivo\IO\InputStreamInterface
+     */
+    public function readResource(Model\Entity $entity, $resourcePath)
+    {
+        return $this->repository->readResource($entity, $resourcePath);
+    }
 
-	public function getPublishedContents(Document $document) {
-	    //TODO
-	    throw new \Exception('Not implemented');
-	}
+    /**
+     * Returns content of entity resource.
+     * @param Model\Entity $entity
+     * @param string $resourcePath
+     * @return string
+     */
+    public function getResource(Model\Entity $entity, $resourcePath)
+    {
+        return $this->repository->getResource($entity, $resourcePath);
+    }
 
-	public function readResource(Entity $entity, $resource)
-	{
-	    //TODO
-	    throw new \Exception('Not implemented');
-	}
-
-	public function getResource(Entity $entity, $resourceFile)
-	{
-	    //TODO
-	    throw new \Exception('Not implemented');
-	}
-
-	public function getEntityUrl(Entity $entity) {
-	    //TODO
-	    throw new \Exception('Not implemented');
-	}
+    public function getEntityUrl(Model\Entity $entity)
+    {
+        //TODO
+        throw new \Exception('Not implemented');
+    }
 }

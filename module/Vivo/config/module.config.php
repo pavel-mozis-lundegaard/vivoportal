@@ -106,40 +106,6 @@ return array(
     ),
 
     'di' => array(
-    	'instance' => array (
-    		'alias' => array (
-    			'cms' => 'Vivo\Fake\CMS',
-    			'viewModel' =>  'Vivo\View\Model\UIViewModel',
-    		),
-
-    		'viewModel' => array (
-    				'shared' => false,
-    		),
-    		'Vivo\CMS\ComponentFactory' => array (
-	    		'parameters' => array (
-	    			'cms' => 'cms',
-	    		),
-    		),
-	    	'Vivo\UI\Page' => array (
-	    			'parameters' => array (
-	    					'options' => array (
-	    						'doctype' => '<!DOCTYPE html>',
-							),
-	    			),
-	    	),
-	    	'Vivo\CMS\UI\Content\Sample' => array (
-	    			'parameters' => array (
-	    					'options' => array (
-	    							'template' => 'someTemplate.phtml',
-	    					),
-	    			),
-			),
- 			'Vivo\UI\Component' => array (
- 	    			'parameters' => array (
- 	    					'view' => 'viewModel',
- 	    			),
- 	    	),
-    	),
     ),
 
     'vivo'      => array(
@@ -181,6 +147,44 @@ return array(
 
             ),
         ),
+
+        'ui_di' => array(
+            'instance' => array (
+                        'alias' => array (
+                                'cms' => 'Vivo\Fake\CMS',
+                                'viewModel' =>  'Vivo\View\Model\UIViewModel',
+                        ),
+
+                        'viewModel' => array (
+                                'shared' => false,
+                        ),
+                        'Vivo\CMS\ComponentFactory' => array (
+                                'parameters' => array (
+                                        'cms' => 'cms',
+                                ),
+                        ),
+                        'Vivo\UI\Page' => array (
+                                'parameters' => array (
+                                        'options' => array (
+                                                'doctype' => '<!DOCTYPE html>',
+                                        ),
+                                ),
+                        ),
+                        'Vivo\CMS\UI\Content\Sample' => array (
+                                'parameters' => array (
+                                        'options' => array (
+                                                'template' => 'someTemplate.phtml',
+                                        ),
+                                ),
+                        ),
+                        'Vivo\UI\Component' => array (
+                                'parameters' => array (
+                                        'view' => 'viewModel',
+                                ),
+                        ),
+                ),
+        ),
+
     ),
     'console' => array(
         'router' => array(

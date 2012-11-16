@@ -1,17 +1,16 @@
 <?php
 namespace Vivo;
 
-use Zend\Di\Config;
-
-use Zend\Di\Di;
-
 use Vivo\CMS\ComponentFactory;
 use Vivo\CMS\ComponentResolver;
 use Vivo\Module\ModuleManagerFactory;
 use Vivo\View\Helper\Action;
+use Vivo\View\Helper\Resource;
 use Vivo\View\Strategy\PhtmlRenderingStrategy;
 
 use Zend\Console\Adapter\AdapterInterface as Console;
+use Zend\Di\Config;
+use Zend\Di\Di;
 use Zend\ModuleManager\Feature\ConsoleBannerProviderInterface;
 use Zend\ModuleManager\Feature\ConsoleUsageProviderInterface;
 use Zend\Mvc\Controller\ControllerManager;
@@ -81,6 +80,10 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         $plugins      = $serviceLocator->get('view_helper_manager');
         $plugins->setFactory('action', function($sm) use($serviceLocator) {
             $helper = new Action($sm->get('url'));
+            return $helper;
+        });
+        $plugins->setFactory('resource', function($sm) use($serviceLocator) {
+            $helper = new Resource($sm->get('url'));
             return $helper;
         });
     }
@@ -295,7 +298,6 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $fc->setComponentFactory($sm->get('Vivo\CMS\ComponentFactory'));
                     $fc->setTreeUtil($sm->get('Vivo\UI\TreeUtil'));
                     $fc->setCMS($sm->get('cms'));
-                    //TODO get site from SiteManager
                     $fc->setSiteEvent($sm->get('site_event'));
                     return $fc;
                 },
@@ -309,7 +311,9 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                 'ResourceFront'    => function(ControllerManager $cm) {
                     $sm                     = $cm->getServiceLocator();
                     $controller             = new \Vivo\Controller\ResourceFrontController();
+                    $controller->setCMS($sm->get('cms'));
                     $controller->setResourceManager($sm->get('module_resource_manager'));
+                    $controller->setSiteEvent($sm->get('site_event'));
                     return $controller;
                 },
             ),

@@ -152,6 +152,7 @@ return array(
                 'Vivo\CMS\UI\Content\File:html' => __DIR__.'/../view/Vivo/CMS/UI/Content/File.html.phtml',
                 'Vivo\CMS\UI\Content\File:plain' => __DIR__.'/../view/Vivo/CMS/UI/Content/File.plain.phtml',
                 'Vivo\CMS\UI\Content\File:flash' => __DIR__.'/../view/Vivo/CMS/UI/Content/File.flash.phtml',
+                'Vivo\CMS\UI\Content\File:image' => __DIR__.'/../view/Vivo/CMS/UI/Content/File.image.phtml',
                 'Vivo\CMS\UI\Content\File' => __DIR__.'/../view/Vivo/CMS/UI/Content/File.phtml',
             ),
         ),

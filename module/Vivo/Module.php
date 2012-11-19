@@ -5,9 +5,12 @@ use Vivo\CMS\ComponentFactory;
 use Vivo\CMS\ComponentResolver;
 use Vivo\Module\ModuleManagerFactory;
 use Vivo\View\Helper\Action;
+use Vivo\View\Helper\Resource;
 use Vivo\View\Strategy\PhtmlRenderingStrategy;
 
 use Zend\Console\Adapter\AdapterInterface as Console;
+use Zend\Di\Config;
+use Zend\Di\Di;
 use Zend\ModuleManager\Feature\ConsoleBannerProviderInterface;
 use Zend\ModuleManager\Feature\ConsoleUsageProviderInterface;
 use Zend\Mvc\Controller\ControllerManager;
@@ -77,6 +80,10 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         $plugins      = $serviceLocator->get('view_helper_manager');
         $plugins->setFactory('action', function($sm) use($serviceLocator) {
             $helper = new Action($sm->get('url'));
+            return $helper;
+        });
+        $plugins->setFactory('resource', function($sm) use($serviceLocator) {
+            $helper = new Resource($sm->get('url'));
             return $helper;
         });
     }
@@ -164,16 +171,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     return $strategy;
                 },
                 'Vivo\CMS\ComponentFactory' => function(ServiceManager $sm) {
-                    $di = $sm->get('di');
-                    //setup DI with shared instances from Vivo
-                    //TODO move di setup somewhere else
-                    $di->instanceManager()
-                    ->addSharedInstance($sm->get('request'), 'Zend\Http\Request');
-                    $di->instanceManager()
-                    ->addSharedInstance($sm->get('response'), 'Zend\Http\Response');
-                    $di->instanceManager()
-                    ->addSharedInstance($sm->get('cms'), 'Vivo\CMS\CMS');
-
+                    $di = $sm->get('ui_di');
                     $cf = new ComponentFactory($di, $sm->get('cms'), $sm->get('site_event')->getSiteModel());
                     $resolver = new ComponentResolver($sm->get('config'));
                     $cf->setResolver($resolver);
@@ -270,6 +268,20 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                                                                                                $pathBuilder);
                     return $moduleResourceManager;
                 },
+                'ui_di' => function (ServiceManager $sm) {
+                    $config                 = $sm->get('config');
+                    $diConfig           = $config['vivo']['ui_di'];
+                    $di = new Di();
+                    $di->instanceManager()
+                    ->addSharedInstance($sm->get('request'), 'Zend\Http\Request');
+                    $di->instanceManager()
+                    ->addSharedInstance($sm->get('response'), 'Zend\Http\Response');
+                    $di->instanceManager()
+                    ->addSharedInstance($sm->get('cms'), 'Vivo\CMS\CMS');
+
+                    $di->configure(new Config($diConfig));
+                    return $di;
+                }
             ),
         );
     }
@@ -284,7 +296,6 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $fc->setComponentFactory($sm->get('Vivo\CMS\ComponentFactory'));
                     $fc->setTreeUtil($sm->get('Vivo\UI\TreeUtil'));
                     $fc->setCMS($sm->get('cms'));
-                    //TODO get site from SiteManager
                     $fc->setSiteEvent($sm->get('site_event'));
                     return $fc;
                 },
@@ -298,22 +309,22 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                 'ResourceFront'    => function(ControllerManager $cm) {
                     $sm                     = $cm->getServiceLocator();
                     $controller             = new \Vivo\Controller\ResourceFrontController();
+                    $controller->setCMS($sm->get('cms'));
                     $controller->setResourceManager($sm->get('module_resource_manager'));
+                    $controller->setSiteEvent($sm->get('site_event'));
                     return $controller;
                 },
             ),
         );
     }
 
-    public function getConsoleBanner(Console $console){
-        return
-        "==========================================================\n".
-        "    Vivo 2 CLI                                            \n".
-        "==========================================================\n"
-        ;
+    public function getConsoleBanner(Console $console)
+    {
+        return "Vivo 2 CLI\n";
     }
 
-    public function getConsoleUsage(Console $console){
+    public function getConsoleUsage(Console $console)
+    {
         return array('Available commands:',
                 array ('indexer', 'Perform operations on indexer..'),
                 array ('info','Show informations about CMS instance.'),

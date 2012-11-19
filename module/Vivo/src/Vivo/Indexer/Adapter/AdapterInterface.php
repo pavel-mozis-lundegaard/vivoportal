@@ -5,6 +5,7 @@ use Vivo\Indexer\Query;
 use Vivo\Indexer\QueryHit;
 use Vivo\TransactionalInterface;
 use Vivo\Indexer\Term as IndexTerm;
+use Vivo\Indexer\Document;
 
 /**
  * AdapterInterface
@@ -23,9 +24,43 @@ interface AdapterInterface extends TransactionalInterface
     /**
      * Finds documents based on a term
      * This is usually faster than find()
-     * Returns an array of document ids
+     * Returns an array of document ids, if no documents are found, returns an empty array
      * @param IndexTerm $term
      * @return array
      */
     public function termDocs(IndexTerm $term);
+
+    /**
+     * Returns a document by its ID
+     * If the document with this ID does not exist, returns null
+     * @param string $docId
+     * @return Document|null
+     */
+    public function getDocument($docId);
+
+    /**
+     * Deletes a document from the index
+     * @param string $docId
+     * @return void
+     */
+    public function deleteDocument($docId);
+
+    /**
+     * Adds a document into the index
+     * @param \Vivo\Indexer\Document $doc
+     * @return void
+     */
+    public function addDocument(Document $doc);
+
+    /**
+     * Optimizes the index
+     * @return void
+     */
+    public function optimize();
+
+    /**
+     * Returns number of undeleted documents currently present in the index
+     * @return integer
+     */
+    public function getDocumentCount();
 }

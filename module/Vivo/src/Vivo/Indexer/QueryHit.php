@@ -31,18 +31,24 @@ class QueryHit
     protected $document;
 
     /**
+     * Indexer adapter used to lazy load the document
+     * @var Adapter\AdapterInterface
+     */
+    protected $adapter;
+
+    /**
      * Constructor
+     * @param Adapter\AdapterInterface $adapter
      * @param string $id
      * @param string $docId
      * @param float $score
-     * @param Document $document
      */
-    public function __construct($id, $docId, $score, Document $document)
+    public function __construct(Adapter\AdapterInterface $adapter, $id, $docId, $score)
     {
+        $this->adapter  = $adapter;
         $this->id       = $id;
         $this->docId    = $docId;
         $this->score    = $score;
-        $this->document = $document;
     }
 
     /**
@@ -78,6 +84,9 @@ class QueryHit
      */
     public function getDocument()
     {
+        if (!$this->document) {
+            $this->document = $this->adapter->getDocument($this->docId);
+        }
         return $this->document;
     }
 }

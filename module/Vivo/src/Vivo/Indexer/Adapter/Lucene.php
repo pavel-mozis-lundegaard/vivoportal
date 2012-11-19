@@ -83,13 +83,11 @@ class Lucene implements AdapterInterface
             /* @var $luceneHit SearchLucene\Search\QueryHit */
             if (!$this->isDeleted($luceneHit->document_id)) {
                 //Include only undeleted documents in the result
-                $luceneDoc  = $luceneHit->getDocument();
-                $doc        = $this->createDocFromLuceneDoc($luceneDoc);
                 $hit        = new QueryHit(
+                                $this,
                                 (string)$luceneHit->id,
                                 (string)$luceneHit->document_id,
-                                $luceneHit->score,
-                                $doc);
+                                $luceneHit->score);
                 $hits[]     = $hit;
             }
         }
@@ -170,9 +168,9 @@ class Lucene implements AdapterInterface
         $luceneTerm     = new SearchLucene\Index\Term($term->getText(), $term->getField());
         $docIds         = $this->index->termDocs($luceneTerm);
         //Remove deleted documents from the result
-        foreach ($docIds as $docId) {
+        foreach ($docIds as $key => $docId) {
             if ($this->isDeleted($docId)) {
-                unset($docIds[$docId]);
+                unset($docIds[$key]);
             }
         }
         return $docIds;

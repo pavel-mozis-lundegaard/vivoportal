@@ -2,6 +2,7 @@
 namespace Vivo\Indexer;
 
 use Vivo\TransactionalInterface;
+use Vivo\Indexer\Document;
 
 /**
  * Indexer
@@ -173,5 +174,14 @@ class Indexer implements TransactionalInterface
     {
         $deletedCount   = $this->getDocumentCountAll() - $this->getDocumentCountUndeleted();
         return $deletedCount;
+    }
+
+    /**
+     * Adds a document into index
+     * @param Document $document
+     */
+    public function addDocument(Document $document)
+    {
+        $this->adapter->addDocument($document);
     }
 }

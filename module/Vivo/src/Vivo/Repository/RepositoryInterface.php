@@ -8,7 +8,6 @@ use Vivo\CMS\Model;
  * RepositoryInterface
  */
 interface RepositoryInterface extends TransactionalInterface {
-
 	/**
      * Returns entity identified by $ident
 	 * @param string $ident Entity identification (path, UUID or symbolic reference)

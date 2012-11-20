@@ -15,6 +15,7 @@ use Vivo\Storage\StorageInterface;
 use Vivo\Uuid\GeneratorInterface as UuidGenerator;
 use Vivo\IO\IOUtil;
 use Vivo\Repository\Exception;
+use Vivo\Repository\IndexerHelper;
 
 use Zend\Serializer\Adapter\AdapterInterface as Serializer;
 use Zend\Cache\Storage\StorageInterface as Cache;
@@ -43,6 +44,12 @@ class Repository implements RepositoryInterface
 	 * @var \Vivo\Indexer\Indexer
 	 */
 	private $indexer;
+
+    /**
+     * Indexer helper
+     * @var IndexerHelper
+     */
+    protected $indexerHelper;
 
     /**
      * UUID Convertor
@@ -141,6 +148,7 @@ class Repository implements RepositoryInterface
      * @param \Vivo\Storage\StorageInterface $storage
      * @param \Zend\Cache\Storage\StorageInterface $cache
      * @param \Vivo\Indexer\Indexer $indexer
+     * @param IndexerHelper $indexerHelper
      * @param \Zend\Serializer\Adapter\AdapterInterface $serializer
      * @param UuidConvertor\UuidConvertorInterface $uuidConvertor
      * @param Watcher $watcher
@@ -151,6 +159,7 @@ class Repository implements RepositoryInterface
     public function __construct(Storage\StorageInterface $storage,
                                 Cache $cache = null,
                                 Indexer $indexer,
+                                IndexerHelper $indexerHelper,
                                 Serializer $serializer,
                                 UuidConvertorInterface $uuidConvertor,
                                 Watcher $watcher,
@@ -171,6 +180,7 @@ class Repository implements RepositoryInterface
 		$this->storage          = $storage;
         $this->cache            = $cache;
 		$this->indexer          = $indexer;
+        $this->indexerHelper    = $indexerHelper;
 		$this->serializer       = $serializer;
         $this->uuidConvertor    = $uuidConvertor;
         $this->watcher          = $watcher;
@@ -690,6 +700,9 @@ class Repository implements RepositoryInterface
     public function commit()
     {
         try {
+            //Open indexer transaction
+            $this->indexer->begin();
+
             //Delete - Phase 1 (move to temp files)
             //a) Entities
             foreach ($this->deleteEntities as $entity) {
@@ -767,8 +780,8 @@ class Repository implements RepositoryInterface
                     $this->uuidConvertor->removeByUuid($uuid);
                 }
                 //Indexer
-                $path   = $entity->getPath();
-                 $this->indexer->delete($path);
+                $delQuery   = $this->indexerHelper->buildTreeQuery($entity);
+                $this->indexer->delete($delQuery);
  			}
             //Save entities to Watcher, Cache and Indexer, update cached results in UuidConverter
  			foreach ($this->saveEntities as $entity) {
@@ -778,16 +791,20 @@ class Repository implements RepositoryInterface
                 if ($this->cache) {
                     $this->cache->setItem($entity->getUuid(), $entity);
                 }
-                //Indexer
- 			    $this->indexer->save($entity); // (re)index entity
+                //Indexer - remove old doc insert new one
+                $entityTerm = $this->indexerHelper->buildEntityTerm($entity);
+                $entityDoc  = $this->indexerHelper->createDocument($entity);
+                $this->indexer->deleteByTerm($entityTerm);
+                $this->indexer->addDocument($entityDoc);
                 //UuidConvertor
                 $this->uuidConvertor->set($entity->getUuid(), $entity->getPath());
             }
-            //TODO - is indexer transactional?
- 			//$this->indexer->commit();
 
             //Clean-up after commit
             $this->reset();
+
+            //Commit changes to index
+            $this->indexer->commit();
         } catch (\Exception $e) {
             $this->rollback();
             throw $e;
@@ -798,7 +815,7 @@ class Repository implements RepositoryInterface
      * Resets/clears the changes scheduled for this transaction
      * Calling this function on uncommitted transaction may lead to data loss!
      */
-    public function reset()
+    protected function reset()
     {
         $this->copyFiles            = array();
         $this->deletePaths          = array();
@@ -814,6 +831,8 @@ class Repository implements RepositoryInterface
      */
     public function rollback()
     {
+        //Rollback indexer changes
+        $this->indexer->rollback();
         //Move back everything that was moved during Delete Phase 1
         foreach ($this->tmpDelFiles as $path => $tmpPath) {
             try {

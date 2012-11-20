@@ -3,16 +3,12 @@ namespace Vivo\Util\Path;
 
 use Vivo\Util\Exception;
 
+/**
+ * Parser for path of module files.
+ * @todo replace by zend router
+ */
 class PathParser
 {
-    private $options = array (
-            'prefix' => '');
-
-    public function __construct($options = array())
-    {
-        $this->options = array_merge($this->options, $options);
-    }
-
     public function getPath($path)
     {
         $parts = $this->resolve($path);
@@ -31,13 +27,13 @@ class PathParser
     }
 
     public function parse($path) {
-        if (!preg_match("@{$this->options['prefix']}(?<type>.*?):/(?<module>.*?)/(?<path>.*)@", $path, $matches)) {
+        if (!preg_match("@\.(?<module>.*?)\.(?<type>.*?)/(?<path>.*)@", $path, $matches)) {
             throw new Exception\CanNotParsePathException(sprintf("%s Can\'t parse path '%s'", __DIR__, $path));
         }
         return $matches;
     }
 
-    public function isPath() {
-        return preg_match("@{$this->options['prefix']}.*:/.*?/.*@", $path) ? true : false;
+    public function isPath($path) {
+        return preg_match("@\..*?\..*?/.*@", $path) ? true : false;
     }
 }

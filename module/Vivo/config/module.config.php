@@ -15,8 +15,8 @@ return array(
                     'cms' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
-                            'regex'    => '/(?<path>.*)',
-                            'spec'    => '/%path%',
+                            'regex'    => '/(?<path>.*)/',
+                            'spec'    => '/%path%/',
                             'defaults' => array(
                                 'controller' => 'CMSFront',
                                 'path' => '',
@@ -33,10 +33,11 @@ return array(
                     'resource' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
-                            'regex'    => '/\.res\.(?<source>.+?)/(?<path>.+)',
-                            'spec'    => '/.res.%source%/%path%',
+                            'regex'    => '/\.(?<source>.+)\.(?<type>.+?)/(?<path>.+)',
+                            'spec'    => '/.%source%.%type%/%path%',
                             'defaults' => array(
                                 'controller' => 'ResourceFront',
+                                'type' => '',
                                 'path' => '',
                                 'source' => '',
                             ),
@@ -46,8 +47,8 @@ return array(
                     'resource_entity' => array(
                             'type' => 'Zend\Mvc\Router\Http\Regex',
                             'options' => array(
-                                    'regex'    => '/\.res\.entity/(?<entity>.+?)((/\.res\.path/(?<path>.+)))',
-                                    'spec'    => '/.res.entity/%entity%/.res.path/%path%',
+                                    'regex'    => '/\.entity/(?<entity>.+?)((\.path(?<path>.+)))',
+                                    'spec'    => '/.entity/%entity%/.path/%path%',
                                     'defaults' => array(
                                             'controller' => 'ResourceFront',
                                             'path' => '',
@@ -57,6 +58,7 @@ return array(
                     ),
 
                     'backend' => array(
+                    //TODO config routing for backend
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
                             'regex'    => '/system/manager/(?<path>.*)',
@@ -184,6 +186,7 @@ return array(
                         'alias' => array (
                                 'cms' => 'Vivo\Fake\CMS',
                                 'viewModel' =>  'Vivo\View\Model\UIViewModel',
+                                'viewHelpers' =>  'Zend\View\HelperPluginManager',
                         ),
 
                         'viewModel' => array (
@@ -195,10 +198,34 @@ return array(
                                 ),
                         ),
                         'Vivo\UI\Page' => array (
-                                'parameters' => array (
-                                        'options' => array (
-                                                'doctype' => '<!DOCTYPE html>',
-                                        ),
+                            'parameters' => array (
+                                'doctype' => 'HTML5',
+                                //globaly defined links and scripts
+                                'links' => array (
+                                    array(
+                                        'rel'  => 'stylesheet',
+                                        'href' => '/.ModuleName.resource/css/definedInVivoConfig.css',
+                                        'type' => 'text/css',
+                                        'media' => 'screen'
+                                    ),
+                                 ),
+                                 'scripts' => array (
+                                         array(
+                                                 'src' => '/.ModuleName.resource/js/front.js',
+                                                 'type' => 'text/javascript',
+                                         ),
+                                 ),
+
+                                'metas' => array (
+                                     array (
+                                         'name' => 'Robots',
+                                         'content' => 'INDEX,FOLLOW',
+                                     ),
+                                     array (
+                                             'charset' => 'UTF-8',
+                                     ),
+                                 ),
+                                 'viewHelpers' => 'Zend\View\HelperPluginManager',
                                 ),
                         ),
                         'Vivo\CMS\UI\Content\Sample' => array (

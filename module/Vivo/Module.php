@@ -3,13 +3,10 @@ namespace Vivo;
 
 use Vivo\Util\Path\PathParser;
 
-use Vivo\View\Helper\Document;
-
 use Vivo\CMS\ComponentFactory;
 use Vivo\CMS\ComponentResolver;
 use Vivo\Module\ModuleManagerFactory;
-use Vivo\View\Helper\Action;
-use Vivo\View\Helper\Resource;
+use Vivo\View\Helper as ViewHelper;
 use Vivo\View\Strategy\PhtmlRenderingStrategy;
 
 use Zend\Console\Adapter\AdapterInterface as Console;
@@ -83,21 +80,19 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         $serviceLocator      = $app->getServiceManager();
         $plugins      = $serviceLocator->get('view_helper_manager');
         $plugins->setFactory('action', function($sm) use($serviceLocator) {
-            $helper = new Action($sm->get('url'));
+            $helper = new ViewHelper\Action($sm->get('url'));
             return $helper;
         });
         $plugins->setFactory('resource', function($sm) use($serviceLocator) {
-            $helper = new Resource($sm->get('url'), $serviceLocator->get('cms'));
+            $helper = new ViewHelper\Resource($sm->get('url'), $serviceLocator->get('cms'));
             $helper->setParser(new PathParser());
             return $helper;
         });
         $plugins->setFactory('document', function($sm) use($serviceLocator) {
-                $helper = new Document($sm->get('url'), $serviceLocator->get('cms'));
+                $helper = new ViewHelper\Document($sm->get('url'), $serviceLocator->get('cms'));
                 return $helper;
         });
-
     }
-
 
     public function getServiceConfig()
     {
@@ -327,7 +322,15 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $di->instanceManager()
                     ->addSharedInstance($sm->get('site_event'), 'Vivo\SiteManager\Event\SiteEvent');
 
+                    $di->instanceManager()
+                    ->addSharedInstance($sm->get('view_helper_manager'), 'Zend\View\HelperPluginManager');
                     $di->configure(new Config($diConfig));
+
+                    //print_r($di->instanceManager()->getClasses());
+                    //echo get_class($sm->get('view_helper_manager'));
+
+                    //\Zend\Di\Display\Console::export($di);
+                    //die('a');
                     return $di;
                 }
             ),

@@ -1,5 +1,9 @@
-SAMPLE:
+<?
+$this->headLink()->appendStylesheet('/styles/basic.css');
+$this->headScript()->appendFile('/test/aa.js');
+?>
 
+SAMPLE:
 <?= isset($call)?$call:'';?>
 
 <a href="<?echo $this->url(null, array('act'=>'root->param->param->'),true);?>">Link 1</a>

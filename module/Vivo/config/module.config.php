@@ -30,18 +30,32 @@ return array(
                         ),
                     ),
 
-                    'resources' => array(
+                    'resource' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
-                            'regex'    => '/.res.(?<module>.*?)/(?<path>.*)',
-                            'spec'    => '/.res.%module%/%path%',
+                            'regex'    => '/\.res\.(?<source>.+?)/(?<path>.+)',
+                            'spec'    => '/.res.%source%/%path%',
                             'defaults' => array(
                                 'controller' => 'ResourceFront',
                                 'path' => '',
-                                'module' => '',
+                                'source' => '',
                             ),
                         ),
                     ),
+
+                    'resource_entity' => array(
+                            'type' => 'Zend\Mvc\Router\Http\Regex',
+                            'options' => array(
+                                    'regex'    => '/\.res\.entity/(?<entity>.+?)((/\.res\.path/(?<path>.+)))',
+                                    'spec'    => '/.res.entity/%entity%/.res.path/%path%',
+                                    'defaults' => array(
+                                            'controller' => 'ResourceFront',
+                                            'path' => '',
+                                            'source' => 'entity',
+                                    ),
+                            ),
+                    ),
+
                     'backend' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
@@ -106,40 +120,6 @@ return array(
     ),
 
     'di' => array(
-    	'instance' => array (
-    		'alias' => array (
-    			'cms' => 'Vivo\Fake\CMS',
-    			'viewModel' =>  'Vivo\View\Model\UIViewModel',
-    		),
-
-    		'viewModel' => array (
-    				'shared' => false,
-    		),
-    		'Vivo\CMS\ComponentFactory' => array (
-	    		'parameters' => array (
-	    			'cms' => 'cms',
-	    		),
-    		),
-	    	'Vivo\UI\Page' => array (
-	    			'parameters' => array (
-	    					'options' => array (
-	    						'doctype' => '<!DOCTYPE html>',
-							),
-	    			),
-	    	),
-	    	'Vivo\CMS\UI\Content\Sample' => array (
-	    			'parameters' => array (
-	    					'options' => array (
-	    							'template' => 'someTemplate.phtml',
-	    					),
-	    			),
-			),
- 			'Vivo\UI\Component' => array (
- 	    			'parameters' => array (
- 	    					'view' => 'viewModel',
- 	    			),
- 	    	),
-    	),
     ),
 
     'vivo'      => array(
@@ -181,6 +161,44 @@ return array(
 
             ),
         ),
+
+        'ui_di' => array(
+            'instance' => array (
+                        'alias' => array (
+                                'cms' => 'Vivo\Fake\CMS',
+                                'viewModel' =>  'Vivo\View\Model\UIViewModel',
+                        ),
+
+                        'viewModel' => array (
+                                'shared' => false,
+                        ),
+                        'Vivo\CMS\ComponentFactory' => array (
+                                'parameters' => array (
+                                        'cms' => 'cms',
+                                ),
+                        ),
+                        'Vivo\UI\Page' => array (
+                                'parameters' => array (
+                                        'options' => array (
+                                                'doctype' => '<!DOCTYPE html>',
+                                        ),
+                                ),
+                        ),
+                        'Vivo\CMS\UI\Content\Sample' => array (
+                                'parameters' => array (
+                                        'options' => array (
+                                                'template' => 'someTemplate.phtml',
+                                        ),
+                                ),
+                        ),
+                        'Vivo\UI\Component' => array (
+                                'parameters' => array (
+                                        'view' => 'viewModel',
+                                ),
+                        ),
+                ),
+        ),
+
     ),
     'console' => array(
         'router' => array(

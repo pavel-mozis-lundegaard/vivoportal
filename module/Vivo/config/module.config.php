@@ -154,6 +154,7 @@ return array(
                 'Vivo\CMS\UI\Content\File:flash' => __DIR__.'/../view/Vivo/CMS/UI/Content/File.flash.phtml',
                 'Vivo\CMS\UI\Content\File:image' => __DIR__.'/../view/Vivo/CMS/UI/Content/File.image.phtml',
                 'Vivo\CMS\UI\Content\File' => __DIR__.'/../view/Vivo/CMS/UI/Content/File.phtml',
+                'Vivo\CMS\UI\Content\Overview' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.phtml',
                 'Vivo\UI\ComponentContainer' => __DIR__.'/../view/Vivo/UI/ComponentContainer.phtml',
             ),
         ),
@@ -162,6 +163,7 @@ return array(
                 'Vivo\CMS\Model\Content\Sample' => 'Vivo\CMS\UI\Content\Sample',
                 'Vivo\CMS\Model\Content\Layout' => 'Vivo\CMS\UI\Content\Layout',
                 'Vivo\CMS\Model\Content\File' => 'Vivo\CMS\UI\Content\File',
+                'Vivo\CMS\Model\Content\Overview' => 'Vivo\CMS\UI\Content\Overview',
             ),
             'editor_component' => array (
 

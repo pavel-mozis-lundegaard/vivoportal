@@ -149,6 +149,7 @@ return array(
                 'Vivo\UI\Page' => __DIR__.'/../view/Vivo/UI/Page.phtml',
                 'Vivo\CMS\UI\Content\Sample' => __DIR__.'/../view/Vivo/CMS/UI/Content/Sample.phtml',
                 'Vivo\CMS\UI\Content\Layout' => __DIR__.'/../view/Vivo/CMS/UI/Content/Layout.phtml',
+                'Vivo\UI\ComponentContainer' => __DIR__.'/../view/Vivo/UI/ComponentContainer.phtml',
             ),
         ),
         'component_mapping' => array (

@@ -32,6 +32,7 @@ class Indexer implements TransactionalInterface
 	{
         return $this->adapter->find($query);
 	}
+
     /**
      * Finds documents based on a term (returns docIds)
      * This is usually faster than find()
@@ -53,11 +54,9 @@ class Indexer implements TransactionalInterface
     public function termDocsObj(Term $term) {
         $docIds = $this->termDocs($term);
         $docs   = array();
-        if (count($docIds) > 0) {
-            foreach ($docIds as $docId) {
-                $doc    = $this->getDocument($docId);
-                $docs[] = $doc;
-            }
+        foreach ($docIds as $docId) {
+            $doc    = $this->getDocument($docId);
+            $docs[] = $doc;
         }
         return $docs;
     }
@@ -139,4 +138,40 @@ class Indexer implements TransactionalInterface
         $this->adapter->rollback();
     }
 
+    /**
+     * Deletes all documents from index
+     * @return void
+     */
+    public function deleteAllDocuments()
+    {
+        $this->adapter->deleteAllDocuments();
+    }
+
+    /**
+     * Returns number of all (undeleted + deleted) documents in the index
+     * @return integer
+     */
+    public function getDocumentCountAll()
+    {
+        return $this->adapter->getDocumentCountAll();
+    }
+
+    /**
+     * Returns number of undeleted document in the index
+     * @return int
+     */
+    public function getDocumentCountUndeleted()
+    {
+        return $this->adapter->getDocumentCountUndeleted();
+    }
+
+    /**
+     * Returns number of deleted documents in the index
+     * @return int
+     */
+    public function getDocumentCountDeleted()
+    {
+        $deletedCount   = $this->getDocumentCountAll() - $this->getDocumentCountUndeleted();
+        return $deletedCount;
+    }
 }

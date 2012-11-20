@@ -1,6 +1,9 @@
 <?php
 namespace Vivo\Indexer;
 
+/**
+ * @deprecated
+ */
 class Query {
 	/**
 	 * @var string

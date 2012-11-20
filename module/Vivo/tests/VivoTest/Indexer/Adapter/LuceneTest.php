@@ -95,4 +95,116 @@ class LuceneTest extends \PHPUnit_Framework_TestCase
         $doc    = $this->luceneAdapter->getDocument($docId);
         $this->assertEquals('ABCDEF', $doc->getFieldValue('uuid'));
     }
+
+    public function testGetDocumentReturnsNullOnNonExistent()
+    {
+        $docId  = '95';
+        $this->index->expects($this->once())
+            ->method('isDeleted')
+            ->with($docId)
+            ->will($this->returnValue(false));
+        $this->index->expects($this->once())
+            ->method('getDocument')
+            ->with($docId)
+            ->will($this->throwException(new SearchLucene\Exception\OutOfRangeException()));
+        $this->assertNull($this->luceneAdapter->getDocument($docId));
+    }
+
+    public function testAddDocumentCommitsOutsideTx()
+    {
+        $this->assertFalse($this->luceneAdapter->isTransactionOpen());
+        $this->index->expects($this->once())
+            ->method('addDocument');
+        $doc    = new \Vivo\Indexer\Document();
+        $this->luceneAdapter->addDocument($doc);
+    }
+
+    public function testAddDocumentDoesNotCommitWithinTx()
+    {
+        $this->luceneAdapter->begin();
+        $this->assertTrue($this->luceneAdapter->isTransactionOpen());
+        $this->index->expects($this->never())
+            ->method('addDocument');
+        $doc    = new \Vivo\Indexer\Document();
+        $this->luceneAdapter->addDocument($doc);
+    }
+
+    public function testDeleteDocumentCommitsOutsideTx()
+    {
+        $this->assertFalse($this->luceneAdapter->isTransactionOpen());
+        $docId  = '501';
+        $this->index->expects($this->once())
+            ->method('delete')
+            ->with($docId);
+        $this->luceneAdapter->deleteDocument($docId);
+    }
+
+    public function testDeleteDocumentDoesNotCommitWithinTx()
+    {
+        $this->luceneAdapter->begin();
+        $this->assertTrue($this->luceneAdapter->isTransactionOpen());
+        $docId  = '501';
+        $this->index->expects($this->never())
+            ->method('delete');
+        $this->luceneAdapter->deleteDocument($docId);
+    }
+
+    public function testCommit()
+    {
+        //Previous transaction
+        $this->luceneAdapter->deleteDocument('333');
+        $doc    = new \Vivo\Indexer\Document();
+        $this->luceneAdapter->addDocument($doc);
+        $this->luceneAdapter->begin();
+        //Deletions
+        $deleteIds  = array('8', '950', '402', '19');
+        foreach ($deleteIds as $deleteId) {
+            $this->luceneAdapter->deleteDocument($deleteId);
+        }
+        $this->index->expects($this->exactly(count($deleteIds)))
+            ->method('delete');
+        $this->index->expects($this->at(0))
+            ->method('delete')
+            ->with('8');
+        $this->index->expects($this->at(1))
+            ->method('delete')
+            ->with('950');
+        $this->index->expects($this->at(2))
+            ->method('delete')
+            ->with('402')
+            ->will($this->throwException(new SearchLucene\Exception\OutOfRangeException()));
+        $this->index->expects($this->at(3))
+            ->method('delete')
+            ->with('19');
+        $this->index->expects($this->once())
+            ->method('commit');
+        //Added docs
+        $doc1   = new \Vivo\Indexer\Document();
+        $doc2   = new \Vivo\Indexer\Document();
+        $this->luceneAdapter->addDocument($doc1);
+        $this->luceneAdapter->addDocument($doc2);
+        $this->index->expects($this->exactly(2))
+            ->method('addDocument');
+        //Commit
+        $this->luceneAdapter->commit();
+        $this->assertFalse($this->luceneAdapter->isTransactionOpen());
+    }
+
+    public function testBegin()
+    {
+        $this->assertFalse($this->luceneAdapter->isTransactionOpen());
+        $this->luceneAdapter->begin();
+        $this->assertTrue($this->luceneAdapter->isTransactionOpen());
+    }
+
+    public function testRollback()
+    {
+        $this->luceneAdapter->begin();
+        $this->luceneAdapter->deleteDocument('333');
+        $doc    = new \Vivo\Indexer\Document();
+        $this->luceneAdapter->addDocument($doc);
+        $this->luceneAdapter->rollback();
+        $this->assertFalse($this->luceneAdapter->isTransactionOpen());
+
+    }
 }

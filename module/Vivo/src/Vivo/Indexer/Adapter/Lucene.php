@@ -120,12 +120,12 @@ class Lucene implements AdapterInterface
     public function commit()
     {
         //Delete documents
-        try {
-            foreach ($this->deleteIds as $deleteId) {
+        foreach ($this->deleteIds as $deleteId) {
+            try {
                 $this->index->delete($deleteId);
+            } catch (SearchLucene\Exception\OutOfRangeException $e) {
+                //Document id not found - silently suppress
             }
-        } catch (SearchLucene\Exception\OutOfRangeException $e) {
-            //Document id not found - silently suppress
         }
         //Add documents
         foreach ($this->addDocs as $addDoc) {
@@ -239,12 +239,39 @@ class Lucene implements AdapterInterface
     }
 
     /**
+     * Returns number of all (undeleted + deleted) documents in the index
+     * @return integer
+     */
+    public function getDocumentCountAll()
+    {
+        return $this->index->count();
+    }
+
+    /**
      * Returns number of undeleted documents currently present in the index
      * @return integer
      */
-    public function getDocumentCount()
+    public function getDocumentCountUndeleted()
     {
         return $this->index->numDocs();
+    }
+
+    /**
+     * Deletes all documents from index
+     * @return void
+     */
+    public function deleteAllDocuments()
+    {
+        $this->commit();
+        $maxDoc = $this->index->maxDoc() - 1;
+        for ($i = 0; $i <= $maxDoc; $i++) {
+            try {
+                $this->index->delete($i);
+            } catch (SearchLucene\Exception\OutOfRangeException $e) {
+                //Silently suppress when doc id is not found
+            }
+        }
+        $this->index->commit();
     }
 
     /**

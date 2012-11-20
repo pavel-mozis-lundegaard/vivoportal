@@ -59,8 +59,20 @@ interface AdapterInterface extends TransactionalInterface
     public function optimize();
 
     /**
+     * Returns number of all (undeleted + deleted) documents in the index
+     * @return integer
+     */
+    public function getDocumentCountAll();
+
+    /**
      * Returns number of undeleted documents currently present in the index
      * @return integer
      */
-    public function getDocumentCount();
+    public function getDocumentCountUndeleted();
+
+    /**
+     * Deletes all documents from index
+     * @return void
+     */
+    public function deleteAllDocuments();
 }

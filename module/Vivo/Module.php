@@ -232,8 +232,14 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     }
                     return $index;
                 },
+                'indexer_adapter_lucene'    => function(ServiceManager $sm) {
+                    $index                  = $sm->get('lucene');
+                    $adapter                = new \Vivo\Indexer\Adapter\Lucene($index);
+                    return $adapter;
+                },
                 'indexer'                   => function(ServiceManager $sm) {
-                    $indexer                = new \Vivo\Indexer\Indexer();
+                    $adapter                = $sm->get('indexer_adapter_lucene');
+                    $indexer                = new \Vivo\Indexer\Indexer($adapter);
                     return $indexer;
                 },
                 'repository'                => function(ServiceManager $sm) {

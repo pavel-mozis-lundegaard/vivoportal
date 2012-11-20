@@ -83,7 +83,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
             return $helper;
         });
         $plugins->setFactory('resource', function($sm) use($serviceLocator) {
-            $helper = new Resource($sm->get('url'));
+            $helper = new Resource($sm->get('url'), $serviceLocator->get('cms'));
             return $helper;
         });
     }

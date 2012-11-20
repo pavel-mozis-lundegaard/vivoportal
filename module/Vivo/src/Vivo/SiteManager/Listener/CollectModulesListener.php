@@ -73,9 +73,9 @@ class CollectModulesListener implements ListenerAggregateInterface
     public function onCollectModules(SiteEventInterface $e)
     {
         $siteConfig = $e->getSiteConfig();
-        if ($siteConfig && isset($siteConfig['modules'])) {
+        if ($siteConfig && isset($siteConfig['modules']['site_modules'])) {
             //Add modules required by site to the module stack
-            $this->addMissingValues($this->modules, $siteConfig['modules']);
+            $this->addMissingValues($this->modules, $siteConfig['modules']['site_modules']);
         }
         //Add modules from dependencies
         $this->addMissingDependencies($this->modules);

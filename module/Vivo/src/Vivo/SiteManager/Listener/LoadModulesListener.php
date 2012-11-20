@@ -89,9 +89,11 @@ class LoadModulesListener implements ListenerAggregateInterface
         //Merge site config into the modules config and use it as site config
         $siteConfig = ArrayUtils::merge($modulesConfig, $siteConfig);
         $e->setSiteConfig($siteConfig);
-        //Merge site config into the main config and update main config in SM
+        //Merge site config into the main config's 'vivo' namespace
         $mainConfig = $this->serviceManager->get('config');
-        $mainConfig = ArrayUtils::merge($mainConfig, $siteConfig);
+        $vivoConfig = $mainConfig['vivo'];
+        $vivoConfig = ArrayUtils::merge($vivoConfig, $siteConfig);
+        $mainConfig['vivo'] = $vivoConfig;
         $this->serviceManager->setService('config', $mainConfig);
         $e->stopPropagation(true);
     }

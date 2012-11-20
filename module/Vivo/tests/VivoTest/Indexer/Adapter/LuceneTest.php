@@ -205,6 +205,28 @@ class LuceneTest extends \PHPUnit_Framework_TestCase
         $this->luceneAdapter->addDocument($doc);
         $this->luceneAdapter->rollback();
         $this->assertFalse($this->luceneAdapter->isTransactionOpen());
+    }
 
+    public function testDeleteAllDocuments()
+    {
+        $docCount   = 5;
+        $this->index->expects($this->exactly(2))
+            ->method('commit');
+        $this->index->expects($this->once())
+            ->method('maxDoc')
+            ->will($this->returnValue($docCount));
+        $this->index->expects($this->exactly($docCount))
+            ->method('delete');
+        //Delete is first called at the index 2 (the 'at' matcher matches 'per object'!)
+        $this->index->expects($this->at(2))
+            ->method('delete')
+            ->with(0)
+            ->will($this->throwException(new SearchLucene\Exception\OutOfRangeException()));
+        for ($i = 1; $i < $docCount; $i++) {
+            $this->index->expects($this->at(2 + $i))
+                ->method('delete')
+                ->with($i);
+        }
+        $this->luceneAdapter->deleteAllDocuments();
     }
 }

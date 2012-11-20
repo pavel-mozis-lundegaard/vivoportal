@@ -47,7 +47,7 @@ class Overview extends Component
             } else {
                 $document = $this->document;
             }
-            $documents = $this->cms->getChildren($document);
+            $documents = $this->cms->getChildDocuments($document);
         } elseif ($type == OverviewModel::TYPE_STATIC) {
             $items = $this->content->getOverviewItems();
             foreach ($items as $item) {

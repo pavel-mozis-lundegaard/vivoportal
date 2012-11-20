@@ -1,7 +1,7 @@
 <? if(count($children)) : ?>
 	<ul class="overviewDefault">
 	<? foreach($children as $child) : ?>
-		<li><?=$child->getTitle().$child->getPath();;?></li>
+		<li><a href="<?=$this->document($child)?>"><?=$child->getTitle();?></a></li>
 	<? endforeach; ?>
 	</ul>
 <? endif; ?>

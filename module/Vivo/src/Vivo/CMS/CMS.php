@@ -425,6 +425,27 @@ class CMS
     public function getEntityUrl(Model\Entity $entity)
     {
         //TODO
-        throw new \Exception('Not implemented');
+        $parts = explode('/ROOT/', $entity->getPath());
+        return $parts[1];
+    }
+
+    public function getSiteEntity($entityPath, $site) {
+        $path = $site->getPath(). '/ROOT/'. $entityPath;
+        return $this->getEntity($path);
+    }
+
+    /**
+     * Returns child documents.
+     * @param Model\Document $document
+     */
+    public function getChildDocuments(Model\Document $document) {
+        $children = $this->getChildren($document);
+        $result = array();
+        foreach ($children as $child) {
+            if ($child instanceof Model\Document) {
+                $result[] = $child;
+            }
+        }
+        return $result;
     }
 }

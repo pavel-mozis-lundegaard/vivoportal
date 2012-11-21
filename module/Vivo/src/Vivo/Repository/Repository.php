@@ -16,13 +16,14 @@ use Vivo\Uuid\GeneratorInterface as UuidGenerator;
 use Vivo\IO\IOUtil;
 use Vivo\Repository\Exception;
 use Vivo\Repository\IndexerHelper;
+use Vivo\Indexer\Term as IndexerTerm;
 
 use Zend\Serializer\Adapter\AdapterInterface as Serializer;
 use Zend\Cache\Storage\StorageInterface as Cache;
 
 /**
  * Repository class provides methods to work with CMS repository.
- * Repository supports transactions. The saveEntity or deleteEntity statement begins a new transaction.
+ * Repository supports transactions.
  * Commit method commits the current transaction, making its changes permanent.
  * Rollback rolls back the current transaction, canceling its changes.
  */
@@ -269,62 +270,74 @@ class Repository implements RepositoryInterface
      * Returns entity from repository
      * If the entity does not exist, returns null
      * @param string $ident Entity identification (path, UUID or symbolic reference)
-     * @return null|\Vivo\CMS\Model\Entity
+     * @return \Vivo\CMS\Model\Entity|null
      * @throws Exception\EntityNotFoundException
      */
     public function getEntity($ident)
     {
-        $uuid   = null;
-        $path   = null;
-        if (preg_match('/^'.self::UUID_PATTERN.'$/i', $ident)) {
-            //UUID
-            $uuid = strtoupper($ident);
-        } elseif (preg_match('/^\[ref:('.self::UUID_PATTERN.')\]$/i', $ident, $matches)) {
-            //Symbolic reference in [ref:uuid] format
-            $uuid = strtoupper($matches[1]);
-        } else {
-            //Attempt conversion from path
-            $uuid = $this->uuidConvertor->getUuid($ident);
-            if ($uuid) {
-                $path   = $ident;
+        $identArray = $this->getUuidAndPathFromEntityIdent($ident);
+        $uuid   = $identArray['uuid'];
+        $path   = $identArray['path'];
+        if ($uuid) {
+            //Get entity from watcher
+            $entity = $this->watcher->get($uuid);
+            if ($entity) {
+                return $entity;
+            }
+            //Get entity from cache
+            $entity = $this->getEntityFromCache($uuid);
+            if ($entity) {
+                return $entity;
             }
         }
-        if (!$uuid) {
-            throw new Exception\EntityNotFoundException(
-                sprintf("%s: Cannot get UUID for entity identifier '%s'", __METHOD__, $ident));
+        if ($path) {
+            //Get entity from storage
+            $entity = $this->getEntityFromStorage($path);
+            if ($entity) {
+                return $entity;
+            }
         }
-        //Get entity from watcher
-        $entity = $this->watcher->get($uuid);
-        if ($entity) {
-            return $entity;
-        }
-        //Get entity from cache
+        return null;
+    }
+
+    /**
+     * Looks up an entity in cache and returns it
+     * If the entity does not exist in cache or the cache is not configured, returns null
+     * @param string $uuid
+     * @return \Vivo\CMS\Model\Entity|null
+     */
+    protected function getEntityFromCache($uuid)
+    {
         if ($this->cache) {
             $cacheSuccess   = null;
             $entity         = $this->cache->getItem($uuid, $cacheSuccess);
             if ($cacheSuccess) {
                 $this->watcher->add($entity);
-                return $entity;
             }
+        } else {
+            $entity = null;
         }
-        //Get entity from storage
-        if (!$path) {
-            $path   = $this->uuidConvertor->getPath($uuid);
-            if (!$path) {
-                throw new Exception\EntityNotFoundException(
-                    sprintf("%s: Cannot get path for UUID = '%s'", __METHOD__, $uuid));
-            }
-        }
+        return $entity;
+    }
+
+    /**
+     * Looks up an entity in storage and returns it
+     * If the entity does not exist, returns null
+     * @param string $path
+     * @return \Vivo\CMS\Model\Entity|null
+     */
+    protected function getEntityFromStorage($path)
+    {
         $pathComponents = array($path, self::ENTITY_FILENAME);
         $fullPath       = $this->pathBuilder->buildStoragePath($pathComponents, true);
         if ($this->storage->isObject($fullPath)) {
             $entitySer      = $this->storage->get($fullPath);
             $entity         = $this->serializer->unserialize($entitySer);
             /* @var $entity \Vivo\CMS\Model\Entity */
-            $entity->setPath($ident); // set volatile path property of entity instance
+            $entity->setPath($path); // set volatile path property of entity instance
             $this->watcher->add($entity);
             if ($this->cache) {
-                $this->cache->setItem($uuid, $entity);
+                $this->cache->setItem($entity->getUuid(), $entity);
             }
         } else {
             $entity = null;
@@ -357,7 +370,7 @@ class Repository implements RepositoryInterface
      * @param \Vivo\CMS\Model\Entity $entity
      * @param bool|string $className
      * @param bool $deep
-     * @return array
+     * @return \Vivo\CMS\Model\Entity[]
      */
     public function getChildren(Model\Entity $entity, $className = false, $deep = false)
 	{
@@ -377,8 +390,9 @@ class Repository implements RepositoryInterface
             $childPath  = $this->pathBuilder->buildStoragePath(array($path, $name), true);
 			if (!$this->storage->isObject($childPath)) {
 				$entity = $this->getEntity($childPath);
-				if ($entity/* && ($entity instanceof CMS\Model\Site || CMS::$securityManager->authorize($entity, 'Browse', false))*/)
-					$children[] = $entity;
+				if ($entity /* && ($entity instanceof CMS\Model\Site || CMS::$securityManager->authorize($entity, 'Browse', false))*/) {
+				    $children[] = $entity;
+                }
 			}
 		}
 
@@ -397,19 +411,16 @@ class Repository implements RepositoryInterface
 // 			}
 // 		}
 
-		//All descendants
 		foreach ($children as $child) {
-			if(!$className || $child instanceof $className) {
-				$descendants[] = $child;
-			}
+            if (!$className || $child instanceof $className) {
+                $descendants[]  = $child;
+            }
+            //All descendants
 			if ($deep) {
                 $childDescendants   = $this->getChildren($child, $className, $deep);
-				foreach ($childDescendants as $descendant) {
-					$descendants[] = $descendant;
-				}
+                $descendants        = array_merge($descendants, $childDescendants);
 			}
 		}
-
 		return $descendants;
 	}
 
@@ -660,28 +671,59 @@ class Repository implements RepositoryInterface
 	}
     */
 
+    public function reindexAll()
+    {
+        //TODO - implement
+    }
+
     /**
      * Reindex all entities (contents and children) saved under entity
-     * @param \Vivo\CMS\Model\Entity $entity
-     * @param bool $deep
+     * Returns number of reindexed items
+     * @param string $path Path to entity
+     * @param bool $deep If true reindexes whole subtree
      * @return int
      */
-    public function reindex(Model\Entity $entity, $deep = false)
+    public function reindex($path, $deep = false)
 	{
-        //TODO - refactor reindex()
-        throw new \Exception(sprintf('%s: method not refactored yet', __METHOD__));
+//        throw new \Exception(sprintf('%s: method not refactored yet', __METHOD__));
         //TODO - undefined Entity methods
-		$count = 1;
-		$this->indexer->save($entity);
-		if ($entity instanceof Vivo\CMS\Model\Document) {
-            /* @var $entity \Vivo\CMS\Model\Document */
-			for ($index = 1; $index <= $entity->getContentCount(); $index++)
-				foreach ($entity->getContents($index) as $content)
-					$count += $this->reindex($content, true);
-		}
+        $this->indexer->begin();
+        //TODO - try block ?
+        if ($deep) {
+            $delQuery   = $this->indexerHelper->buildTreeQuery($path);
+            $this->indexer->delete($delQuery);
+        } else {
+            $term       = new IndexerTerm($path, 'path');
+            $this->indexer->deleteByTerm($term);
+        }
+
+
+
+
+        //TODO - continue here
+
+
+
+
+        $entity     = $this->getEntity($uuid);
+        $idxDoc     = $this->indexerHelper->createDocument($entity);
+        $this->indexer->addDocument($idxDoc);
+        $count      = 1;
+
+        //TODO - reindex entity Contents
+//		if ($entity instanceof Vivo\CMS\Model\Document) {
+//            /* @var $entity \Vivo\CMS\Model\Document */
+//			for ($index = 1; $index <= $entity->getContentCount(); $index++)
+//				foreach ($entity->getContents($index) as $content)
+//					$count += $this->reindex($content, true);
+//		}
 		if ($deep)
-			foreach ($entity->getChildren() as $child)
+            $children   = $this->getChildren($entity);
+			foreach ($children as $child)
 				$count += $this->reindex($child, $deep);
+
+        $this->indexer->commit();
+
 		return $count;
 	}
 
@@ -872,5 +914,46 @@ class Repository implements RepositoryInterface
             }
         }
         $this->tmpFiles             = array();
+    }
+
+    /**
+     * Returns array('uuid' => ..., 'path' => ...) with uuid and path
+     * Either returned element may be null
+     * @param string $ident UUID, path or ref
+     * @return array
+     */
+    protected function getUuidAndPathFromEntityIdent($ident)
+    {
+        $uuid   = null;
+        $path   = null;
+        if (preg_match('/^'.self::UUID_PATTERN.'$/i', $ident)) {
+            //UUID
+            $uuid = strtoupper($ident);
+        } elseif (preg_match('/^\[ref:('.self::UUID_PATTERN.')\]$/i', $ident, $matches)) {
+            //Symbolic reference in [ref:uuid] format
+            $uuid = strtoupper($matches[1]);
+        } else {
+            //Attempt conversion from path
+            $uuid = $this->uuidConvertor->getUuid($ident);
+            if ($uuid) {
+                $path = $ident;
+            }
+        }
+//        if (!$uuid) {
+//            throw new Exception\EntityNotFoundException(
+//                sprintf("%s: Cannot get UUID for entity identifier '%s'", __METHOD__, $ident));
+//        }
+        if (!$path && $uuid) {
+            $path = $this->uuidConvertor->getPath($uuid);
+//            if (!$path) {
+//                throw new Exception\EntityNotFoundException(
+//                    sprintf("%s: Cannot get path for UUID = '%s'", __METHOD__, $uuid));
+//            }
+        }
+        $result = array(
+            'uuid'  => $uuid,
+            'path'  => $path,
+        );
+        return $result;
     }
 }

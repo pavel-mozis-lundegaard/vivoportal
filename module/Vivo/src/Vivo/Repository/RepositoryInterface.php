@@ -56,11 +56,11 @@ interface RepositoryInterface extends TransactionalInterface {
     /**
      * Reindex all entities (contents and children) saved under entity
      * Returns number of reindexed items
-     * @param \Vivo\CMS\Model\Entity $entity
-     * @param bool $deep
+     * @param string $path Path to entity
+     * @param bool $deep If true reindexes whole subtree
      * @return int
      */
-    public function reindex(Model\Entity $entity, $deep = false);
+    public function reindex($path, $deep = false);
 
     /**
      * Schedules resource for deletion from storage

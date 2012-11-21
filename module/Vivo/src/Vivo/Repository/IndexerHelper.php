@@ -8,6 +8,7 @@ use Vivo\Indexer\Term as IndexerTerm;
 use Vivo\Indexer\Query\Wildcard as WildcardQuery;
 use Vivo\Indexer\Query\Boolean as BooleanQuery;
 use Vivo\Indexer\Query\Term as TermQuery;
+use Vivo\Repository\Exception;
 
 /**
  * IndexerHelper
@@ -34,14 +35,23 @@ class IndexerHelper
 
     /**
      * Builds and returns a query returning a whole subtree of documents beginning at the $entity
-     * @param \Vivo\CMS\Model\Entity $entity
+     * @param Entity|string $spec Either an Entity object or a path to an entity
+     * @throws Exception\InvalidArgumentException
      * @return \Vivo\Indexer\Query\Boolean
      */
-    public function buildTreeQuery(Entity $entity)
+    public function buildTreeQuery($spec)
     {
-        $entityTerm          = new IndexerTerm($entity->getUuid(), 'uuid');
+        if (is_string($spec)) {
+            $path   = $spec;
+        } elseif ($spec instanceof Entity) {
+            /** @var $spec Entity */
+            $path   = $spec->getPath();
+        } else {
+            throw new Exception\InvalidArgumentException(sprintf('%s: Unsupported specification type', __METHOD__));
+        }
+        $entityTerm          = new IndexerTerm($path, 'path');
         $entityQuery         = new TermQuery($entityTerm);
-        $descendantPattern   = new IndexerTerm($entity->getPath() . '/*', 'path');
+        $descendantPattern   = new IndexerTerm($path . '/*', 'path');
         $descendantQuery     = new WildcardQuery($descendantPattern);
         $boolQuery           = new BooleanQuery();
         $boolQuery->addSubquery($entityQuery, null);

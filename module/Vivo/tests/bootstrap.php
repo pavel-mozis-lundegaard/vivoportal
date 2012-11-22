@@ -15,7 +15,9 @@ include realpath(__DIR__ . '/../../../init_autoloader.php');
 chdir(dirname(__DIR__));
 
 //Paths to other modules for which autoloading has to be set up
-$otherModulePaths = array();
+$otherModulePaths = array(
+    __DIR__ . '/../../ZendSearch',
+);
 
 /**
  * Configures autoloading as defined in the module

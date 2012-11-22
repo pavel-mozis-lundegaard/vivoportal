@@ -3,6 +3,7 @@ namespace Vivo\Repository\UuidConvertor;
 
 use Vivo\Indexer\Indexer;
 use Vivo\Indexer\Query as IndexerQuery;
+use Vivo\Indexer\Term as IndexerTerm;
 
 /**
  * UuidConvertor
@@ -51,13 +52,12 @@ class UuidConvertor implements UuidConvertorInterface
         if (isset($this->pathToUuid[$path])) {
             $uuid   = $this->pathToUuid[$path];
         } else {
-            //TODO - build indexer query
-            $query  = new IndexerQuery('...');
-            $query->setParameter('path', $path);
-            $docs   = $this->indexer->execute($query);
-            if ($docs) {
-                $doc    = $docs[0];
-                $uuid   = $doc['uuid'];
+            $term   = new IndexerTerm($path, 'path');
+            $termDocsIds    = $this->indexer->termDocs($term);
+            if (count($termDocsIds) > 0) {
+                $docId  = $termDocsIds[0];
+                $doc    = $this->indexer->getDocument($docId);
+                $uuid   = $doc->getFieldValue('uuid');
                 $this->set($uuid, $path);
             } else {
                 $uuid   = null;
@@ -77,13 +77,12 @@ class UuidConvertor implements UuidConvertorInterface
         if (isset($this->uuidToPath[$uuid])) {
             $path   = $this->uuidToPath[$uuid];
         } else {
-            //TODO - build indexer query
-            $query  = new IndexerQuery('...');
-            $query->setParameter('uuid', $uuid);
-            $docs   = $this->indexer->execute($query);
-            if ($docs) {
-                $doc    = $docs[0];
-                $path   = $doc['path'];
+            $term   = new IndexerTerm($uuid, 'uuid');
+            $termDocsIds    = $this->indexer->termDocs($term);
+            if (count($termDocsIds) > 0) {
+                $docId  = $termDocsIds[0];
+                $doc    = $this->indexer->getDocument($docId);
+                $path   = $doc->getFieldValue('path');
                 $this->set($uuid, $path);
             } else {
                 $path   = null;

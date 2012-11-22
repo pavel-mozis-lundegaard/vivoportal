@@ -255,6 +255,10 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $indexer                = new \Vivo\Indexer\Indexer($adapter);
                     return $indexer;
                 },
+                'indexer_helper'            => function(ServiceManager $sm) {
+                    $indexerHelper          = new \Vivo\Repository\IndexerHelper();
+                    return $indexerHelper;
+                },
                 'repository'                => function(ServiceManager $sm) {
                     $storageConfig          = array(
                         'class'     => 'Vivo\Storage\LocalFileSystemStorage',
@@ -267,6 +271,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     /* @var $storageFactory \Vivo\Storage\Factory */
                     $storage                = $storageFactory->create($storageConfig);
                     $indexer                = $sm->get('indexer');
+                    $indexerHelper          = $sm->get('indexer_helper');
                     $serializer             = new \Vivo\Serializer\Adapter\Entity();
                     $uuidConvertor          = $sm->get('uuid_convertor');
                     $watcher                = $sm->get('watcher');
@@ -276,6 +281,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $repository             = new \Vivo\Repository\Repository($storage,
                                                                               null,
                                                                               $indexer,
+                                                                              $indexerHelper,
                                                                               $serializer,
                                                                               $uuidConvertor,
                                                                               $watcher,

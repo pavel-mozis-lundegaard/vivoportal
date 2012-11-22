@@ -106,13 +106,6 @@ interface RepositoryInterface extends TransactionalInterface {
     public function writeResource(Model\Entity $entity, $name, \Vivo\IO\InputStreamInterface $stream);
 
     /**
-     * Returns site entity by host name
-     * @param string $host
-     * @return \Vivo\CMS\Model\Site|null
-     */
-	function getSiteByHost($host);
-
-    /**
      * Returns parent folder
      * If there is no parent folder (ie this is a root), returns null
      * @param \Vivo\CMS\Model\Folder $folder

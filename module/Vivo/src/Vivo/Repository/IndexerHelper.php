@@ -28,8 +28,23 @@ class IndexerHelper
         $doc->addField(new Field('uuid', $entity->getUuid(), true, true, false, false));
         //Path (field type 'keyword')
         $doc->addField(new Field('path', $entity->getPath(), true, true, false, false));
+        $entityClass    = get_class($entity);
         //Entity type (field type 'keyword')
-        $doc->addField(new Field('type', get_class($entity), true, true, false, false));
+        $doc->addField(new Field('type', $entityClass, true, true, false, false));
+        //TODO - a temporary solution - when entity descriptions are implemented as annotations or whatever, refactor!
+        switch ($entityClass) {
+            case 'Vivo\CMS\Model\Site':
+                 /** @var $entity \Vivo\CMS\Model\Site  */
+                //Hosts
+                $fields = $this->getFieldsForArrayData($entity->getHosts(), 'host', true, true, false, false);
+                foreach ($fields as $field) {
+                    $doc->addField($field);
+                }
+                break;
+            default:
+                //No other fields will be indexed for other entity types
+                break;
+        }
         return $doc;
     }
 
@@ -68,5 +83,30 @@ class IndexerHelper
     {
         $term   = new IndexerTerm($entity->getUuid(), 'uuid');
         return $term;
+    }
+
+    /**
+     * Returns an array of Fields which contain array data augmented with prefix
+     * Each data element is returned in its own Field
+     * @param array $data
+     * @param string $fieldName
+     * @param bool $isStored
+     * @param bool $isIndexed
+     * @param bool $isTokenized
+     * @param bool $isBinary
+     * @return Field[]
+     */
+    protected function getFieldsForArrayData(array $data, $fieldName,
+                                             $isStored, $isIndexed, $isTokenized, $isBinary = false)
+    {
+        $i      = 0;
+        $fields = array();
+        foreach ($data as $value) {
+            $fieldNameMod   = $fieldName . '/' . $i;
+            $fieldValue     = '###' . $fieldName .'###/' . $value;
+            $fields[]       = new Field($fieldNameMod, $fieldValue, $isStored, $isIndexed, $isTokenized, $isBinary);
+            $i++;
+        }
+        return $fields;
     }
 }

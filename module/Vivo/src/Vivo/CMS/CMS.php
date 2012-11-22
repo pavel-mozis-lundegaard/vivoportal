@@ -5,6 +5,8 @@ use Vivo\CMS\Model;
 use Vivo\CMS\Workflow;
 use Vivo\CMS\Exception;
 use Vivo\Repository\Repository;
+use Vivo\Indexer\Term as IndexerTerm;
+use Vivo\Indexer\Query\MultiTerm as MultiTermQuery;
 
 use Zend\Config;
 
@@ -25,12 +27,23 @@ class CMS
 
     /**
      * Returns Site matching given hostname.
+     * If no site matches the hostname, returns null
      * @param string $host
-     * @return Model\Site
+     * @return Model\Site|null
      */
     public function getSiteByHost($host)
     {
-        $site = $this->repository->getSiteByHost($host);
+        $termHost   = new IndexerTerm('###host###/' . $host);
+        $termType   = new IndexerTerm('Vivo\CMS\Model\Site', 'type');
+        $query      = new MultiTermQuery();
+        $query->addTerm($termHost, true);
+        $query->addTerm($termType,  true);
+        $entities   = $this->repository->getEntities($query);
+        if (count($entities) > 0) {
+            $site   = $entities[0];
+        } else {
+            $site   = null;
+        }
         return $site;
     }
 

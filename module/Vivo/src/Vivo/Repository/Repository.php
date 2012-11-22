@@ -17,6 +17,7 @@ use Vivo\IO\IOUtil;
 use Vivo\Repository\Exception;
 use Vivo\Repository\IndexerHelper;
 use Vivo\Indexer\Term as IndexerTerm;
+use Vivo\Indexer\Query\QueryInterface;
 
 use Zend\Serializer\Adapter\AdapterInterface as Serializer;
 use Zend\Cache\Storage\StorageInterface as Cache;
@@ -301,6 +302,26 @@ class Repository implements RepositoryInterface
     }
 
     /**
+     * Returns array of entities returned by the specified indexer query
+     * @param \Vivo\Indexer\Query\QueryInterface $query
+     * @return Model\Entity[]
+     */
+    public function getEntities(QueryInterface $query)
+    {
+        $hits       = $this->indexer->find($query);
+        $entities   = array();
+        foreach ($hits as $hit) {
+            $doc    = $hit->getDocument();
+            $uuid   = $doc->getFieldValue('uuid');
+            $entity = $this->getEntity($uuid);
+            if ($entity) {
+                $entities[] = $entity;
+            }
+        }
+        return $entities;
+    }
+
+    /**
      * Looks up an entity in cache and returns it
      * If the entity does not exist in cache or the cache is not configured, returns null
      * @param string $uuid
@@ -312,6 +333,7 @@ class Repository implements RepositoryInterface
             $cacheSuccess   = null;
             $entity         = $this->cache->getItem($uuid, $cacheSuccess);
             if ($cacheSuccess) {
+                //Store entity to watcher
                 $this->watcher->add($entity);
             }
         } else {
@@ -335,7 +357,9 @@ class Repository implements RepositoryInterface
             $entity         = $this->serializer->unserialize($entitySer);
             /* @var $entity \Vivo\CMS\Model\Entity */
             $entity->setPath($path); // set volatile path property of entity instance
+            //Store entity to watcher
             $this->watcher->add($entity);
+            //Store entity to cache
             if ($this->cache) {
                 $this->cache->setItem($entity->getUuid(), $entity);
             }
@@ -468,21 +492,6 @@ class Repository implements RepositoryInterface
 		$entity->setPath($path);
         $this->saveEntities[$path]  = $entity;
         return $entity;
-	}
-
-	/**
-	 * Returns site entity by host name.
-	 * @param string $host
-	 * @return Vivo\CMS\Model\Site|null
-	 */
-	function getSiteByHost($host)
-	{
-		foreach ($this->getChildren(new Model\Folder('')) as $site) {
-			if (in_array($host, $site->getHosts())) {
-				return $site;
-			}
-		}
-		return null;
 	}
 
     /**
@@ -671,59 +680,70 @@ class Repository implements RepositoryInterface
 	}
     */
 
+    /**
+     * Reindexes whole repository
+     * Returns number of reindexed items
+     * @return int
+     */
     public function reindexAll()
     {
-        //TODO - implement
+        $list   = $this->storage->scan($this->storage->getPathBuilder()->getStoragePathSeparator());
+        $count  = 0;
+        foreach ($list as $path) {
+            $count  += $this->reindex($path, true);
+        }
+        return $count;
     }
 
     /**
      * Reindex all entities (contents and children) saved under entity
+     * First commits any uncommitted changes in the repository
      * Returns number of reindexed items
      * @param string $path Path to entity
      * @param bool $deep If true reindexes whole subtree
+     * @throws \Exception
      * @return int
      */
     public function reindex($path, $deep = false)
 	{
-//        throw new \Exception(sprintf('%s: method not refactored yet', __METHOD__));
-        //TODO - undefined Entity methods
+        //The reindexing may not rely on the indexer in any way! Presume the indexer data is corrupt.
+        $this->commit();
         $this->indexer->begin();
-        //TODO - try block ?
-        if ($deep) {
-            $delQuery   = $this->indexerHelper->buildTreeQuery($path);
-            $this->indexer->delete($delQuery);
-        } else {
-            $term       = new IndexerTerm($path, 'path');
-            $this->indexer->deleteByTerm($term);
+        try {
+            if ($deep) {
+                $delQuery   = $this->indexerHelper->buildTreeQuery($path);
+                $this->indexer->delete($delQuery);
+            } else {
+                $term       = new IndexerTerm($path, 'path');
+                $this->indexer->deleteByTerm($term);
+            }
+            $count      = 0;
+            $entity     = $this->getEntityFromStorage($path);
+            if ($entity) {
+                $idxDoc     = $this->indexerHelper->createDocument($entity);
+                $this->indexer->addDocument($idxDoc);
+                $count      = 1;
+                //TODO - reindex entity Contents
+        //		if ($entity instanceof Vivo\CMS\Model\Document) {
+        //            /* @var $entity \Vivo\CMS\Model\Document */
+        //			for ($index = 1; $index <= $entity->getContentCount(); $index++)
+        //				foreach ($entity->getContents($index) as $content)
+        //					$count += $this->reindex($content, true);
+        //		}
+                if ($deep) {
+                    $descendants    = $this->getChildren($entity, false, true);
+                    foreach ($descendants as $descendant) {
+                        $idxDoc     = $this->indexerHelper->createDocument($descendant);
+                        $this->indexer->addDocument($idxDoc);
+                        $count++;
+                    }
+                }
+            }
+            $this->indexer->commit();
+        } catch (\Exception $e) {
+            $this->indexer->rollback();
+            throw $e;
         }
-
-
-
-
-        //TODO - continue here
-
-
-
-
-        $entity     = $this->getEntity($uuid);
-        $idxDoc     = $this->indexerHelper->createDocument($entity);
-        $this->indexer->addDocument($idxDoc);
-        $count      = 1;
-
-        //TODO - reindex entity Contents
-//		if ($entity instanceof Vivo\CMS\Model\Document) {
-//            /* @var $entity \Vivo\CMS\Model\Document */
-//			for ($index = 1; $index <= $entity->getContentCount(); $index++)
-//				foreach ($entity->getContents($index) as $content)
-//					$count += $this->reindex($content, true);
-//		}
-		if ($deep)
-            $children   = $this->getChildren($entity);
-			foreach ($children as $child)
-				$count += $this->reindex($child, $deep);
-
-        $this->indexer->commit();
-
 		return $count;
 	}
 
@@ -833,7 +853,7 @@ class Repository implements RepositoryInterface
                 if ($this->cache) {
                     $this->cache->setItem($entity->getUuid(), $entity);
                 }
-                //Indexer - remove old doc insert new one
+                //Indexer - remove old doc & insert new one
                 $entityTerm = $this->indexerHelper->buildEntityTerm($entity);
                 $entityDoc  = $this->indexerHelper->createDocument($entity);
                 $this->indexer->deleteByTerm($entityTerm);

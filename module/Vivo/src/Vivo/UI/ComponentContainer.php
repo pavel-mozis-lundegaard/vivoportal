@@ -138,7 +138,7 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
                 $viewModel->setVariable($model, $name);
             }
         }
-        $viewModel->setVariable('sub', array_keys($this->components)); //only for devel
+        $viewModel->setVariable('componentNames', array_keys($this->components));
         return $viewModel;
     }
 }

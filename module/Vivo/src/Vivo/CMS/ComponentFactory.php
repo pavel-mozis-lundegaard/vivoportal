@@ -89,7 +89,7 @@ class ComponentFactory
             $frontComponent = $this
                     ->getContentFrontComponent(reset($contents), $document);
         } else {
-            throw new Exception(sprintf("%s: Document hasn't any published content.", __METHOD__));
+            throw new Exception(sprintf("%s: Document '%s' hasn't any published content.", __METHOD__, $document->getPath()));
         }
 
         if ($frontComponent instanceof RawComponentInterface) {

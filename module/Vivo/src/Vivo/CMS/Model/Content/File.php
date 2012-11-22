@@ -17,7 +17,7 @@ class File extends Model\Content
     /**
      * @var string Original filename.
      */
-    protected $fileName;
+    protected $filename;
 
     /**
      * Setting default values.
@@ -48,8 +48,8 @@ class File extends Model\Content
      * Retuns the original file name.
      * @return string
      */
-    public function getFileName()
+    public function getFilename()
     {
-        return $this->fileName;
+        return $this->filename;
     }
 }

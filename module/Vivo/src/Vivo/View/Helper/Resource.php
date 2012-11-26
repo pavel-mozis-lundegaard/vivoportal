@@ -1,6 +1,7 @@
 <?php
 namespace Vivo\View\Helper;
 
+use Vivo\CMS\CMS;
 use Vivo\CMS\Model\Entity;
 use Vivo\UI\Component;
 use Vivo\View\Helper\Exception\InvalidArgumentException;
@@ -10,7 +11,7 @@ use Zend\View\Helper\AbstractHelper;
 use Zend\View\Helper\Url;
 
 /**
- * View helper for gettting resource url
+ * View helper for gettting resource url.
  */
 class Resource extends AbstractHelper
 {
@@ -28,11 +29,17 @@ class Resource extends AbstractHelper
     private $urlHelper;
 
     /**
+     * @var CMS
+     */
+    private $cms;
+
+    /**
      * @param Url $urlhelper
      */
-    public function __construct(Url $urlhelper, $options = array())
+    public function __construct(Url $urlhelper, CMS $cms, $options = array())
     {
         $this->urlHelper = $urlhelper;
+        $this->cms = $cms;
         $this->options  = array_merge($this->options, $options);
     }
 
@@ -43,12 +50,12 @@ class Resource extends AbstractHelper
         }
         if ($source instanceof Entity) {
             $entityUrl = $this->cms->getEntityUrl($source);
-            return $this->urlHelper
+            $url = $this->urlHelper
                     ->__invoke('vivo/resource_entity',
                             array('path' => $resourcePath,
                                     'entity' => $entityUrl));
         } elseif (is_string($source)) {
-            return $this->urlHelper
+            $url = $this->urlHelper
                     ->__invoke('vivo/resource',
                             array('source' => $source, 'path' => $resourcePath));
         } else {
@@ -56,6 +63,13 @@ class Resource extends AbstractHelper
                     sprintf("%s: Invalid value for parameter 'source'.",
                             __METHOD__), $code, $previous);
         }
+
+        //Replace encoded slashes in the url. It's needed because apache returns 404 when the url contains encoded slashes
+        //This behvaior could be changed in apache config, but it is not possible to do that in .htacces context.
+        //@see http://httpd.apache.org/docs/current/mod/core.html#allowencodedslashes
+        $url = str_replace('%2F', '/', $url);
+
+        return $url;
     }
 
     public function checkResource($resourcePath, $source)

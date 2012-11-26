@@ -36,4 +36,10 @@ class Component extends ComponentContainer implements InjectModelInterface
     {
         $this->content = $content;
     }
+
+     public function view() {
+         $this->view->content = $this->content;
+         $this->view->document = $this->document;
+         return parent::view();
+     }
 }

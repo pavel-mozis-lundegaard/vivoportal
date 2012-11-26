@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\CMS\Exception;
+namespace Vivo\CMS\UI\Exception;
 
 class Exception extends \Exception implements ExceptionInterface
 {

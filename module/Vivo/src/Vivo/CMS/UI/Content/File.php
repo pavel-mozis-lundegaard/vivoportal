@@ -3,18 +3,12 @@ namespace Vivo\CMS\UI\Content;
 
 use Vivo\CMS\CMS;
 use Vivo\CMS\Model\Content;
-use Vivo\CMS\Model\Document;
 use Vivo\CMS\UI\Component;
-use Vivo\CMS\UI\InjectModelInterface;
-use Vivo\UI;
+use Vivo\CMS\UI\Exception;
 use Vivo\Util\MIME;
-
-use Zend\Http\Headers;
-use Zend\Http\Response;
 
 /**
  * UI component for content file.
- * @todo add logic for various file types, when the file is not main content of page
  */
 class File extends Component
 {
@@ -31,11 +25,9 @@ class File extends Component
 
     /**
      * @param CMS $cms
-     * @param Response $response
      */
-    public function __construct(CMS $cms, Response $response)
+    public function __construct(CMS $cms)
     {
-        parent::__construct($response);
         $this->cms = $cms;
     }
 
@@ -46,25 +38,28 @@ class File extends Component
         //TODO include phtml resource, tpl resource
 
         if (!$this->content instanceof Content\File) {
-            throw new \Exception ("Incompatible model.");
+            throw new Exception\Exception (sprintf("%s: Incompatible model. Expected 'Vivo\CMS\Model\Content\File'.", __METHOD__));
         }
 
         $mimeType = $this->content->getMimeType();
-        $resourceFile = 'resource' . MIME::getExt($mimeType);
+        $resourceFile = 'resource.' . MIME::getExt($mimeType);
+        $this->view->resourceFile = $resourceFile;
         if ($mimeType == 'text/html') {
-            $this->view->content = $this->cms->getResource($this->content, $resourceFile);
+            $this->view->fileContent = $this->cms->getResource($this->content, $resourceFile);
             $this->templateVariant = 'html';
         } elseif ($mimeType == 'text/plain') {
-            $this->view->content = $this->cms->getResource($this->content, $resourceFile);
+            $this->view->fileContent = $this->cms->getResource($this->content, $resourceFile);
             $this->templateVariant = 'plain';
         } elseif ($mimeType == 'application/x-shockwave-flash') {
             $this->templateVariant = 'flash';
+        } elseif (substr($mimeType, 0, 6) == 'image/') {
+            $this->templateVariant = 'image';
         } else {
             $this->templateVariant = null;
         }
     }
 
-    public function getTemplate() {
-        return parent::getTemplate() . ($this->templateVariant ? ':'. $this->templateVariant :'');
+    public function getDefaultTemplate() {
+        return parent::getDefaultTemplate() . ($this->templateVariant ? ':'. $this->templateVariant :'');
     }
 }

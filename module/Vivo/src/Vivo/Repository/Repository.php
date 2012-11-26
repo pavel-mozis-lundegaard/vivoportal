@@ -271,8 +271,7 @@ class Repository implements RepositoryInterface
      * Returns entity from repository
      * If the entity does not exist, returns null
      * @param string $ident Entity identification (path, UUID or symbolic reference)
-     * @return \Vivo\CMS\Model\Entity|null
-     * @throws Exception\EntityNotFoundException
+     * @return null|\Vivo\CMS\Model\Entity
      */
     public function getEntity($ident)
     {
@@ -411,17 +410,13 @@ class Repository implements RepositoryInterface
 		sort($names); // sort it in a natural way
 
 		foreach ($names as $name) {
-try {
-		    $child_path = "$path/$name";
-			if (!$this->storage->isObject($child_path)) {
-		        $entity = $this->getEntity($child_path, $throw_exception);
-				if ($entity/* && ($entity instanceof CMS\Model\Site || CMS::$securityManager->authorize($entity, 'Browse', false))*/)
-					$children[] = $entity;
-			}
-}
-			catch (\Exception $e) {
-//TODO fix the case when exists directory without Entity.object
-			}
+            $childPath = $this->pathBuilder->buildStoragePath(array($path, $name), true);
+            if (!$this->storage->isObject($childPath)) {
+                $entity = $this->getEntity($childPath);
+                if ($entity/* && ($entity instanceof CMS\Model\Site || CMS::$securityManager->authorize($entity, 'Browse', false))*/) {
+                    $children[] = $entity;
+                }
+            }
 		}
 
 		// sorting
@@ -551,23 +546,23 @@ try {
 		return $data;
 	}
 
-    /**
-     * Utility method for Vivo\CMS\Event
-     * @param \Vivo\CMS\Model\Document $document
-     * @return array
-     */
-    public function getAllContents(Model\Document $document)
-	{
-		$return = array();
+//    /**
+//     * Utility method for Vivo\CMS\Event
+//     * @param \Vivo\CMS\Model\Document $document
+//     * @return array
+//     */
+//    public function getAllContents(Model\Document $document)
+//	{
+//		$return = array();
 // 		if($entity instanceof CMS\Model\Document) {
 		//@todo:
-			$count = $document->getContentCount();
-			for ($index = 1; $index <= $count; $index++) {
-				$return = array_merge($return, $document->getContents($index));
-			}
+//			$count = $document->getContentCount();
+//			for ($index = 1; $index <= $count; $index++) {
+//				$return = array_merge($return, $document->getContents($index));
+//			}
 // 		}
-		return $return;
-	}
+//		return $return;
+//	}
 
     /**
      * Adds an entity to the list of entities to be deleted
@@ -959,20 +954,16 @@ try {
         } else {
             //Attempt conversion from path
             $uuid = $this->uuidConvertor->getUuid($ident);
-//            if ($uuid) {
+            if ($uuid) {
                 $path = $ident;
-//            }
+            }
         }
-//        if (!$uuid) {
-//            throw new Exception\EntityNotFoundException(
-//                sprintf("%s: Cannot get UUID for entity identifier '%s'", __METHOD__, $ident));
-//        }
-        if (!$path && $uuid) {
-            $path = $this->uuidConvertor->getPath($uuid);
-//            if (!$path) {
-//                throw new Exception\EntityNotFoundException(
-//                    sprintf("%s: Cannot get path for UUID = '%s'", __METHOD__, $uuid));
-//            }
+        if (!$path) {
+            if ($uuid) {
+                $path = $this->uuidConvertor->getPath($uuid);
+            } else {
+                $path = $ident;
+            }
         }
         $result = array(
             'uuid'  => $uuid,

@@ -36,10 +36,12 @@ class IndexerHelper
             case 'Vivo\CMS\Model\Site':
                  /** @var $entity \Vivo\CMS\Model\Site  */
                 //Hosts
-                $fields = $this->getFieldsForArrayData($entity->getHosts(), 'host', true, true, false, false);
-                foreach ($fields as $field) {
-                    $doc->addField($field);
-                }
+                $hostsFlat  = implode(' ', $entity->getHosts());
+                $doc->addField(new Field('hosts', $hostsFlat, true, true, true, false));
+//                $fields = $this->getFieldsForArrayData($entity->getHosts(), 'host', true, true, false, false);
+//                foreach ($fields as $field) {
+//                    $doc->addField($field);
+//                }
                 break;
             default:
                 //No other fields will be indexed for other entity types

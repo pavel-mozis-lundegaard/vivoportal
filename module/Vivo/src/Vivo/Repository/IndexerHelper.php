@@ -87,28 +87,28 @@ class IndexerHelper
         return $term;
     }
 
-    /**
-     * Returns an array of Fields which contain array data augmented with prefix
-     * Each data element is returned in its own Field
-     * @param array $data
-     * @param string $fieldName
-     * @param bool $isStored
-     * @param bool $isIndexed
-     * @param bool $isTokenized
-     * @param bool $isBinary
-     * @return Field[]
-     */
-    protected function getFieldsForArrayData(array $data, $fieldName,
-                                             $isStored, $isIndexed, $isTokenized, $isBinary = false)
-    {
-        $i      = 0;
-        $fields = array();
-        foreach ($data as $value) {
-            $fieldNameMod   = $fieldName . '/' . $i;
-            $fieldValue     = '###' . $fieldName .'###/' . $value;
-            $fields[]       = new Field($fieldNameMod, $fieldValue, $isStored, $isIndexed, $isTokenized, $isBinary);
-            $i++;
-        }
-        return $fields;
-    }
+//    /**
+//     * Returns an array of Fields which contain array data augmented with prefix
+//     * Each data element is returned in its own Field
+//     * @param array $data
+//     * @param string $fieldName
+//     * @param bool $isStored
+//     * @param bool $isIndexed
+//     * @param bool $isTokenized
+//     * @param bool $isBinary
+//     * @return Field[]
+//     */
+//    protected function getFieldsForArrayData(array $data, $fieldName,
+//                                             $isStored, $isIndexed, $isTokenized, $isBinary = false)
+//    {
+//        $i      = 0;
+//        $fields = array();
+//        foreach ($data as $value) {
+//            $fieldNameMod   = $fieldName . '/' . $i;
+//            $fieldValue     = '###' . $fieldName .'###/' . $value;
+//            $fields[]       = new Field($fieldNameMod, $fieldValue, $isStored, $isIndexed, $isTokenized, $isBinary);
+//            $i++;
+//        }
+//        return $fields;
+//    }
 }

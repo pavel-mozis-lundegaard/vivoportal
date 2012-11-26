@@ -5,7 +5,7 @@ use Vivo;
 use Vivo\CMS;
 use Vivo\CMS\Model;
 use Vivo\Storage;
-use Vivo\Indexer\Indexer;
+use Vivo\Indexer\IndexerInterface;
 use Vivo\Repository\UuidConvertor\UuidConvertorInterface;
 use Vivo\Repository\Watcher;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
@@ -43,7 +43,7 @@ class Repository implements RepositoryInterface
 	private $storage;
 
 	/**
-	 * @var \Vivo\Indexer\Indexer
+	 * @var \Vivo\Indexer\IndexerInterface
 	 */
 	private $indexer;
 
@@ -149,7 +149,7 @@ class Repository implements RepositoryInterface
      * Constructor
      * @param \Vivo\Storage\StorageInterface $storage
      * @param \Zend\Cache\Storage\StorageInterface $cache
-     * @param \Vivo\Indexer\Indexer $indexer
+     * @param \Vivo\Indexer\IndexerInterface $indexer
      * @param IndexerHelper $indexerHelper
      * @param \Zend\Serializer\Adapter\AdapterInterface $serializer
      * @param UuidConvertor\UuidConvertorInterface $uuidConvertor
@@ -160,7 +160,7 @@ class Repository implements RepositoryInterface
      */
     public function __construct(Storage\StorageInterface $storage,
                                 Cache $cache = null,
-                                Indexer $indexer,
+                                IndexerInterface $indexer,
                                 IndexerHelper $indexerHelper,
                                 Serializer $serializer,
                                 UuidConvertorInterface $uuidConvertor,
@@ -955,9 +955,9 @@ class Repository implements RepositoryInterface
         } else {
             //Attempt conversion from path
             $uuid = $this->uuidConvertor->getUuid($ident);
-            if ($uuid) {
+//            if ($uuid) {
                 $path = $ident;
-            }
+//            }
         }
 //        if (!$uuid) {
 //            throw new Exception\EntityNotFoundException(

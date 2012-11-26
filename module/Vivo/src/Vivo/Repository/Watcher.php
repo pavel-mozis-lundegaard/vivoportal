@@ -26,7 +26,7 @@ class Watcher
     public function add(Entity $entity) {
         $globId	= $entity->getUuid();
         if(!$globId) {
-            throw new Exception\Exception(sprintf('%s: The entity has no UUID', __METHOD__));
+            throw new Exception\Exception(sprintf('%s: The entity (%s) has no UUID', __METHOD__, get_class($entity)));
         }
         $this->entities[$globId] = $entity;
     }

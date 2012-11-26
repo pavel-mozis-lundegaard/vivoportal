@@ -33,18 +33,27 @@ class CMS
      */
     public function getSiteByHost($host)
     {
-        $termHost   = new IndexerTerm('###host###/' . $host);
-        $termType   = new IndexerTerm('Vivo\CMS\Model\Site', 'type');
-        $query      = new MultiTermQuery();
-        $query->addTerm($termHost, true);
-        $query->addTerm($termType,  true);
-        $entities   = $this->repository->getEntities($query);
-        if (count($entities) > 0) {
-            $site   = $entities[0];
-        } else {
-            $site   = null;
+        $sites  = $this->repository->getChildren(new Model\Folder(''));
+        foreach ($sites as $site) {
+            /** @var $site \Vivo\CMS\Model\Site */
+            if (in_array($host, $site->getHosts())) {
+                return $site;
+            }
         }
-        return $site;
+        return null;
+
+//        $termHost   = new IndexerTerm('###host###/' . $host);
+//        $termType   = new IndexerTerm('Vivo\CMS\Model\Site', 'type');
+//        $query      = new MultiTermQuery();
+//        $query->addTerm($termHost, true);
+//        $query->addTerm($termType,  true);
+//        $entities   = $this->repository->getEntities($query);
+//        if (count($entities) > 0) {
+//            $site   = $entities[0];
+//        } else {
+//            $site   = null;
+//        }
+//        return $site;
     }
 
     /**

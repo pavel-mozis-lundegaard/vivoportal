@@ -1,27 +1,12 @@
 <?php
 namespace Vivo\Indexer;
 
-use Vivo\Indexer\Document;
-
 /**
- * Indexer
+ * Dummy
+ * Dummy indexer - does nothing
  */
-class Indexer implements IndexerInterface
+class Dummy implements IndexerInterface
 {
-    /**
-     * Indexer adapter
-     * @var Adapter\AdapterInterface
-     */
-    protected $adapter;
-
-    /**
-     * Construct
-     * @param Adapter\AdapterInterface $adapter
-     */
-    public function __construct(Adapter\AdapterInterface $adapter)
-    {
-        $this->adapter  = $adapter;
-    }
 
     /**
      * Returns an array of hits
@@ -29,9 +14,9 @@ class Indexer implements IndexerInterface
      * @return QueryHit[]
      */
     public function find(Query\QueryInterface $query)
-	{
-        return $this->adapter->find($query);
-	}
+    {
+        return array();
+    }
 
     /**
      * Finds documents based on a term (returns docIds)
@@ -42,7 +27,7 @@ class Indexer implements IndexerInterface
      */
     public function termDocs(Term $term)
     {
-        return $this->adapter->termDocs($term);
+        return array();
     }
 
     /**
@@ -54,13 +39,7 @@ class Indexer implements IndexerInterface
      */
     public function termDocsObj(Term $term)
     {
-        $docIds = $this->termDocs($term);
-        $docs   = array();
-        foreach ($docIds as $docId) {
-            $doc    = $this->getDocument($docId);
-            $docs[] = $doc;
-        }
-        return $docs;
+        return array();
     }
 
     /**
@@ -69,10 +48,6 @@ class Indexer implements IndexerInterface
      */
     public function delete(Query\QueryInterface $query)
     {
-        $hits   = $this->find($query);
-        foreach ($hits as $hit) {
-            $this->removeDocument($hit->getDocId());
-        }
     }
 
     /**
@@ -81,10 +56,6 @@ class Indexer implements IndexerInterface
      */
     public function deleteByTerm(Term $term)
     {
-        $docIds = $this->termDocs($term);
-        foreach ($docIds as $docId) {
-            $this->removeDocument(($docId));
-        }
     }
 
     /**
@@ -95,7 +66,7 @@ class Indexer implements IndexerInterface
      */
     public function getDocument($docId)
     {
-        return $this->adapter->getDocument($docId);
+        return null;
     }
 
     /**
@@ -104,7 +75,6 @@ class Indexer implements IndexerInterface
      */
     public function removeDocument($docId)
     {
-        $this->adapter->deleteDocument($docId);
     }
 
     /**
@@ -113,31 +83,6 @@ class Indexer implements IndexerInterface
      */
     public function optimize()
     {
-        $this->adapter->optimize();
-    }
-
-    /**
-     * Commits pending changes and starts a new transaction
-     */
-    public function begin()
-    {
-        $this->adapter->begin();
-    }
-
-    /**
-     * Commits pending changes and closes the transaction
-     */
-    public function commit()
-    {
-        $this->adapter->commit();
-    }
-
-    /**
-     * Rolls back any scheduled changes and closes the transaction
-     */
-    public function rollback()
-    {
-        $this->adapter->rollback();
     }
 
     /**
@@ -146,7 +91,6 @@ class Indexer implements IndexerInterface
      */
     public function deleteAllDocuments()
     {
-        $this->adapter->deleteAllDocuments();
     }
 
     /**
@@ -155,7 +99,7 @@ class Indexer implements IndexerInterface
      */
     public function getDocumentCountAll()
     {
-        return $this->adapter->getDocumentCountAll();
+        return 0;
     }
 
     /**
@@ -164,7 +108,7 @@ class Indexer implements IndexerInterface
      */
     public function getDocumentCountUndeleted()
     {
-        return $this->adapter->getDocumentCountUndeleted();
+        return 0;
     }
 
     /**
@@ -173,8 +117,7 @@ class Indexer implements IndexerInterface
      */
     public function getDocumentCountDeleted()
     {
-        $deletedCount   = $this->getDocumentCountAll() - $this->getDocumentCountUndeleted();
-        return $deletedCount;
+        return 0;
     }
 
     /**
@@ -183,6 +126,17 @@ class Indexer implements IndexerInterface
      */
     public function addDocument(Document $document)
     {
-        $this->adapter->addDocument($document);
+    }
+
+    public function begin()
+    {
+    }
+
+    public function commit()
+    {
+    }
+
+    public function rollback()
+    {
     }
 }

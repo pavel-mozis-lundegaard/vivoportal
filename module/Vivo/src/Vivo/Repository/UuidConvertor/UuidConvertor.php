@@ -1,7 +1,7 @@
 <?php
 namespace Vivo\Repository\UuidConvertor;
 
-use Vivo\Indexer\Indexer;
+use Vivo\Indexer\IndexerInterface;
 use Vivo\Indexer\Query as IndexerQuery;
 use Vivo\Indexer\Term as IndexerTerm;
 
@@ -14,7 +14,7 @@ class UuidConvertor implements UuidConvertorInterface
 {
     /**
      * Indexer instance
-     * @var Indexer
+     * @var IndexerInterface
      */
     protected $indexer;
 
@@ -34,9 +34,9 @@ class UuidConvertor implements UuidConvertorInterface
 
     /**
      * Constructor
-     * @param \Vivo\Indexer\Indexer $indexer
+     * @param \Vivo\Indexer\IndexerInterface $indexer
      */
-    public function __construct(Indexer $indexer)
+    public function __construct(IndexerInterface $indexer)
     {
         $this->indexer  = $indexer;
     }

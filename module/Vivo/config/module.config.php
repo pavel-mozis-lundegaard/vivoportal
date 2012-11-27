@@ -154,7 +154,7 @@ return array(
             ),
         ),
         'templates' => array (
-            'templateMap' => array(
+            'template_map' => array(
                 'Vivo\UI\Page' => __DIR__.'/../view/Vivo/UI/Page.phtml',
                 'Vivo\CMS\UI\Content\Sample' => __DIR__.'/../view/Vivo/CMS/UI/Content/Sample.phtml',
                 'Vivo\CMS\UI\Content\Layout' => __DIR__.'/../view/Vivo/CMS/UI/Content/Layout.phtml',

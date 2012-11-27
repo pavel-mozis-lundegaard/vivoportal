@@ -1,6 +1,8 @@
 <?php
 namespace Vivo;
 
+use Vivo\Util\Path\PathParser;
+
 use Vivo\View\Helper\Document;
 
 use Vivo\CMS\ComponentFactory;
@@ -86,6 +88,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         });
         $plugins->setFactory('resource', function($sm) use($serviceLocator) {
             $helper = new Resource($sm->get('url'), $serviceLocator->get('cms'));
+            $helper->setParser(new PathParser());
             return $helper;
         });
         $plugins->setFactory('document', function($sm) use($serviceLocator) {
@@ -183,7 +186,8 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                 },
                 'Vivo\View\Strategy\PhtmlRenderingStrategy' => function(ServiceManager $sm) {
                     $config = $sm->get('config');
-                    $resolver = new \Vivo\View\Resolver\TemplateResolver($config['vivo']['templates']);
+                    $parser = new \Vivo\Util\Path\PathParser();
+                    $resolver = new \Vivo\View\Resolver\TemplateResolver($sm->get('module_resource_manager'), $parser, $config['vivo']['templates']);
                     $renderer = new \Vivo\View\Renderer\PhtmlRenderer();
                     $renderer->setResolver($resolver);
                     $renderer->setHelperPluginManager($sm->get('ViewHelperManager'));

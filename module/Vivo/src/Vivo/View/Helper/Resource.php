@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\View\Helper;
 
+use Vivo\Util\Path\PathParser;
+
 use Vivo\CMS\CMS;
 use Vivo\CMS\Model\Entity;
 use Vivo\UI\Component;
@@ -43,8 +45,18 @@ class Resource extends AbstractHelper
         $this->options  = array_merge($this->options, $options);
     }
 
-    public function __invoke($resourcePath, $source)
+    public function setParser(PathParser $parser) {
+        $this->parser = $parser;
+    }
+
+    public function __invoke($resourcePath, $source = null)
     {
+        if ($source == null) {
+            $parts = $this->parser->parse($resourcePath);
+            $resourcePath = $parts['path'];
+            $source = $parts['module'];
+        }
+
         if ($this->options['check_resource'] == true) {
             $this->checkResource($resourcePath, $source);
         }

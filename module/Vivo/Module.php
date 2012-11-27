@@ -304,12 +304,10 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                 },
                 'module_resource_manager'   => function(ServiceManager $sm) {
                     $config                 = $sm->get('config');
-                    $resourceBase           = $config['vivo']['modules']['resource_base'];
+                    $resourceManagerOptions = $config['vivo']['modules']['resource_manager'];
                     $moduleStorageManager   = $sm->get('module_storage_manager');
-                    $pathBuilder            = $sm->get('path_builder');
                     $moduleResourceManager  = new \Vivo\Module\ResourceManager\ResourceManager($moduleStorageManager,
-                                                                                               $resourceBase,
-                                                                                               $pathBuilder);
+                                                                                               $resourceManagerOptions);
                     return $moduleResourceManager;
                 },
                 'ui_di' => function (ServiceManager $sm) {

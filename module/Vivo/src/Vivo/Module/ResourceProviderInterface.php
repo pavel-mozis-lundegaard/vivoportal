@@ -11,15 +11,17 @@ interface ResourceProviderInterface
 {
     /**
      * Returns the resource data
+     * @param string $type
      * @param string $pathToResource
      * @return string
      */
-    public function getResource($pathToResource);
+    public function getResource($type, $pathToResource);
 
     /**
      * Returns an input stream for the resource
+     * @param string $type
      * @param string $pathToResource
      * @return FileInputStream
      */
-    public function getResourceStream($pathToResource);
+    public function getResourceStream($type, $pathToResource);
 }

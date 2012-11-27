@@ -380,4 +380,13 @@ class StorageManager
         }
         return $fullPath;
     }
+
+    /**
+     * Returns PathBuilder
+     * @return \Vivo\Storage\PathBuilder\PathBuilderInterface
+     */
+    public function getPathBuilder()
+    {
+        return $this->pathBuilder;
+    }
 }

@@ -151,7 +151,7 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
                                                  $this->ioUtil);
     }
 
-    public function testGetEntityReturnsNullForNonExistent()
+    public function testGetEntityThrowsExceptionForNonExistent()
     {
         $ident          = '012345678901234567890123456789AB';
         $path           = '/abc/def/ghi';
@@ -177,8 +177,8 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(false));
         $this->storage->expects($this->never())
             ->method('get');
+        $this->setExpectedException('Vivo\Repository\Exception\EntityNotFoundException');
         $entity = $this->repository->getEntity($ident);
-        $this->assertNull($entity);
     }
 
     public function testGetEntityWatcherHit()

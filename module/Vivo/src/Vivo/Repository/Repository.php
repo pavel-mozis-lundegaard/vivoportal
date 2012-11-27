@@ -193,8 +193,8 @@ class Repository implements RepositoryInterface
 
     /**
      * Returns entity from repository
-     * If the entity does not exist, returns null
      * @param string $ident Entity identification (path, UUID or symbolic reference)
+     * @throws Exception\EntityNotFoundException
      * @return null|\Vivo\CMS\Model\Entity
      */
     public function getEntity($ident)
@@ -221,7 +221,8 @@ class Repository implements RepositoryInterface
                 return $entity;
             }
         }
-        return null;
+        throw new Exception\EntityNotFoundException(
+            sprintf("%s: Entity with ident '%s' not found", __METHOD__, $ident));
     }
 
     /**
@@ -336,9 +337,13 @@ class Repository implements RepositoryInterface
 		foreach ($names as $name) {
             $childPath = $this->pathBuilder->buildStoragePath(array($path, $name), true);
             if (!$this->storage->isObject($childPath)) {
-                $entity = $this->getEntity($childPath);
-                if ($entity/* && ($entity instanceof CMS\Model\Site || CMS::$securityManager->authorize($entity, 'Browse', false))*/) {
-                    $children[] = $entity;
+                try {
+                    $entity = $this->getEntity($childPath);
+                    if ($entity/* && ($entity instanceof CMS\Model\Site || CMS::$securityManager->authorize($entity, 'Browse', false))*/) {
+                        $children[] = $entity;
+                    }
+                } catch (Exception\EntityNotFoundException $e) {
+                    //Fix for the situation when a directory exists without an Entity.object
                 }
             }
 		}

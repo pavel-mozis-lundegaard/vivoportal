@@ -1,5 +1,5 @@
 <?php
-namespace VivoTest\Vmodule;
+namespace VivoTest\Module;
 
 use Vivo\Module\StreamWrapper;
 use Vivo\Storage\StorageInterface;

@@ -4,6 +4,7 @@ namespace Vivo\Module;
 use Vivo\Module\ModuleManager;
 use Vivo\Module\Exception;
 
+use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManager;
 use Zend\ModuleManager\ModuleEvent;
 use Zend\ModuleManager\Listener\ModuleResolverListener;
@@ -31,7 +32,7 @@ class ModuleManagerFactory
 
     /**
      * Application's event manager
-     * @var EventManager
+     * @var EventManagerInterface
      */
     protected $appEvents;
 
@@ -39,10 +40,10 @@ class ModuleManagerFactory
      * Constructor
      * @param array $modulePaths Absolute path in Storage
      * @param string $moduleStreamName
-     * @param EventManager $appEvents
+     * @param EventManagerInterface $appEvents
      * @throws Exception\InvalidArgumentException
      */
-    public function __construct(array $modulePaths, $moduleStreamName, EventManager $appEvents)
+    public function __construct(array $modulePaths, $moduleStreamName, EventManagerInterface $appEvents)
     {
         if (!$moduleStreamName) {
             throw new Exception\InvalidArgumentException(sprintf('%s: Module stream name not set', __METHOD__));

@@ -67,6 +67,7 @@ interface StorageInterface {
 	 * Renames/moves an item (equivalent to the standard UNIX command mv (move))
 	 * @param string $path to item
 	 * @param string $target path
+     * @return bool
 	 */
 	public function move($path, $target);
 

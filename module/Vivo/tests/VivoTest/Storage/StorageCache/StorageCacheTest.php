@@ -1,63 +1,12 @@
 <?php
 namespace VivoTest\Storage\StorageCache;
 
-use PHPUnit_Framework_TestCase as TestCase;
-use Zend\Cache\Storage\StorageInterface as ZendCache;
-use Zend\Cache\Storage\Adapter\Filesystem as FsCache;
 use Vivo\Storage\StorageInterface;
 use Vivo\Storage\StorageCache\StorageCache;
 use Vivo\IO;
 
-/**
- * CacheMock
- * Implemented to enable mocking of returned values acquired via parameters passed by reference
- */
-class CacheMock extends FsCache
-{
-    /**
-     * Data to be returned by getItem()
-     * @var mixed
-     */
-    protected $data;
-
-    /**
-     * Has the getItem() call been successful?
-     * @var boolean
-     */
-    protected $success;
-
-    /**
-     * Get an item.
-     * This method cannot be mocked using PHPUnit's getMock(), because it needs to set a parameter passed by reference
-     *
-     * @param  string  $key
-     * @param  boolean $success
-     * @param  mixed   $casToken
-     * @return mixed Data on success, null on failure
-     * @throws \Zend\Cache\Exception\ExceptionInterface
-     */
-    public function getItem($key, & $success = null, & $casToken = null)
-    {
-        $success    = $this->success;
-        return $this->data;
-    }
-
-    /**
-     * @param mixed $data
-     */
-    public function setData($data)
-    {
-        $this->data = $data;
-    }
-
-    /**
-     * @param boolean $success
-     */
-    public function setSuccess($success)
-    {
-        $this->success = $success;
-    }
-}
+use PHPUnit_Framework_TestCase as TestCase;
+use Zend\Cache\Storage\StorageInterface as ZendCache;
 
 /**
  * StorageCacheTest
@@ -82,7 +31,7 @@ class StorageCacheTest extends TestCase
     protected function setUp()
     {
         $mockedMethodsCache = array('setItem', 'hasItem', 'removeItem');
-        $this->cache        = $this->getMock('VivoTest\Storage\StorageCache\CacheMock',
+        $this->cache        = $this->getMock('VivoTest\SharedTestClasses\FsCacheMock',
                                              $mockedMethodsCache, array(), '', false);
         $this->storage      = $this->getMock('Vivo\Storage\StorageInterface', array(), array(), '', false);
         $this->storageCache = new StorageCache($this->cache, $this->storage);

@@ -146,7 +146,7 @@ class LocalFileSystemStorage extends AbstractStorage {
 			return file_get_contents($absPath);
 		}
 		else {
-			throw new Exception\IOException('File not exists');
+			throw new Exception\IOException(sprintf("%s: Path '%s' does not exist", __METHOD__, $path));
 		}
 	}
 
@@ -215,7 +215,7 @@ class LocalFileSystemStorage extends AbstractStorage {
 	 */
 	public function copy($path, $target) {
 		$count = 0;
-		$this->mkdir($target);
+		//$this->mkdir($target);
 		if (is_dir($this->getFsPath($path))) {
 			$this->mkdir($target);
 			foreach ($this->scan($path) as $name) {

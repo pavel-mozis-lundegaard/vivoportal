@@ -38,12 +38,13 @@ class IndexerTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($hits));
         $this->adapter->expects($this->exactly(count($hits)))
             ->method('deleteDocument');
-        $this->adapter->expects($this->at(0))
+        $this->adapter->expects($this->at(1))
             ->method('deleteDocument')
             ->with('9');
-        $this->adapter->expects($this->at(1))
+        $this->adapter->expects($this->at(2))
             ->method('deleteDocument')
             ->with('53');
         $this->indexer->delete($query);
+        $this->indexer->commit();
     }
 }

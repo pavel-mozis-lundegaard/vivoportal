@@ -137,8 +137,17 @@ return array(
             //List of core modules loaded for all sites
             'core_modules'          => array(
             ),
-            //Module folder where module resources are stored (relative to the module root)
-            'resource_base'         => 'resource',
+            //Module resource manager configuration options
+            'resource_manager'      => array(
+                //Mapping of resource types to folders within modules
+                'type_map'      => array(
+                    'view'      => 'view',
+                    'layout'    => 'view/layout',
+                    'resource'  => 'resource',
+                ),
+                //Default resource type
+                'default_type'  => 'resource',
+            ),
         ),
         'cms'       => array(
             'repository'    => array(

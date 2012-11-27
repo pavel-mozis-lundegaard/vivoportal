@@ -28,30 +28,35 @@ class ResourceManager
     protected $moduleStorageManager;
 
     /**
-     * Storage path where resources are placed in a module (relative to module root)
-     * @var string
-     */
-    protected $resourceBase;
-
-    /**
      * Path Builder
      * @var PathBuilderInterface
      */
     protected $pathBuilder;
 
     /**
+     * Array of ResourceManager configuration options
+     * @var array
+     */
+    protected $options      = array(
+        'type_map'      => array(
+            'view'      => 'view',
+            'layout'    => 'view/layout',
+            'resource'  => 'resource',
+        ),
+        'default_type'  => 'resource',
+    );
+
+    /**
      * Constructor
      * @param \Vivo\Module\StorageManager\StorageManager $moduleStorageManager
-     * @param string $resourceBase
-     * @param PathBuilderInterface $pathBuilder
+     * @param array $options Configuration options
      */
     public function __construct(ModuleStorageManager $moduleStorageManager,
-                                $resourceBase,
-                                PathBuilderInterface $pathBuilder)
+                                array $options = array())
     {
         $this->moduleStorageManager = $moduleStorageManager;
-        $this->resourceBase         = $resourceBase;
-        $this->pathBuilder          = $pathBuilder;
+        $this->pathBuilder          = $moduleStorageManager->getPathBuilder();
+        $this->options              = array_merge($this->options, $options);
     }
 
     /**
@@ -65,13 +70,14 @@ class ResourceManager
 
     /**
      * Returns the resource data
-     * @param string $moduleName
+     * @param $moduleName
      * @param string $pathToResource
+     * @param string|null $type Null = default type
      * @throws \Vivo\Module\Exception\AsyncCallException
      * @throws \Vivo\Module\Exception\InvalidArgumentException
      * @return string
      */
-    public function getResource($moduleName, $pathToResource)
+    public function getResource($moduleName, $pathToResource, $type = null)
     {
         if (!$this->moduleManager) {
             throw new Exception\AsyncCallException(sprintf('%s: Module manager not set', __METHOD__));
@@ -83,10 +89,11 @@ class ResourceManager
         if ($module instanceof ResourceProviderInterface) {
             //Delegate resource retrieval to the module
             /* @var $module ResourceProviderInterface */
-            $resource   = $module->getResource($pathToResource);
+            $resource   = $module->getResource($type, $pathToResource);
         } else {
             //Retrieve the resource manually
-            $components     = array($this->resourceBase, $pathToResource);
+            $resourceBase   = $this->getFolderForType($type);
+            $components     = array($resourceBase, $pathToResource);
             $pathInModule   = $this->pathBuilder->buildStoragePath($components, false);
             $resource       = $this->moduleStorageManager->getFileData($moduleName, $pathInModule);
         }
@@ -97,11 +104,12 @@ class ResourceManager
      * Returns an input stream for the resource
      * @param string $moduleName
      * @param string $pathToResource
+     * @param string|null $type Null = default type
      * @throws \Vivo\Module\Exception\AsyncCallException
      * @throws \Vivo\Module\Exception\InvalidArgumentException
      * @return FileInputStream
      */
-    public function getResourceStream($moduleName, $pathToResource)
+    public function getResourceStream($moduleName, $pathToResource, $type = null)
     {
         if (!$this->moduleManager) {
             throw new Exception\AsyncCallException(sprintf('%s: Module manager not set', __METHOD__));
@@ -113,13 +121,33 @@ class ResourceManager
         if ($module instanceof ResourceProviderInterface) {
             //Delegate resource retrieval to the module
             /* @var $module ResourceProviderInterface */
-            $stream   = $module->getResourceStream($pathToResource);
+            $stream   = $module->getResourceStream($type, $pathToResource);
         } else {
             //Retrieve the resource manually
-            $components     = array($this->resourceBase, $pathToResource);
+            $resourceBase   = $this->getFolderForType($type);
+            $components     = array($resourceBase, $pathToResource);
             $pathInModule   = $this->pathBuilder->buildStoragePath($components, false);
             $stream         = $this->moduleStorageManager->getFileStream($moduleName, $pathInModule);
         }
         return $stream;
+    }
+
+    /**
+     * Returns folder corresponding to the specified resource type
+     * @param string|null $type
+     * @return string
+     * @throws \Vivo\Module\Exception\InvalidArgumentException
+     */
+    protected function getFolderForType($type = null)
+    {
+        if (is_null($type)) {
+            $type   = $this->options['default_type'];
+        }
+        if (!isset($this->options['type_map'][$type])) {
+            throw new Exception\InvalidArgumentException(
+                sprintf("%s: Resource type '%s' missing in type map", __METHOD__, $type));
+        }
+        $folder = $this->options['type_map'][$type];
+        return $folder;
     }
 }

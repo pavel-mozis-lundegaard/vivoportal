@@ -191,82 +191,6 @@ class Repository implements RepositoryInterface
         $this->pathBuilder      = $this->storage->getPathBuilder();
 	}
 
-	/**
-	 * Returns entity from CMS repository by its identification.
-	 * @param string $ident entity identification (path, UUID or symbolic reference)
-	 * @param bool $throw_exception
-	 * @throws Vivo\CMS\EntityNotFoundException
-	 * @return Vivo\CMS\Model\Entity
-     * @todo OBSOLETE
-	 */
-	public function getEntity_Old($ident, $throwException = true)
-	{
-		$uuid = null;
-		if (preg_match('/^\[ref:('.self::UUID_PATTERN.')\]$/i', $ident, $matches)) {
-			// symbolic reference in [ref:uuid] format
-			$uuid = strtoupper($matches[1]);
-		} elseif (preg_match('/^'.self::UUID_PATTERN.'$/i', $ident)) {
-			// UUID
-			$uuid = strtoupper($ident);
-		}
-		if ($uuid) {
-			throw new \Exception('TODO');
-
-			/* UUID */
-			$query = new \Vivo\Indexer\Query('SELECT Vivo\CMS\Model\Entity\uuid = :uuid');
-			$query->setParameter('uuid', $uuid);
-
-			$entities = $this->indexer->execute($query);
-
-			if (!empty($entities)) {
-				return $entities[0];
-			}
-			if ($throwException)
-				throw new Exception\EntityNotFoundException(sprintf('Entity not found; UUID: %s', $uuid));
-			return null;
-		} else {
-			/* path */
-			//$ident = str_replace('//', '/', $ident); //s prechodem na novy zapis cest se muze vyskytnout umisteni 2 lomitek
-// 			$path = $ident.((substr($ident, -1) == '/') ? '' : '/').self::ENTITY_FILENAME;
-// 			$cache_mtime = CMS::$cache->mtime($path);
-// 			if (($cache_mtime == Util\FS\Cache::NOW) || (($storage_mtime = $this->storage->mtime($path)) && ($cache_mtime > $storage_mtime))) {
-// 				// cache access
-// 				$entity = CMS::$cache->get($path, false, true);
-// 			} else {
-// 				// repository access
-// 				CMS::$cache->remove($path); // first remove entity from 2nd level cache
-// 				if (!$this->storage->contains($path)) {
-// 					if ($throwException)
-// 						throw new CMS\EntityNotFoundException(substr($path, 0, -strlen(self::ENTITY_FILENAME)));
-// 					return null;
-// 				}
-
-// 				try {
-// 					$entity = Util\Object::unserialize($this->storage->get($path));
-// 				} catch (\Exception $e) {
-// 					if ($throwException)
-// 						throw $e;
-// 					return null;
-// 				}
-// 				CMS::$cache->set($path, $entity, true);
-// 			}
-
-// 			$entity = CMS::convertReferencesToURLs($entity);
-// 			$entity->setPath(substr($path, 0, strrpos($path, '/'))); // set volatile path property of entity instance
-
-			$path = $ident . '/' . self::ENTITY_FILENAME;
-			//@todo: tohle uz obsahuje metoda get
-			if($throwException && !$this->storage->contains($path)) {
-				throw new \Exception(sprintf('Entity not found; ident: %s, path: %s', $ident, $path));
-			}
-
-			$entity = $this->serializer->unserialize($this->storage->get($path));
-			$entity->setPath($ident); // set volatile path property of entity instance
-
-			return $entity;
-		}
-	}
-
     /**
      * Returns entity from repository
      * If the entity does not exist, returns null
@@ -545,24 +469,6 @@ class Repository implements RepositoryInterface
         $data           = $this->storage->get($path);
 		return $data;
 	}
-
-//    /**
-//     * Utility method for Vivo\CMS\Event
-//     * @param \Vivo\CMS\Model\Document $document
-//     * @return array
-//     */
-//    public function getAllContents(Model\Document $document)
-//	{
-//		$return = array();
-// 		if($entity instanceof CMS\Model\Document) {
-		//@todo:
-//			$count = $document->getContentCount();
-//			for ($index = 1; $index <= $count; $index++) {
-//				$return = array_merge($return, $document->getContents($index));
-//			}
-// 		}
-//		return $return;
-//	}
 
     /**
      * Adds an entity to the list of entities to be deleted

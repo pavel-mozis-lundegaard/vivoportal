@@ -10,8 +10,9 @@ use Vivo\CMS\Model;
 interface RepositoryInterface extends TransactionalInterface {
 	/**
      * Returns entity identified by $ident
+     * If entity is not found, returns null
 	 * @param string $ident Entity identification (path, UUID or symbolic reference)
-	 * @return \Vivo\CMS\Model\Entity
+	 * @return \Vivo\CMS\Model\Entity|null
 	 */
 	public function getEntity($ident);
 

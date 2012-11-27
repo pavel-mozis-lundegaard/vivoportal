@@ -13,6 +13,7 @@ use Vivo\IO\InputStreamInterface;
 use Vivo\IO\OutputStreamInterface;
 use Vivo\CMS\Model\Entity;
 use VivoTest\SharedTestClasses\FsCacheMock;
+use Vivo\Repository\IndexerHelper;
 
 use Zend\Serializer\Adapter\AdapterInterface as Serializer;
 use Zend\Cache\Storage\Capabilities;
@@ -92,20 +93,26 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
      */
     protected $outputStream;
 
+    /**
+     * @var IndexerHelper
+     */
+    protected $indexerHelper;
+
     public function setUp()
     {
         $mockedMethodsCache = array('setItem', 'hasItem', 'removeItem', 'addItem', 'getCapabilities');
         $this->cache        = $this->getMock('VivoTest\SharedTestClasses\FsCacheMock',
             $mockedMethodsCache, array(), '', false);
-
-
-        $this->storage          = $this->getMock('Vivo\Storage\StorageInterface', array(), array(), '', false);
         $this->watcher          = $this->getMock('Vivo\Repository\Watcher', array(), array(), '', false);
         $this->indexer          = $this->getMock('Vivo\Indexer\Indexer', array(), array(), '', false);
         $this->uuidGenerator    = $this->getMock('Vivo\Uuid\GeneratorInterface', array(), array(), '', false);
         $this->ioUtil           = $this->getMock('Vivo\IO\IOUtil', array(), array(), '', false);
         $this->pathBuilder      = $this->getMock(
                                     'Vivo\Storage\PathBuilder\PathBuilderInterface', array(), array(), '', false);
+        $this->storage          = $this->getMock('Vivo\Storage\StorageInterface', array(), array(), '', false);
+        $this->storage->expects($this->any())
+            ->method('getPathBuilder')
+            ->will($this->returnValue($this->pathBuilder));
         $this->serializer       = $this->getMock(
                                     'Zend\Serializer\Adapter\AdapterInterface', array(), array(), '', false);
         $this->uuidConvertor    = $this->getMock(
@@ -131,14 +138,15 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
         $this->cache->expects($this->any())
             ->method('getCapabilities')
             ->will($this->returnValue($this->cacheCaps));
+        $this->indexerHelper    = $this->getMock('Vivo\Repository\IndexerHelper', array(), array(), '', false);
 
         $this->repository       = new Repository($this->storage,
                                                  $this->cache,
                                                  $this->indexer,
+                                                 $this->indexerHelper,
                                                  $this->serializer,
                                                  $this->uuidConvertor,
                                                  $this->watcher,
-                                                 $this->pathBuilder,
                                                  $this->uuidGenerator,
                                                  $this->ioUtil);
     }
@@ -247,6 +255,9 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
             ->method('unserialize')
             ->with($this->equalTo($serializedEntity))
             ->will($this->returnValue($this->entity));
+        $this->entity->expects($this->any())
+            ->method('getUuid')
+            ->will($this->returnValue($uuid));
         $entity = $this->repository->getEntity($ident);
         $this->assertSame($this->entity, $entity);
     }
@@ -291,6 +302,9 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
             ->method('unserialize')
             ->with($this->equalTo($serializedEntity))
             ->will($this->returnValue($this->entity));
+        $this->entity->expects($this->any())
+            ->method('getUuid')
+            ->will($this->returnValue($uuid));
         $entity = $this->repository->getEntity($ident);
         $this->assertSame($this->entity, $entity);
     }
@@ -325,9 +339,16 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
         $this->cache->expects($this->once())
             ->method('removeItem')
             ->with($this->equalTo($uuid));
-        //TODO - better assertion for indexer
+        $delQuery   = $this->getMock('Vivo\Indexer\Query\Boolean', array(), array(), '', false);
+        $this->indexerHelper->expects($this->once())
+            ->method('buildTreeQuery')
+            ->with($this->equalTo($this->entity))
+            ->will($this->returnValue($delQuery));
         $this->indexer->expects($this->once())
-            ->method('execute');
+            ->method('delete')
+            ->with($this->equalTo($delQuery));
+        $this->indexer->expects($this->once())
+            ->method('commit');
         $this->repository->deleteEntity($this->entity);
         $this->repository->commit();
     }
@@ -392,9 +413,24 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
         $this->cache->expects($this->once())
             ->method('setItem')
             ->with($this->equalTo($uuid), $this->equalTo($this->entity));
+        $term   = $this->getMock('Vivo\Indexer\Term', array(), array(), '', false);
+        $doc    = $this->getMock('Vivo\Indexer\Document', array(), array(), '', false);
         $this->indexer->expects($this->once())
-            ->method('save')
-            ->with($this->entity);
+            ->method('deleteByTerm')
+            ->with($term);
+        $this->indexer->expects($this->once())
+            ->method('addDocument')
+            ->with($doc);
+        $this->indexerHelper->expects($this->once())
+            ->method('buildEntityTerm')
+            ->with($this->equalTo($this->entity))
+            ->will($this->returnValue($term));
+        $this->indexerHelper->expects($this->once())
+            ->method('createDocument')
+            ->with($this->equalTo($this->entity))
+            ->will($this->returnValue($doc));
+        $this->indexer->expects($this->once())
+            ->method('commit');
         $this->repository->saveEntity($this->entity);
         $this->repository->commit();
     }

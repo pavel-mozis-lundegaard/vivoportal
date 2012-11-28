@@ -58,7 +58,7 @@ class AutoloaderModule extends ModuleAutoloader
         if (file_exists($moduleFileUrl)) {
             //We must use include not require, otherwise the execution stops when the $moduleFileUrl is not found
             //We are suppressing output in php log, otherwise there are warnings logged
-            @include_once $moduleFileUrl;
+            include_once $moduleFileUrl;
             if (class_exists($class)) {
                 $this->moduleClassMap[$class] = $moduleFileUrl;
                 return $class;

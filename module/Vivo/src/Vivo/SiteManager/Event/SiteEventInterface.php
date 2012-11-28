@@ -32,16 +32,16 @@ interface SiteEventInterface extends EventInterface
 
     /**
      * Sets the site model
-     * @param SiteModel|null $siteModel
+     * @param SiteModel|null $site
      * @return void
      */
-    public function setSiteModel(SiteModel $siteModel = null);
+    public function setSite(SiteModel $site = null);
 
     /**
      * Returns the site model
      * @return SiteModel
      */
-    public function getSiteModel();
+    public function getSite();
 
     /**
      * Sets the current host name

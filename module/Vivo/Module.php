@@ -192,7 +192,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                 },
                 'Vivo\CMS\ComponentFactory' => function(ServiceManager $sm) {
                     $di = $sm->get('ui_di');
-                    $cf = new ComponentFactory($di, $sm->get('cms'), $sm->get('site_event')->getSiteModel());
+                    $cf = new ComponentFactory($di, $sm->get('cms'), $sm->get('site_event')->getSite());
                     $resolver = new ComponentResolver($sm->get('config'));
                     $cf->setResolver($resolver);
                     return $cf;

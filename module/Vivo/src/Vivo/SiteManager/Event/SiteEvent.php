@@ -24,7 +24,7 @@ class SiteEvent extends Event implements SiteEventInterface
      * Site model
      * @var SiteModel
      */
-    protected $siteModel;
+    protected $site;
 
     /**
      * Host name currently used to access the site
@@ -154,21 +154,21 @@ class SiteEvent extends Event implements SiteEventInterface
 
     /**
      * Sets the site model
-     * @param SiteModel|null $siteModel
+     * @param SiteModel|null $site
      * @return void
      */
-    public function setSiteModel(SiteModel $siteModel = null)
+    public function setSite(SiteModel $site = null)
     {
-        $this->siteModel    = $siteModel;
+        $this->site    = $site;
     }
 
     /**
      * Returns the site model
      * @return SiteModel
      */
-    public function getSiteModel()
+    public function getSite()
     {
-        return $this->siteModel;
+        return $this->site;
     }
 
     /**

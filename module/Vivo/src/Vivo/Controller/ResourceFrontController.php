@@ -60,7 +60,7 @@ class ResourceFrontController implements DispatchableInterface,
         } elseif ($source === 'entity') {
             //it's entity resource
             $entityPath = $this->event->getRouteMatch()->getParam('entity');
-            $entity = $this->cms->getSiteEntity($entityPath, $this->siteEvent->getSiteModel());
+            $entity = $this->cms->getSiteEntity($entityPath, $this->siteEvent->getSite());
             $resourceStream = $this->cms->readResource($entity, $pathToResource);
         } else {
             //it's module resource

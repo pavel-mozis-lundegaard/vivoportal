@@ -43,7 +43,7 @@ class Overview extends Component
         $type = $this->content->getOverviewType();
         if ($type == OverviewModel::TYPE_DYNAMIC) {
             if ($this->content->getOverviewPath() != '') {
-                $document = $this->cms->getSiteDocument($this->content->getOverviewPath(), $this->siteEvent->getSiteModel());
+                $document = $this->cms->getSiteDocument($this->content->getOverviewPath(), $this->siteEvent->getSite());
             } else {
                 $document = $this->document;
             }
@@ -51,7 +51,7 @@ class Overview extends Component
         } elseif ($type == OverviewModel::TYPE_STATIC) {
             $items = $this->content->getOverviewItems();
             foreach ($items as $item) {
-                $documents[] = $this->cms->getSiteDocument($item, $this->siteEvent->getSiteModel());
+                $documents[] = $this->cms->getSiteDocument($item, $this->siteEvent->getSite());
             }
         } else {
             throw new \Exception('Bad overview type.');

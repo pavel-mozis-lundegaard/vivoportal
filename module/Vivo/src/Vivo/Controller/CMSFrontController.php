@@ -40,7 +40,7 @@ class CMSFrontController implements DispatchableInterface,
     private $cms;
 
     /**
-     * @var \Vivo\Model\Site
+     * @var SiteEvent
      */
     private $siteEvent;
 
@@ -93,7 +93,7 @@ class CMSFrontController implements DispatchableInterface,
                 'X-Generated-At: ' . gmdate('D, d M Y H:i:s', time()) . ' GMT');
 
         $documentPath = $this->event->getRouteMatch()->getParam('path');
-        $document = $this->cms->getSiteDocument($documentPath, $this->siteEvent->getSiteModel());
+        $document = $this->cms->getSiteDocument($documentPath, $this->siteEvent->getSite());
         $root = $this->componentFactory->getRootComponent($document);
 
         $this->treeUtil->setRoot($root);

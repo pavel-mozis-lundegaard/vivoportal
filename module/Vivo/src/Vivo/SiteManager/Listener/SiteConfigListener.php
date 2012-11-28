@@ -64,7 +64,7 @@ class SiteConfigListener implements ListenerAggregateInterface
      */
     public function onConfig(SiteEventInterface $e)
     {
-        $siteModel  = $e->getSiteModel();
+        $siteModel  = $e->getSite();
         if ($siteModel) {
             $siteConfig = $this->cms->getSiteConfig($siteModel);
             $e->setSiteConfig($siteConfig);

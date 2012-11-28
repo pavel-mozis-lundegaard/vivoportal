@@ -55,12 +55,14 @@ class AutoloaderModule extends ModuleAutoloader
         //Convert backslashes to forward slashes
         $dirPath        = str_replace('\\', '/', $dirPath);
         $moduleFileUrl  = $this->vModuleStreamName . '://' . $dirPath . '/Module.php';
-        //We must use include not require, otherwise the execution stops when the $moduleFileUrl is not found
-        //We are suppressing output in php log, otherwise there are warnings logged
-        @include_once $moduleFileUrl;
-        if (class_exists($class)) {
-            $this->moduleClassMap[$class] = $moduleFileUrl;
-            return $class;
+        if (file_exists($moduleFileUrl)) {
+            //We must use include not require, otherwise the execution stops when the $moduleFileUrl is not found
+            //We are suppressing output in php log, otherwise there are warnings logged
+            @include_once $moduleFileUrl;
+            if (class_exists($class)) {
+                $this->moduleClassMap[$class] = $moduleFileUrl;
+                return $class;
+            }
         }
         return false;
     }

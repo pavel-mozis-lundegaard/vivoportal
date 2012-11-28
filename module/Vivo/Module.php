@@ -314,6 +314,13 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                                                                                                $resourceManagerOptions);
                     return $moduleResourceManager;
                 },
+                'module_install_manager'    => function(ServiceManager $sm) {
+                    $moduleStorageManager   = $sm->get('module_storage_manager');
+                    $cms                    = $sm->get('cms');
+                    $moduleInstallManager   = new \Vivo\Module\InstallManager\InstallManager($moduleStorageManager,
+                                                                                             $cms);
+                    return $moduleInstallManager;
+                },
                 'ui_di' => function (ServiceManager $sm) {
                     $config                 = $sm->get('config');
                     $diConfig           = $config['vivo']['ui_di'];
@@ -351,7 +358,12 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $sm                     = $cm->getServiceLocator();
                     $moduleStorageManager   = $sm->get('module_storage_manager');
                     $remoteModule           = $sm->get('remote_module');
-                    $controller             = new \Vivo\Controller\CLI\ModuleController($moduleStorageManager, $remoteModule);
+                    $moduleInstallManager   = $sm->get('module_install_manager');
+                    $repository             = $sm->get('repository');
+                    $controller             = new \Vivo\Controller\CLI\ModuleController($moduleStorageManager,
+                                                                                        $remoteModule,
+                                                                                        $moduleInstallManager,
+                                                                                        $repository);
                     return $controller;
                 },
                 'ResourceFront'    => function(ControllerManager $cm) {

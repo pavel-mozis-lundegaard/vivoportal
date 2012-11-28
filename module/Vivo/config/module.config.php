@@ -247,6 +247,15 @@ return array(
                         ),
                     ),
                 ),
+                'module_install' => array(
+                    'options' => array(
+                        'route'    => 'module install <module_name> [<site>]',
+                        'defaults' => array(
+                            'controller' => 'CLI\Module',
+                            'action'     => 'install',
+                        ),
+                    ),
+                ),
                 'indexer' => array(
                     'options' => array(
                         'route'    => 'indexer [<action>]',

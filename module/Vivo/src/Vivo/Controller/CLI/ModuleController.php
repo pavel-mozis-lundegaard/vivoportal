@@ -3,6 +3,9 @@ namespace Vivo\Controller\CLI;
 
 use Vivo\Module\StorageManager\StorageManager as ModuleStorageManager;
 use Vivo\Module\StorageManager\RemoteModule;
+use Vivo\Module\InstallManager\InstallManager;
+use Vivo\Module\InstallManager\Exception as InstallException;
+use Vivo\Repository\Repository;
 
 use Zend\Console\Request as ConsoleRequest;
 
@@ -26,14 +29,33 @@ class ModuleController extends AbstractCliController
     protected $remoteModule;
 
     /**
+     * Module installation manager
+     * @var InstallManager
+     */
+    protected $installManager;
+
+    /**
+     * Repository
+     * @var Repository
+     */
+    protected $repository;
+
+    /**
      * Constructor
      * @param \Vivo\Module\StorageManager\StorageManager $moduleStorageManager
      * @param \Vivo\Module\StorageManager\RemoteModule $remoteModule
+     * @param \Vivo\Module\InstallManager\InstallManager $installManager
+     * @param \Vivo\Repository\Repository $repository
      */
-    public function __construct(ModuleStorageManager $moduleStorageManager, RemoteModule $remoteModule)
+    public function __construct(ModuleStorageManager $moduleStorageManager,
+                                RemoteModule $remoteModule,
+                                InstallManager $installManager,
+                                Repository $repository)
     {
         $this->moduleStorageManager = $moduleStorageManager;
         $this->remoteModule         = $remoteModule;
+        $this->installManager       = $installManager;
+        $this->repository           = $repository;
     }
 
     public function defaultAction()
@@ -46,9 +68,57 @@ class ModuleController extends AbstractCliController
         return 'module usage: ...';
     }
 
+    /**
+     * Installs a module into a site or globally (a core module)
+     * @return string
+     */
     public function installAction()
     {
-        //TODO
+        //Prepare params
+        $request    = $this->getRequest();
+        /* @var $request ConsoleRequest */
+        $module     = $request->getParam('module_name');
+        if (is_null($module)) {
+            return 'Usage: module install <module_name> [<site>]';
+        }
+        $site       = $request->getParam('site');
+        //Attempt installation
+        try {
+            $this->installManager->install($module, $site);
+            $this->repository->commit();
+        } catch (InstallException\SiteDoesNotExistException $e) {
+            //Site does not exist
+            $output = sprintf("Site '%s' does not exist", $site);
+            return $output;
+        } catch (InstallException\ModuleAlreadyInstalledException $e) {
+            //Module is already installed
+            $output = sprintf("Module '%s' is already installed", $module);
+            return $output;
+        } catch (InstallException\ModuleNotFoundInStorageException $e) {
+            //Module has not been found in storage
+            $output = sprintf("Module '%s' not found in storage; add the module first", $module);
+            return $output;
+        } catch (InstallException\InstallCoreModuleToSiteException $e) {
+            //Trying to install a core module to a site
+            $output = sprintf("Cannot install the core module '%s' to a site", $module);
+            return $output;
+        } catch (InstallException\NoSiteSpecifiedException $e) {
+            //Trying to install a site module without a site specification
+            $output = sprintf("Site specification missing when installing site module '%s'", $module);
+            return $output;
+        } catch (\Exception $e) {
+            //Other exception
+            $output = sprintf('An exception occurred during module installation');
+            return $output;
+        }
+        //Everything ok
+        if (is_null($site)) {
+            $output = sprintf("Core module '%s' has been installed", $module);
+        } else {
+            $output = sprintf("Module '%s' has been installed into site '%s'", $module, $site);
+        }
+        return $output;
+
     }
 
     public function removeAction()
@@ -62,9 +132,9 @@ class ModuleController extends AbstractCliController
      */
     public function listAction()
     {
-        $rowTemplate    = "%-30.30s %-10.10s %-36.36s\n";
+        $rowTemplate    = "%-1.1s %-30.30s %-10.10s %-34.34s\n";
         $output         = "\nModules in storage\n\n";
-        $output         .= sprintf($rowTemplate, 'Name', 'Version', 'Description');
+        $output         .= sprintf($rowTemplate, 'C', 'Name', 'Version', 'Description');
         $output         .= str_repeat('-', 78) . "\n";
         $modulesInfo    = $this->moduleStorageManager->getModulesInfo();
         foreach ($modulesInfo as $moduleInfo) {
@@ -74,7 +144,13 @@ class ModuleController extends AbstractCliController
             } else {
                 $description    = '';
             }
-            $output     .= sprintf($rowTemplate, $moduleInfo['name'], $descriptor['version'], $description);
+            if ($descriptor['type'] == 'core') {
+                $moduleType = 'C';
+            } else {
+                $moduleType = '';
+            }
+            $output     .= sprintf($rowTemplate, $moduleType, $moduleInfo['name'],
+                                   $descriptor['version'], $description);
         }
         return $output;
     }
@@ -85,7 +161,7 @@ class ModuleController extends AbstractCliController
      */
     public function addAction()
     {
-        //$moduleUrl should be in format: 'file://c:\Work\DummyModules\Vm10'
+        //$moduleUrl should be in format: 'file://<full path to the module dir>'
         $request    = $this->getRequest();
         /* @var $request ConsoleRequest */
         $moduleUrl  = $request->getParam('module_url');

@@ -35,8 +35,8 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         $config = $sm->get('config');
 
         //Attach a listener to set up the SiteManager object
-        $createSiteListener = $sm->get('create_site_listener');
-        $createSiteListener->attach($eventManager);
+        $runSiteManagerListener = $sm->get('run_site_manager_listener');
+        $runSiteManagerListener->attach($eventManager);
 
         //Register Vmodule stream
         $moduleStorage  = $sm->get('module_storage');
@@ -226,10 +226,10 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                                                                                 $moduleResourceManager);
                     return $siteManager;
                 },
-                'create_site_listener'  => function(ServiceManager $sm) {
+                'run_site_manager_listener'  => function(ServiceManager $sm) {
                     $siteManager            = $sm->get('site_manager');
-                    $createSiteListener     = new \Vivo\SiteManager\Listener\CreateSiteListener($siteManager);
-                    return $createSiteListener;
+                    $runSiteManagerListener = new \Vivo\SiteManager\Listener\RunSiteManagerListener($siteManager);
+                    return $runSiteManagerListener;
                 },
                 'lucene' => function(ServiceManager $sm) {
                     $storageConfig  = array(

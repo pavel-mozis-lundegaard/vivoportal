@@ -8,10 +8,10 @@ use Zend\EventManager\ListenerAggregateInterface;
 use Zend\Mvc\MvcEvent;
 
 /**
- * CreateSiteListener
+ * RunSiteManagerListener
  * Sets-up a listener for MVC Route event to bootstrap the SiteManager object and prepare the Site
  */
-class CreateSiteListener implements ListenerAggregateInterface
+class RunSiteManagerListener implements ListenerAggregateInterface
 {
     /**
      * @var \Zend\Stdlib\CallbackHandler[]

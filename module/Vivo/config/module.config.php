@@ -76,9 +76,9 @@ return array(
     'service_manager' => array(
         'allow_override' => true,
         'factories' => array(
-            'translator' => 'Zend\I18n\Translator\TranslatorServiceFactory',
-            'response' => 'Vivo\Mvc\Service\ResponseFactory',
-
+            'translator'            => 'Zend\I18n\Translator\TranslatorServiceFactory',
+            'response'              => 'Vivo\Mvc\Service\ResponseFactory',
+            'db_service_manager'    => 'Vivo\Service\DbServiceManagerFactory',
         ),
     ),
     'translator' => array(
@@ -147,6 +147,16 @@ return array(
                 ),
                 //Default resource type
                 'default_type'  => 'resource',
+            ),
+        ),
+        'db_service'    => array(
+            'pdo'       => array(
+                'service_identifier'    => 'pdo',
+                'config'                => array(
+                ),
+            ),
+            'doctrine'  => array(
+                'service_identifier'    => 'doctrine',
             ),
         ),
         'cms'       => array(

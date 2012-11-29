@@ -3,7 +3,6 @@ namespace Vivo\Module\Feature;
 
 use Vivo\CMS\Model\Site;
 use Vivo\CMS\CMS;
-use Vivo\Storage\StorageInterface;
 
 /**
  * SiteInstallableInterface
@@ -17,8 +16,7 @@ interface SiteInstallableInterface
      * @param string $siteName
      * @param Site $site
      * @param CMS $cms
-     * @param StorageInterface $storage
      * @return void
      */
-    public function install($moduleName, $siteName, Site $site, CMS $cms, StorageInterface $storage);
+    public function install($moduleName, $siteName, Site $site, CMS $cms);
 }

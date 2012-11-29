@@ -336,7 +336,13 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
 
                     $di->configure(new Config($diConfig));
                     return $di;
-                }
+                },
+                'pdo_abstract_factory'      => function(ServiceManager $sm) {
+                    $config                 = $sm->get('config');
+                    $pdoConfig              = $config['vivo']['db_service']['pdo'];
+                    $pdoAf  = new \Vivo\Service\AbstractFactory\Pdo($pdoConfig);
+                    return $pdoAf;
+                },
             ),
         );
     }

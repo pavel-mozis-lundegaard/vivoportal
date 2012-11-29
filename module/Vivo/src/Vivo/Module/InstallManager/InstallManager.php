@@ -5,6 +5,7 @@ use Vivo\Module\StorageManager\StorageManager as ModuleStorageManager;
 use Vivo\CMS\CMS;
 use Vivo\CMS\Model\Site;
 use Vivo\IO\InputStreamWrapper;
+use Vivo\Module\Feature\SiteInstallableInterface;
 
 /**
  * InstallManager
@@ -27,9 +28,10 @@ class InstallManager
     /**
      * Constructor
      * @param ModuleStorageManager $moduleStorageManager
-     * @param \Vivo\CMS\CMS $cms
+     * @param CMS $cms
      */
-    public function __construct(ModuleStorageManager $moduleStorageManager, CMS $cms)
+    public function __construct(ModuleStorageManager $moduleStorageManager,
+                                CMS $cms)
     {
         $this->moduleStorageManager = $moduleStorageManager;
         $this->cms                  = $cms;
@@ -77,17 +79,17 @@ class InstallManager
     /**
      * Installs module into site or globally (core modules)
      * @param string $module Module name (ie module namespace)
-     * @param Site|string|null $site Site object or site name or null (for core modules)
+     * @param string|null $site Site name or null (for core modules)
      * @throws Exception\ModuleAlreadyInstalledException
      * @throws Exception\NoSiteSpecifiedException
      * @throws Exception\SiteDoesNotExistException
      * @throws Exception\InstallCoreModuleToSiteException
      * @throws Exception\ModuleNotFoundInStorageException
      */
-    public function install($module, $site = null)
+    public function install($module, $siteName = null)
     {
         //Verify the site exists and get the Site model object
-        if (!is_null($site)) {
+        if (!is_null($siteName   )) {
             if (!$this->cms->siteExists($site)) {
                 throw new Exception\SiteDoesNotExistException(
                     sprintf("%s: Site '%' does not exist", __METHOD__, $site));
@@ -172,12 +174,16 @@ class InstallManager
     /**
      * Runs installation script for a module
      * @param string $module
+     * @param string $siteName
      * @param Site|null $site If null, it is a core module
      */
-    protected function runInstallationScript($module, Site $site = null) {
+    protected function runInstallationScript($module, $siteName, Site $site = null) {
         $installer  = $this->getInstaller($module);
         if ($installer) {
-
+            /** @var $installer SiteInstallableInterface */
+            if ($installer instanceof SiteInstallableInterface) {
+                $installer->install($module, $siteName, $site, $this->cms);
+            }
         }
     }
 

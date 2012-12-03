@@ -49,14 +49,8 @@ class Resource extends AbstractHelper
         $this->parser = $parser;
     }
 
-    public function __invoke($resourcePath, $source = null)
+    public function __invoke($resourcePath, $source)
     {
-        if ($source == null) {
-            $parts = $this->parser->parse($resourcePath);
-            $resourcePath = $parts['path'];
-            $source = $parts['module'];
-        }
-
         if ($this->options['check_resource'] == true) {
             $this->checkResource($resourcePath, $source);
         }
@@ -65,11 +59,12 @@ class Resource extends AbstractHelper
             $url = $this->urlHelper
                     ->__invoke('vivo/resource_entity',
                             array('path' => $resourcePath,
-                                    'entity' => $entityUrl));
+                                    'entity' => $entityUrl,
+                                    ));
         } elseif (is_string($source)) {
             $url = $this->urlHelper
                     ->__invoke('vivo/resource',
-                            array('source' => $source, 'path' => $resourcePath));
+                            array('source' => $source, 'path' => $resourcePath, 'type' => 'resource'));
         } else {
             throw new InvalidArgumentException(
                     sprintf("%s: Invalid value for parameter 'source'.",

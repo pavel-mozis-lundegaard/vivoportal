@@ -71,6 +71,19 @@ class StreamWrapper extends ZendViewStream
     }
 
     /**
+     * When this method is not implemented, the include/require functions generate warning:
+     * 'Warning: include_once(): StreamWrapper::stream_cast is not implemented!'
+     * @see http://php.net/manual/en/streamwrapper.stream-cast.php
+     * @see https://github.com/mikey179/vfsStream/issues/3
+     * @param int $castAs
+     * @return resource|bool
+     */
+    public function stream_cast($castAs)
+    {
+        return false;
+    }
+
+    /**
      * Returns the path without the stream name and ://
      * @param string $path
      * @return string

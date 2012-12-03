@@ -6,13 +6,13 @@ use Vivo\CMS\CMS;
 use Vivo\Service\DbServiceManagerInterface;
 
 /**
- * SiteInstallableInterface
- * Classes implementing this interface provide installation script for module installation into a site
+ * SiteUninstallableInterface
+ * Classes implementing this interface provide uninstallation script for module uninstallation from a site
  */
-interface SiteInstallableInterface
+interface SiteUninstallableInterface
 {
     /**
-     * Runs installation script
+     * Runs uninstallation script
      * @param string $moduleName
      * @param string $siteName
      * @param Site $site
@@ -21,6 +21,6 @@ interface SiteInstallableInterface
      * @param string $dbSource Name of the db source
      * @return void
      */
-    public function install($moduleName, $siteName, Site $site, CMS $cms,
+    public function uninstall($moduleName, $siteName, Site $site, CMS $cms,
                             DbServiceManagerInterface $dbServiceManager, $dbSource);
 }

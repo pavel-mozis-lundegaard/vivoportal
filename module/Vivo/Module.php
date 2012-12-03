@@ -315,10 +315,15 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     return $moduleResourceManager;
                 },
                 'module_install_manager'    => function(ServiceManager $sm) {
+                    $config                 = $sm->get('config');
                     $moduleStorageManager   = $sm->get('module_storage_manager');
                     $cms                    = $sm->get('cms');
+                    $dbServiceManager       = $sm->get('db_service_manager');
+                    $options                = $config['vivo']['module_install_manager'];
                     $moduleInstallManager   = new \Vivo\Module\InstallManager\InstallManager($moduleStorageManager,
-                                                                                             $cms);
+                                                                                             $cms,
+                                                                                             $dbServiceManager,
+                                                                                             $options);
                     return $moduleInstallManager;
                 },
                 'ui_di' => function (ServiceManager $sm) {
@@ -339,9 +344,15 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                 },
                 'pdo_abstract_factory'      => function(ServiceManager $sm) {
                     $config                 = $sm->get('config');
-                    $pdoConfig              = $config['vivo']['db_service']['pdo'];
+                    $pdoConfig              = $config['vivo']['db_service']['abstract_factory']['pdo'];
                     $pdoAf  = new \Vivo\Service\AbstractFactory\Pdo($pdoConfig);
                     return $pdoAf;
+                },
+                'zdb_abstract_factory'      => function(ServiceManager $sm) {
+                    $config                 = $sm->get('config');
+                    $zdbConfig              = $config['vivo']['db_service']['abstract_factory']['zdb'];
+                    $zdbAf  = new \Vivo\Service\AbstractFactory\ZendDbAdapter($zdbConfig);
+                    return $zdbAf;
                 },
             ),
         );

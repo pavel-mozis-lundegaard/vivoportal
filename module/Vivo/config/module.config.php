@@ -150,14 +150,36 @@ return array(
             ),
         ),
         'db_service'    => array(
-            'pdo'       => array(
-                'service_identifier'    => 'pdo',
-                'config'                => array(
+            'abstract_factory'  => array(
+                //PDO
+                'pdo'       => array(
+                    'service_identifier'    => 'pdo',
+                    //The PDO connections are defined in a local config
+                    /*
+                    'config'                => array(
+                        'config_name'    => array(
+                            'dsn'       => '',
+                            'username'  => '',
+                            'password'  => '',
+                            'options'   => array(
+                            ),
+                        ),
+                    ),
+                    */
+                ),
+                //Doctrine
+                'dem'  => array(
+                    'service_identifier'    => 'dem',
+                ),
+                //Zend DB Adapter
+                'zdb'  => array(
+                    'service_identifier'    => 'zdb',
                 ),
             ),
-            'doctrine'  => array(
-                'service_identifier'    => 'doctrine',
-            ),
+        ),
+        'module_install_manager'    => array(
+            //Default db source is configured in a local config
+            //'default_db_source'     => '',
         ),
         'cms'       => array(
             'repository'    => array(

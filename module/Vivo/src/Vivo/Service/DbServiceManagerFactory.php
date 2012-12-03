@@ -4,6 +4,10 @@ namespace Vivo\Service;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
 
+/**
+ * DbServiceManagerFactory
+ * Instantiates the DbServiceManager
+ */
 class DbServiceManagerFactory implements FactoryInterface
 {
     /**
@@ -16,6 +20,8 @@ class DbServiceManagerFactory implements FactoryInterface
         $dbSm   = new DbServiceManager();
         $pdoAf  = $serviceLocator->get('pdo_abstract_factory');
         $dbSm->addAbstractFactory($pdoAf);
+        $zdbAf  = $serviceLocator->get('zdb_abstract_factory');
+        $dbSm->addAbstractFactory($zdbAf);
         return $dbSm;
     }
 }

@@ -6,12 +6,13 @@ use Vivo\CMS\CMS;
 use Vivo\CMS\Model\Site;
 use Vivo\IO\InputStreamWrapper;
 use Vivo\Module\Feature\SiteInstallableInterface;
+use Vivo\Service\DbServiceManagerInterface;
 
 /**
  * InstallManager
  * Performs module installation tasks
  */
-class InstallManager
+class InstallManager implements InstallManagerInterface
 {
     /**
      * Module storage manager
@@ -26,15 +27,35 @@ class InstallManager
     protected $cms;
 
     /**
+     * DB Service manager
+     * @var DbServiceManagerInterface
+     */
+    protected $dbServiceManager;
+
+    /**
+     * Configuration options
+     * @var array
+     */
+    protected $options  = array(
+        //'default_db_source'     => '',
+    );
+
+    /**
      * Constructor
      * @param ModuleStorageManager $moduleStorageManager
      * @param CMS $cms
+     * @param DbServiceManagerInterface $dbServiceManager
+     * @param array $options
      */
     public function __construct(ModuleStorageManager $moduleStorageManager,
-                                CMS $cms)
+                                CMS $cms,
+                                DbServiceManagerInterface $dbServiceManager,
+                                array $options)
     {
         $this->moduleStorageManager = $moduleStorageManager;
         $this->cms                  = $cms;
+        $this->dbServiceManager     = $dbServiceManager;
+        $this->options              = array_merge($this->options, $options);
     }
 
     /**
@@ -43,61 +64,198 @@ class InstallManager
      * @param Site|string|null $site If null, checks if the module is installed globally
      * @return bool
      */
-    public function isModuleInstalled($module, $site = null)
+    public function isInstalled($module, $site = null)
     {
-        if (is_null($site)) {
-            return $this->isModuleInstalledInCore($module);
-        } else {
-            return $this->isModuleInstalledInSite($module, $site);
-        }
-    }
-
-    /**
-     * Returns if a module is installed in a site
-     * @param string $module
-     * @param Site|string $site
-     * @return boolean
-     */
-    public function isModuleInstalledInSite($module, $site)
-    {
-        $modules        = $this->getSiteModules($site);
+        $modules        = $this->getInstalledModules($site);
         $isInstalled    = in_array($module, $modules);
         return $isInstalled;
     }
 
     /**
-     * Returns if a module is installed as a core module
-     * @param string $module
-     * @return boolean
+     * Checks if a module is enabled in a site | globally (a core module)
+     * @param string $module Module name (ie module namespace)
+     * @param Site|string|null $site If null, checks if the module is enabled globally
+     * @return bool
      */
-    public function isModuleInstalledInCore($module)
+    public function isEnabled($module, $site = null)
     {
-        //TODO - implement isModuleInstalledInCore()
+        $modules    = $this->getEnabledModules($site);
+        $isEnabled  = in_array($module, $modules);
+        return $isEnabled;
+    }
+
+    /**
+     * Returns a list of modules installed for a site or globally (core modules)
+     * @param Site|string|null $site Null = core modules
+     * @return array
+     */
+    public function getInstalledModules($site = null)
+    {
+        $site   = $this->getSite($site);
+        if (is_null($site)) {
+            return $this->getInstalledModulesInCore();
+        } else {
+            return $this->getInstalledModulesInSite($site);
+        }
+    }
+
+    /**
+     * Returns a list of modules installed in a site
+     * @param Site $site
+     * @return array
+     */
+    protected function getInstalledModulesInSite(Site $site)
+    {
+        $config = $this->cms->getSiteConfig($site);
+        if (isset($config['modules']['site_modules'])) {
+            $modules    = array_keys($config['modules']['site_modules']);
+        } else {
+            $modules    = array();
+        }
+        return $modules;
+    }
+
+    /**
+     * Returns a list of modules installed in core
+     * @return array
+     */
+    protected function getInstalledModulesInCore()
+    {
+        //TODO - implement getInstalledModulesInCore()
+        throw new \Exception(sprintf('%s not implemented', __METHOD__));
+    }
+
+    /**
+     * Returns a list of modules enabled for a site or globally (core modules)
+     * @param Site|string|null $site Null = core modules
+     * @return array
+     */
+    public function getEnabledModules($site = null)
+    {
+        $site   = $this->getSite($site);
+        if (is_null($site)) {
+            return $this->getEnabledModulesInCore();
+        } else {
+            return $this->getEnabledModulesInSite($site);
+        }
+    }
+
+    /**
+     * Returns an array of modules (module names) which are enabled for the site
+     * @param Site $site
+     * @return array
+     */
+    protected function getEnabledModulesInSite(Site $site)
+    {
+        $config     = $this->cms->getSiteConfig($site);
+        $modules    = array();
+        if (isset($config['modules']['site_modules'])) {
+            foreach ($config['modules']['site_modules'] as $moduleName => $moduleConfig) {
+                if ($moduleConfig['enabled']) {
+                    $modules[]  = $moduleName;
+                }
+            }
+        }
+        return $modules;
+    }
+
+    /**
+     * Returns an array of modules (module names) which are enabled in core
+     * @return array
+     */
+    protected function getEnabledModulesInCore()
+    {
+        //TODO - implement getEnabledModulesInCore()
+        throw new \Exception(sprintf('%s not implemented', __METHOD__));
+    }
+
+    /**
+     * Enables module for a site or globally (core modules)
+     * @param string $module
+     * @param Site|string|null $site
+     */
+    public function enable($module, $site = null)
+    {
+        $site   = $this->getSite($site);
+        if (is_null($site)) {
+            $this->setEnableModuleInCore($module, true);
+        } else {
+            $this->setEnableModuleInSite($module, $site, true);
+        }
+    }
+
+    /**
+     * Disables module for a site or globally (core modules)
+     * @param string $module
+     * @param Site|string|null $site
+     */
+    public function disable($module, $site = null)
+    {
+        $site   = $this->getSite($site);
+        if (is_null($site)) {
+            $this->setEnableModuleInCore($module, false);
+        } else {
+            $this->setEnableModuleInSite($module, $site, false);
+        }
+    }
+
+    /**
+     * Enables a module in a site
+     * @param string $module
+     * @param Site $site
+     * @param boolean $enabled
+     * @throws Exception\ModuleNotInstalledException
+     * @return void
+     */
+    protected function setEnableModuleInSite($module, Site $site, $enabled)
+    {
+        $config = $this->cms->getSiteConfig($site);
+        if (isset($config['modules']['site_modules'][$module])) {
+            //OK, the module is installed
+            $config['modules']['site_modules'][$module]['enabled']  = (bool)$enabled;
+            $this->cms->setSiteConfig($config, $site);
+        } else {
+            //The module is not installed
+            throw new Exception\ModuleNotInstalledException(
+                sprintf("%s: Module '%s' not installed", __METHOD__, $module));
+        }
+    }
+
+    /**
+     * Enables a module in core
+     * @param string $module
+     * @param boolean $enabled
+     */
+    protected function setEnableModuleInCore($module, $enabled)
+    {
+        //TODO - implement enableModuleInCore()
         throw new \Exception(sprintf('%s not implemented', __METHOD__));
     }
 
     /**
      * Installs module into site or globally (core modules)
      * @param string $module Module name (ie module namespace)
-     * @param string|null $site Site name or null (for core modules)
+     * @param string|null $siteName
+     * @param array $config Module configuration
      * @throws Exception\ModuleAlreadyInstalledException
      * @throws Exception\NoSiteSpecifiedException
      * @throws Exception\SiteDoesNotExistException
      * @throws Exception\InstallCoreModuleToSiteException
      * @throws Exception\ModuleNotFoundInStorageException
      */
-    public function install($module, $siteName = null)
+    public function install($module, $siteName = null, array $config = array())
     {
+        $site   = null;
         //Verify the site exists and get the Site model object
-        if (!is_null($siteName   )) {
-            if (!$this->cms->siteExists($site)) {
+        if (!is_null($siteName)) {
+            if (!$this->cms->siteExists($siteName)) {
                 throw new Exception\SiteDoesNotExistException(
-                    sprintf("%s: Site '%' does not exist", __METHOD__, $site));
+                    sprintf("%s: Site '%' does not exist", __METHOD__, $siteName));
             }
-            $site   = $this->getSite($site);
+            $site   = $this->getSite($siteName);
         }
         //Verify the module has not been installed yet
-        if ($this->isModuleInstalled($module, $site)) {
+        if ($this->isInstalled($module, $site)) {
             throw new Exception\ModuleAlreadyInstalledException(
                 sprintf("%s: Module '%s' is already installed", __METHOD__, $module));
         }
@@ -119,70 +277,153 @@ class InstallManager
             throw new Exception\NoSiteSpecifiedException(
                 sprintf("%s: Site specification missing when installing site module '%s'", __METHOD__, $module));
         }
-        //Do the actual installation
-        $this->runInstallationScript($module, $site);
-        if (is_null($site)) {
-            $this->addModuleToCore($module);
+        //Prepare config
+        //Use default db if not specified in config
+        if (!isset($config['db_source'])) {
+            $dbSource               = $this->options['default_db_source'];
+            $config['db_source']    = $dbSource;
         } else {
-            $this->addModuleToSiteConfig($module, $site);
+            $dbSource               = $config['db_source'];
+        }
+        $config['enabled']  = false;
+        //Check that the specified db source exists
+        if (!$this->dbServiceManager->hasDbService($dbSource)) {
+            throw new Exception\DbSourceDoesNotExistException(
+                sprintf("%s: Db source '%s' does not exist", __METHOD__, $dbSource));
+        }
+        //Do the actual installation
+        $this->runInstallationScript($module, $siteName, $dbSource);
+        if (is_null($site)) {
+            $this->installModuleToCore($module, $config);
+        } else {
+            $this->installModuleToSite($module, $site, $config);
         }
     }
 
     /**
-     * Adds the module to the site config
+     * Installs the module to the site
      * @param string $module
      * @param Site $site
+     * @param array $config
      */
-    protected function addModuleToSiteConfig($module, Site $site)
+    protected function installModuleToSite($module, Site $site, array $config = array())
     {
-        $modules        = $this->getSiteModules($site);
-        $modules[]      = $module;
-        //Reset keys
-        $modules        = array_values($modules);
-        $config['modules']['site_modules']  = $modules;
-        $this->cms->setSiteConfig($config, $site);
+        $siteConfig         = $this->cms->getSiteConfig($site);
+        $siteConfig['modules']['site_modules'][$module] = $config;
+        $this->cms->setSiteConfig($siteConfig, $site);
     }
 
     /**
-     * Returns an array of site modules (module names)
-     * @param Site|string $site Site model or site name
-     * @throws Exception\InvalidArgumentException
-     * @return array
-     */
-    public function getSiteModules($site)
-    {
-        $site   = $this->getSite($site);
-        $config = $this->cms->getSiteConfig($site);
-        if (isset($config['modules']['site_modules'])) {
-            $modules    = $config['modules']['site_modules'];
-        } else {
-            $modules    = array();
-        }
-        return $modules;
-    }
-
-    /**
-     * Adds the module to the core config
+     * Installs a module to the core
      * @param string $module
+     * @param array $config
      */
-    protected function addModuleToCore($module)
+    protected function installModuleToCore($module,  array $config = array())
     {
-        //TODO - implement addModuleToCore()
+        //TODO - implement installModuleToCore
         throw new \Exception(sprintf('%s not implemented', __METHOD__));
     }
 
     /**
-     * Runs installation script for a module
+     * Uninstalls a module from a site or from global scope (core modules)
+     * @param string $module
+     * @param string|null $siteName
+     * @throws Exception\ModuleNotInstalledException
+     * @throws Exception\ModuleEnabledException
+     * @throws Exception\ModuleEnabledException
+     */
+    public function uninstall($module, $siteName = null)
+    {
+        $site   = $this->getSite($siteName);
+        //Check that the module is installed
+        if (!$this->isInstalled($module, $site)) {
+            throw new Exception\ModuleNotInstalledException(
+                sprintf("%s: Module '%s' not installed", __METHOD__, $module));
+        }
+        //Check that the module is disabled
+        if ($this->isEnabled($module, $site)) {
+            throw new Exception\ModuleEnabledException(
+                sprintf("%s: Cannot uninstall enabled module (%s)", __METHOD__, $module));
+        }
+        if (is_null($site)) {
+            $this->uninstallFromCore($module);
+        } else {
+            $this->uninstallFromSite($module, $site);
+        }
+        $this->runUninstallationScript($module, $siteName);
+    }
+
+    /**
+     * Uninstalls module from a site
+     * @param string $module
+     * @param Site $site
+     */
+    protected function uninstallFromSite($module, Site $site)
+    {
+        $siteConfig         = $this->cms->getSiteConfig($site);
+        unset($siteConfig['modules']['site_modules'][$module]);
+        $this->cms->setSiteConfig($siteConfig, $site);
+    }
+
+    /**
+     * Uninstalls module from core
+     * @param string $module
+     */
+    protected function uninstallFromCore($module)
+    {
+        //TODO - implement uninstallFromCore()
+        throw new \Exception(sprintf('%s not implemented', __METHOD__));
+    }
+
+    /**
+     * Runs installation script
      * @param string $module
      * @param string $siteName
-     * @param Site|null $site If null, it is a core module
+     * @param string $dbSource
      */
-    protected function runInstallationScript($module, $siteName, Site $site = null) {
+    protected function runInstallationScript($module, $siteName = null, $dbSource) {
+        $site       = $this->getSite($siteName);
         $installer  = $this->getInstaller($module);
         if ($installer) {
-            /** @var $installer SiteInstallableInterface */
-            if ($installer instanceof SiteInstallableInterface) {
-                $installer->install($module, $siteName, $site, $this->cms);
+            if (is_null($site)) {
+                //Installation into core
+                //TODO - implement running install script in core
+                throw new \Exception(sprintf('%s: implement running install script in core', __METHOD__));
+            } else {
+                //Site installation
+                /** @var $installer SiteInstallableInterface */
+                if ($installer instanceof SiteInstallableInterface) {
+                    $installer->install($module, $siteName, $site, $this->cms, $this->dbServiceManager, $dbSource);
+                }
+            }
+        }
+    }
+
+    /**
+     * Runs uninstallation script
+     * @param string $module
+     * @param string|null $siteName
+     */
+    protected function runUninstallationScript($module, $siteName = null)
+    {
+        $site       = $this->getSite($siteName);
+        $installer  = $this->getInstaller($module);
+        if ($installer) {
+            if (is_null($site)) {
+                //Uninstallation from core
+                //TODO - implement running uninstall script from core
+                throw new \Exception(sprintf('%s: implement running uninstall script from core', __METHOD__));
+            } else {
+                //Site uninstallation
+                /** @var $installer SiteInstallableInterface */
+                if ($installer instanceof SiteInstallableInterface) {
+
+                    //TODO - get $dbSource
+                    //$dbSource   =
+
+
+                    $installer->install($module, $siteName, $site, $this->cms, $this->dbServiceManager, $dbSource);
+                }
             }
         }
     }

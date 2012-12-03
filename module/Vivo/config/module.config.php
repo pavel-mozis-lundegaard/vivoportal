@@ -184,17 +184,15 @@ return array(
         'ui_di' => array(
             'instance' => array (
                         'alias' => array (
-                                'cms' => 'Vivo\Fake\CMS',
                                 'viewModel' =>  'Vivo\View\Model\UIViewModel',
                                 'viewHelpers' =>  'Zend\View\HelperPluginManager',
                         ),
-
                         'viewModel' => array (
-                                'shared' => false,
+                                'shared' => false, //new viewModel for each UI/component
                         ),
-                        'Vivo\CMS\ComponentFactory' => array (
+                        'Vivo\UI\Component' => array (
                                 'parameters' => array (
-                                        'cms' => 'cms',
+                                        'view' => 'viewModel',
                                 ),
                         ),
                         'Vivo\UI\Page' => array (
@@ -226,18 +224,6 @@ return array(
                                      ),
                                  ),
                                  'viewHelpers' => 'Zend\View\HelperPluginManager',
-                                ),
-                        ),
-                        'Vivo\CMS\UI\Content\Sample' => array (
-                                'parameters' => array (
-                                        'options' => array (
-                                                'template' => 'someTemplate.phtml',
-                                        ),
-                                ),
-                        ),
-                        'Vivo\UI\Component' => array (
-                                'parameters' => array (
-                                        'view' => 'viewModel',
                                 ),
                         ),
                 ),

@@ -2,7 +2,7 @@
 namespace Vivo\Module\InstallManager;
 
 use Vivo\Module\StorageManager\StorageManager as ModuleStorageManager;
-use Vivo\CMS\CMS;
+use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Model\Site;
 use Vivo\IO\InputStreamWrapper;
 use Vivo\Module\Feature\SiteInstallableInterface;

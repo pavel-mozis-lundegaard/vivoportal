@@ -2,7 +2,7 @@
 namespace Vivo\Module\Feature;
 
 use Vivo\CMS\Model\Site;
-use Vivo\CMS\CMS;
+use Vivo\CMS\Api\CMS;
 use Vivo\Service\DbServiceManagerInterface;
 
 /**

@@ -4,7 +4,7 @@ namespace Vivo\CMS\UI\Content;
 use Vivo\CMS\ComponentFactory;
 
 use Vivo\IO\InputStreamWrapper;
-use Vivo\CMS\CMS;
+use Vivo\CMS\Api\CMS;
 use Vivo\UI\ComponentInterface;
 use Vivo\UI\ComponentContainer;
 use Vivo\CMS\UI\Component;

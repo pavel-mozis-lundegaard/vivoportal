@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\CMS;
+namespace Vivo\CMS\Api;
 
 use Vivo\CMS\Model;
 use Vivo\CMS\Workflow;

@@ -3,7 +3,7 @@ namespace Vivo\View\Helper;
 
 use Vivo\Util\Path\PathParser;
 
-use Vivo\CMS\CMS;
+use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Model\Entity;
 use Vivo\UI\Component;
 use Vivo\View\Helper\Exception\InvalidArgumentException;

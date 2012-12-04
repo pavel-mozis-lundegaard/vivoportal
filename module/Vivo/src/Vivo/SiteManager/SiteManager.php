@@ -11,7 +11,7 @@ use Vivo\Module\ModuleManagerFactory;
 use Vivo\Module\StorageManager\StorageManager as ModuleStorageManager;
 use Vivo\SiteManager\Listener\InjectModuleManagerListener;
 use Vivo\Module\ResourceManager\ResourceManager as ModuleResourceManager;
-use Vivo\CMS\CMS;
+use Vivo\CMS\Api\CMS;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManagerAwareInterface;
@@ -98,7 +98,7 @@ class SiteManager implements SiteManagerInterface,
      * @param \Vivo\Module\ModuleManagerFactory $moduleManagerFactory
      * @param array $coreModules
      * @param \Vivo\Module\StorageManager\StorageManager $moduleStorageManager
-     * @param \Vivo\CMS\CMS $cms
+     * @param \Vivo\CMS\Api\CMS $cms
      * @param \Zend\ServiceManager\ServiceManager $serviceManager
      * @param \Vivo\Module\ResourceManager\ResourceManager $moduleResourceManager
      * @param \Zend\Mvc\Router\RouteMatch $routeMatch

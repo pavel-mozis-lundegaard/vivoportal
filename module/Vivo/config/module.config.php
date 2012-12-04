@@ -288,6 +288,69 @@ return array(
                         ),
                     ),
                 ),
+                'module_uninstall' => array(
+                    'options' => array(
+                        'route'    => 'module uninstall <module_name> [<site>]',
+                        'defaults' => array(
+                            'controller' => 'CLI\Module',
+                            'action'     => 'uninstall',
+                        ),
+                    ),
+                ),
+                'module_enable' => array(
+                    'options' => array(
+                        'route'    => 'module enable <module_name> [<site>]',
+                        'defaults' => array(
+                            'controller' => 'CLI\Module',
+                            'action'     => 'enable',
+                        ),
+                    ),
+                ),
+                'module_disable' => array(
+                    'options' => array(
+                        'route'    => 'module disable <module_name> [<site>]',
+                        'defaults' => array(
+                            'controller' => 'CLI\Module',
+                            'action'     => 'disable',
+                        ),
+                    ),
+                ),
+                'module_is_installed' => array(
+                    'options' => array(
+                        'route'    => 'module isinstalled <module_name> [<site>]',
+                        'defaults' => array(
+                            'controller' => 'CLI\Module',
+                            'action'     => 'isInstalled',
+                        ),
+                    ),
+                ),
+                'module_is_enabled' => array(
+                    'options' => array(
+                        'route'    => 'module isenabled <module_name> [<site>]',
+                        'defaults' => array(
+                            'controller' => 'CLI\Module',
+                            'action'     => 'isEnabled',
+                        ),
+                    ),
+                ),
+                'module_get_installed' => array(
+                    'options' => array(
+                        'route'    => 'module getinstalled [<site>]',
+                        'defaults' => array(
+                            'controller' => 'CLI\Module',
+                            'action'     => 'getInstalled',
+                        ),
+                    ),
+                ),
+                'module_get_enabled' => array(
+                    'options' => array(
+                        'route'    => 'module getenabled [<site>]',
+                        'defaults' => array(
+                            'controller' => 'CLI\Module',
+                            'action'     => 'getEnabled',
+                        ),
+                    ),
+                ),
                 'indexer' => array(
                     'options' => array(
                         'route'    => 'indexer [<action>]',

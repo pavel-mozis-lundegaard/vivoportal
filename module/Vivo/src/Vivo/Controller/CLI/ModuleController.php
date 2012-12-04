@@ -3,8 +3,8 @@ namespace Vivo\Controller\CLI;
 
 use Vivo\Module\StorageManager\StorageManager as ModuleStorageManager;
 use Vivo\Module\StorageManager\RemoteModule;
-use Vivo\Module\InstallManager\InstallManager;
 use Vivo\Module\InstallManager\Exception as InstallException;
+use Vivo\CMS\Api\Module as ModuleApi;
 use Vivo\Repository\Repository;
 
 use Zend\Console\Request as ConsoleRequest;
@@ -29,10 +29,10 @@ class ModuleController extends AbstractCliController
     protected $remoteModule;
 
     /**
-     * Module installation manager
-     * @var InstallManager
+     * Module API
+     * @var ModuleApi
      */
-    protected $installManager;
+    protected $moduleApi;
 
     /**
      * Repository
@@ -44,18 +44,18 @@ class ModuleController extends AbstractCliController
      * Constructor
      * @param \Vivo\Module\StorageManager\StorageManager $moduleStorageManager
      * @param \Vivo\Module\StorageManager\RemoteModule $remoteModule
-     * @param \Vivo\Module\InstallManager\InstallManager $installManager
      * @param \Vivo\Repository\Repository $repository
+     * @param \Vivo\CMS\Api\Module $moduleApi
      */
     public function __construct(ModuleStorageManager $moduleStorageManager,
                                 RemoteModule $remoteModule,
-                                InstallManager $installManager,
-                                Repository $repository)
+                                Repository $repository,
+                                ModuleApi $moduleApi)
     {
         $this->moduleStorageManager = $moduleStorageManager;
         $this->remoteModule         = $remoteModule;
-        $this->installManager       = $installManager;
         $this->repository           = $repository;
+        $this->moduleApi            = $moduleApi;
     }
 
     public function defaultAction()
@@ -66,6 +66,178 @@ class ModuleController extends AbstractCliController
     public function getConsoleUsage()
     {
         return 'module usage: ...';
+    }
+
+    /**
+     * Checks if a module is installed
+     */
+    public function isInstalledAction()
+    {
+        //Prepare params
+        $request    = $this->getRequest();
+        /* @var $request ConsoleRequest */
+        $module     = $request->getParam('module_name');
+        if (is_null($module)) {
+            return 'Usage: module isinstalled <module_name> [<site>]';
+        }
+        $site       = $request->getParam('site');
+        //Attempt query
+        try {
+            $is = $this->moduleApi->isInstalled($module, $site);
+        } catch (InstallException\SiteDoesNotExistException $e) {
+            //Site does not exist
+            $output = sprintf("Site '%s' does not exist", $site);
+            return $output;
+        } catch (\Exception $e) {
+            //Other exception
+            $output = sprintf('An exception occurred during query');
+            $output .= "\n" . $e->getMessage();
+            return $output;
+        }
+        if (is_null($site)) {
+            if ($is) {
+                //Core module installed
+                return sprintf("Core module '%s' is installed", $module);
+            } else {
+                //Core module not installed
+                return sprintf("Core module '%s' is not installed", $module);
+            }
+        } else {
+            if ($is) {
+                //Site module installed
+                return sprintf("Module '%s' is installed in site '%s'", $module, $site);
+            } else {
+                //Site module not installed
+                return sprintf("Module '%s' is not installed in site '%s'", $module, $site);
+            }
+        }
+    }
+
+    /**
+     * Checks if a module is enabled
+     */
+    public function isEnabledAction()
+    {
+        //Prepare params
+        $request    = $this->getRequest();
+        /* @var $request ConsoleRequest */
+        $module     = $request->getParam('module_name');
+        if (is_null($module)) {
+            return 'Usage: module isenabled <module_name> [<site>]';
+        }
+        $site       = $request->getParam('site');
+        //Attempt query
+        try {
+            $is = $this->moduleApi->isEnabled($module, $site);
+        } catch (InstallException\SiteDoesNotExistException $e) {
+            //Site does not exist
+            $output = sprintf("Site '%s' does not exist", $site);
+            return $output;
+        } catch (\Exception $e) {
+            //Other exception
+            $output = sprintf('An exception occurred during query');
+            $output .= "\n" . $e->getMessage();
+            return $output;
+        }
+        if (is_null($site)) {
+            if ($is) {
+                //Core module enabled
+                return sprintf("Core module '%s' is enabled", $module);
+            } else {
+                //Core module not enabled
+                return sprintf("Core module '%s' is not enabled", $module);
+            }
+        } else {
+            if ($is) {
+                //Site module enabled
+                return sprintf("Module '%s' is enabled in site '%s'", $module, $site);
+            } else {
+                //Site module not enabled
+                return sprintf("Module '%s' is not enabled in site '%s'", $module, $site);
+            }
+        }
+    }
+
+    /**
+     * Returns list of installed modules
+     */
+    public function getInstalledAction()
+    {
+        //Prepare params
+        $request    = $this->getRequest();
+        /* @var $request ConsoleRequest */
+        $site       = $request->getParam('site');
+        //Attempt query
+        try {
+            $modules    = $this->moduleApi->getInstalledModules($site);
+        } catch (InstallException\SiteDoesNotExistException $e) {
+            //Site does not exist
+            $output = sprintf("Site '%s' does not exist", $site);
+            return $output;
+        } catch (\Exception $e) {
+            //Other exception
+            $output = sprintf('An exception occurred during query');
+            $output .= "\n" . $e->getMessage();
+            return $output;
+        }
+        if (count($modules)) {
+            if ($site) {
+                $output = sprintf("Modules installed in site '%s':", $site);
+            } else {
+                $output = "Modules installed in core:";
+            }
+            foreach ($modules as $module) {
+                $output .= "\n" . $module;
+            }
+        } else {
+            if ($site) {
+                $output = sprintf("No modules installed in site '%s'", $site);
+            } else {
+                $output = "No modules installed in core";
+            }
+        }
+        return $output;
+    }
+
+    /**
+     * Returns list of enabled modules
+     */
+    public function getEnabledAction()
+    {
+        //Prepare params
+        $request    = $this->getRequest();
+        /* @var $request ConsoleRequest */
+        $site       = $request->getParam('site');
+        //Attempt query
+        try {
+            $modules    = $this->moduleApi->getEnabledModules($site);
+        } catch (InstallException\SiteDoesNotExistException $e) {
+            //Site does not exist
+            $output = sprintf("Site '%s' does not exist", $site);
+            return $output;
+        } catch (\Exception $e) {
+            //Other exception
+            $output = sprintf('An exception occurred during query');
+            $output .= "\n" . $e->getMessage();
+            return $output;
+        }
+        if (count($modules)) {
+            if ($site) {
+                $output = sprintf("Modules enabled in site '%s':", $site);
+            } else {
+                $output = "Modules enabled in core:";
+            }
+            foreach ($modules as $module) {
+                $output .= "\n" . $module;
+            }
+        } else {
+            if ($site) {
+                $output = sprintf("No modules enabled in site '%s'", $site);
+            } else {
+                $output = "No modules enabled in core";
+            }
+        }
+        return $output;
     }
 
     /**
@@ -84,7 +256,7 @@ class ModuleController extends AbstractCliController
         $site       = $request->getParam('site');
         //Attempt installation
         try {
-            $this->installManager->install($module, $site);
+            $this->moduleApi->install($module, $site);
             $this->repository->commit();
         } catch (InstallException\SiteDoesNotExistException $e) {
             //Site does not exist
@@ -106,9 +278,14 @@ class ModuleController extends AbstractCliController
             //Trying to install a site module without a site specification
             $output = sprintf("Site specification missing when installing site module '%s'", $module);
             return $output;
+        } catch (InstallException\DbSourceDoesNotExistException $e) {
+            //The specified db source does not exist
+            $output = sprintf("The db source does not exist", $module);
+            return $output;
         } catch (\Exception $e) {
             //Other exception
             $output = sprintf('An exception occurred during module installation');
+            $output .= "\n" . $e->getMessage();
             return $output;
         }
         //Everything ok
@@ -118,12 +295,139 @@ class ModuleController extends AbstractCliController
             $output = sprintf("Module '%s' has been installed into site '%s'", $module, $site);
         }
         return $output;
-
     }
 
+    /**
+     * Uninstalls a module
+     */
+    public function uninstallAction()
+    {
+        //Prepare params
+        $request    = $this->getRequest();
+        /* @var $request ConsoleRequest */
+        $module     = $request->getParam('module_name');
+        if (is_null($module)) {
+            return 'Usage: module uninstall <module_name> [<site>]';
+        }
+        $site       = $request->getParam('site');
+        //Attempt uninstallation
+        try {
+            $this->moduleApi->uninstall($module, $site);
+            $this->repository->commit();
+        } catch (InstallException\SiteDoesNotExistException $e) {
+            //Site does not exist
+            $output = sprintf("Site '%s' does not exist", $site);
+            return $output;
+        } catch (InstallException\ModuleNotInstalledException $e) {
+            //Module not installed
+            $output = sprintf("Module '%s' not installed", $module);
+            return $output;
+        } catch (InstallException\ModuleEnabledException $e) {
+            //Module enabled
+            $output = sprintf("Cannot uninstall module '%s'; the Module is enabled", $module);
+            return $output;
+        } catch (\Exception $e) {
+            //Other exception
+            $output = sprintf('An exception occurred during module uninstallation');
+            $output .= "\n" . $e->getMessage();
+            return $output;
+        }
+        //Everything ok
+        if (is_null($site)) {
+            $output = sprintf("Core module '%s' has been uninstalled", $module);
+        } else {
+            $output = sprintf("Module '%s' has been uninstalled from site '%s'", $module, $site);
+        }
+        return $output;
+    }
+
+    /**
+     * Enables a module
+     */
+    public function enableAction()
+    {
+        //Prepare params
+        $request    = $this->getRequest();
+        /* @var $request ConsoleRequest */
+        $module     = $request->getParam('module_name');
+        if (is_null($module)) {
+            return 'Usage: module enable <module_name> [<site>]';
+        }
+        $site       = $request->getParam('site');
+        //Attempt enabling
+        try {
+            $this->moduleApi->enable($module, $site);
+            $this->repository->commit();
+        } catch (InstallException\SiteDoesNotExistException $e) {
+            //Site does not exist
+            $output = sprintf("Site '%s' does not exist", $site);
+            return $output;
+        } catch (InstallException\ModuleNotInstalledException $e) {
+            //Module not installed
+            $output = sprintf("Module '%s' not installed", $module);
+            return $output;
+        } catch (\Exception $e) {
+            //Other exception
+            $output = sprintf('An exception occurred during module enabling');
+            $output .= "\n" . $e->getMessage();
+            return $output;
+        }
+        //Everything ok
+        if (is_null($site)) {
+            $output = sprintf("Module '%s' has been enabled in core", $module);
+        } else {
+            $output = sprintf("Module '%s' has been enabled in site '%s'", $module, $site);
+        }
+        return $output;
+    }
+
+    /**
+     * Disables a module
+     */
+    public function disableAction()
+    {
+        //Prepare params
+        $request    = $this->getRequest();
+        /* @var $request ConsoleRequest */
+        $module     = $request->getParam('module_name');
+        if (is_null($module)) {
+            return 'Usage: module disable <module_name> [<site>]';
+        }
+        $site       = $request->getParam('site');
+        //Attempt disabling
+        try {
+            $this->moduleApi->disable($module, $site);
+            $this->repository->commit();
+        } catch (InstallException\SiteDoesNotExistException $e) {
+            //Site does not exist
+            $output = sprintf("Site '%s' does not exist", $site);
+            return $output;
+        } catch (InstallException\ModuleNotInstalledException $e) {
+            //Module not installed
+            $output = sprintf("Module '%s' not installed", $module);
+            return $output;
+        } catch (\Exception $e) {
+            //Other exception
+            $output = sprintf('An exception occurred during module disabling');
+            $output .= "\n" . $e->getMessage();
+            return $output;
+        }
+        //Everything ok
+        if (is_null($site)) {
+            $output = sprintf("Module '%s' has been disabled in core", $module);
+        } else {
+            $output = sprintf("Module '%s' has been disabled in site '%s'", $module, $site);
+        }
+        return $output;
+    }
+
+    /**
+     * Removes a module from storage
+     */
     public function removeAction()
     {
-        //TODO
+        //TODO - implement removeAction()
+        throw new \Exception(sprintf('%s not implemented', __METHOD__));
     }
 
     /**

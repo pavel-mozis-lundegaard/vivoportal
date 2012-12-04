@@ -6,6 +6,7 @@ use Vivo\CMS\CMS;
 use Vivo\CMS\Model\Site;
 use Vivo\IO\InputStreamWrapper;
 use Vivo\Module\Feature\SiteInstallableInterface;
+use Vivo\Module\Feature\SiteUninstallableInterface;
 use Vivo\Service\DbServiceManagerInterface;
 
 /**
@@ -237,11 +238,13 @@ class InstallManager implements InstallManagerInterface
      * @param string $module Module name (ie module namespace)
      * @param string|null $siteName
      * @param array $config Module configuration
+     * @throws Exception\InstallCoreModuleToSiteException
      * @throws Exception\ModuleAlreadyInstalledException
      * @throws Exception\NoSiteSpecifiedException
-     * @throws Exception\SiteDoesNotExistException
-     * @throws Exception\InstallCoreModuleToSiteException
+     * @throws Exception\DbSourceDoesNotExistException
      * @throws Exception\ModuleNotFoundInStorageException
+     * @throws Exception\SiteDoesNotExistException
+     * @return void
      */
     public function install($module, $siteName = null, array $config = array())
     {
@@ -415,14 +418,16 @@ class InstallManager implements InstallManagerInterface
                 throw new \Exception(sprintf('%s: implement running uninstall script from core', __METHOD__));
             } else {
                 //Site uninstallation
-                /** @var $installer SiteInstallableInterface */
-                if ($installer instanceof SiteInstallableInterface) {
-
-                    //TODO - get $dbSource
-                    //$dbSource   =
-
-
-                    $installer->install($module, $siteName, $site, $this->cms, $this->dbServiceManager, $dbSource);
+                /** @var $installer SiteUninstallableInterface */
+                if ($installer instanceof SiteUninstallableInterface) {
+                    $siteConfig = $this->cms->getSiteConfig($site);
+                    if (!isset($siteConfig['modules']['site_modules'][$module]['db_source'])) {
+                        throw new Exception\DbSourceMissingInConfigException(
+                            sprintf("%s: Db source missing in config of site '%s' when uninstalling module '%s'",
+                                __METHOD__, $siteName, $module));
+                    }
+                    $dbSource   = $siteConfig['modules']['site_modules'][$module]['db_source'];
+                    $installer->uninstall($module, $siteName, $site, $this->cms, $this->dbServiceManager, $dbSource);
                 }
             }
         }
@@ -431,13 +436,19 @@ class InstallManager implements InstallManagerInterface
     /**
      * Returns a Site object (model) for the specified site name
      * @param Site|string|null $site
-     * @return \Vivo\CMS\Model\Site|null
      * @throws Exception\InvalidArgumentException
+     * @throws Exception\SiteDoesNotExistException
+     * @return \Vivo\CMS\Model\Site|null
      */
     protected function getSite($site = null)
     {
         if (!is_null($site)) {
             if (is_string($site)) {
+                if (!$this->cms->siteExists($site)) {
+                    //The site does not exist
+                    throw new Exception\SiteDoesNotExistException(
+                        sprintf("%s: Site with name '%s' does not exist", __METHOD__, $site));
+                }
                 $site   = $this->cms->getSite($site);
             }
             if (!$site instanceof Site) {

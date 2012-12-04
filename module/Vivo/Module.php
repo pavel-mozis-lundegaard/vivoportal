@@ -354,6 +354,11 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $zdbAf  = new \Vivo\Service\AbstractFactory\ZendDbAdapter($zdbConfig);
                     return $zdbAf;
                 },
+                'cms_api_module'            => function(ServiceManager $sm) {
+                    $installManager = $sm->get('module_install_manager');
+                    $api            = new \Vivo\CMS\Api\Module($installManager);
+                    return $api;
+                },
             ),
         );
     }
@@ -375,12 +380,12 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $sm                     = $cm->getServiceLocator();
                     $moduleStorageManager   = $sm->get('module_storage_manager');
                     $remoteModule           = $sm->get('remote_module');
-                    $moduleInstallManager   = $sm->get('module_install_manager');
                     $repository             = $sm->get('repository');
+                    $moduleApi              = $sm->get('cms_api_module');
                     $controller             = new \Vivo\Controller\CLI\ModuleController($moduleStorageManager,
                                                                                         $remoteModule,
-                                                                                        $moduleInstallManager,
-                                                                                        $repository);
+                                                                                        $repository,
+                                                                                        $moduleApi);
                     return $controller;
                 },
                 'ResourceFront'    => function(ControllerManager $cm) {

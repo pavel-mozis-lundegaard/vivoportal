@@ -15,8 +15,8 @@ return array(
                     'cms' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
-                            'regex'    => '/(?<path>.*)',
-                            'spec'    => '/%path%',
+                            'regex'    => '/((?<path>.*)/)?',
+                            'spec'    => '/%path%/',
                             'defaults' => array(
                                 'controller' => 'CMSFront',
                                 'path' => '',
@@ -33,10 +33,11 @@ return array(
                     'resource' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
-                            'regex'    => '/\.res\.(?<source>.+?)/(?<path>.+)',
-                            'spec'    => '/.res.%source%/%path%',
+                            'regex'    => '/\.(?<source>.+)\.(?<type>.+?)/(?<path>.+)',
+                            'spec'    => '/.%source%.%type%/%path%',
                             'defaults' => array(
                                 'controller' => 'ResourceFront',
+                                'type' => '',
                                 'path' => '',
                                 'source' => '',
                             ),
@@ -46,8 +47,8 @@ return array(
                     'resource_entity' => array(
                             'type' => 'Zend\Mvc\Router\Http\Regex',
                             'options' => array(
-                                    'regex'    => '/\.res\.entity/(?<entity>.+?)((/\.res\.path/(?<path>.+)))',
-                                    'spec'    => '/.res.entity/%entity%/.res.path/%path%',
+                                    'regex'    => '/\.entity/(?<entity>.+?)((\.path(?<path>.+)))',
+                                    'spec'    => '/.entity/%entity%/.path/%path%',
                                     'defaults' => array(
                                             'controller' => 'ResourceFront',
                                             'path' => '',
@@ -57,6 +58,7 @@ return array(
                     ),
 
                     'backend' => array(
+                    //TODO config routing for backend
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
                             'regex'    => '/system/manager/(?<path>.*)',
@@ -188,7 +190,6 @@ return array(
         'templates' => array (
             'template_map' => array(
                 'Vivo\UI\Page' => __DIR__.'/../view/Vivo/UI/Page.phtml',
-                'Vivo\CMS\UI\Content\Sample' => __DIR__.'/../view/Vivo/CMS/UI/Content/Sample.phtml',
                 'Vivo\CMS\UI\Content\Layout' => __DIR__.'/../view/Vivo/CMS/UI/Content/Layout.phtml',
                 'Vivo\CMS\UI\Content\File:html' => __DIR__.'/../view/Vivo/CMS/UI/Content/File.html.phtml',
                 'Vivo\CMS\UI\Content\File:plain' => __DIR__.'/../view/Vivo/CMS/UI/Content/File.plain.phtml',
@@ -201,7 +202,6 @@ return array(
         ),
         'component_mapping' => array (
             'front_component' => array (
-                'Vivo\CMS\Model\Content\Sample' => 'Vivo\CMS\UI\Content\Sample',
                 'Vivo\CMS\Model\Content\Layout' => 'Vivo\CMS\UI\Content\Layout',
                 'Vivo\CMS\Model\Content\File' => 'Vivo\CMS\UI\Content\File',
                 'Vivo\CMS\Model\Content\Overview' => 'Vivo\CMS\UI\Content\Overview',
@@ -214,35 +214,46 @@ return array(
         'ui_di' => array(
             'instance' => array (
                         'alias' => array (
-                                'cms' => 'Vivo\Fake\CMS',
                                 'viewModel' =>  'Vivo\View\Model\UIViewModel',
+                                'viewHelpers' =>  'Zend\View\HelperPluginManager',
                         ),
-
                         'viewModel' => array (
-                                'shared' => false,
-                        ),
-                        'Vivo\CMS\ComponentFactory' => array (
-                                'parameters' => array (
-                                        'cms' => 'cms',
-                                ),
-                        ),
-                        'Vivo\UI\Page' => array (
-                                'parameters' => array (
-                                        'options' => array (
-                                                'doctype' => '<!DOCTYPE html>',
-                                        ),
-                                ),
-                        ),
-                        'Vivo\CMS\UI\Content\Sample' => array (
-                                'parameters' => array (
-                                        'options' => array (
-                                                'template' => 'someTemplate.phtml',
-                                        ),
-                                ),
+                                'shared' => false, //new viewModel for each UI/component
                         ),
                         'Vivo\UI\Component' => array (
                                 'parameters' => array (
                                         'view' => 'viewModel',
+                                ),
+                        ),
+                        'Vivo\UI\Page' => array (
+                            'parameters' => array (
+                                'doctype' => 'HTML5',
+                                //globaly defined links and scripts
+                                'links' => array (
+                                    array(
+                                        'rel'  => 'stylesheet',
+                                        'href' => '/.ModuleName.resource/css/definedInVivoConfig.css',
+                                        'type' => 'text/css',
+                                        'media' => 'screen'
+                                    ),
+                                 ),
+                                 'scripts' => array (
+                                         array(
+                                                 'src' => '/.ModuleName.resource/js/front.js',
+                                                 'type' => 'text/javascript',
+                                         ),
+                                 ),
+
+                                'metas' => array (
+                                     array (
+                                         'name' => 'Robots',
+                                         'content' => 'INDEX,FOLLOW',
+                                     ),
+                                     array (
+                                             'charset' => 'UTF-8',
+                                     ),
+                                 ),
+                                 'viewHelpers' => 'Zend\View\HelperPluginManager',
                                 ),
                         ),
                 ),

@@ -1,7 +1,7 @@
 <?php
 namespace Vivo\CMS;
 
-use Vivo\CMS\CMS;
+use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Exception\Exception;
 use Vivo\CMS\Exception\LogicException;
 use Vivo\CMS\Model\Content;

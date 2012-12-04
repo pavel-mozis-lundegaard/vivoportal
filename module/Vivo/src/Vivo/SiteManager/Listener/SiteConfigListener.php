@@ -3,7 +3,7 @@ namespace Vivo\SiteManager\Listener;
 
 use Vivo\SiteManager\Event\SiteEventInterface;
 use Vivo\SiteManager\Exception;
-use Vivo\CMS\CMS;
+use Vivo\CMS\Api\CMS;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
@@ -26,7 +26,7 @@ class SiteConfigListener implements ListenerAggregateInterface
 
     /**
      * Constructor
-     * @param \Vivo\CMS\CMS $cms
+     * @param \Vivo\CMS\Api\CMS $cms
      */
     public function __construct(CMS $cms)
     {

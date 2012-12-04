@@ -1,15 +1,13 @@
 <?php
 namespace Vivo;
 
-use Vivo\Util\Path\PathParser;
-
-use Vivo\View\Helper\Document;
+use Zend\Mvc\MvcEvent;
 
 use Vivo\CMS\ComponentFactory;
 use Vivo\CMS\ComponentResolver;
 use Vivo\Module\ModuleManagerFactory;
-use Vivo\View\Helper\Action;
-use Vivo\View\Helper\Resource;
+use Vivo\Util\Path\PathParser;
+use Vivo\View\Helper as ViewHelper;
 use Vivo\View\Strategy\PhtmlRenderingStrategy;
 
 use Zend\Console\Adapter\AdapterInterface as Console;
@@ -23,7 +21,11 @@ use Zend\ServiceManager\ServiceManager;
 
 class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInterface
 {
-    public function onBootstrap($e)
+    /**
+     * Module bootstrap method.
+     * @param MvcEvent $e
+     */
+    public function onBootstrap(MvcEvent $e)
     {
         $e->getApplication()->getServiceManager()->get('translator');
         $eventManager        = $e->getApplication()->getEventManager();
@@ -66,10 +68,9 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
 
     /**
      * Register rendering strategy fo Vivo UI.
-     *
-     * @param unknown_type $e
+     * @param MvcEvent $e
      */
-    public function registerUIRenderingStrategies($e)
+    public function registerUIRenderingStrategies(MvcEvent $e)
     {
         $app          = $e->getTarget();
         $locator      = $app->getServiceManager();
@@ -78,26 +79,28 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         $view->getEventManager()->attach($phtmlRenderingStrategy, 100);
     }
 
+    /**
+     * Registers view helpers to the view helper manager.
+     * @param MvcEvent $e
+     */
     public function registerViewHelpers($e) {
         $app          = $e->getTarget();
         $serviceLocator      = $app->getServiceManager();
         $plugins      = $serviceLocator->get('view_helper_manager');
         $plugins->setFactory('action', function($sm) use($serviceLocator) {
-            $helper = new Action($sm->get('url'));
+            $helper = new ViewHelper\Action($sm->get('url'));
             return $helper;
         });
         $plugins->setFactory('resource', function($sm) use($serviceLocator) {
-            $helper = new Resource($sm->get('url'), $serviceLocator->get('cms'));
+            $helper = new ViewHelper\Resource($sm->get('url'), $serviceLocator->get('cms'));
             $helper->setParser(new PathParser());
             return $helper;
         });
         $plugins->setFactory('document', function($sm) use($serviceLocator) {
-                $helper = new Document($sm->get('url'), $serviceLocator->get('cms'));
+                $helper = new ViewHelper\Document($sm->get('url'), $serviceLocator->get('cms'));
                 return $helper;
         });
-
     }
-
 
     public function getServiceConfig()
     {
@@ -303,7 +306,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                 },
                 'cms'                       => function(ServiceManager $sm) {
                     $repository             = $sm->get('repository');
-                    $cms                    = new \Vivo\CMS\CMS($repository);
+                    $cms                    = new \Vivo\CMS\Api\CMS($repository);
                     return $cms;
                 },
                 'module_resource_manager'   => function(ServiceManager $sm) {
@@ -335,11 +338,14 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $di->instanceManager()
                     ->addSharedInstance($sm->get('response'), 'Zend\Http\Response');
                     $di->instanceManager()
-                    ->addSharedInstance($sm->get('cms'), 'Vivo\CMS\CMS');
+                    ->addSharedInstance($sm->get('cms'), 'Vivo\CMS\Api\CMS');
                     $di->instanceManager()
                     ->addSharedInstance($sm->get('site_event'), 'Vivo\SiteManager\Event\SiteEvent');
 
+                    $di->instanceManager()
+                    ->addSharedInstance($sm->get('view_helper_manager'), 'Zend\View\HelperPluginManager');
                     $di->configure(new Config($diConfig));
+
                     return $di;
                 },
                 'pdo_abstract_factory'      => function(ServiceManager $sm) {

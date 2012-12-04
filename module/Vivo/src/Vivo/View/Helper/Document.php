@@ -1,7 +1,7 @@
 <?php
 namespace Vivo\View\Helper;
 
-use Vivo\CMS\CMS;
+use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Model;
 
 use Zend\View\Helper\AbstractHelper;

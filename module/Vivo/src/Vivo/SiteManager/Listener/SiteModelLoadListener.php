@@ -1,7 +1,7 @@
 <?php
 namespace Vivo\SiteManager\Listener;
 
-use Vivo\CMS\CMS;
+use Vivo\CMS\Api\CMS;
 use Vivo\SiteManager\Event\SiteEventInterface;
 use Vivo\SiteManager\Exception;
 
@@ -33,7 +33,7 @@ class SiteModelLoadListener implements ListenerAggregateInterface
     /**
      * Constructor
      * @param $routeParamHost
-     * @param \Vivo\CMS\CMS $cms
+     * @param \Vivo\CMS\Api\CMS $cms
      */
     public function __construct($routeParamHost, CMS $cms)
     {

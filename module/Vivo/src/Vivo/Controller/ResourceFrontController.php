@@ -1,7 +1,7 @@
 <?php
 namespace Vivo\Controller;
 
-use Vivo\CMS\CMS;
+use Vivo\CMS\Api\CMS;
 use Vivo\Controller\Exception;
 use Vivo\IO\Exception\ExceptionInterface as IOException;
 use Vivo\IO\FileInputStream;

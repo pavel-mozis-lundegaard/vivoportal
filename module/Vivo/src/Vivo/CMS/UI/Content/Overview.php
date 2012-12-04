@@ -3,7 +3,7 @@ namespace Vivo\CMS\UI\Content;
 
 use Vivo\SiteManager\Event\SiteEvent;
 
-use Vivo\CMS\CMS;
+use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Model\Content\Overview as OverviewModel;
 use Vivo\CMS\UI\Component;
 
@@ -11,7 +11,7 @@ class Overview extends Component
 {
 
     /**
-     * @var \Vivo\CMS\CMS
+     * @var \Vivo\CMS\Api\CMS
      */
     private $cms;
 

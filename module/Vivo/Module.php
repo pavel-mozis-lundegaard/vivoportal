@@ -306,7 +306,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                 },
                 'cms'                       => function(ServiceManager $sm) {
                     $repository             = $sm->get('repository');
-                    $cms                    = new \Vivo\CMS\CMS($repository);
+                    $cms                    = new \Vivo\CMS\Api\CMS($repository);
                     return $cms;
                 },
                 'module_resource_manager'   => function(ServiceManager $sm) {
@@ -326,7 +326,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $di->instanceManager()
                     ->addSharedInstance($sm->get('response'), 'Zend\Http\Response');
                     $di->instanceManager()
-                    ->addSharedInstance($sm->get('cms'), 'Vivo\CMS\CMS');
+                    ->addSharedInstance($sm->get('cms'), 'Vivo\CMS\Api\CMS');
                     $di->instanceManager()
                     ->addSharedInstance($sm->get('site_event'), 'Vivo\SiteManager\Event\SiteEvent');
 

@@ -6,7 +6,7 @@ use Vivo\SiteManager\Event\SiteEvent;
 use Vivo\Http\StreamResponse;
 
 use Vivo\CMS\ComponentFactory;
-use Vivo\CMS\CMS;
+use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Model\Site;
 use Vivo\Controller\Exception;
 use Vivo\IO\InputStreamInterface;
@@ -35,7 +35,7 @@ class CMSFrontController implements DispatchableInterface,
     protected $event;
 
     /**
-     * @var \Vivo\CMS\CMS
+     * @var \Vivo\CMS\Api\CMS
      */
     private $cms;
 

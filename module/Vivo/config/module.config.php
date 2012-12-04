@@ -15,7 +15,7 @@ return array(
                     'cms' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
-                            'regex'    => '/(?<path>.*)/',
+                            'regex'    => '/((?<path>.*)/)?',
                             'spec'    => '/%path%/',
                             'defaults' => array(
                                 'controller' => 'CMSFront',
@@ -170,7 +170,6 @@ return array(
         ),
         'component_mapping' => array (
             'front_component' => array (
-//                'Vivo\CMS\Model\Content\Sample' => 'Vivo\CMS\UI\Content\Sample',
                 'Vivo\CMS\Model\Content\Layout' => 'Vivo\CMS\UI\Content\Layout',
                 'Vivo\CMS\Model\Content\File' => 'Vivo\CMS\UI\Content\File',
                 'Vivo\CMS\Model\Content\Overview' => 'Vivo\CMS\UI\Content\Overview',

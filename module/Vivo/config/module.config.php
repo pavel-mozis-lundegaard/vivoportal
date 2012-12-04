@@ -158,7 +158,6 @@ return array(
         'templates' => array (
             'template_map' => array(
                 'Vivo\UI\Page' => __DIR__.'/../view/Vivo/UI/Page.phtml',
-                'Vivo\CMS\UI\Content\Sample' => __DIR__.'/../view/Vivo/CMS/UI/Content/Sample.phtml',
                 'Vivo\CMS\UI\Content\Layout' => __DIR__.'/../view/Vivo/CMS/UI/Content/Layout.phtml',
                 'Vivo\CMS\UI\Content\File:html' => __DIR__.'/../view/Vivo/CMS/UI/Content/File.html.phtml',
                 'Vivo\CMS\UI\Content\File:plain' => __DIR__.'/../view/Vivo/CMS/UI/Content/File.plain.phtml',
@@ -171,7 +170,7 @@ return array(
         ),
         'component_mapping' => array (
             'front_component' => array (
-                'Vivo\CMS\Model\Content\Sample' => 'Vivo\CMS\UI\Content\Sample',
+//                'Vivo\CMS\Model\Content\Sample' => 'Vivo\CMS\UI\Content\Sample',
                 'Vivo\CMS\Model\Content\Layout' => 'Vivo\CMS\UI\Content\Layout',
                 'Vivo\CMS\Model\Content\File' => 'Vivo\CMS\UI\Content\File',
                 'Vivo\CMS\Model\Content\Overview' => 'Vivo\CMS\UI\Content\Overview',

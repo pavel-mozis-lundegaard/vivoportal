@@ -21,7 +21,7 @@ class Layout extends Model\Content {
 		parent::__construct($path);
 	}
 
-    public function getLayoutPanels() {
-        return $this->panels;
-    }
+	public function getLayoutPanels() {
+		return $this->panels;
+	}
 }

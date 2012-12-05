@@ -16,7 +16,7 @@ use Vivo\UI\ComponentInterface;
 use Zend\Di\Di;
 
 /**
- * ComponentFactory is responsible for instatniating UI component for CMS documents and resolving its dependencies.
+ * ComponentFactory is responsible for instantiating UI components for CMS documents and resolving it's dependencies.
  */
 class ComponentFactory
 {
@@ -49,6 +49,7 @@ class ComponentFactory
 
     /**
      * Returns root UI component for the given document.
+     *
      * @param Document $document
      * @return \Vivo\UI\Component
      */
@@ -67,7 +68,7 @@ class ComponentFactory
     }
 
     /**
-     * Return front component for the given document.
+     * Returns front component for the given document.
      *
      * @param Document $document
      * @param array $options (Disable Layout)
@@ -105,7 +106,8 @@ class ComponentFactory
     }
 
     /**
-     * Wrap the UI component to Layout.
+     * Wraps the UI component to Layout.
+     *
      * @param Document $layout
      * @param Component $component
      * @return \Vivo\UI\Component
@@ -160,6 +162,7 @@ class ComponentFactory
 
     /**
      * Returns panels for document and its parents.
+     *
      * @param Document $document
      * @todo this should be cached
      */
@@ -174,6 +177,7 @@ class ComponentFactory
 
     /**
      * Instantiates front UI component for the given content.
+     *
      * @param Content $content
      * @param Document $document
      * @return \Vivo\UI\Component
@@ -193,6 +197,7 @@ class ComponentFactory
 
     /**
      * Instantiates editor UI component for the given content.
+     *
      * @param Content $content
      * @param Document $document
      * @return \Vivo\UI\Component

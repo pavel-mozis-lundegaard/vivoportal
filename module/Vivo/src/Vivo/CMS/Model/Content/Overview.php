@@ -17,9 +17,11 @@ class Overview extends Model\Content {
 	protected $frontView;
 
 	//@todo: proc se tohle vse jmenuje overviewXXXX - proc to neni rovnou $this->XXXX ????????????????
+	// +1 grafa
 
 	/**
 	 * Overview type.
+	 *
 	 * @var string see TYPE_DYNAMIC and TYPE_STATIC constants
 	 */
 	protected $overviewType;
@@ -53,12 +55,18 @@ class Overview extends Model\Content {
 
 	/**
 	 * Setting default values
+	 *
 	 * @param string $path Entity path
 	 */
 	public function __construct($path = null) {
 		parent::__construct($path);
 	}
 
+	/**
+	 * Sets overview type
+	 *
+	 * @param string $type Overview type 
+	 **/
 	public function setType($type) {
 		$this->overviewType = $type;
 	}

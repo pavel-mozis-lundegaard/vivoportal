@@ -57,7 +57,7 @@ class ComponentResolver
         if (!class_exists($componentClass)) {
             throw new Exception(
                 sprintf(
-                    "%s: Class '%s' does not exist. Propably there is a mistake in mapping configuration.",
+                    "%s: Class '%s' does not exists. Propably there is a mistake in mapping configuration.",
                     __METHOD__, $componentClass));
         }
         return $componentClass;

@@ -14,6 +14,7 @@ interface ResourceProviderInterface
      * @param string $type
      * @param string $pathToResource
      * @return string
+     * @throws \Vivo\Module\Exception\ResourceNotFoundException
      */
     public function getResource($type, $pathToResource);
 
@@ -22,6 +23,7 @@ interface ResourceProviderInterface
      * @param string $type
      * @param string $pathToResource
      * @return FileInputStream
+     * @throws \Vivo\Module\Exception\ResourceNotFoundException
      */
     public function getResourceStream($type, $pathToResource);
 }

@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Module\InstallManager\Exception;
+namespace Vivo\Service\Exception;
 
 /**
  * DbSourceDoesNotExistException

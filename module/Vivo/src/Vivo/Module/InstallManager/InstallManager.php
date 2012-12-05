@@ -7,7 +7,7 @@ use Vivo\CMS\Model\Site;
 use Vivo\IO\InputStreamWrapper;
 use Vivo\Module\Feature\SiteInstallableInterface;
 use Vivo\Module\Feature\SiteUninstallableInterface;
-use Vivo\Service\DbServiceManagerInterface;
+use Vivo\Service\DbProviderFactory;
 
 /**
  * InstallManager
@@ -28,10 +28,10 @@ class InstallManager implements InstallManagerInterface
     protected $cms;
 
     /**
-     * DB Service manager
-     * @var DbServiceManagerInterface
+     * DbProviderFactory
+     * @var DbProviderFactory
      */
-    protected $dbServiceManager;
+    protected $dbProviderFactory;
 
     /**
      * Configuration options
@@ -45,18 +45,23 @@ class InstallManager implements InstallManagerInterface
      * Constructor
      * @param ModuleStorageManager $moduleStorageManager
      * @param CMS $cms
-     * @param DbServiceManagerInterface $dbServiceManager
+     * @param DbProviderFactory $dbProviderFactory
      * @param array $options
+     * @throws Exception\InvalidArgumentException
      */
     public function __construct(ModuleStorageManager $moduleStorageManager,
                                 CMS $cms,
-                                DbServiceManagerInterface $dbServiceManager,
+                                DbProviderFactory $dbProviderFactory,
                                 array $options)
     {
         $this->moduleStorageManager = $moduleStorageManager;
         $this->cms                  = $cms;
-        $this->dbServiceManager     = $dbServiceManager;
+        $this->dbProviderFactory    = $dbProviderFactory;
         $this->options              = array_merge($this->options, $options);
+        if (!isset($this->options['default_db_source'])) {
+            throw new Exception\InvalidArgumentException(
+                sprintf("%s: The 'default_db_source' option not set", __METHOD__));
+        }
     }
 
     /**
@@ -241,7 +246,6 @@ class InstallManager implements InstallManagerInterface
      * @throws Exception\InstallCoreModuleToSiteException
      * @throws Exception\ModuleAlreadyInstalledException
      * @throws Exception\NoSiteSpecifiedException
-     * @throws Exception\DbSourceDoesNotExistException
      * @throws Exception\ModuleNotFoundInStorageException
      * @throws Exception\SiteDoesNotExistException
      * @return void
@@ -289,11 +293,6 @@ class InstallManager implements InstallManagerInterface
             $dbSource               = $config['db_source'];
         }
         $config['enabled']  = false;
-        //Check that the specified db source exists
-        if (!$this->dbServiceManager->hasDbService($dbSource)) {
-            throw new Exception\DbSourceDoesNotExistException(
-                sprintf("%s: Db source '%s' does not exist", __METHOD__, $dbSource));
-        }
         //Do the actual installation
         $this->runInstallationScript($module, $siteName, $dbSource);
         if (is_null($site)) {
@@ -396,7 +395,8 @@ class InstallManager implements InstallManagerInterface
                 //Site installation
                 /** @var $installer SiteInstallableInterface */
                 if ($installer instanceof SiteInstallableInterface) {
-                    $installer->install($module, $siteName, $site, $this->cms, $this->dbServiceManager, $dbSource);
+                    $dbProvider = $this->dbProviderFactory->getDbProvider($dbSource);
+                    $installer->installIntoSite($module, $siteName, $site, $this->cms, $dbProvider);
                 }
             }
         }
@@ -427,7 +427,8 @@ class InstallManager implements InstallManagerInterface
                                 __METHOD__, $siteName, $module));
                     }
                     $dbSource   = $siteConfig['modules']['site_modules'][$module]['db_source'];
-                    $installer->uninstall($module, $siteName, $site, $this->cms, $this->dbServiceManager, $dbSource);
+                    $dbProvider = $this->dbProviderFactory->getDbProvider($dbSource);
+                    $installer->uninstallFromSite($module, $siteName, $site, $this->cms, $dbProvider);
                 }
             }
         }

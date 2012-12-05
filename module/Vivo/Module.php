@@ -321,11 +321,11 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $config                 = $sm->get('config');
                     $moduleStorageManager   = $sm->get('module_storage_manager');
                     $cms                    = $sm->get('cms');
-                    $dbServiceManager       = $sm->get('db_service_manager');
+                    $dbProviderFactory      = $sm->get('db_provider_factory');
                     $options                = $config['vivo']['module_install_manager'];
                     $moduleInstallManager   = new \Vivo\Module\InstallManager\InstallManager($moduleStorageManager,
                                                                                              $cms,
-                                                                                             $dbServiceManager,
+                                                                                             $dbProviderFactory,
                                                                                              $options);
                     return $moduleInstallManager;
                 },
@@ -364,6 +364,11 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $installManager = $sm->get('module_install_manager');
                     $api            = new \Vivo\CMS\Api\Module($installManager);
                     return $api;
+                },
+                'db_provider_factory'        => function(ServiceManager $sm) {
+                    $dbServiceManager   = $sm->get('db_service_manager');
+                    $dbProviderFactory  = new \Vivo\Service\DbProviderFactory($dbServiceManager);
+                    return $dbProviderFactory;
                 },
             ),
         );

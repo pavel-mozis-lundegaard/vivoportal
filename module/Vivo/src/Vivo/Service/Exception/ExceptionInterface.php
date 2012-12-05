@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Module\Exception;
+namespace Vivo\Service\Exception;
 
 /**
  * ExceptionInterface

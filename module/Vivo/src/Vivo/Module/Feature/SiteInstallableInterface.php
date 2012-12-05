@@ -3,7 +3,7 @@ namespace Vivo\Module\Feature;
 
 use Vivo\CMS\Model\Site;
 use Vivo\CMS\Api\CMS;
-use Vivo\Service\DbServiceManagerInterface;
+use Vivo\Service\DbProviderInterface;
 
 /**
  * SiteInstallableInterface
@@ -17,10 +17,8 @@ interface SiteInstallableInterface
      * @param string $siteName
      * @param Site $site
      * @param CMS $cms
-     * @param DbServiceManagerInterface $dbServiceManager
-     * @param string $dbSource Name of the db source
+     * @param DbProviderInterface $dbProvider
      * @return void
      */
-    public function install($moduleName, $siteName, Site $site, CMS $cms,
-                            DbServiceManagerInterface $dbServiceManager, $dbSource);
+    public function installIntoSite($moduleName, $siteName, Site $site, CMS $cms, DbProviderInterface $dbProvider);
 }

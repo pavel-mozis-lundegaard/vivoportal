@@ -278,7 +278,7 @@ class ModuleController extends AbstractCliController
             //Trying to install a site module without a site specification
             $output = sprintf("Site specification missing when installing site module '%s'", $module);
             return $output;
-        } catch (InstallException\DbSourceDoesNotExistException $e) {
+        } catch (\Vivo\Service\Exception\DbSourceDoesNotExistException $e) {
             //The specified db source does not exist
             $output = sprintf("The db source does not exist", $module);
             return $output;
@@ -325,6 +325,10 @@ class ModuleController extends AbstractCliController
         } catch (InstallException\ModuleEnabledException $e) {
             //Module enabled
             $output = sprintf("Cannot uninstall module '%s'; the Module is enabled", $module);
+            return $output;
+        } catch (\Vivo\Service\Exception\DbSourceDoesNotExistException $e) {
+            //The db source specified in config does not exist
+            $output = sprintf("The db source does not exist", $module);
             return $output;
         } catch (\Exception $e) {
             //Other exception

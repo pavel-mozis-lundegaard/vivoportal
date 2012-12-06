@@ -1,6 +1,6 @@
 <?php
 /**
- * Main CMS config, can be splited to the topic related files in future.
+ * Main CMS config, can be splited to the topic related files in the future.
  *
  */
 return array(

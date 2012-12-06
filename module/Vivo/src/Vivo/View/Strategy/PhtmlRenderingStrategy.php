@@ -12,7 +12,7 @@ use Zend\View\Renderer\RendererInterface;
 use Zend\View\ViewEvent;
 
 /**
- * Rendering strategy for rendering phtml templates.
+ * Rendering strategy for render phtml templates.
  *
  */
 class PhtmlRenderingStrategy implements ListenerAggregateInterface
@@ -39,6 +39,7 @@ class PhtmlRenderingStrategy implements ListenerAggregateInterface
 
     /**
      * Attach listeners.
+     *
      * @see Zend\EventManager.ListenerAggregateInterface::attach()
      */
     public function attach(EventManagerInterface $events, $priority = 20)
@@ -53,7 +54,8 @@ class PhtmlRenderingStrategy implements ListenerAggregateInterface
     }
 
     /**
-     * Return renderer if the ViewEvent contains corresponding model (UIViewModel).
+     * Returns renderer if the ViewEvent contains corresponding model (UIViewModel).
+     *
      * @param ViewEvent $e
      * @return \Zend\View\Renderer\RendererInterface|NULL
      */
@@ -71,7 +73,8 @@ class PhtmlRenderingStrategy implements ListenerAggregateInterface
     }
 
     /**
-     * Inject result of rendering to the response.
+     * Injects result of rendering to the response.
+     *
      * @param ViewEvent $e
      * @todo inject as a stream instead of content
      */

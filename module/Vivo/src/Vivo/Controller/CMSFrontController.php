@@ -79,7 +79,7 @@ class CMSFrontController implements DispatchableInterface,
     }
 
     /**
-     * Dispatch CMS request
+     * Dispatches CMS request
      * @param Request $request
      * @param Response $response
      * @todo should we render UI in controller dispatch action?

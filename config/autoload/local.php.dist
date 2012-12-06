@@ -6,9 +6,9 @@
  * security-sensitive configuration information. Copy this file without the
  * .dist extension at the end and populate values as needed.
  *
- * @NOTE: This file is ignored from Git by default with the .gitignore included
- * in ZendSkeletonApplication. This is a good practice, as it prevents sensitive
- * credentials from accidentally being comitted into version control.
+ * @NOTE: This file is defaultly ignored by Git by the .gitignore included
+ * in ZendSkeletonApplication. This is a good practice - it prevents sensitive
+ * credentials from being accidentally comitted into version control.
  */
 
 return array(

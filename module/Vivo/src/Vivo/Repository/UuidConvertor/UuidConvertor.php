@@ -13,7 +13,8 @@ use Vivo\Indexer\Term as IndexerTerm;
 class UuidConvertor implements UuidConvertorInterface
 {
     /**
-     * Indexer instance
+     * Indexer instance\
+     *
      * @var IndexerInterface
      */
     protected $indexer;
@@ -21,12 +22,14 @@ class UuidConvertor implements UuidConvertorInterface
     /**
      * Maps UUID => path
      * Result cache
+     *
      * @var string[]
      */
     protected $uuidToPath   = array();
 
     /**
      * Maps path => UUID
+     *
      * Result cache
      * @var string[]
      */
@@ -34,6 +37,7 @@ class UuidConvertor implements UuidConvertorInterface
 
     /**
      * Constructor
+     *
      * @param \Vivo\Indexer\IndexerInterface $indexer
      */
     public function __construct(IndexerInterface $indexer)
@@ -43,7 +47,8 @@ class UuidConvertor implements UuidConvertorInterface
 
     /**
      * Returns entity UUID based on its path
-     * If the entity does not exist returns null
+     * If the entity does not exist returns null instead
+     *
      * @param string $path
      * @return null|string
      */
@@ -68,7 +73,8 @@ class UuidConvertor implements UuidConvertorInterface
 
     /**
      * Returns entity path based on its UUID
-     * If the UUID does not exist returns null
+     * If the UUID does not exist returns null instead
+     *
      * @param string $uuid
      * @return null|string
      */
@@ -92,8 +98,9 @@ class UuidConvertor implements UuidConvertorInterface
     }
 
     /**
-     * Sets a conversion result (uuid and its associated path) into the result cache
-     * Overwrites previously cached results
+     * Sets a conversion result (uuid and its associated path) into the result cache.
+     * Overwrites previously cached results.
+     *
      * @param string $uuid
      * @param string $path
      */
@@ -104,8 +111,9 @@ class UuidConvertor implements UuidConvertorInterface
     }
 
     /**
-     * Removes a conversion result (uuid and its associated path) from the result cache
-     * If $uuid is not found in cached results, does nothing
+     * Removes a conversion result (uuid and its associated path) from the result cache.
+     * If $uuid is not found in cached results, does nothing.
+     *
      * @param string $uuid
      */
     public function removeByUuid($uuid)
@@ -118,8 +126,9 @@ class UuidConvertor implements UuidConvertorInterface
     }
 
     /**
-     * Removes a conversion result (path and its associated uuid) from the result cache
-     * If $path is not found in cached results, does nothing
+     * Removes a conversion result (path and its associated uuid) from the result cache.
+     * If $path is not found in cached results, does nothing.
+     *
      * @param string $path
      */
     public function removeByPath($path)

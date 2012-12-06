@@ -335,7 +335,11 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $di->configure(new Config($diConfig));
 
                     return $di;
-                }
+                },
+                'solr_adapter_service'      => function(ServiceManager $sm) {
+                    $service                = new \Vivo\Indexer\Adapter\Solr\Service('localhost', 8983, '/solr/');
+                    return $service;
+                },
             ),
         );
     }

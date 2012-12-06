@@ -1,0 +1,260 @@
+<?php
+namespace Vivo\Indexer\Adapter\Solr;
+/**
+ * Copyright (c) 2007-2009, Conduit Internet Technologies, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  - Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *  - Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *  - Neither the name of Conduit Internet Technologies, Inc. nor the names of
+ *    its contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @copyright Copyright 2007-2009 Conduit Internet Technologies, Inc. (http://conduit-it.com)
+ * @license New BSD (http://solr-php-client.googlecode.com/svn/trunk/COPYING)
+ * @version $Id: Response.php 1361 2011-05-24 07:09:36Z tzajicek $
+ *
+ * @package Apache
+ * @subpackage Solr
+ * @author Donovan Jimenez <djimenez@conduit-it.com>
+ */
+
+/**
+ * Represents a Solr response.  Parses the raw response into a set of stdClass objects
+ * and associative arrays for easy access.
+ *
+ * Currently requires json_decode which is bundled with PHP >= 5.2.0, Alternatively can be
+ * installed with PECL.  Zend Framework also includes a pure PHP solution.
+ */
+class Response
+{
+	/**
+	 * Holds the raw response used in construction
+	 * @var string
+	 */
+	protected $rawResponse;
+
+	/**
+	 * Parsed values from the passed in http headers
+	 * @var string
+	 */
+	protected $httpStatus;
+
+    /**
+     * @var string
+     */
+    protected $httpStatusMessage;
+
+    /**
+     * @var string
+     */
+    protected $type;
+
+    /**
+     * @var string
+     */
+    protected $encoding;
+
+	/**
+	 * Whether the raw response has been parsed
+	 * @var boolean
+	 */
+	protected $isParsed = false;
+
+	/**
+	 * Parsed representation of the data
+	 *
+	 * @var mixed
+	 */
+	protected $parsedData;
+
+	/**
+	 * Data parsing flags.  Determines what extra processing should be done
+	 * after the data is initially converted to a data structure.
+	 * @var boolean
+	 */
+	protected $createDocuments = true;
+
+    /**
+     * Data parsing flag
+     * @var boolean
+     */
+    protected $collapseSingleValueArrays = true;
+
+	/**
+	 * Constructor. Takes the raw HTTP response body and the exploded HTTP headers
+	 * @param string $rawResponse
+	 * @param array $httpHeaders
+	 * @param boolean $createDocuments Whether to convert the documents json_decoded as stdClass instances
+     *                                 to Document instances
+	 * @param boolean $collapseSingleValueArrays Whether to make multivalued fields appear as single values
+	 */
+	public function __construct($rawResponse,
+                                $httpHeaders = array(),
+                                $createDocuments = true,
+                                $collapseSingleValueArrays = true)
+	{
+		//Assume 0, 'Communication Error', utf-8, and  text/plain
+		$status = 0;
+		$statusMessage = 'Communication Error';
+		$type = 'text/plain';
+		$encoding = 'UTF-8';
+		//iterate through headers for real status, type, and encoding
+		if (is_array($httpHeaders) && count($httpHeaders) > 0) {
+			//look at the first headers for the HTTP status code
+			//and message (errors are usually returned this way)
+			//
+			//HTTP 100 Continue response can also be returned before
+			//the REAL status header, so we need look until we find
+			//the last header starting with HTTP
+			//
+			//the spec: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.1
+			//
+			//Thanks to Daniel Andersson for pointing out this oversight
+			while (isset($httpHeaders[0]) && substr($httpHeaders[0], 0, 4) == 'HTTP') {
+				$parts = explode(' ', substr($httpHeaders[0], 9), 2);
+				$status = $parts[0];
+				$statusMessage = trim($parts[1]);
+				array_shift($httpHeaders);
+			}
+			//Look for the Content-Type response header and determine type
+			//and encoding from it (if possible - such as 'Content-Type: text/plain; charset=UTF-8')
+			foreach ($httpHeaders as $header) {
+				if (strncasecmp($header, 'Content-Type:', 13) == 0)	{
+					//split content type value into two parts if possible
+					$parts = explode(';', substr($header, 13), 2);
+					$type = trim($parts[0]);
+					if ($parts[1]) {
+						//split the encoding section again to get the value
+						$parts = explode('=', $parts[1], 2);
+						if ($parts[1]) {
+							$encoding = trim($parts[1]);
+						}
+					}
+					break;
+				}
+			}
+		}
+		$this->rawResponse = $rawResponse;
+		$this->type = $type;
+		$this->encoding = $encoding;
+		$this->httpStatus = $status;
+		$this->httpStatusMessage = $statusMessage;
+		$this->createDocuments = (bool) $createDocuments;
+		$this->collapseSingleValueArrays = (bool) $collapseSingleValueArrays;
+	}
+
+	/**
+	 * Get the HTTP status code
+	 * @return integer
+	 */
+	public function getHttpStatus()
+	{
+		return $this->httpStatus;
+	}
+
+	/**
+	 * Get the HTTP status message of the response
+	 * @return string
+	 */
+	public function getHttpStatusMessage()
+	{
+		return $this->httpStatusMessage;
+	}
+
+	/**
+	 * Get content type of this Solr response
+	 * @return string
+	 */
+	public function getType()
+	{
+		return $this->type;
+	}
+
+	/**
+	 * Get character encoding of this response. Should usually be utf-8, but just in case
+	 * @return string
+	 */
+	public function getEncoding()
+	{
+		return $this->encoding;
+	}
+
+	/**
+	 * Get the raw response as it was given to this object
+	 * @return string
+	 */
+	public function getRawResponse()
+	{
+		return $this->rawResponse;
+	}
+
+	/**
+	 * Magic get to expose the parsed data and to lazy load it
+	 * @param unknown_type $key
+	 * @return unknown
+	 */
+	public function __get($key)
+	{
+		if (!$this->isParsed) {
+			$this->parseData();
+			$this->isParsed = true;
+		}
+		if (isset($this->parsedData->$key)) {
+			return $this->parsedData->$key;
+		}
+		return null;
+	}
+
+	/**
+	 * Parse the raw response into the parsed_data array for access
+	 */
+	protected function parseData()
+	{
+		//An alternative would be to use Zend_Json::decode(...)
+		$data = json_decode($this->rawResponse);
+		//if we're configured to collapse single valued arrays or to convert them to Document objects
+		//and we have response documents, then try to collapse the values and / or convert them now
+		if (($this->createDocuments || $this->collapseSingleValueArrays)
+            && isset($data->response) && is_array($data->response->docs)) {
+			$documents = array();
+			foreach ($data->response->docs as $originalDocument) {
+				if ($this->createDocuments) {
+					$document = new Document();
+				} else {
+					$document = $originalDocument;
+				}
+				foreach ($originalDocument as $key => $value) {
+					//If a result is an array with only a single
+					//value then its nice to be able to access
+					//it as if it were always a single value
+					if ($this->collapseSingleValueArrays && is_array($value) && count($value) <= 1)	{
+						$value = array_shift($value);
+					}
+					$document->$key = $value;
+				}
+				$documents[] = $document;
+			}
+			$data->response->docs = $documents;
+		}
+		$this->parsedData = $data;
+	}
+}

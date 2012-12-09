@@ -74,13 +74,17 @@ return array(
             ),
         ),
     ),
-
     'service_manager' => array(
         'allow_override' => true,
         'factories' => array(
             'translator' => 'Zend\I18n\Translator\TranslatorServiceFactory',
-            'response' => 'Vivo\Mvc\Service\ResponseFactory',
-
+            'response' => 'Vivo\Service\ResponseFactory',
+            'di' => 'Vivo\Service\DiFactory',
+        ),
+        'aliases' => array(
+                'Vivo\SiteManager\Event\SiteEvent' => 'site_event',
+                'Zend\Http\Response' => 'response',
+                'Zend\View\HelperPluginManager' => 'view_helper_manager',
         ),
     ),
     'translator' => array(
@@ -178,53 +182,53 @@ return array(
 
             ),
         ),
-
-        'ui_di' => array(
+        'service_manager' => array (
+        //configuration of modules service manager
+        ),
+        'di' => array (
             'instance' => array (
-                        'alias' => array (
-                                'viewModel' =>  'Vivo\View\Model\UIViewModel',
-                                'viewHelpers' =>  'Zend\View\HelperPluginManager',
-                        ),
-                        'viewModel' => array (
-                                'shared' => false, //new viewModel for each UI/component
-                        ),
-                        'Vivo\UI\Component' => array (
-                                'parameters' => array (
-                                        'view' => 'viewModel',
-                                ),
-                        ),
-                        'Vivo\UI\Page' => array (
-                            'parameters' => array (
-                                'doctype' => 'HTML5',
-                                //globaly defined links and scripts
-                                'links' => array (
-                                    array(
-                                        'rel'  => 'stylesheet',
-                                        'href' => '/.ModuleName.resource/css/definedInVivoConfig.css',
-                                        'type' => 'text/css',
-                                        'media' => 'screen'
-                                    ),
-                                 ),
-                                 'scripts' => array (
-                                         array(
-                                                 'src' => '/.ModuleName.resource/js/front.js',
-                                                 'type' => 'text/javascript',
-                                         ),
-                                 ),
-
-                                'metas' => array (
-                                     array (
-                                         'name' => 'Robots',
-                                         'content' => 'INDEX,FOLLOW',
-                                     ),
-                                     array (
-                                             'charset' => 'UTF-8',
-                                     ),
-                                 ),
-                                 'viewHelpers' => 'Zend\View\HelperPluginManager',
-                                ),
-                        ),
+                'alias' => array (
+                    'viewModel' =>  'Vivo\View\Model\UIViewModel',
                 ),
+                'viewModel' => array (
+                    'shared' => false, //new viewModel for each UI/component
+                ),
+                'Vivo\UI\Component' => array (
+                    'parameters' => array (
+                        'view' => 'viewModel',
+                    ),
+                ),
+                'Vivo\UI\Page' => array (
+                    'parameters' => array (
+                        'doctype' => 'HTML5',
+                        //globaly defined links and scripts
+                        'links' => array (
+                            array(
+                                'rel'  => 'stylesheet',
+                                'href' => '/.ModuleName.resource/css/definedInVivoConfig.css',
+                                'type' => 'text/css',
+                                'media' => 'screen'
+                            ),
+                        ),
+                        'scripts' => array (
+                            array(
+                                'src' => '/.ModuleName.resource/js/front.js',
+                                'type' => 'text/javascript',
+                            ),
+                        ),
+                        'metas' => array (
+                            array (
+                                'name' => 'Robots',
+                                'content' => 'INDEX,FOLLOW',
+                            ),
+                            array (
+                                'charset' => 'UTF-8',
+                            ),
+                        ),
+                        'viewHelpers' => 'Zend\View\HelperPluginManager',
+                    ),
+                ),
+            ),
         ),
 
     ),

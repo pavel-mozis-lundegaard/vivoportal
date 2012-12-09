@@ -1,8 +1,6 @@
 <?php
 namespace Vivo;
 
-use Zend\Mvc\MvcEvent;
-
 use Vivo\CMS\ComponentFactory;
 use Vivo\CMS\ComponentResolver;
 use Vivo\Module\ModuleManagerFactory;
@@ -17,6 +15,7 @@ use Zend\ModuleManager\Feature\ConsoleBannerProviderInterface;
 use Zend\ModuleManager\Feature\ConsoleUsageProviderInterface;
 use Zend\Mvc\Controller\ControllerManager;
 use Zend\Mvc\ModuleRouteListener;
+use Zend\Mvc\MvcEvent;
 use Zend\ServiceManager\ServiceManager;
 
 class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInterface
@@ -47,6 +46,9 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
 
         $eventManager->attach('render', array ($this, 'registerUIRenderingStrategies'), 100);
         $eventManager->attach('render', array ($this, 'registerViewHelpers'), 100);
+
+        //TODO attach to SiteEvent
+        $eventManager->attach('route', array ($this, 'initializeVivoServiceManager'), 100000000);
     }
 
     public function getConfig()
@@ -65,7 +67,27 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         );
     }
 
-
+    /**
+     * Initialize vivo service manager.
+     *
+     * This method register factory for vivo_service_manager to the application service manager.
+     * The factory is not registered in service manager configuration to avoid instatniate it until
+     * site and modules are loaded.
+     *
+     * @param MvcEvent $e
+     */
+    public function initializeVivoServiceManager(MvcEvent $e)
+    {
+        $app          = $e->getTarget();
+        $sm      = $app->getServiceManager();
+        /* @var $sm \Zend\ServiceManager\ServiceManager */
+        $sm->setFactory('vivo_service_manager', 'Vivo\Service\VivoServiceManagerFactory');
+        $vsm = $sm->get('vivo_service_manager');
+        $di = $sm->get('di');
+        $config = $sm->get('config');
+        $di->configure(new Config($config['vivo']['di']));
+        $vsm->setFactory('di_proxy', 'Vivo\Service\DiProxyFactory');
+    }
     /**
      * Register rendering strategy fo Vivo UI.
      * @param MvcEvent $e
@@ -105,6 +127,9 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
     public function getServiceConfig()
     {
         return array(
+            'aliases' => array(
+                'Vivo\Repository\Repository' => 'repository',
+            ),
             'factories' => array(
                 'io_util'            => function(ServiceManager $sm) {
                     $ioUtil     = new \Vivo\IO\IOUtil();
@@ -198,7 +223,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     return $strategy;
                 },
                 'Vivo\CMS\ComponentFactory' => function(ServiceManager $sm) {
-                    $di = $sm->get('ui_di');
+                    $di = $sm->get('vivo_service_manager')->get('di_proxy');
                     $cf = new ComponentFactory($di, $sm->get('cms'), $sm->get('site_event')->getSite());
                     $resolver = new ComponentResolver($sm->get('config'));
                     $cf->setResolver($resolver);
@@ -317,25 +342,9 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                                                                                                $resourceManagerOptions);
                     return $moduleResourceManager;
                 },
-                'ui_di' => function (ServiceManager $sm) {
-                    $config                 = $sm->get('config');
-                    $diConfig           = $config['vivo']['ui_di'];
-                    $di = new Di();
-                    $di->instanceManager()
-                    ->addSharedInstance($sm->get('request'), 'Zend\Http\Request');
-                    $di->instanceManager()
-                    ->addSharedInstance($sm->get('response'), 'Zend\Http\Response');
-                    $di->instanceManager()
-                    ->addSharedInstance($sm->get('cms'), 'Vivo\CMS\Api\CMS');
-                    $di->instanceManager()
-                    ->addSharedInstance($sm->get('site_event'), 'Vivo\SiteManager\Event\SiteEvent');
-
-                    $di->instanceManager()
-                    ->addSharedInstance($sm->get('view_helper_manager'), 'Zend\View\HelperPluginManager');
-                    $di->configure(new Config($diConfig));
-
-                    return $di;
-                }
+                'vivo_service_manager' => function (ServiceManager $sm) {
+                    throw new Exception('Vivo service manager is not available until site and modules are loaded.');
+                },
             ),
         );
     }
@@ -348,7 +357,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $fc = new \Vivo\Controller\CMSFrontController();
                     $sm = $cm->getServiceLocator();
                     $fc->setComponentFactory($sm->get('Vivo\CMS\ComponentFactory'));
-                    $fc->setTreeUtil($sm->get('Vivo\UI\TreeUtil'));
+                    $fc->setTreeUtil($sm->get('di')->get('Vivo\UI\TreeUtil'));
                     $fc->setCMS($sm->get('cms'));
                     $fc->setSiteEvent($sm->get('site_event'));
                     return $fc;

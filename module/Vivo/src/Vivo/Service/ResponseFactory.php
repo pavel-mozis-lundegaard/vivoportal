@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Mvc\Service;
+namespace Vivo\Service;
 
 use Vivo\Http\StreamResponse;
 
@@ -7,7 +7,6 @@ use Zend\Console\Response as ConsoleResponse;
 use Zend\Console\Console;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
-
 
 class ResponseFactory implements FactoryInterface
 {

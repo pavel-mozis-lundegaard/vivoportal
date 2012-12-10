@@ -1,0 +1,23 @@
+Installation
+============
+
+1)clone Vivo from git 
+$ git clone https://github.com/vivoportal/v2.git
+
+2)checkout develop branch
+$ git checkout develop
+
+3)download composer and dependecies
+$ curl -s https://getcomposer.org/installer | php
+$ php composer.phar install
+
+4)make data directory writeable for web server
+$ chmod -R 770 v2/data
+
+5)update .htaccess
+$ cp v2/public/.htaccess.dist v2/.htaccess
+check rewritebase option in .htaccess
+
+Notes for developers
+====================
+- use your own public repository on github

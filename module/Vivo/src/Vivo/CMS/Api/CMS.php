@@ -33,7 +33,7 @@ class CMS
      */
     public function getSiteByHost($host)
     {
-        $sites  = $this->repository->getChildren(new Model\Folder(''));
+        $sites  = $this->getChildren(new Model\Folder(''));
         foreach ($sites as $site) {
             /** @var $site \Vivo\CMS\Model\Site */
             if (in_array($host, $site->getHosts())) {
@@ -67,22 +67,18 @@ class CMS
         $site = new Model\Site("/$name");
         $site->setDomain($domain);
         $site->setHosts($hosts);
-
-        $config = "[config]\nvalue = \"data\"\n";
-
         $root = new Model\Document("/$name/ROOT");
         $root->setTitle('Home');
         $root->setWorkflow('Vivo\CMS\Workflow\Basic');
-
         $this->repository->saveEntity($site);
-        $this->repository->saveResource($site, 'config.ini', $config);
+        $this->setSiteConfig(array(), $site);
         $this->repository->saveEntity($root);
         $this->repository->commit();
-
         return $site;
     }
 
     /**
+     * Returns site configuration as it is stored in the repository (ie not merged with module configs)
      * @param Model\Site $site
      * @return array
      */
@@ -98,6 +94,19 @@ class CMS
         $config = $reader->fromString($string);
 
         return $config;
+    }
+
+    /**
+     * Persists site config
+     * @param array $config
+     * @param Model\Site $site
+     */
+    public function setSiteConfig(array $config, Model\Site $site)
+    {
+        $writer = new Config\Writer\Ini();
+        $writer->setRenderWithoutSectionsFlags(true);
+        $iniString  = $writer->toString($config);
+        $this->repository->saveResource($site, 'config.ini', $iniString);
     }
 
     /**
@@ -130,7 +139,7 @@ class CMS
 
     /**
      * @param Model\Folder $folder
-     * @return array
+     * @return \Vivo\CMS\Model\Entity[]
      */
     public function getChildren(Model\Folder $folder)
     {
@@ -471,5 +480,38 @@ class CMS
             }
         }
         return $result;
+    }
+
+    /**
+     * Returns site object by its name (ie name of the site folder in repository)
+     * @param string $siteName
+     * @throws Exception\DomainException
+     * @return Model\Entity
+     */
+    public function getSite($siteName)
+    {
+        $path   = '/' . $siteName;
+        $site   = $this->getEntity($path);
+        if (!$site instanceof \Vivo\CMS\Model\Site) {
+            throw new Exception\DomainException(
+                sprintf("%s: Returned object is not of '%s' type", __METHOD__, '\Vivo\CMS\Model\Site'));
+        }
+        return $site;
+    }
+
+    /**
+     * Returns if site with the specified name exists
+     * @param string $siteName
+     * @return bool
+     */
+    public function siteExists($siteName)
+    {
+        try {
+            $this->getSite($siteName);
+            $siteExists = true;
+        } catch (\Vivo\Repository\Exception\EntityNotFoundException $e) {
+            $siteExists = false;
+        }
+        return $siteExists;
     }
 }

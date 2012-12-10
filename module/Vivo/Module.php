@@ -342,6 +342,40 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                                                                                                $resourceManagerOptions);
                     return $moduleResourceManager;
                 },
+                'module_install_manager'    => function(ServiceManager $sm) {
+                    $config                 = $sm->get('config');
+                    $moduleStorageManager   = $sm->get('module_storage_manager');
+                    $cms                    = $sm->get('cms');
+                    $dbProviderFactory      = $sm->get('db_provider_factory');
+                    $options                = $config['vivo']['module_install_manager'];
+                    $moduleInstallManager   = new \Vivo\Module\InstallManager\InstallManager($moduleStorageManager,
+                        $cms,
+                        $dbProviderFactory,
+                        $options);
+                    return $moduleInstallManager;
+                },
+                'pdo_abstract_factory'      => function(ServiceManager $sm) {
+                    $config                 = $sm->get('config');
+                    $pdoConfig              = $config['vivo']['db_service']['abstract_factory']['pdo'];
+                    $pdoAf  = new \Vivo\Service\AbstractFactory\Pdo($pdoConfig);
+                    return $pdoAf;
+                },
+                'zdb_abstract_factory'      => function(ServiceManager $sm) {
+                    $config                 = $sm->get('config');
+                    $zdbConfig              = $config['vivo']['db_service']['abstract_factory']['zdb'];
+                    $zdbAf  = new \Vivo\Service\AbstractFactory\ZendDbAdapter($zdbConfig);
+                    return $zdbAf;
+                },
+                'cms_api_module'            => function(ServiceManager $sm) {
+                    $installManager = $sm->get('module_install_manager');
+                    $api            = new \Vivo\CMS\Api\Module($installManager);
+                    return $api;
+                },
+                'db_provider_factory'        => function(ServiceManager $sm) {
+                    $dbServiceManager   = $sm->get('db_service_manager');
+                    $dbProviderFactory  = new \Vivo\Service\DbProviderFactory($dbServiceManager);
+                    return $dbProviderFactory;
+                },
                 'vivo_service_manager' => function (ServiceManager $sm) {
                     throw new Exception('Vivo service manager is not available until site and modules are loaded.');
                 },
@@ -366,7 +400,12 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $sm                     = $cm->getServiceLocator();
                     $moduleStorageManager   = $sm->get('module_storage_manager');
                     $remoteModule           = $sm->get('remote_module');
-                    $controller             = new \Vivo\Controller\CLI\ModuleController($moduleStorageManager, $remoteModule);
+                    $repository             = $sm->get('repository');
+                    $moduleApi              = $sm->get('cms_api_module');
+                    $controller             = new \Vivo\Controller\CLI\ModuleController($moduleStorageManager,
+                                                                                        $remoteModule,
+                                                                                        $repository,
+                                                                                        $moduleApi);
                     return $controller;
                 },
                 'ResourceFront'    => function(ControllerManager $cm) {

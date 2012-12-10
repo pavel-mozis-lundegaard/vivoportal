@@ -9,6 +9,8 @@ use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\ArrayUtils;
+use Zend\Di\Config as DiConfig;
+use Zend\ServiceManager\Config as SmConfig;
 
 /**
  * SiteResolveListener
@@ -97,45 +99,22 @@ class LoadModulesListener implements ListenerAggregateInterface
         $this->serviceManager->setService('config', $mainConfig);
 
         //Prepare Vivo service manager
-
-
-
+        $this->initializeVivoServiceManager($vivoConfig);
 
         $e->stopPropagation(true);
     }
 
     /**
-     * Initialize vivo service manager.
-     * This method registers factory for vivo_service_manager to the application service manager.
-     * The factory is not registered in service manager configuration to avoid instatniate it until
-     * site and modules are loaded.
-     *
-     * @param MvcEvent $e
+     * Initialize vivo service manager
      */
-    protected function initializeVivoServiceManager(MvcEvent $e)
+    protected function initializeVivoServiceManager(array $vivoConfig)
     {
-        $app          = $e->getTarget();
-        $sm      = $app->getServiceManager();
-        /* @var $sm \Zend\ServiceManager\ServiceManager */
-        $sm->setFactory('vivo_service_manager', 'Vivo\Service\VivoServiceManagerFactory');
-        $vsm = $sm->get('vivo_service_manager');
-        $di = $sm->get('di');
-        $config = $sm->get('config');
-        $di->configure(new Config($config['vivo']['di']));
+        $vsmConfig  = new SmConfig($vivoConfig['service_manager']);
+        $vsm        = new ServiceManager($vsmConfig);
+        $vsm->addPeeringServiceManager($this->serviceManager);
+        $di         = $this->serviceManager->get('di');
+        $di->configure(new DiConfig($vivoConfig['di']));
         $vsm->setFactory('di_proxy', 'Vivo\Service\DiProxyFactory');
+        $this->serviceManager->setService('vivo_service_manager', $vsm);
     }
-
-    /**
-     * Creates the Vivo ServiceManager
-     */
-    protected function createVivoServiceManager()
-    {
-        //TODO configure using values from [vivo][service_manager] key in config
-        //TODO configure by loaded modules
-        $sm = new ServiceManager();
-        $sm->addPeeringServiceManager($serviceLocator);
-        return $sm;
-    }
-
-
 }

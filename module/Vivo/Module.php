@@ -7,6 +7,7 @@ use Vivo\Module\ModuleManagerFactory;
 use Vivo\Util\Path\PathParser;
 use Vivo\View\Helper as ViewHelper;
 use Vivo\View\Strategy\PhtmlRenderingStrategy;
+use Vivo\Service\Exception;
 
 use Zend\Console\Adapter\AdapterInterface as Console;
 use Zend\Di\Config;
@@ -46,9 +47,6 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
 
         $eventManager->attach('render', array ($this, 'registerUIRenderingStrategies'), 100);
         $eventManager->attach('render', array ($this, 'registerViewHelpers'), 100);
-
-        //TODO attach to SiteEvent
-        $eventManager->attach('route', array ($this, 'initializeVivoServiceManager'), 100000000);
     }
 
     public function getConfig()
@@ -356,7 +354,10 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     return $dbProviderFactory;
                 },
                 'vivo_service_manager' => function (ServiceManager $sm) {
-                    throw new Exception('Vivo service manager is not available until site and modules are loaded.');
+                    //TODO - this exception is caught!
+                    throw new Exception\ServiceNotAvailableException(
+                        sprintf('%s: Vivo service manager is not available until site and modules are loaded.',
+                        __METHOD__));
                 },
             ),
         );
@@ -408,7 +409,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
     {
         return array('Available commands:',
                 array ('indexer', 'Perform operations on indexer..'),
-                array ('info','Show informations about CMS instance.'),
+                array ('info','Show information about CMS instance.'),
                 array ('module', 'Manage modules.'),
         );
     }

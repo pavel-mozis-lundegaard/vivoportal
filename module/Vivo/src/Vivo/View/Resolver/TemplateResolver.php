@@ -92,7 +92,7 @@ class TemplateResolver implements ResolverInterface
                 //load template from module
                 $parts = $this->parser->parse($path);
                 $is = $this->resourceManager
-                        ->getResourceStream($parts['module'], $parts['path'],
+                        ->readResource($parts['module'], $parts['path'],
                                 'view');
                 $path = InputStreamWrapper::registerInputStream($is, $path);
                 $this->resolved[$name] = $path;

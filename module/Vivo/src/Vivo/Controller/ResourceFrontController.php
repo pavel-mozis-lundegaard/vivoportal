@@ -65,7 +65,7 @@ class ResourceFrontController implements DispatchableInterface,
         } else {
             //it's module resource
             $resourceStream = $this->resourceManager
-                    ->getResourceStream($source, $pathToResource);
+                    ->readResource($source, $pathToResource);
         }
 
         $filename = pathinfo($pathToResource, PATHINFO_FILENAME);

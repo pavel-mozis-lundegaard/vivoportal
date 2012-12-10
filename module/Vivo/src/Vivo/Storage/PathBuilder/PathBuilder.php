@@ -68,6 +68,8 @@ class PathBuilder implements PathBuilderInterface
     {
         $components = explode($this->getStoragePathSeparator(), $path);
         foreach ($components as $key => $value) {
+            $value  = trim($value);
+            $components[$key]   = $value;
             if ($value == '' || is_null($value)) {
                 unset($components[$key]);
             }

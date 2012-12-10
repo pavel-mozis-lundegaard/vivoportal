@@ -93,4 +93,15 @@ class PathBuilderTest extends \PHPUnit_Framework_TestCase
         $expected   = '/path/to/entity/foo/0/bar/0';
         $this->assertEquals($expected, $path);
     }
+
+    /**
+     * Tests building path with untrimmed segments
+     */
+    public function testBuildPathFromUntrimmed()
+    {
+        $elements   = array('    path/to /   entity   ', ' ', ' foo/0/bar', '0');
+        $path       = $this->pathBuilder->buildStoragePath($elements,  true);
+        $expected   = '/path/to/entity/foo/0/bar/0';
+        $this->assertEquals($expected, $path);
+    }
 }

@@ -68,27 +68,6 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
     }
 
     /**
-     * Initialize vivo service manager.
-     *
-     * This method register factory for vivo_service_manager to the application service manager.
-     * The factory is not registered in service manager configuration to avoid instatniate it until
-     * site and modules are loaded.
-     *
-     * @param MvcEvent $e
-     */
-    public function initializeVivoServiceManager(MvcEvent $e)
-    {
-        $app          = $e->getTarget();
-        $sm      = $app->getServiceManager();
-        /* @var $sm \Zend\ServiceManager\ServiceManager */
-        $sm->setFactory('vivo_service_manager', 'Vivo\Service\VivoServiceManagerFactory');
-        $vsm = $sm->get('vivo_service_manager');
-        $di = $sm->get('di');
-        $config = $sm->get('config');
-        $di->configure(new Config($config['vivo']['di']));
-        $vsm->setFactory('di_proxy', 'Vivo\Service\DiProxyFactory');
-    }
-    /**
      * Register rendering strategy fo Vivo UI.
      * @param MvcEvent $e
      */

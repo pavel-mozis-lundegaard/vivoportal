@@ -95,6 +95,47 @@ class LoadModulesListener implements ListenerAggregateInterface
         $vivoConfig = ArrayUtils::merge($vivoConfig, $siteConfig);
         $mainConfig['vivo'] = $vivoConfig;
         $this->serviceManager->setService('config', $mainConfig);
+
+        //Prepare Vivo service manager
+
+
+
+
         $e->stopPropagation(true);
     }
+
+    /**
+     * Initialize vivo service manager.
+     * This method registers factory for vivo_service_manager to the application service manager.
+     * The factory is not registered in service manager configuration to avoid instatniate it until
+     * site and modules are loaded.
+     *
+     * @param MvcEvent $e
+     */
+    protected function initializeVivoServiceManager(MvcEvent $e)
+    {
+        $app          = $e->getTarget();
+        $sm      = $app->getServiceManager();
+        /* @var $sm \Zend\ServiceManager\ServiceManager */
+        $sm->setFactory('vivo_service_manager', 'Vivo\Service\VivoServiceManagerFactory');
+        $vsm = $sm->get('vivo_service_manager');
+        $di = $sm->get('di');
+        $config = $sm->get('config');
+        $di->configure(new Config($config['vivo']['di']));
+        $vsm->setFactory('di_proxy', 'Vivo\Service\DiProxyFactory');
+    }
+
+    /**
+     * Creates the Vivo ServiceManager
+     */
+    protected function createVivoServiceManager()
+    {
+        //TODO configure using values from [vivo][service_manager] key in config
+        //TODO configure by loaded modules
+        $sm = new ServiceManager();
+        $sm->addPeeringServiceManager($serviceLocator);
+        return $sm;
+    }
+
+
 }

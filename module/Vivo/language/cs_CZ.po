@@ -32,7 +32,7 @@ msgstr "Všechna práva vyhrazena."
 #: ../view/application/index/index.phtml:2
 #, php-format
 msgid "Welcome to %sZend Framework 2%s"
-msgstr "Vítejte v %sZend Framework 2%s"
+msgstr "Vítejte v %sZend Frameworku 2%s"
 
 #: ../view/application/index/index.phtml:3
 #, php-format
@@ -41,7 +41,7 @@ msgstr "Blahopřejeme! Úspěšně jste nainstalovali %sZF2 Skeleton Application
 
 #: ../view/application/index/index.phtml:4
 msgid "Fork Zend Framework 2 on GitHub"
-msgstr "Fork Zend Framework 2 na GitHub"
+msgstr "Fork Zend Framework 2 na GitHubu"
 
 #: ../view/application/index/index.phtml:10
 msgid "Follow Development"
@@ -63,7 +63,7 @@ msgstr "Objevte Moduly"
 #: ../view/application/index/index.phtml:17
 #, php-format
 msgid "The community is working on developing a community site to serve as a repository and gallery for ZF2 modules. The project is available %son GitHub%s. The site is currently live and currently contains a list of some of the modules already available for ZF2."
-msgstr "Komunita pracuje na vývoji komunitního webu, který bude sloužit jako archiv a galerie modulů ZF2. Tento projekt je dostupný %sna GitHub%s. Web je aktuálně v provozu a obsahuje seznam některých již dostupných modulů ZF2."
+msgstr "Komunita pracuje na vývoji komunitního webu, který bude sloužit jako archiv a galerie modulů ZF2. Tento projekt je dostupný %sna GitHubu%s. Web je aktuálně v provozu a obsahuje seznam některých již dostupných modulů ZF2."
 
 #: ../view/application/index/index.phtml:18
 msgid "Explore ZF2 Modules"
@@ -115,7 +115,7 @@ msgid "No Exception available"
 msgstr "Žádná výjimka není k dispozici"
 
 #: ../view/error/404.phtml:1
-msgid "A 404 error occurred"
+msgid "An 404 error occurred"
 msgstr "Vyskytla se chyba 404"
 
 #: ../view/error/404.phtml:10

@@ -5,9 +5,11 @@ use Vivo\CMS;
 
 /**
  * Workflow factory.
+ *
  * @author tzajicek
  */
 class Factory {
+
 	/**
 	 * @var array
 	 */
@@ -22,14 +24,14 @@ class Factory {
 	 * @param string Workflow name
 	 * @return Vivo\CMS\Workflow
 	 */
-	static function get($type) {
+	public static function get($type) {
 		return self::$workflows[$type];
 	}
 
 	/**
 	 * @param Vivo\CMS\Workflow $workflow
 	 */
-	static function add($workflow) {
+	public static function add($workflow) {
 		self::$workflows[get_class($workflow)] = $workflow;
 	}
 

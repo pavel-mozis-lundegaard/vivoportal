@@ -5,14 +5,17 @@ namespace Vivo\CMS\Model;
  * Base class for all VIVO models.
  */
 class Content extends Entity {
+
 	/**
 	 * @var string Workflow state
 	 */
 	protected $state;
+
 	/**
 	 * @var DateTime Date for automatic state change by cron.
 	 */
 	protected $stateChange;
+
 	/**
 	 * @var bool
 	 */
@@ -20,6 +23,7 @@ class Content extends Entity {
 
 	/**
 	 * Setting default values.
+	 *
 	 * @param string $path Entity path.
 	 */
 	public function __construct($path = null) {
@@ -36,6 +40,7 @@ class Content extends Entity {
 
 	/**
 	 * Gets content version.
+	 *
 	 * @return int
 	 */
 	public function getVersion() {
@@ -44,6 +49,7 @@ class Content extends Entity {
 
 	/**
 	 * Sets version.
+	 *
 	 * @param int $version
 	 */
 	public function setVersion($version) {
@@ -52,6 +58,7 @@ class Content extends Entity {
 
 	/**
 	 * Gets content index. Index means number of a content in the Multicontent Document.
+	 *
 	 * @return int
 	 */
 	public function getIndex() {
@@ -60,6 +67,7 @@ class Content extends Entity {
 
 	/**
 	 * Returns relative path of the content.
+	 *
 	 * @return string Content relative path
 	 */
 	public function getRelativePath() {

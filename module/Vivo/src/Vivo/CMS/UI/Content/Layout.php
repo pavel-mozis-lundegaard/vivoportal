@@ -10,7 +10,7 @@ use Vivo\UI\ComponentContainer;
 use Vivo\CMS\UI\Component;
 
 /**
- * Layout UI component wrap the underlaying component to layout.
+ * Layout UI component wraps the underlaying component to layout.
  */
 class Layout extends Component
 {

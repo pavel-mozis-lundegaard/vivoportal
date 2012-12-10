@@ -16,65 +16,80 @@ class Document extends Folder {
 	const AVAILABLE = 2;
 
 	/**
-	 * URL of the document. If there is not specifically specified, the URL is always a straight pathto a document
+	 * URL of the document. If there is not specifically specified, URL is always a straight path to the document.
 	 * (relative to the root document ROOT).
+	 *
 	 * @var string
 	 */
-	protected $url; // specificka URL dokumentu
+	protected $url;
+
 	/**
 	 * @var bool URL takes precedence.
 	 *
-	 * Specificka URL ma prednost (je primarni)
+	 * Specific URL takes precedence (is primary)
 	 */
 	protected $urlPrecedence;
+
 	/**
 	 * @var string Page header.
 	 */
 	protected $heading;
+
 	/**
 	 * @var string Name in listings
 	 */
 	protected $overviewTitle;
+
 	/**
 	 * Keywords are used to describe content of the document. Keywords could make fulltext searches faster and more effective.
-	 * Please determine each word by comma.
+	 * Please separate each word by comma.
+	 *
 	 * @var string
 	 */
 	protected $keywords;
+
 	/**
-	 * Is used to display the contents of the document as a page, when you enter the URL on the front-end.
+	 * Is used to display the contents of the document as a page, when you open the URL on the front-end.
 	 * Settings (assignment) of the layout makes sense only for documents whose content is displayed in HTML format.
+	 *
 	 * @var string
 	 * @example Layouts/page/subpage
 	 */
-	protected $layout; // layout (cesta k dokumentu Layoutu)
+	protected $layout;
+
 	/**
 	 * @var array Panels in layout.
 	 */
 	protected $layoutPanels = array();
+
 	/**
 	 * If this property is set, the document will appear in the lists of sub-documents (subpages)
 	 * on the front-end (overviews, sitemaps, menu, navigation, etc.)
 	 * @var bool
 	 */
 	protected $navigable;
+
 	/**
-	 * @var bool If this property is set, changes in the contents of the document is automatically saved as a new version of the content.
+	 * @var bool If it's set, changes in contents of the document is automatically saved as a new version of the content.
 	 */
 	protected $autoVersioning = false;
+
 	/**
 	 * @var bool Secured (HTTPS required)
 	 */
 	protected $secured;
+
 	/**
 	 * Attributes for link tag (A).
 	 * @var array
 	 */
 	protected $linkAttributes = array();
+
 	/**
 	 * @var array Use document as vocabulary term in Vocalbulary content types
 	 */
 	protected $vocabularies;
+
 	/**
 	 * Expiration of the contents of the document - if set, the output display of the contents of the document
 	 * is saved to cache and will be displayed within the expiration period from there.
@@ -83,32 +98,40 @@ class Document extends Folder {
 	 * @var int Expiration (in seconds)
 	 */
 	protected $expiration;
+
 	/**
 	 * @var string Forkflow class full name.
 	 * @example Vivo\CMS\Workflow\Basic
 	 */
 	protected $workflow;
+
 	/**
 	 * Resource image name.
 	 * Image could be shown for instance in document listings if template of the listings supports it.
+	 *
 	 * @var string
 	 * @example image.jpg
 	 */
 	protected $image;
+
 	/**
-	 * Date and time the document was actually published. Typically it is used for articles, newsletters and press releases.
-	 * Unless explicitly specified otherwise, the system fills in the date of the creation of the document in the system.
+	 * Date and time when the document was published. Typically it is used for articles, newsletters and press releases.
+	 * Unless explicitly specified otherwise, the system fills in the date of creation of the document in the system.
+	 *
 	 * @var DateTime
 	 */
-	protected $published; // logicke datum vydani (nezamenovat s publikaci obsahu)
+	protected $published;
+
 	/**
 	 * Name of the person who actually created the document. It is used typically for articles, newsletters and press releases.
 	 * Unless explicitly specified otherwise, the system fills in a name of the logged editor.
 	 * @var string
 	 */
 	protected $author;
+
 	/**
 	 * Internal publising notices
+	 *
 	 * @var string
 	 */
 	protected $internalNotice;
@@ -123,6 +146,7 @@ class Document extends Folder {
 
 	/**
 	 * Page header. If heading is not set, default document name will be returned.
+	 *
 	 * @return string
 	 */
 	public function getHeading() {
@@ -131,6 +155,7 @@ class Document extends Folder {
 
 	/**
 	 * Document overview title. If overview title is not set, document title will be returned.
+	 *
 	 * @return string
 	 */
 	public function getOverviewTitle() {
@@ -151,6 +176,7 @@ class Document extends Folder {
 
 	/**
 	 * Returns a key chain for indexer. Through this chain, the document sought.
+	 *
 	 * @param array $field_names Field names will be indexed.
 	 * @return string
 	 */
@@ -169,6 +195,7 @@ class Document extends Folder {
 	 *			'Vivo\CMS\Model\Content\Component:MyProject\CMS\UI\Content\MyComponent
 	 *		);
 	 * </code>
+	 *
 	 * @return null|array
 	 */
 	public function getMultiContentTypes() {
@@ -181,11 +208,12 @@ class Document extends Folder {
 
 	/**
 	 * Returns path of layout document.
+	 *
 	 * @return string
 	 */
 	public function getLayout()
 	{
-        return $this->layout;
+		return $this->layout;
 	}
 
 	public function getLayoutPanels()

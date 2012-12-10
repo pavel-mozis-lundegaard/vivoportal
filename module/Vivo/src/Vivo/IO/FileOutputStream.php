@@ -39,6 +39,7 @@ class FileOutputStream implements OutputStreamInterface, CloseableInterface
 
     /**
      * Writes data to the stream.
+     *
      * @param string $data
      * @throws Exception\RuntimeException
      * @return integer
@@ -63,6 +64,8 @@ class FileOutputStream implements OutputStreamInterface, CloseableInterface
     }
 
     /**
+     * Returns true if stream is still open, false otherwise
+     *
      * @return boolean
      */
     public function isClosed()

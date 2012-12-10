@@ -8,27 +8,33 @@ use Vivo\CMS\Security\Manager;
  * According to assign the groups into the roles allowed to view the document for visitor editing or viewing in backend etc.
  */
 class Security {
+
 	/**
-	 * Assign users respectively user groups to roles.
+	 * Assigned users respectively user groups to roles.
 	 * <code>
 	 * 'rolename' => array('user_or_group1', ..., 'user_or_groupX')
 	 * </code>
+	 *
 	 * @var array Associative array.
 	 */
 	public $roles = array();
+
 	/**
 	 * Explicit granting access rights to users or user groups.
 	 * <code>
 	 * 'access_right' => array('user_or_group1', ..., 'user_or_groupX')
 	 * </code>
+	 *
 	 * @var array Associative array.
 	 */
 	public $allow = array();
+
 	/**
 	 * Explicit denial access rights to users or user groups.
 	 * <dode>
 	 * 'access_right' => array('user_or_group1', ..., 'user_or_groupX')
 	 * </code>
+	 *
 	 * @var array Associative array.
 	 */
 	public $deny = array();
@@ -46,6 +52,7 @@ class Security {
 
 	/**
 	 * Get groups from roles, allow and deny arrays.
+	 *
 	 * @return array
 	 */
 	public function getGroups() {
@@ -65,5 +72,3 @@ class Security {
 	}
 
 }
-
-

@@ -5,9 +5,11 @@ namespace Vivo\CMS\Workflow;
 
 /**
  * Basic workflow implementation (default or the one and only if you like).
+ *
  * @author miroslav.hajek
  */
 class Basic extends AbstractWorkflow {
+
 	/**
 	 * Associative array where keys are workflow states and values are all groups.
 	 * @var array
@@ -17,7 +19,7 @@ class Basic extends AbstractWorkflow {
 	/**
 	 * @param array Associative array where keys are workflow states and values are groups.
 	 */
-	function __construct($parameters) {
+	public function __construct($parameters) {
 		$this->parameters = $parameters;
 	}
 

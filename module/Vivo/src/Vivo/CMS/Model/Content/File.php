@@ -38,6 +38,7 @@ class File extends Model\Content
     }
     /**
      * Returns file mimetype.
+     *
      * @return string
      */
     public function getMimeType() {
@@ -46,6 +47,7 @@ class File extends Model\Content
 
     /**
      * Retuns the original file name.
+     *
      * @return string
      */
     public function getFilename()

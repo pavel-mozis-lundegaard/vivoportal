@@ -2,10 +2,10 @@
 namespace Vivo\Indexer\Adapter;
 
 use Vivo\Indexer\Query;
-use Vivo\Indexer\QueryHit;
-use Vivo\TransactionalInterface;
-use Vivo\Indexer\Term as IndexTerm;
 use Vivo\Indexer\Document;
+use Vivo\Indexer\Result;
+use Vivo\Indexer\QueryParams;
+use Vivo\TransactionalInterface;
 
 /**
  * AdapterInterface
@@ -16,9 +16,10 @@ interface AdapterInterface extends TransactionalInterface
      * Finds documents matching the query in the index and returns an array of query hits
      * If there are no documents found, returns an empty array
      * @param \Vivo\Indexer\Query\QueryInterface $query
-     * @return QueryHit[]
+     * @param \Vivo\Indexer\QueryParams $queryParams
+     * @return Result
      */
-    public function find(Query\QueryInterface $query);
+    public function find(Query\QueryInterface $query, QueryParams $queryParams);
 
     /**
      * Deletes documents from the index
@@ -26,6 +27,12 @@ interface AdapterInterface extends TransactionalInterface
      * @return void
      */
     public function delete(Query\QueryInterface $query);
+
+    /**
+     * Deletes document by its unique ID
+     * @param string $docId
+     */
+    public function deleteById($docId);
 
     /**
      * Adds a document into the index

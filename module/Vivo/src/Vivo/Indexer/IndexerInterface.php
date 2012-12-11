@@ -11,9 +11,10 @@ interface IndexerInterface extends  TransactionalInterface
     /**
      * Returns an array of hits
      * @param Query\QueryInterface $query
-     * @return QueryHit[]
+     * @param QueryParams $queryParams
+     * @return Result
      */
-    public function find(Query\QueryInterface $query);
+    public function find(Query\QueryInterface $query, QueryParams $queryParams);
 
     /**
      * Deletes documents identified by a query from the index

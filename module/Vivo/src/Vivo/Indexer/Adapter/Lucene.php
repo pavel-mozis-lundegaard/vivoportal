@@ -47,6 +47,66 @@ class Lucene implements AdapterInterface
      */
     protected $commitOnDestruct = true;
 
+
+
+//if ($isBinary) {
+//$this->isTokenized  = false;
+//$this->isStored     = true;
+//$this->isIndexed    = false;
+//} else {
+//    $this->isTokenized  = $isTokenized;
+//    $this->isStored     = $isStored;
+//    $this->isIndexed    = $isIndexed;
+//}
+//$this->isBinary  = $isBinary;
+
+//    /**
+//     * Is the field binary?
+//     * @return boolean
+//     */
+//    public function isBinary()
+//    {
+//        return $this->isBinary;
+//    }
+//
+//    /**
+//     * Is the field indexed?
+//     * @return boolean
+//     */
+//    public function isIndexed()
+//    {
+//        return $this->isIndexed;
+//    }
+//
+//    /**
+//     * Is the field stored?
+//     * @return boolean
+//     */
+//    public function isStored()
+//    {
+//        return $this->isStored;
+//    }
+//
+//    /**
+//     * Is the field tokenized?
+//     * @return boolean
+//     */
+//    public function isTokenized()
+//    {
+//        return $this->isTokenized;
+//    }
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Constructor
      * @param \ZendSearch\Lucene\SearchIndexInterface $index
@@ -344,6 +404,7 @@ class Lucene implements AdapterInterface
         } elseif ($query instanceof Query\BooleanInterface) {
             //Boolean query
             /* @var $query Query\BooleanInterface */
+
             $subqueries     = $query->getSubqueries();
             $signs          = $query->getSigns();
             $luceneQuery    = new SearchLucene\Search\Query\Boolean();

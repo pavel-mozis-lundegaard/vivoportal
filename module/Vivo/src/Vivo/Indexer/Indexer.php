@@ -26,11 +26,12 @@ class Indexer implements IndexerInterface
     /**
      * Returns an array of hits
      * @param Query\QueryInterface $query
-     * @return QueryHit[]
+     * @param QueryParams $queryParams
+     * @return Result
      */
-    public function find(Query\QueryInterface $query)
+    public function find(Query\QueryInterface $query, QueryParams $queryParams)
 	{
-        return $this->adapter->find($query);
+        return $this->adapter->find($query, $queryParams);
 	}
 
     /**

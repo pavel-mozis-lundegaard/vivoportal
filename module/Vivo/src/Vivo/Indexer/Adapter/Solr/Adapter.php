@@ -3,10 +3,11 @@ namespace Vivo\Indexer\Adapter\Solr;
 
 use Vivo\Indexer\Adapter\Solr\Document as SolrDocument;
 use Vivo\Indexer\Adapter\AdapterInterface;
+use Vivo\Indexer\Result;
 use Vivo\Indexer\QueryHit;
 use Vivo\Indexer\Query;
-use Vivo\Indexer\Term as IndexTerm;
 use Vivo\Indexer\Document;
+use Vivo\Indexer\QueryParams;
 use Vivo\Indexer\Adapter\Solr\Service as SolrService;
 
 /**
@@ -46,26 +47,33 @@ class Adapter implements AdapterInterface
      * Finds documents matching the query in the index and returns an array of query hits
      * If there are no documents found, returns an empty array
      * @param \Vivo\Indexer\Query\QueryInterface $query
-     * @return QueryHit[]
+     * @param \Vivo\Indexer\QueryParams $queryParams
+     * @return Result
      */
-    public function find(Query\QueryInterface $query)
+    public function find(Query\QueryInterface $query, QueryParams $queryParams)
     {
         $solrQuery  = $this->buildSolrQuery($query);
-        $result     = $this->solrService->search($solrQuery);
-        $numOfHits  = $result->response->numFound;
+        $solrParams = array('fl' => '*,score');
+        $solrResult = $this->solrService->search($solrQuery,
+                                                 $queryParams->getStartOffset(),
+                                                 $queryParams->getPageSize(),
+                                                 $solrParams);
+        $totalHits  = $solrResult->response->numFound;
+        $resultSize = count($solrResult->response->docs);
         $hits           = array();
-        for ($i = 0; $i < $numOfHits; $i++) {
+        for ($i = 0; $i < $resultSize; $i++) {
             /** @var $solrDoc SolrDocument */
-            $solrDoc    = $result->response->docs[$i];
+            $solrDoc    = $solrResult->response->docs[$i];
             $doc        = new Document();
             foreach ($solrDoc as $fieldName =>  $fieldValue) {
                 $field  = new \Vivo\Indexer\Field($fieldName, $fieldValue);
                 $doc->addField($field);
             }
-            $hit        = new QueryHit($i, 0, $doc);
+            $hit        = new QueryHit($i, $doc->getFieldValue('score'), $doc);
             $hits[]     = $hit;
         }
-        return $hits;
+        $result     = new Result($hits, $totalHits, $queryParams);
+        return $result;
     }
 
     /**
@@ -141,6 +149,7 @@ class Adapter implements AdapterInterface
 
     public function commit()
     {
+        //TODO - commit delete
         //Delete documents
 //        foreach ($this->deleteIds as $deleteId) {
 //            try {
@@ -178,39 +187,50 @@ class Adapter implements AdapterInterface
             /* @var $query Query\TermInterface */
             $term           = $query->getTerm();
             if ($term->getField()) {
-                $solrQuery      = sprintf('%s:"%s"', $term->getField(), $term->getText());
+                $solrQuery      = sprintf('%s:%s', $term->getField(), $term->getText());
             } else {
-                $solrQuery      = $term->getText();
+                $solrQuery      = sprintf('%s', $term->getText());
             }
         } elseif ($query instanceof Query\MultiTermInterface) {
-            throw new \Exception(sprintf('Multiterm query not implemented', __METHOD__));
             //Multi-term query
             /* @var $query Query\MultiTermInterface */
             $terms          = $query->getTerms();
             $signs          = $query->getSigns();
-            $luceneQuery    = new SearchLucene\Search\Query\MultiTerm();
+            $solrQuery      = '';
             foreach ($terms as $id => $term) {
-                $luceneTerm = new SearchLucene\Index\Term($term->getText(), $term->getField());
-                $luceneQuery->addTerm($luceneTerm, $signs[$id]);
+                $sign       = $signs[$id] ? '+' : '-';
+                if ($term->getField()) {
+                    $term       = sprintf('%s%s:%s ', $sign, $term->getField(), $term->getText());
+                } else {
+                    $term       = sprintf('%s%s ', $sign, $term->getText());
+                }
+                $solrQuery  .= $term;
             }
         } elseif ($query instanceof Query\WildcardInterface) {
-            throw new \Exception(sprintf('Wildcard query not implemented', __METHOD__));
             //Wildcard query
             /* @var $query Query\WildcardInterface */
             $pattern        = $query->getPattern();
-            $luceneTerm     = new SearchLucene\Index\Term($pattern->getText(), $pattern->getField());
-            $luceneQuery    = new SearchLucene\Search\Query\Wildcard($luceneTerm);
-        } elseif ($query instanceof Query\BooleanInterface) {
-            throw new \Exception(sprintf('Boolean query not implemented', __METHOD__));
-            //Boolean query
-            /* @var $query Query\BooleanInterface */
-            $subqueries     = $query->getSubqueries();
-            $signs          = $query->getSigns();
-            $luceneQuery    = new SearchLucene\Search\Query\Boolean();
-            foreach ($subqueries as $id => $subquery) {
-                $luceneSubquery = $this->buildLuceneQuery($subquery);
-                $luceneQuery->addSubquery($luceneSubquery, $signs[$id]);
+            if ($pattern->getField()) {
+                $solrQuery      = sprintf('%s:%s', $pattern->getField(), $pattern->getText());
+            } else {
+                $solrQuery      = $pattern->getText();
             }
+        } elseif ($query instanceof Query\BooleanAnd) {
+            //Boolean AND query
+            /* @var $query Query\BooleanAnd */
+            $solrQueryLeft  = $this->buildSolrQuery($query->getQueryLeft());
+            $solrQueryRight = $this->buildSolrQuery($query->getQueryRight());
+            $solrQuery      = sprintf('(%s AND %s)', $solrQueryLeft, $solrQueryRight);
+        } elseif ($query instanceof Query\BooleanOr) {
+            //Boolean OR query
+            /* @var $query Query\BooleanOr */
+            $solrQueryLeft  = $this->buildSolrQuery($query->getQueryLeft());
+            $solrQueryRight = $this->buildSolrQuery($query->getQueryRight());
+            $solrQuery      = sprintf('(%s OR %s)', $solrQueryLeft, $solrQueryRight);
+        } elseif ($query instanceof Query\BooleanNot) {
+            //Boolean NOT query
+            /* @var $query Query\BooleanNot */
+            $solrQuery      = sprintf('(NOT %s)', $query->getQuery());
         } else {
             //Unsupported type of query
             throw new Exception\InvalidArgumentException(sprintf("%s: Unsupported query type '%s'",
@@ -248,7 +268,15 @@ class Adapter implements AdapterInterface
         $solrDoc    = new SolrDocument();
         /** @var $field \Vivo\Indexer\Field */
         foreach ($doc as $field) {
-            $solrDoc->addField($field->getName(), $field->getValue());
+            if ($field->isMultiValued()) {
+                //MultiValued field
+                foreach ($field->getValue() as $singleValue) {
+                    $solrDoc->addField($field->getName(), $singleValue);
+                }
+            } else {
+                //SingleValued field
+                $solrDoc->addField($field->getName(), $field->getValue());
+            }
         }
         return $solrDoc;
     }

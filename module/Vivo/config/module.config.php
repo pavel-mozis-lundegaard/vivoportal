@@ -81,6 +81,8 @@ return array(
             'response' => 'Vivo\Service\ResponseFactory',
             'di' => 'Vivo\Service\DiFactory',
             'db_service_manager'    => 'Vivo\Service\DbServiceManagerFactory',
+            'solr_service'          => 'Vivo\Service\SolrServiceFactory',
+            'indexer_adapter_solr'  => 'Vivo\Service\SolrAdapterFactory',
         ),
         'aliases' => array(
                 'Vivo\SiteManager\Event\SiteEvent' => 'site_event',

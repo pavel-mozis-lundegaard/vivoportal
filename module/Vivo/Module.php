@@ -379,15 +379,15 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                 'vivo_service_manager' => function (ServiceManager $sm) {
                     throw new Exception('Vivo service manager is not available until site and modules are loaded.');
                 },
-                'solr'                      => function(ServiceManager $sm) {
-                    $service                = new \Vivo\Indexer\Adapter\Solr\Service('localhost', 8983, '/solr/');
-                    return $service;
-                },
-                'indexer_adapter_solr'      => function(ServiceManager $sm) {
-                    $solr               = $sm->get('solr');
-                    $adapter            = new \Vivo\Indexer\Adapter\Solr\Adapter($solr);
-                    return $adapter;
-                },
+//                'solr'                      => function(ServiceManager $sm) {
+//                    $service                = new \Vivo\Indexer\Adapter\Solr\Service('localhost', 8983, '/solr/');
+//                    return $service;
+//                },
+//                'indexer_adapter_solr'      => function(ServiceManager $sm) {
+//                    $solr               = $sm->get('solr');
+//                    $adapter            = new \Vivo\Indexer\Adapter\Solr\Adapter($solr);
+//                    return $adapter;
+//                },
             ),
         );
     }

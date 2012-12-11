@@ -18,7 +18,7 @@ class MultiTerm implements MultiTermInterface
 
     /**
      * Indexed array containing signs for the terms
-     * true = required, false = prohibited, null = neither required nor prohibited
+     * true = required, false = prohibited
      * @var boolean[]
      */
     protected $signs    = array();
@@ -42,12 +42,10 @@ class MultiTerm implements MultiTermInterface
     /**
      * Adds a term into query
      * @param \Vivo\Indexer\Term $term
-     * @param boolean|null $sign true = required, false = prohibited, null = neither required nor prohibited
+     * @param boolean $sign true = required, false = prohibited
      */
-    public function addTerm(IndexTerm $term, $sign = null) {
-        if (!is_null($sign)) {
-            $sign   = (bool)$sign;
-        }
+    public function addTerm(IndexTerm $term, $sign = true) {
+        $sign           = (bool)$sign;
         $this->terms[]  = $term;
         $this->signs[]  = $sign;
     }

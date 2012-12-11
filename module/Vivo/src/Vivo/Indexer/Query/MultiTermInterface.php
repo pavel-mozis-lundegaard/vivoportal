@@ -12,9 +12,9 @@ interface MultiTermInterface extends QueryInterface
     /**
      * Adds a term into query
      * @param IndexTerm $term
-     * @param boolean|null $sign true = required, false = prohibited, null = neither required nor prohibited
+     * @param boolean $sign true = required, false = prohibited
      */
-    public function addTerm(IndexTerm $term, $sign = null);
+    public function addTerm(IndexTerm $term, $sign = true);
 
     /**
      * Returns query terms in an indexed array

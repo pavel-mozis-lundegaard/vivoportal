@@ -34,77 +34,21 @@ class Indexer implements IndexerInterface
 	}
 
     /**
-     * Finds documents based on a term (returns docIds)
-     * This is usually faster than find()
-     * Returns an array of document ids, if no documents are found, returns an empty array
-     * @param Term $term
-     * @return array
-     */
-    public function termDocs(Term $term)
-    {
-        return $this->adapter->termDocs($term);
-    }
-
-    /**
-     * Finds documents based on a term (returns document objects)
-     * This is usually faster than find()
-     * Returns an array of document objects, if no documents are found, returns an empty array
-     * @param Term $term
-     * @return Document[]
-     */
-    public function termDocsObj(Term $term)
-    {
-        $docIds = $this->termDocs($term);
-        $docs   = array();
-        foreach ($docIds as $docId) {
-            $doc    = $this->getDocument($docId);
-            $docs[] = $doc;
-        }
-        return $docs;
-    }
-
-    /**
      * Deletes documents identified by a query from the index
      * @param Query\QueryInterface $query
      */
     public function delete(Query\QueryInterface $query)
     {
-        $hits   = $this->find($query);
-        foreach ($hits as $hit) {
-            $this->removeDocument($hit->getDocId());
-        }
+        $this->adapter->delete($query);
     }
 
     /**
-     * Deletes documents identified by a term from the index (faster than delete())
-     * @param Term $term
+     * Adds a document into index
+     * @param Document $document
      */
-    public function deleteByTerm(Term $term)
+    public function addDocument(Document $document)
     {
-        $docIds = $this->termDocs($term);
-        foreach ($docIds as $docId) {
-            $this->removeDocument(($docId));
-        }
-    }
-
-    /**
-     * Returns a document by its ID
-     * If the document with this ID does not exist, returns null
-     * @param string $docId
-     * @return null|Document
-     */
-    public function getDocument($docId)
-    {
-        return $this->adapter->getDocument($docId);
-    }
-
-    /**
-     * Deletes a document from the index
-     * @param string $docId
-     */
-    public function removeDocument($docId)
-    {
-        $this->adapter->deleteDocument($docId);
+        $this->adapter->addDocument($document);
     }
 
     /**
@@ -175,14 +119,5 @@ class Indexer implements IndexerInterface
     {
         $deletedCount   = $this->getDocumentCountAll() - $this->getDocumentCountUndeleted();
         return $deletedCount;
-    }
-
-    /**
-     * Adds a document into index
-     * @param Document $document
-     */
-    public function addDocument(Document $document)
-    {
-        $this->adapter->addDocument($document);
     }
 }

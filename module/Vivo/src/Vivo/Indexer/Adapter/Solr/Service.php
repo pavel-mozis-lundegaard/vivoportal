@@ -47,7 +47,7 @@ namespace Vivo\Indexer\Adapter\Solr;
  * {
  * 		$solr->deleteByQuery('*:*'); //deletes ALL documents - be careful :)
  *
- * 		$document = new Apache_Solr_Document();
+ * 		$document = new Document();
  * 		$document->id = uniqid(); //or something else suitably unique
  *
  * 		$document->title = 'Some Title';

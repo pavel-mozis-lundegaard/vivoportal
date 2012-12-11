@@ -1,6 +1,6 @@
 <?php
 /**
- * Main CMS config, can be splited to the topic related files in future.
+ * Main CMS config, can be splited to the topic related files in the future.
  *
  */
 return array(
@@ -74,13 +74,18 @@ return array(
             ),
         ),
     ),
-
     'service_manager' => array(
         'allow_override' => true,
         'factories' => array(
             'translator' => 'Zend\I18n\Translator\TranslatorServiceFactory',
-            'response' => 'Vivo\Mvc\Service\ResponseFactory',
-
+            'response' => 'Vivo\Service\ResponseFactory',
+            'di' => 'Vivo\Service\DiFactory',
+            'db_service_manager'    => 'Vivo\Service\DbServiceManagerFactory',
+        ),
+        'aliases' => array(
+                'Vivo\SiteManager\Event\SiteEvent' => 'site_event',
+                'Zend\Http\Response' => 'response',
+                'Zend\View\HelperPluginManager' => 'view_helper_manager',
         ),
     ),
     'translator' => array(
@@ -151,6 +156,38 @@ return array(
                 'default_type'  => 'resource',
             ),
         ),
+        'db_service'    => array(
+            'abstract_factory'  => array(
+                //PDO
+                'pdo'       => array(
+                    'service_identifier'    => 'pdo',
+                    //The PDO connections are defined in a local config
+                    /*
+                    'config'                => array(
+                        'config_name'    => array(
+                            'dsn'       => '',
+                            'username'  => '',
+                            'password'  => '',
+                            'options'   => array(
+                            ),
+                        ),
+                    ),
+                    */
+                ),
+                //Doctrine
+                'dem'  => array(
+                    'service_identifier'    => 'dem',
+                ),
+                //Zend DB Adapter
+                'zdb'  => array(
+                    'service_identifier'    => 'zdb',
+                ),
+            ),
+        ),
+        'module_install_manager'    => array(
+            //Default db source is configured in a local config
+            //'default_db_source'     => '',
+        ),
         'cms'       => array(
             'repository'    => array(
             ),
@@ -178,53 +215,53 @@ return array(
 
             ),
         ),
-
-        'ui_di' => array(
+        'service_manager' => array (
+        //configuration of modules service manager
+        ),
+        'di' => array (
             'instance' => array (
-                        'alias' => array (
-                                'viewModel' =>  'Vivo\View\Model\UIViewModel',
-                                'viewHelpers' =>  'Zend\View\HelperPluginManager',
-                        ),
-                        'viewModel' => array (
-                                'shared' => false, //new viewModel for each UI/component
-                        ),
-                        'Vivo\UI\Component' => array (
-                                'parameters' => array (
-                                        'view' => 'viewModel',
-                                ),
-                        ),
-                        'Vivo\UI\Page' => array (
-                            'parameters' => array (
-                                'doctype' => 'HTML5',
-                                //globaly defined links and scripts
-                                'links' => array (
-                                    array(
-                                        'rel'  => 'stylesheet',
-                                        'href' => '/.ModuleName.resource/css/definedInVivoConfig.css',
-                                        'type' => 'text/css',
-                                        'media' => 'screen'
-                                    ),
-                                 ),
-                                 'scripts' => array (
-                                         array(
-                                                 'src' => '/.ModuleName.resource/js/front.js',
-                                                 'type' => 'text/javascript',
-                                         ),
-                                 ),
-
-                                'metas' => array (
-                                     array (
-                                         'name' => 'Robots',
-                                         'content' => 'INDEX,FOLLOW',
-                                     ),
-                                     array (
-                                             'charset' => 'UTF-8',
-                                     ),
-                                 ),
-                                 'viewHelpers' => 'Zend\View\HelperPluginManager',
-                                ),
-                        ),
+                'alias' => array (
+                    'viewModel' =>  'Vivo\View\Model\UIViewModel',
                 ),
+                'viewModel' => array (
+                    'shared' => false, //new viewModel for each UI/component
+                ),
+                'Vivo\UI\Component' => array (
+                    'parameters' => array (
+                        'view' => 'viewModel',
+                    ),
+                ),
+                'Vivo\UI\Page' => array (
+                    'parameters' => array (
+                        'doctype' => 'HTML5',
+                        //globaly defined links and scripts
+                        'links' => array (
+                            array(
+                                'rel'  => 'stylesheet',
+                                'href' => '/.ModuleName.resource/css/definedInVivoConfig.css',
+                                'type' => 'text/css',
+                                'media' => 'screen'
+                            ),
+                        ),
+                        'scripts' => array (
+                            array(
+                                'src' => '/.ModuleName.resource/js/front.js',
+                                'type' => 'text/javascript',
+                            ),
+                        ),
+                        'metas' => array (
+                            array (
+                                'name' => 'Robots',
+                                'content' => 'INDEX,FOLLOW',
+                            ),
+                            array (
+                                'charset' => 'UTF-8',
+                            ),
+                        ),
+                        'viewHelpers' => 'Zend\View\HelperPluginManager',
+                    ),
+                ),
+            ),
         ),
 
     ),
@@ -255,6 +292,78 @@ return array(
                         'defaults' => array(
                             'controller' => 'CLI\Module',
                             'action'     => 'add',
+                        ),
+                    ),
+                ),
+                'module_install' => array(
+                    'options' => array(
+                        'route'    => 'module install <module_name> [<site>]',
+                        'defaults' => array(
+                            'controller' => 'CLI\Module',
+                            'action'     => 'install',
+                        ),
+                    ),
+                ),
+                'module_uninstall' => array(
+                    'options' => array(
+                        'route'    => 'module uninstall <module_name> [<site>]',
+                        'defaults' => array(
+                            'controller' => 'CLI\Module',
+                            'action'     => 'uninstall',
+                        ),
+                    ),
+                ),
+                'module_enable' => array(
+                    'options' => array(
+                        'route'    => 'module enable <module_name> [<site>]',
+                        'defaults' => array(
+                            'controller' => 'CLI\Module',
+                            'action'     => 'enable',
+                        ),
+                    ),
+                ),
+                'module_disable' => array(
+                    'options' => array(
+                        'route'    => 'module disable <module_name> [<site>]',
+                        'defaults' => array(
+                            'controller' => 'CLI\Module',
+                            'action'     => 'disable',
+                        ),
+                    ),
+                ),
+                'module_is_installed' => array(
+                    'options' => array(
+                        'route'    => 'module isinstalled <module_name> [<site>]',
+                        'defaults' => array(
+                            'controller' => 'CLI\Module',
+                            'action'     => 'isInstalled',
+                        ),
+                    ),
+                ),
+                'module_is_enabled' => array(
+                    'options' => array(
+                        'route'    => 'module isenabled <module_name> [<site>]',
+                        'defaults' => array(
+                            'controller' => 'CLI\Module',
+                            'action'     => 'isEnabled',
+                        ),
+                    ),
+                ),
+                'module_get_installed' => array(
+                    'options' => array(
+                        'route'    => 'module getinstalled [<site>]',
+                        'defaults' => array(
+                            'controller' => 'CLI\Module',
+                            'action'     => 'getInstalled',
+                        ),
+                    ),
+                ),
+                'module_get_enabled' => array(
+                    'options' => array(
+                        'route'    => 'module getenabled [<site>]',
+                        'defaults' => array(
+                            'controller' => 'CLI\Module',
+                            'action'     => 'getEnabled',
                         ),
                     ),
                 ),

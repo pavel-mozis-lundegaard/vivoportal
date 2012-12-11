@@ -103,7 +103,7 @@ class ResourceManagerTest extends \PHPUnit_Framework_TestCase
             ->method('getFileStream')
             ->with($moduleName, $fullPath)
             ->will($this->returnValue($stream));
-        $streamRead = $this->resourceManager->getResourceStream($moduleName, $pathToRsc, $type);
+        $streamRead = $this->resourceManager->readResource($moduleName, $pathToRsc, $type);
         $this->assertSame($stream, $streamRead);
     }
 

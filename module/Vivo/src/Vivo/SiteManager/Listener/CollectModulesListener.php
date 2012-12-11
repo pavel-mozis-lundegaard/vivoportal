@@ -75,7 +75,12 @@ class CollectModulesListener implements ListenerAggregateInterface
         $siteConfig = $e->getSiteConfig();
         if ($siteConfig && isset($siteConfig['modules']['site_modules'])) {
             //Add modules required by site to the module stack
-            $this->addMissingValues($this->modules, $siteConfig['modules']['site_modules']);
+            $siteModules    = $siteConfig['modules']['site_modules'];
+            foreach ($siteModules as $moduleName => $moduleConfig) {
+                if ($moduleConfig['enabled']) {
+                    $this->addMissingValue($this->modules, $moduleName);
+                }
+            }
         }
         //Add modules from dependencies
         $this->addMissingDependencies($this->modules);
@@ -115,6 +120,18 @@ class CollectModulesListener implements ListenerAggregateInterface
     }
 
     /**
+     * Adds a value to the base array if it is missing there
+     * @param array $base
+     * @param string $value
+     */
+    protected function addMissingValue(array &$base, $value)
+    {
+        if (!in_array($value, $base)) {
+            $base[] = $value;
+        }
+    }
+
+    /**
      * Adds missing values from toAdd array to the base array
      * @param array $base
      * @param array $toAdd
@@ -122,9 +139,7 @@ class CollectModulesListener implements ListenerAggregateInterface
     protected function addMissingValues(array &$base, array $toAdd)
     {
         foreach ($toAdd as $value) {
-            if (!in_array($value, $base)) {
-                $base[] = $value;
-            }
+            $this->addMissingValue($base, $value);
         }
     }
 }

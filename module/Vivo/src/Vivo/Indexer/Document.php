@@ -1,11 +1,13 @@
 <?php
 namespace Vivo\Indexer;
 
+use \ArrayObject;
+
 /**
  * Document
  * Document stored into index / retrieved from index
  */
-class Document
+class Document implements DocumentInterface
 {
     /**
      * Array of document fields
@@ -69,5 +71,20 @@ class Document
     {
         $field  = $this->getField($filedName);
         return $field->getValue();
+    }
+
+    /**
+     * IteratorAggregate implementation function. Allows usage:
+     * <code>
+     * foreach ($document as $key => $value)
+     * {
+     * 	...
+     * }
+     * </code>
+     */
+    public function getIterator()
+    {
+        $arrayObject = new ArrayObject($this->fields);
+        return $arrayObject->getIterator();
     }
 }

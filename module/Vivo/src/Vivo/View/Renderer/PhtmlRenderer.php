@@ -30,7 +30,8 @@ class PhtmlRenderer implements Renderer
     }
 
     /**
-     * Set the resolver used to map a template name to a resource the renderer may consume.
+     * Sets the resolver used to map template name to resource the renderer may consume.
+     * ^ muzu pls cesky? :)
      *
      * @param  ResolverInterface $resolver
      * @return RendererInterface
@@ -38,6 +39,7 @@ class PhtmlRenderer implements Renderer
     public function setResolver(ResolverInterface $resolver) {
         $this->resolver = $resolver;
     }
+
     /**
      * Returns currently rendered model.
      */
@@ -47,6 +49,7 @@ class PhtmlRenderer implements Renderer
 
     /**
      * Sets currently rendered model.
+     *
      * @param ModelInterface $model
      */
     private function setCurrentModel(ModelInterface $model = null) {
@@ -132,7 +135,7 @@ class PhtmlRenderer implements Renderer
     }
 
     /**
-     * Set helper plugin manager instance
+     * Sets helper plugin manager instance
      *
      * @param  string|HelperPluginManager $helpers
      * @return PhpRenderer
@@ -162,7 +165,7 @@ class PhtmlRenderer implements Renderer
     }
 
     /**
-     * Get helper plugin manager instance
+     * Gets helper plugin manager instance
      *
      * @return HelperPluginManager
      */
@@ -175,7 +178,7 @@ class PhtmlRenderer implements Renderer
     }
 
     /**
-     * Get plugin instance
+     * Gets plugin instance
      *
      * @param  string     $name Name of plugin to return
      * @param  null|array $options Options to pass to plugin constructor (if not already instantiated)
@@ -189,7 +192,7 @@ class PhtmlRenderer implements Renderer
     /**
      * Overloading: proxy to helpers
      *
-     * Proxies to the attached plugin manager to retrieve, return, and potentially
+     * Proxies attached to the plugin manager to retrieve, return, and potentially
      * execute helpers.
      *
      * * If the helper does not define __invoke, it will be returned

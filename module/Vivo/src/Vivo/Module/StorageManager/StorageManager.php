@@ -341,12 +341,19 @@ class StorageManager
      * Returns contents of a file in module storage
      * @param string $moduleName
      * @param string $pathInModule
+     * @throws Exception\FileNotFoundException
      * @return string
      */
     public function getFileData($moduleName, $pathInModule)
     {
         $fullPath   = $this->getFullPathToFile($moduleName, $pathInModule);
-        $data       = $this->storage->get($fullPath);
+        try {
+            $data       = $this->storage->get($fullPath);
+        } catch (\Vivo\Storage\Exception\IOException $e) {
+            $localException = new Exception\FileNotFoundException(
+                sprintf("%s: File '%s' not found in module '%s'", __METHOD__, $pathInModule, $moduleName), 0, $e);
+            throw $localException;
+        }
         return $data;
     }
 
@@ -354,12 +361,19 @@ class StorageManager
      * Returns stream for a file in module storage
      * @param string $moduleName
      * @param string $pathInModule
+     * @throws Exception\FileNotFoundException
      * @return \Vivo\IO\InputStreamInterface
      */
     public function getFileStream($moduleName, $pathInModule)
     {
         $fullPath   = $this->getFullPathToFile($moduleName, $pathInModule);
-        $stream     = $this->storage->read($fullPath);
+        try {
+            $stream     = $this->storage->read($fullPath);
+        } catch (\Vivo\IO\Exception\RuntimeException $e) {
+            $localException = new Exception\FileNotFoundException(
+                sprintf("%s: File '%s' not found in module '%s'", __METHOD__, $pathInModule, $moduleName), 0, $e);
+            throw $localException;
+        }
         return $stream;
     }
 

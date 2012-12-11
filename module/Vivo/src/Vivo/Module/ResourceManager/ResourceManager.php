@@ -73,8 +73,8 @@ class ResourceManager
      * @param $moduleName
      * @param string $pathToResource
      * @param string|null $type Null = default type
+     * @throws \Vivo\Module\Exception\ResourceNotFoundException
      * @throws \Vivo\Module\Exception\AsyncCallException
-     * @throws \Vivo\Module\Exception\InvalidArgumentException
      * @return string
      */
     public function getResource($moduleName, $pathToResource, $type = null)
@@ -84,7 +84,8 @@ class ResourceManager
         }
         $module = $this->moduleManager->getModule($moduleName);
         if (!$module) {
-            throw new Exception\InvalidArgumentException(sprintf("%s: Module '%s' not loaded", __METHOD__, $moduleName));
+            throw new Exception\ResourceNotFoundException(
+                sprintf("%s: Module '%s' not loaded", __METHOD__, $moduleName));
         }
         if ($module instanceof ResourceProviderInterface) {
             //Delegate resource retrieval to the module
@@ -95,7 +96,14 @@ class ResourceManager
             $resourceBase   = $this->getFolderForType($type);
             $components     = array($resourceBase, $pathToResource);
             $pathInModule   = $this->pathBuilder->buildStoragePath($components, false);
-            $resource       = $this->moduleStorageManager->getFileData($moduleName, $pathInModule);
+            try {
+                $resource       = $this->moduleStorageManager->getFileData($moduleName, $pathInModule);
+            } catch (Exception\FileNotFoundException $e) {
+                $localException = new Exception\ResourceNotFoundException(
+                    sprintf("%s: Resource of type '%s' not found in module '%s' on path '%s'",
+                            __METHOD__, $type, $moduleName, $pathToResource), 0, $e);
+                throw $localException;
+            }
         }
         return $resource;
     }
@@ -105,18 +113,19 @@ class ResourceManager
      * @param string $moduleName
      * @param string $pathToResource
      * @param string|null $type Null = default type
+     * @throws \Vivo\Module\Exception\ResourceNotFoundException
      * @throws \Vivo\Module\Exception\AsyncCallException
-     * @throws \Vivo\Module\Exception\InvalidArgumentException
      * @return FileInputStream
      */
-    public function getResourceStream($moduleName, $pathToResource, $type = null)
+    public function readResource($moduleName, $pathToResource, $type = null)
     {
         if (!$this->moduleManager) {
             throw new Exception\AsyncCallException(sprintf('%s: Module manager not set', __METHOD__));
         }
         $module = $this->moduleManager->getModule($moduleName);
         if (!$module) {
-            throw new Exception\InvalidArgumentException(sprintf("%s: Module '%s' not loaded", __METHOD__, $moduleName));
+            throw new Exception\ResourceNotFoundException(
+                sprintf("%s: Module '%s' not loaded", __METHOD__, $moduleName));
         }
         if ($module instanceof ResourceProviderInterface) {
             //Delegate resource retrieval to the module
@@ -127,7 +136,14 @@ class ResourceManager
             $resourceBase   = $this->getFolderForType($type);
             $components     = array($resourceBase, $pathToResource);
             $pathInModule   = $this->pathBuilder->buildStoragePath($components, false);
-            $stream         = $this->moduleStorageManager->getFileStream($moduleName, $pathInModule);
+            try {
+                $stream         = $this->moduleStorageManager->getFileStream($moduleName, $pathInModule);
+            } catch (Exception\FileNotFoundException $e) {
+                $localException = new Exception\ResourceNotFoundException(
+                    sprintf("%s: Resource of type '%s' not found in module '%s' on path '%s'",
+                        __METHOD__, $type, $moduleName, $pathToResource), 0, $e);
+                throw $localException;
+            }
         }
         return $stream;
     }

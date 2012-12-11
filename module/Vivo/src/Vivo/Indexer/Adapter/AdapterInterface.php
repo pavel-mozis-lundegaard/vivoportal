@@ -12,7 +12,6 @@ use Vivo\Indexer\Document;
  */
 interface AdapterInterface extends TransactionalInterface
 {
-
     /**
      * Finds documents matching the query in the index and returns an array of query hits
      * If there are no documents found, returns an empty array
@@ -22,28 +21,11 @@ interface AdapterInterface extends TransactionalInterface
     public function find(Query\QueryInterface $query);
 
     /**
-     * Finds documents based on a term
-     * This is usually faster than find()
-     * Returns an array of document ids, if no documents are found, returns an empty array
-     * @param IndexTerm $term
-     * @return array
-     */
-    public function termDocs(IndexTerm $term);
-
-    /**
-     * Returns a document by its ID
-     * If the document with this ID does not exist, returns null
-     * @param string $docId
-     * @return Document|null
-     */
-    public function getDocument($docId);
-
-    /**
-     * Deletes a document from the index
-     * @param string $docId
+     * Deletes documents from the index
+     * @param \Vivo\Indexer\Query\QueryInterface $query
      * @return void
      */
-    public function deleteDocument($docId);
+    public function delete(Query\QueryInterface $query);
 
     /**
      * Adds a document into the index

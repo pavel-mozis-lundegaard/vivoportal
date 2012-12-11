@@ -13,51 +13,28 @@ class QueryHit
     protected $id;
 
     /**
-     * Document id within index
-     * @var string
-     */
-    protected $docId;
-
-    /**
      * Score of the hit in the
      * @var float
      */
     protected $score;
 
     /**
-     * Document found in the index
-     * @var Document
+     * Index document
+     * @var DocumentInterface
      */
     protected $document;
 
     /**
-     * Indexer adapter used to lazy load the document
-     * @var Adapter\AdapterInterface
-     */
-    protected $adapter;
-
-    /**
      * Constructor
-     * @param Adapter\AdapterInterface $adapter
-     * @param string $id
-     * @param string $docId
-     * @param float $score
+     * @param mixed $id
+     * @param mixed $score
+     * @param DocumentInterface $document
      */
-    public function __construct(Adapter\AdapterInterface $adapter, $id, $docId, $score)
+    public function __construct($id, $score, DocumentInterface $document)
     {
-        $this->adapter  = $adapter;
         $this->id       = $id;
-        $this->docId    = $docId;
         $this->score    = $score;
-    }
-
-    /**
-     * Returns the document id
-     * @return string
-     */
-    public function getDocId()
-    {
-        return $this->docId;
+        $this->document = $document;
     }
 
     /**
@@ -84,9 +61,6 @@ class QueryHit
      */
     public function getDocument()
     {
-        if (!$this->document) {
-            $this->document = $this->adapter->getDocument($this->docId);
-        }
         return $this->document;
     }
 }

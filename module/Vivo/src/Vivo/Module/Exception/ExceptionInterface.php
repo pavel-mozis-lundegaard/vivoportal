@@ -6,5 +6,4 @@ namespace Vivo\Module\Exception;
  */
 interface ExceptionInterface
 {
-
 }

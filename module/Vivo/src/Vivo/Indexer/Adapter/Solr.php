@@ -251,21 +251,6 @@ class Solr implements AdapterInterface
             } else {
                 $solrQuery      = sprintf('%s', $term->getText());
             }
-        } elseif ($query instanceof Query\MultiTermInterface) {
-            //Multi-term query
-            /* @var $query Query\MultiTermInterface */
-            $terms          = $query->getTerms();
-            $signs          = $query->getSigns();
-            $solrQuery      = '';
-            foreach ($terms as $id => $term) {
-                $sign       = $signs[$id] ? '+' : '-';
-                if ($term->getField()) {
-                    $term       = sprintf('%s%s:%s ', $sign, $term->getField(), $term->getText());
-                } else {
-                    $term       = sprintf('%s%s ', $sign, $term->getText());
-                }
-                $solrQuery  .= $term;
-            }
         } elseif ($query instanceof Query\WildcardInterface) {
             //Wildcard query
             /* @var $query Query\WildcardInterface */

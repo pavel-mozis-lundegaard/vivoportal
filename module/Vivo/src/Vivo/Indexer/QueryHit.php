@@ -26,7 +26,7 @@ class QueryHit
 
     /**
      * Constructor
-     * @param mixed $id
+     * @param mixed $id Unique hit id
      * @param mixed $score
      * @param DocumentInterface $document
      */

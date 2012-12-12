@@ -3,9 +3,10 @@ namespace Vivo\Indexer\Adapter;
 
 use Vivo\Indexer\Result;
 use Vivo\Indexer\QueryHit;
-use Vivo\Indexer\Query;
 use Vivo\Indexer\Document;
 use Vivo\Indexer\QueryParams;
+use Vivo\Indexer\Query;
+use Vivo\Indexer\Field;
 
 use ApacheSolr\Document as SolrDocument;
 use ApacheSolr\Service as SolrService;
@@ -41,6 +42,12 @@ class Solr implements AdapterInterface
     protected $deleteIds        = array();
 
     /**
+     * Array of queries specifying documents to delete
+     * @var Query\QueryInterface[]
+     */
+    protected $deleteQueries    = array();
+
+    /**
      * Flag - delete all documents during commit?
      * @var bool
      */
@@ -51,6 +58,12 @@ class Solr implements AdapterInterface
      * @var string
      */
     protected $idField;
+
+    /**
+     * Name of the field containing the hit score
+     * @var string
+     */
+    protected $scoreField       = 'score';
 
     /**
      * Constructor
@@ -64,7 +77,7 @@ class Solr implements AdapterInterface
     }
 
     /**
-     * Finds documents matching the query in the index and returns an array of query hits
+     * Finds documents matching the query in the index and returns a search result
      * If there are no documents found, returns an empty array
      * @param \Vivo\Indexer\Query\QueryInterface $query
      * @param \Vivo\Indexer\QueryParams $queryParams
@@ -84,16 +97,34 @@ class Solr implements AdapterInterface
         for ($i = 0; $i < $resultSize; $i++) {
             /** @var $solrDoc SolrDocument */
             $solrDoc    = $solrResult->response->docs[$i];
-            $doc        = new Document();
-            foreach ($solrDoc as $fieldName =>  $fieldValue) {
-                $field  = new \Vivo\Indexer\Field($fieldName, $fieldValue);
-                $doc->addField($field);
-            }
-            $hit        = new QueryHit($doc->getFieldValue($this->idField), $doc->getFieldValue('score'), $doc);
+            $doc        = $this->createDocFromSolrDoc($solrDoc);
+            $hit        = new QueryHit($doc->getDocId(), $doc->getFieldValue($this->scoreField), $doc);
             $hits[]     = $hit;
         }
         $result     = new Result($hits, $totalHits, $queryParams);
         return $result;
+    }
+
+
+    /**
+     * Finds and returns a document by its ID
+     * If the document is not found, returns null
+     * @param string $docId
+     * @return Document|null
+     */
+    public function findById($docId)
+    {
+        $solrQuery  = sprintf('%s:"%s"', $this->idField, $docId);
+        $solrResult = $this->solrService->search($solrQuery, 0, 1);
+        if ($solrResult->response->numFound) {
+            //Document found
+            $solrDoc    = $solrResult->response->docs[0];
+            $doc        = $this->createDocFromSolrDoc($solrDoc);
+        } else {
+            //Document not found
+            $doc    = null;
+        }
+        return $doc;
     }
 
     /**
@@ -103,7 +134,10 @@ class Solr implements AdapterInterface
      */
     public function delete(Query\QueryInterface $query)
     {
-        // TODO: Implement delete() method.
+        $this->deleteQueries[]  = $query;
+        if (!$this->isTransactionOpen()) {
+            $this->commit();
+        }
     }
 
     /**
@@ -115,6 +149,9 @@ class Solr implements AdapterInterface
         if (!in_array($docId, $this->deleteIds)) {
             $this->deleteIds[]  = $docId;
         }
+        if (!$this->isTransactionOpen()) {
+            $this->commit();
+        }
     }
 
     /**
@@ -124,6 +161,11 @@ class Solr implements AdapterInterface
      */
     public function addDocument(Document $doc)
     {
+        //If docId is set, copy it to the id field
+        if ($doc->getDocId()) {
+            $idField    = new Field($this->idField, $doc->getDocId());
+            $doc->addField($idField);
+        }
         $this->addDocs[]    = $doc;
         if (!$this->isTransactionOpen()) {
             $this->commit();
@@ -136,28 +178,7 @@ class Solr implements AdapterInterface
      */
     public function optimize()
     {
-        // TODO: Implement optimize() method.
-        throw new \Exception(sprintf('%s not implemented', __METHOD__));
-    }
-
-    /**
-     * Returns number of all (undeleted + deleted) documents in the index
-     * @return integer
-     */
-    public function getDocumentCountAll()
-    {
-        // TODO: Implement getDocumentCountAll() method.
-        throw new \Exception(sprintf('%s not implemented', __METHOD__));
-    }
-
-    /**
-     * Returns number of undeleted documents currently present in the index
-     * @return integer
-     */
-    public function getDocumentCountUndeleted()
-    {
-        // TODO: Implement getDocumentCountUndeleted() method.
-        throw new \Exception(sprintf('%s not implemented', __METHOD__));
+        $this->solrService->optimize();
     }
 
     /**
@@ -167,6 +188,9 @@ class Solr implements AdapterInterface
     public function deleteAllDocuments()
     {
         $this->deleteAllDocs    = true;
+        if (!$this->isTransactionOpen()) {
+            $this->commit();
+        }
     }
 
     public function begin()
@@ -184,6 +208,11 @@ class Solr implements AdapterInterface
             //Delete all docs
             $this->solrService->deleteByQuery('*:*');
         } else {
+            //Delete by query
+            foreach ($this->deleteQueries as $deleteQuery) {
+                $solrQuery  = $this->buildSolrQuery($deleteQuery);
+                $this->solrService->deleteByQuery($solrQuery);
+            }
             //Delete specific docs
             foreach ($this->deleteIds as $deleteId) {
                 $this->solrService->deleteById($deleteId);
@@ -285,13 +314,14 @@ class Solr implements AdapterInterface
     protected function resetTransaction()
     {
         $this->deleteAllDocs    = false;
+        $this->deleteQueries    = array();
         $this->deleteIds        = array();
         $this->addDocs          = array();
         $this->transaction      = false;
     }
 
     /**
-     * Creates a Solr document from a document
+     * Creates a Solr document from a Document
      * @param \Vivo\Indexer\Document $doc
      * @return SolrDocument
      */
@@ -311,5 +341,21 @@ class Solr implements AdapterInterface
             }
         }
         return $solrDoc;
+    }
+
+    /**
+     * Creates Document from a Solr Document
+     * @param SolrDocument $solrDoc
+     * @return Document
+     */
+    protected function createDocFromSolrDoc(SolrDocument $solrDoc)
+    {
+        $doc        = new Document();
+        foreach ($solrDoc as $fieldName => $fieldValue) {
+            $field  = new Field($fieldName, $fieldValue);
+            $doc->addField($field);
+        }
+        $doc->setDocId($doc->getFieldValue($this->idField));
+        return $doc;
     }
 }

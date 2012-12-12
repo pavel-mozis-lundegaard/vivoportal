@@ -13,13 +13,28 @@ use Vivo\TransactionalInterface;
 interface AdapterInterface extends TransactionalInterface
 {
     /**
-     * Finds documents matching the query in the index and returns an array of query hits
+     * Finds documents matching the query in the index and returns a search result
      * If there are no documents found, returns an empty array
      * @param \Vivo\Indexer\Query\QueryInterface $query
      * @param \Vivo\Indexer\QueryParams $queryParams
      * @return Result
      */
     public function find(Query\QueryInterface $query, QueryParams $queryParams);
+
+    /**
+     * Finds and returns a document by its ID
+     * If the document is not found, returns null
+     * @param string $docId
+     * @return Document|null
+     */
+    public function findById($docId);
+
+    /**
+     * Adds a document into the index
+     * @param \Vivo\Indexer\Document $doc
+     * @return void
+     */
+    public function addDocument(Document $doc);
 
     /**
      * Deletes documents from the index
@@ -35,33 +50,14 @@ interface AdapterInterface extends TransactionalInterface
     public function deleteById($docId);
 
     /**
-     * Adds a document into the index
-     * @param \Vivo\Indexer\Document $doc
+     * Deletes all documents from index
      * @return void
      */
-    public function addDocument(Document $doc);
+    public function deleteAllDocuments();
 
     /**
      * Optimizes the index
      * @return void
      */
     public function optimize();
-
-    /**
-     * Returns number of all (undeleted + deleted) documents in the index
-     * @return integer
-     */
-    public function getDocumentCountAll();
-
-    /**
-     * Returns number of undeleted documents currently present in the index
-     * @return integer
-     */
-    public function getDocumentCountUndeleted();
-
-    /**
-     * Deletes all documents from index
-     * @return void
-     */
-    public function deleteAllDocuments();
 }

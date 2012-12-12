@@ -9,7 +9,7 @@ use Vivo\TransactionalInterface;
 interface IndexerInterface extends  TransactionalInterface
 {
     /**
-     * Returns an array of hits
+     * Returns a search result
      * @param Query\QueryInterface $query
      * @param QueryParams $queryParams
      * @return Result
@@ -17,10 +17,12 @@ interface IndexerInterface extends  TransactionalInterface
     public function find(Query\QueryInterface $query, QueryParams $queryParams);
 
     /**
-     * Deletes documents identified by a query from the index
-     * @param Query\QueryInterface $query
+     * Finds and returns a document by its ID
+     * If the document is not found, returns null
+     * @param string $docId
+     * @return Document|null
      */
-    public function delete(Query\QueryInterface $query);
+    public function findById($docId);
 
     /**
      * Adds a document into index
@@ -29,10 +31,16 @@ interface IndexerInterface extends  TransactionalInterface
     public function addDocument(Document $document);
 
     /**
-     * Optimizes the index
-     * @return void
+     * Deletes documents identified by a query from the index
+     * @param Query\QueryInterface $query
      */
-    public function optimize();
+    public function delete(Query\QueryInterface $query);
+
+    /**
+     * Deletes document by its unique ID
+     * @param string $docId
+     */
+    public function deleteById($docId);
 
     /**
      * Deletes all documents from index
@@ -41,20 +49,8 @@ interface IndexerInterface extends  TransactionalInterface
     public function deleteAllDocuments();
 
     /**
-     * Returns number of all (undeleted + deleted) documents in the index
-     * @return integer
+     * Optimizes the index
+     * @return void
      */
-    public function getDocumentCountAll();
-
-    /**
-     * Returns number of undeleted document in the index
-     * @return int
-     */
-    public function getDocumentCountUndeleted();
-
-    /**
-     * Returns number of deleted documents in the index
-     * @return int
-     */
-    public function getDocumentCountDeleted();
+    public function optimize();
 }

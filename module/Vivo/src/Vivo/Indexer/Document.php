@@ -10,6 +10,12 @@ use \ArrayObject;
 class Document implements DocumentInterface
 {
     /**
+     * Document ID
+     * @var string
+     */
+    protected $docId;
+
+    /**
      * Array of document fields
      * @var Field[]
      */
@@ -17,10 +23,12 @@ class Document implements DocumentInterface
 
     /**
      * Constructor
+     * @param string|null $docId
      * @param Field[]|null $fields
      */
-    public function __construct(array $fields = null)
+    public function __construct($docId = null, array $fields = null)
     {
+        $this->setDocId($docId);
         if ($fields) {
             foreach ($fields as $field) {
                 $this->addField($field);
@@ -86,5 +94,23 @@ class Document implements DocumentInterface
     {
         $arrayObject = new ArrayObject($this->fields);
         return $arrayObject->getIterator();
+    }
+
+    /**
+     * Sets unique document ID
+     * @param string|null $docId
+     */
+    public function setDocId($docId = null)
+    {
+        $this->docId    = $docId;
+    }
+
+    /**
+     * Returns unique document ID
+     * @return string
+     */
+    public function getDocId()
+    {
+        return $this->docId;
     }
 }

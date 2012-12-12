@@ -24,7 +24,7 @@ class Indexer implements IndexerInterface
     }
 
     /**
-     * Returns an array of hits
+     * Returns a search result
      * @param Query\QueryInterface $query
      * @param QueryParams $queryParams
      * @return Result
@@ -35,12 +35,32 @@ class Indexer implements IndexerInterface
 	}
 
     /**
+     * Finds and returns a document by its ID
+     * If the document is not found, returns null
+     * @param string $docId
+     * @return Document|null
+     */
+    public function findById($docId)
+    {
+        return $this->adapter->findById($docId);
+    }
+
+    /**
      * Deletes documents identified by a query from the index
      * @param Query\QueryInterface $query
      */
     public function delete(Query\QueryInterface $query)
     {
         $this->adapter->delete($query);
+    }
+
+    /**
+     * Deletes document by its unique ID
+     * @param string $docId
+     */
+    public function deleteById($docId)
+    {
+        $this->adapter->deleteById($docId);
     }
 
     /**
@@ -92,33 +112,5 @@ class Indexer implements IndexerInterface
     public function deleteAllDocuments()
     {
         $this->adapter->deleteAllDocuments();
-    }
-
-    /**
-     * Returns number of all (undeleted + deleted) documents in the index
-     * @return integer
-     */
-    public function getDocumentCountAll()
-    {
-        return $this->adapter->getDocumentCountAll();
-    }
-
-    /**
-     * Returns number of undeleted document in the index
-     * @return int
-     */
-    public function getDocumentCountUndeleted()
-    {
-        return $this->adapter->getDocumentCountUndeleted();
-    }
-
-    /**
-     * Returns number of deleted documents in the index
-     * @return int
-     */
-    public function getDocumentCountDeleted()
-    {
-        $deletedCount   = $this->getDocumentCountAll() - $this->getDocumentCountUndeleted();
-        return $deletedCount;
     }
 }

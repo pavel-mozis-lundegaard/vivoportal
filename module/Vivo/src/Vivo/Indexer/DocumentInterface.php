@@ -32,4 +32,16 @@ interface DocumentInterface extends \IteratorAggregate
      * @return string
      */
     public function getFieldValue($filedName);
+
+    /**
+     * Sets unique document ID
+     * @param string|null $docId
+     */
+    public function setDocId($docId = null);
+
+    /**
+     * Returns unique document ID
+     * @return string
+     */
+    public function getDocId();
 }

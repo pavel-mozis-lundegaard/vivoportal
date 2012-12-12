@@ -88,6 +88,7 @@ return array(
                 'Vivo\SiteManager\Event\SiteEvent' => 'site_event',
                 'Zend\Http\Response' => 'response',
                 'Zend\View\HelperPluginManager' => 'view_helper_manager',
+                'indexer_adapter'   => 'indexer_adapter_solr',
         ),
     ),
     'translator' => array(

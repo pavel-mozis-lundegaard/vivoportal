@@ -12,8 +12,8 @@ use ApacheSolr\Document as SolrDocument;
 use ApacheSolr\Service as SolrService;
 
 /**
- * Adapter
- * Solr adapter
+ * Solr
+ * Solr indexer adapter
  */
 class Solr implements AdapterInterface
 {

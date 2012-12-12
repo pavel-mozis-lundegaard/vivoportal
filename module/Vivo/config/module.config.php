@@ -108,7 +108,8 @@ return array(
             'zdb_abstract_factory'      => 'Vivo\Service\ZdbAbstractFactoryFactory',
             'path_builder'              => 'Vivo\Service\PathBuilderFactory',
             'solr_service'              => 'Vivo\Service\SolrServiceFactory',
-            'indexer_adapter_solr'      => 'Vivo\Service\SolrAdapterFactory',
+            'indexer_adapter_solr'      => 'Vivo\Service\IndexerAdapterSolrFactory',
+            'indexer_adapter_dummy'     => 'Vivo\Service\IndexerAdapterDummyFactory',
         ),
         'aliases' => array(
                 'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',

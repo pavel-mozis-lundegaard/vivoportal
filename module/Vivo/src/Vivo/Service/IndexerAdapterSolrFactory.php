@@ -5,10 +5,10 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
 
 /**
- * SolrAdapterFactory
+ * IndexerAdapterSolrFactory
  * Instantiates the SolrAdapter
  */
-class SolrAdapterFactory implements FactoryInterface
+class IndexerAdapterSolrFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -19,7 +19,8 @@ class SolrAdapterFactory implements FactoryInterface
     {
         $solrService    = $serviceLocator->get('solr_service');
         //TODO - get name of the unique ID field from config
-        $solrAdapter    = new \Vivo\Indexer\Adapter\Solr($solrService, 'id');
+        $idField        = 'vivo_cms_model_entity_path';
+        $solrAdapter    = new \Vivo\Indexer\Adapter\Solr($solrService, $idField);
         return $solrAdapter;
     }
 }

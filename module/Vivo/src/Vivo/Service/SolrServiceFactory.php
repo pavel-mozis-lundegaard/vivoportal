@@ -17,6 +17,7 @@ class SolrServiceFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
+        //TODO - configure Solr service using config
         $solrService    = new \ApacheSolr\Service('localhost', 8983, '/solr/');
         return $solrService;
     }

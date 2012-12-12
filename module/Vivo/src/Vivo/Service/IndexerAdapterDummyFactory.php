@@ -5,9 +5,10 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
 
 /**
- * IndexerFactory
+ * IndexerAdapterDummyFactory
+ * Instantiates the Dummy indexer adapter
  */
-class IndexerFactory implements FactoryInterface
+class IndexerAdapterDummyFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -16,8 +17,7 @@ class IndexerFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $adapter        = $serviceLocator->get('indexer_adapter');
-        $indexer        = new \Vivo\Indexer\Indexer($adapter);
-        return $indexer;
+        $dummyAdapter   = new \Vivo\Indexer\Adapter\Dummy();
+        return $dummyAdapter;
     }
 }

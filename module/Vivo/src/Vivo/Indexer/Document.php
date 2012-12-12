@@ -24,13 +24,17 @@ class Document implements DocumentInterface
     /**
      * Constructor
      * @param string|null $docId
-     * @param Field[]|null $fields
+     * @param Field[]|array|null $fields Either array of Fields or array of mappings fieldName => fieldValue
      */
     public function __construct($docId = null, array $fields = null)
     {
         $this->setDocId($docId);
         if ($fields) {
-            foreach ($fields as $field) {
+            foreach ($fields as $key => $field) {
+                if (!($field instanceof Field)) {
+                    //fieldName => fieldValue mapping
+                    $field = new Field($key, $field);
+                }
                 $this->addField($field);
             }
         }

@@ -14,7 +14,7 @@ interface AdapterInterface extends TransactionalInterface
 {
     /**
      * Finds documents matching the query in the index and returns a search result
-     * If there are no documents found, returns an empty array
+     * If there are no documents found, returns an empty Result
      * @param \Vivo\Indexer\Query\QueryInterface $query
      * @param \Vivo\Indexer\QueryParams $queryParams
      * @return Result

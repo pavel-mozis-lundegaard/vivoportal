@@ -81,4 +81,27 @@ class PathBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($this->pathBuilder->dirname('xyz'));
         $this->assertNull($this->pathBuilder->dirname(''));
     }
+
+    /**
+     * Tests building path with a segment equal to '0'
+     * Mantis bug: 0025290
+     */
+    public function testBuildPathWithZero()
+    {
+        $elements   = array('path/to/entity', 'foo/0/bar', '0');
+        $path       = $this->pathBuilder->buildStoragePath($elements,  true);
+        $expected   = '/path/to/entity/foo/0/bar/0';
+        $this->assertEquals($expected, $path);
+    }
+
+    /**
+     * Tests building path with untrimmed segments
+     */
+    public function testBuildPathFromUntrimmed()
+    {
+        $elements   = array('    path/to /   entity   ', ' ', ' foo/0/bar', '0');
+        $path       = $this->pathBuilder->buildStoragePath($elements,  true);
+        $expected   = '/path/to/entity/foo/0/bar/0';
+        $this->assertEquals($expected, $path);
+    }
 }

@@ -50,7 +50,7 @@ class Text {
 	 */
 	static function expectChar($char, &$str, &$pos) {
 		if (($char2 = self::readChar($str, $pos)) != $char)
-			throw new \Vivo\Exception("Expecting $char at position $pos (got $char2)");
+			throw new \Exception("Expecting $char at position $pos (got $char2)");
 	}
 
 	/**

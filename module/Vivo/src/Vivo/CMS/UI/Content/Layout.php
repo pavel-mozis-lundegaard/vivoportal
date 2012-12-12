@@ -40,8 +40,8 @@ class Layout extends Component
     protected function prepareViewModel()
     {
         //TODO use child model to enable global template for layout component
-        $is = $this->cms->readResource($this->content, 'resource.phtml');
-        $path = $this->document->getPath() . '/resource.phtml';
+        $is = $this->cms->readResource($this->content, 'Layout.phtml');
+        $path = $this->document->getPath() . '/Layout.phtml';
         $filename = InputStreamWrapper::registerInputStream($is, $path);
         $this->view->setTemplate($filename);
     }

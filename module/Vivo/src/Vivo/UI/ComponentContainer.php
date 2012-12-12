@@ -135,7 +135,7 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
             if ($model instanceof ModelInterface) {
                 $viewModel->addChild($model, $name);
             } else {
-                $viewModel->setVariable($model, $name);
+                $viewModel->setVariable($name, $model);
             }
         }
         $viewModel->setVariable('componentNames', array_keys($this->components));

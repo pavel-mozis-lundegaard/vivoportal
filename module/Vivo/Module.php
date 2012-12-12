@@ -6,6 +6,7 @@ use Vivo\CMS\ComponentResolver;
 use Vivo\Util\Path\PathParser;
 use Vivo\View\Helper as ViewHelper;
 use Vivo\View\Strategy\PhtmlRenderingStrategy;
+use Vivo\Service\Exception;
 
 use Zend\Console\Adapter\AdapterInterface as Console;
 use Zend\Di\Config;
@@ -45,9 +46,6 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
 
         $eventManager->attach('render', array ($this, 'registerUIRenderingStrategies'), 100);
         $eventManager->attach('render', array ($this, 'registerViewHelpers'), 100);
-
-        //TODO attach to SiteEvent
-        $eventManager->attach('route', array ($this, 'initializeVivoServiceManager'), 100000000);
     }
 
     public function getConfig()
@@ -66,27 +64,6 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         );
     }
 
-    /**
-     * Initialize vivo service manager.
-     *
-     * This method register factory for vivo_service_manager to the application service manager.
-     * The factory is not registered in service manager configuration to avoid instatniate it until
-     * site and modules are loaded.
-     *
-     * @param MvcEvent $e
-     */
-    public function initializeVivoServiceManager(MvcEvent $e)
-    {
-        $app          = $e->getTarget();
-        $sm      = $app->getServiceManager();
-        /* @var $sm \Zend\ServiceManager\ServiceManager */
-        $sm->setFactory('vivo_service_manager', 'Vivo\Service\VivoServiceManagerFactory');
-        $vsm = $sm->get('vivo_service_manager');
-        $di = $sm->get('di');
-        $config = $sm->get('config');
-        $di->configure(new Config($config['vivo']['di']));
-        $vsm->setFactory('di_proxy', 'Vivo\Service\DiProxyFactory');
-    }
     /**
      * Register rendering strategy fo Vivo UI.
      * @param MvcEvent $e
@@ -149,7 +126,10 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     return $cf;
                 },
                 'vivo_service_manager' => function (ServiceManager $sm) {
-                    throw new Exception('Vivo service manager is not available until site and modules are loaded.');
+                    //TODO - this exception is caught!
+                    throw new Exception\ServiceNotAvailableException(
+                        sprintf('%s: Vivo service manager is not available until site and modules are loaded.',
+                        __METHOD__));
                 },
             ),
         );
@@ -201,7 +181,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
     {
         return array('Available commands:',
                 array ('indexer', 'Perform operations on indexer..'),
-                array ('info','Show informations about CMS instance.'),
+                array ('info','Show information about CMS instance.'),
                 array ('module', 'Manage modules.'),
         );
     }

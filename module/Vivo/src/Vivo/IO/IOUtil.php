@@ -15,7 +15,7 @@ class IOUtil
      * @return Ambigous <boolean, integer>
      */
     public function copy(InputStreamInterface $source,
-        OutputStreamInterface $target, $bufferSize = 1)
+        OutputStreamInterface $target, $bufferSize = 32768)
     {
         $copied = 0;
         while (($block = $source->read($bufferSize)) !== false) {

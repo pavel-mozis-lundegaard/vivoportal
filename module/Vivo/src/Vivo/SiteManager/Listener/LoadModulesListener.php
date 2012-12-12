@@ -9,6 +9,8 @@ use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\ArrayUtils;
+use Zend\Di\Config as DiConfig;
+use Zend\ServiceManager\Config as SmConfig;
 
 /**
  * SiteResolveListener
@@ -95,6 +97,24 @@ class LoadModulesListener implements ListenerAggregateInterface
         $vivoConfig = ArrayUtils::merge($vivoConfig, $siteConfig);
         $mainConfig['vivo'] = $vivoConfig;
         $this->serviceManager->setService('config', $mainConfig);
+
+        //Prepare Vivo service manager
+        $this->initializeVivoServiceManager($vivoConfig);
+
         $e->stopPropagation(true);
+    }
+
+    /**
+     * Initialize vivo service manager
+     */
+    protected function initializeVivoServiceManager(array $vivoConfig)
+    {
+        $vsmConfig  = new SmConfig($vivoConfig['service_manager']);
+        $vsm        = new ServiceManager($vsmConfig);
+        $vsm->addPeeringServiceManager($this->serviceManager);
+        $di         = $this->serviceManager->get('di');
+        $di->configure(new DiConfig($vivoConfig['di']));
+        $vsm->setFactory('di_proxy', 'Vivo\Service\DiProxyFactory');
+        $this->serviceManager->setService('vivo_service_manager', $vsm);
     }
 }

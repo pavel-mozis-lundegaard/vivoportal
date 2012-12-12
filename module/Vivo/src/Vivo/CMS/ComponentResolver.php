@@ -4,6 +4,7 @@ namespace Vivo\CMS;
 use Vivo\CMS\Exception\Exception;
 use Vivo\CMS\Exception\InvalidArgumentException;
 use Vivo\CMS\Model\Content;
+use Vivo\CMS\Model\Content\ProvideFrontComponentInterface;
 
 /**
  * Resolver is responsible for mapping model of content to aproptiate UI component.
@@ -34,25 +35,29 @@ class ComponentResolver
      */
     public function resolve($modelOrClassname, $type = self::FRONT_COMPONENT)
     {
-        if ($modelOrClassname instanceof Content) {
-            $class = get_class($modelOrClassname);
-        } elseif (!is_string($modelOrClassname) || $modelOrClassname === '') {
-            throw new InvalidArgumentException(
-                sprintf(
-                    '%s: Argument must be instance of Vivo\CMS\Model\Content or string.',
-                    __METHOD__));
+        if ($modelOrClassname instanceof ProvideFrontComponentInterface
+                && $componentClass = $modelOrClassname->getFrontComponent()) {
+            //when model provide own front component we don't use mapping.
         } else {
-            $class = $modelOrClassname;
-        }
+            if ($modelOrClassname instanceof Content) {
+                $class = get_class($modelOrClassname);
+            } elseif (!is_string($modelOrClassname) || $modelOrClassname === '') {
+                throw new InvalidArgumentException(
+                    sprintf(
+                        '%s: Argument must be instance of Vivo\CMS\Model\Content or string.',
+                        __METHOD__));
+            } else {
+                $class = $modelOrClassname;
+            }
 
-        if (!isset($this->mappings[$type][$class])) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    "%s: Could not determine UI component class for model %s. It isn't defined in mappings",
-                    __METHOD__, $class));
+            if (!isset($this->mappings[$type][$class])) {
+                throw new InvalidArgumentException(
+                    sprintf(
+                        "%s: Could not determine UI component class for model %s. It isn't defined in mappings",
+                        __METHOD__, $class));
+            }
+            $componentClass = $this->mappings[$type][$class];
         }
-
-        $componentClass = $this->mappings[$type][$class];
 
         if (!class_exists($componentClass)) {
             throw new Exception(

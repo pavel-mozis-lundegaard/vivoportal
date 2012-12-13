@@ -26,10 +26,10 @@ class Indexer implements IndexerInterface
     /**
      * Returns a search result
      * @param Query\QueryInterface $query
-     * @param QueryParams $queryParams
+     * @param QueryParams|null $queryParams
      * @return Result
      */
-    public function find(Query\QueryInterface $query, QueryParams $queryParams)
+    public function find(Query\QueryInterface $query, QueryParams $queryParams = null)
 	{
         return $this->adapter->find($query, $queryParams);
 	}

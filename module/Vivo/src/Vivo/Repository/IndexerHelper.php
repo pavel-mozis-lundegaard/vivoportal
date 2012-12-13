@@ -6,7 +6,7 @@ use Vivo\Indexer\Document;
 use Vivo\Indexer\Field;
 use Vivo\Indexer\Term as IndexerTerm;
 use Vivo\Indexer\Query\Wildcard as WildcardQuery;
-use Vivo\Indexer\Query\Boolean as BooleanQuery;
+use Vivo\Indexer\Query\BooleanOr;
 use Vivo\Indexer\Query\Term as TermQuery;
 use Vivo\Repository\Exception;
 
@@ -24,24 +24,19 @@ class IndexerHelper
     public function createDocument(Entity $entity)
     {
         $doc    = new Document();
-        //UUID (field type 'keyword')
-        $doc->addField(new Field('uuid', $entity->getUuid(), true, true, false, false));
-        //Path (field type 'keyword')
-        $doc->addField(new Field('path', $entity->getPath(), true, true, false, false));
+        //UUID
+        $doc->addField(new Field('uuid', $entity->getUuid()));
+        //Path
+        $doc->addField(new Field('path', $entity->getPath()));
         $entityClass    = get_class($entity);
-        //Entity type (field type 'keyword')
-        $doc->addField(new Field('type', $entityClass, true, true, false, false));
+        //Entity type
+        $doc->addField(new Field('type', $entityClass));
         //TODO - a temporary solution - when entity descriptions are implemented as annotations or whatever, refactor!
         switch ($entityClass) {
             case 'Vivo\CMS\Model\Site':
                  /** @var $entity \Vivo\CMS\Model\Site  */
                 //Hosts
-                $hostsFlat  = implode(' ', $entity->getHosts());
-                $doc->addField(new Field('hosts', $hostsFlat, true, true, true, false));
-//                $fields = $this->getFieldsForArrayData($entity->getHosts(), 'host', true, true, false, false);
-//                foreach ($fields as $field) {
-//                    $doc->addField($field);
-//                }
+                $doc->addField(new Field('hosts', $entity->getHosts()));
                 break;
             default:
                 //No other fields will be indexed for other entity types
@@ -54,7 +49,7 @@ class IndexerHelper
      * Builds and returns a query returning a whole subtree of documents beginning at the $entity
      * @param Entity|string $spec Either an Entity object or a path to an entity
      * @throws Exception\InvalidArgumentException
-     * @return \Vivo\Indexer\Query\Boolean
+     * @return \Vivo\Indexer\Query\BooleanInterface
      */
     public function buildTreeQuery($spec)
     {
@@ -70,9 +65,7 @@ class IndexerHelper
         $entityQuery         = new TermQuery($entityTerm);
         $descendantPattern   = new IndexerTerm($path . '/*', 'path');
         $descendantQuery     = new WildcardQuery($descendantPattern);
-        $boolQuery           = new BooleanQuery();
-        $boolQuery->addSubquery($entityQuery, null);
-        $boolQuery->addSubquery($descendantQuery, null);
+        $boolQuery           = new BooleanOr($entityQuery, $descendantQuery);
         return $boolQuery;
     }
 
@@ -86,29 +79,4 @@ class IndexerHelper
         $term   = new IndexerTerm($entity->getUuid(), 'uuid');
         return $term;
     }
-
-//    /**
-//     * Returns an array of Fields which contain array data augmented with prefix
-//     * Each data element is returned in its own Field
-//     * @param array $data
-//     * @param string $fieldName
-//     * @param bool $isStored
-//     * @param bool $isIndexed
-//     * @param bool $isTokenized
-//     * @param bool $isBinary
-//     * @return Field[]
-//     */
-//    protected function getFieldsForArrayData(array $data, $fieldName,
-//                                             $isStored, $isIndexed, $isTokenized, $isBinary = false)
-//    {
-//        $i      = 0;
-//        $fields = array();
-//        foreach ($data as $value) {
-//            $fieldNameMod   = $fieldName . '/' . $i;
-//            $fieldValue     = '###' . $fieldName .'###/' . $value;
-//            $fields[]       = new Field($fieldNameMod, $fieldValue, $isStored, $isIndexed, $isTokenized, $isBinary);
-//            $i++;
-//        }
-//        return $fields;
-//    }
 }

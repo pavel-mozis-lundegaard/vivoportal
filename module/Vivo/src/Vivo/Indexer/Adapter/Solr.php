@@ -80,11 +80,19 @@ class Solr implements AdapterInterface
      * Finds documents matching the query in the index and returns a search result
      * If there are no documents found, returns an empty array
      * @param \Vivo\Indexer\Query\QueryInterface $query
-     * @param \Vivo\Indexer\QueryParams $queryParams
+     * @param \Vivo\Indexer\QueryParams|null $queryParams
      * @return Result
      */
-    public function find(Query\QueryInterface $query, QueryParams $queryParams)
+    public function find(Query\QueryInterface $query, QueryParams $queryParams = null)
     {
+        if (is_null($queryParams)) {
+            //Query params not specified => get all the documents, but first get their count
+            $queryParams    = new QueryParams();
+            $queryParams->setStartOffset(0);
+            $queryParams->setPageSize(0);
+            $countResult    = $this->find($query, $queryParams);
+            $queryParams->setPageSize($countResult->getTotalHitCount());
+        }
         $solrQuery  = $this->buildSolrQuery($query);
         $solrParams = array('fl' => '*,score');
         $solrResult = $this->solrService->search($solrQuery,
@@ -276,6 +284,15 @@ class Solr implements AdapterInterface
             //Boolean NOT query
             /* @var $query Query\BooleanNot */
             $solrQuery      = sprintf('(NOT %s)', $query->getQuery());
+        } elseif ($query instanceof Query\RangeInterface) {
+            //Range query
+            /* @var $query Query\RangeInterface */
+            $leftBracket    = $query->isLowerLimitInclusive() ? '[' : '{';
+            $rightBracket   = $query->isUpperLimitInclusive() ? ']' : '}';
+            $lowerLimit     = is_null($query->getLowerLimit()) ? '*' : $query->getLowerLimit();
+            $upperLimit     = is_null($query->getUpperLimit()) ? '*' : $query->getUpperLimit();
+            $solrQuery      = sprintf('(%s:%s%s TO %s%s)', $query->getField(),
+                                      $leftBracket, $lowerLimit, $upperLimit, $rightBracket);
         } else {
             //Unsupported type of query
             throw new Exception\InvalidArgumentException(sprintf("%s: Unsupported query type '%s'",

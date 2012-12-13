@@ -23,7 +23,7 @@ class LuceneTest extends \PHPUnit_Framework_TestCase
         $this->luceneAdapter    = new \Vivo\Indexer\Adapter\Lucene($this->index);
     }
 
-    public function testFind()
+    public function xtestFind()
     {
         $term       = new Indexer\Term('abcd');
         $query      = new Indexer\Query\Term($term);
@@ -54,7 +54,7 @@ class LuceneTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(50, $hits[1]->getDocId());
     }
 
-    public function testTermDocs()
+    public function xtestTermDocs()
     {
         $term       = new Indexer\Term('abcd');
         $docIds     = array(100, 200, 300);
@@ -68,7 +68,7 @@ class LuceneTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(100, 200), $foundDocIds);
     }
 
-    public function testGetDocumentReturnsNullOnDeleted()
+    public function xtestGetDocumentReturnsNullOnDeleted()
     {
         $docId  = '95';
         $this->index->expects($this->once())
@@ -78,7 +78,7 @@ class LuceneTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($this->luceneAdapter->getDocument($docId));
     }
 
-    public function testGetDocument()
+    public function xtestGetDocument()
     {
         $docId  = '95';
         $luceneDoc  = new \ZendSearch\Lucene\Document();
@@ -96,7 +96,7 @@ class LuceneTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('ABCDEF', $doc->getFieldValue('uuid'));
     }
 
-    public function testGetDocumentReturnsNullOnNonExistent()
+    public function xtestGetDocumentReturnsNullOnNonExistent()
     {
         $docId  = '95';
         $this->index->expects($this->once())
@@ -110,7 +110,7 @@ class LuceneTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($this->luceneAdapter->getDocument($docId));
     }
 
-    public function testAddDocumentCommitsOutsideTx()
+    public function xtestAddDocumentCommitsOutsideTx()
     {
         $this->assertFalse($this->luceneAdapter->isTransactionOpen());
         $this->index->expects($this->once())
@@ -119,7 +119,7 @@ class LuceneTest extends \PHPUnit_Framework_TestCase
         $this->luceneAdapter->addDocument($doc);
     }
 
-    public function testAddDocumentDoesNotCommitWithinTx()
+    public function xtestAddDocumentDoesNotCommitWithinTx()
     {
         $this->luceneAdapter->begin();
         $this->assertTrue($this->luceneAdapter->isTransactionOpen());
@@ -129,7 +129,7 @@ class LuceneTest extends \PHPUnit_Framework_TestCase
         $this->luceneAdapter->addDocument($doc);
     }
 
-    public function testDeleteDocumentCommitsOutsideTx()
+    public function xtestDeleteDocumentCommitsOutsideTx()
     {
         $this->assertFalse($this->luceneAdapter->isTransactionOpen());
         $docId  = '501';
@@ -139,7 +139,7 @@ class LuceneTest extends \PHPUnit_Framework_TestCase
         $this->luceneAdapter->deleteDocument($docId);
     }
 
-    public function testDeleteDocumentDoesNotCommitWithinTx()
+    public function xtestDeleteDocumentDoesNotCommitWithinTx()
     {
         $this->luceneAdapter->begin();
         $this->assertTrue($this->luceneAdapter->isTransactionOpen());
@@ -149,7 +149,7 @@ class LuceneTest extends \PHPUnit_Framework_TestCase
         $this->luceneAdapter->deleteDocument($docId);
     }
 
-    public function testCommit()
+    public function xtestCommit()
     {
         //Previous transaction
         $this->luceneAdapter->deleteDocument('333');
@@ -190,14 +190,14 @@ class LuceneTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->luceneAdapter->isTransactionOpen());
     }
 
-    public function testBegin()
+    public function xtestBegin()
     {
         $this->assertFalse($this->luceneAdapter->isTransactionOpen());
         $this->luceneAdapter->begin();
         $this->assertTrue($this->luceneAdapter->isTransactionOpen());
     }
 
-    public function testRollback()
+    public function xtestRollback()
     {
         $this->luceneAdapter->begin();
         $this->luceneAdapter->deleteDocument('333');
@@ -207,7 +207,7 @@ class LuceneTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->luceneAdapter->isTransactionOpen());
     }
 
-    public function testDeleteAllDocuments()
+    public function xtestDeleteAllDocuments()
     {
         $docCount   = 5;
         $this->index->expects($this->exactly(2))

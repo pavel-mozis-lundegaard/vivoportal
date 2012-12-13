@@ -12,14 +12,16 @@ class Parser implements ParserInterface
     /**
      * Unserializes string representation of query into the Query object
      * @param $string
+     * @throws Exception\UnsupportedQueryTypeException
+     * @throws Exception\InvalidQuerySyntaxException
      * @return Query\QueryInterface
      */
     public function stringToQuery($string)
     {
         $regExps    = array(
-            'and'   => '/^\s*\(\s*(\(.+\))\s+[aA][nN][dD]\s+(\(.+\))\s*\)\s*$/',
-            'or'    => '/^\s*\(\s*(\(.+\))\s+[oO][rR]\s+(\(.+\))\s*\)\s*$/',
-            'not'   => '/^\s*\(\s*[nN][oO][tT]\s+(\(.+\))\s*\)\s*$/',
+            'and'   => '/^\s*\(\s*(\(.+\))\s*[aA][nN][dD]\s*(\(.+\))\s*\)\s*$/',
+            'or'    => '/^\s*\(\s*(\(.+\))\s*[oO][rR]\s*(\(.+\))\s*\)\s*$/',
+            'not'   => '/^\s*\(\s*[nN][oO][tT]\s*(\(.+\))\s*\)\s*$/',
             'wc'    => '/^\s*\((\s*(\w+)\s*:)?\s*"(.+\*.*)"\s*\)\s*$/',
             'term'  => '/^\s*\((\s*(\w+)\s*:)?\s*"(.+)"\s*\)\s*$/',
         );
@@ -32,39 +34,48 @@ class Parser implements ParserInterface
                         $queryLeft  = $this->stringToQuery(trim($matches[1]));
                         $queryRight = $this->stringToQuery(trim($matches[2]));
                         $query      = new Query\BooleanAnd($queryLeft, $queryRight);
+                        return $query;
                         break;
                     case 'or':
                         $queryLeft  = $this->stringToQuery(trim($matches[1]));
                         $queryRight = $this->stringToQuery(trim($matches[2]));
                         $query      = new Query\BooleanOr($queryLeft, $queryRight);
+                        return $query;
                         break;
                     case 'not':
                         $queryNot   = $this->stringToQuery(trim($matches[1]));
                         $query      = new Query\BooleanNot($queryNot);
+                        return $query;
                         break;
                     case 'wc':
                         $field      = trim($matches[2]);
                         $patternStr = trim($matches[3]);
-                        if (!$field) {
+                        if ($field == '') {
                             $field  = null;
                         }
                         $pattern    = new \Vivo\Indexer\Term($patternStr, $field);
                         $query      = new \Vivo\Indexer\Query\Wildcard($pattern);
+                        return $query;
                         break;
                     case 'term':
-
-                        //TODO
-
+                        $field      = trim($matches[2]);
+                        $value      = trim($matches[3]);
+                        if ($field == '') {
+                            $field  = null;
+                        }
+                        $term       = new \Vivo\Indexer\Term($value, $field);
+                        $query      = new \Vivo\Indexer\Query\Term($term);
+                        return $query;
                         break;
                     default:
                         throw new Exception\UnsupportedQueryTypeException(
                             sprintf("%s: Unsupported query type '%s'", __METHOD__, $key));
                         break;
                 }
-                break;
             }
         }
-        return $query;
+        //No pattern matched
+        throw new Exception\InvalidQuerySyntaxException(sprintf("%s: Invalid query syntax '%s'", __METHOD__, $string));
     }
 
     /**
@@ -81,10 +92,10 @@ class Parser implements ParserInterface
             $term   = $query->getTerm();
             if ($term->getField()) {
                 //Field specified
-                $string = sprintf('%s:"%s"', $term->getField(), $term->getText());
+                $string = sprintf('(%s:"%s")', $term->getField(), $term->getText());
             } else {
                 //Field not specified
-                $string = sprintf('"%s"', $term->getText());
+                $string = sprintf('("%s")', $term->getText());
             }
         } elseif ($query instanceof Query\WildcardInterface) {
             //Wildcard query
@@ -92,11 +103,20 @@ class Parser implements ParserInterface
             $term   = $query->getPattern();
             if ($term->getField()) {
                 //Field specified
-                $string = sprintf('%s:"%s"', $term->getField(), $term->getText());
+                $string = sprintf('(%s:"%s")', $term->getField(), $term->getText());
             } else {
                 //Field not specified
-                $string = sprintf('"%s"', $term->getText());
+                $string = sprintf('("%s")', $term->getText());
             }
+        } elseif ($query instanceof Query\RangeInterface) {
+            //Range query
+            /** @var $query \Vivo\Indexer\Query\RangeInterface */
+            $leftBracket    = $query->isLowerLimitInclusive() ? '[' : '{';
+            $rightBracket   = $query->isUpperLimitInclusive() ? ']' : '}';
+            $lowerLimit     = is_null($query->getLowerLimit()) ? '*' : $query->getLowerLimit();
+            $upperLimit     = is_null($query->getUpperLimit()) ? '*' : $query->getUpperLimit();
+            $string         = sprintf('(%s:%s"%s" TO "%s"%s)', $query->getField(),
+                $leftBracket, $lowerLimit, $upperLimit, $rightBracket);
         } elseif ($query instanceof Query\BooleanAnd) {
             //BooleanAnd query
             /** @var $query \Vivo\Indexer\Query\BooleanAnd */
@@ -120,4 +140,34 @@ class Parser implements ParserInterface
         }
         return $string;
     }
+
+
+
+    /* ***************************************************************************** */
+
+    protected function tokenize($exp)
+    {
+        $tokens = array();
+        $pos    = 0;
+        $len    = mb_strlen($exp);
+        while (false) {
+            $current    = $exp[$pos];
+            if ($pos == $len) {
+                $ahead  = null;
+            } else {
+                $ahead      = $exp[$pos+1];
+            }
+            if ($current == '(') {
+                $tokens[]   = '(';
+            } elseif ($current == ')') {
+                $tokens = ')';
+            } elseif ($current == ' ') {
+                //Skip whitespace
+            } else {
+                //Anything else
+
+            }
+        }
+    }
+
 }

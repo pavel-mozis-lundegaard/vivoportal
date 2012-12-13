@@ -18,6 +18,8 @@ use Vivo\Repository\Exception;
 use Vivo\Repository\IndexerHelper;
 use Vivo\Indexer\Term as IndexerTerm;
 use Vivo\Indexer\Query\QueryInterface;
+use Vivo\Indexer\Query\Term as TermQuery;
+use Vivo\Indexer\QueryParams;
 
 use Zend\Serializer\Adapter\AdapterInterface as Serializer;
 use Zend\Cache\Storage\StorageInterface as Cache;
@@ -232,14 +234,17 @@ class Repository implements RepositoryInterface
      */
     public function getEntities(QueryInterface $query)
     {
-        $hits       = $this->indexer->find($query);
+        $result     = $this->indexer->find($query);
         $entities   = array();
-        foreach ($hits as $hit) {
-            $doc    = $hit->getDocument();
+        /** @var $hit \Vivo\Indexer\QueryHit */
+        foreach ($result as $hit) {
+            $doc    = $hit-> getDocument();
             $uuid   = $doc->getFieldValue('uuid');
-            $entity = $this->getEntity($uuid);
-            if ($entity) {
+            try {
+                $entity = $this->getEntity($uuid);
                 $entities[] = $entity;
+            } catch (Exception\EntityNotFoundException $e) {
+                //Entity not found
             }
         }
         return $entities;
@@ -765,8 +770,9 @@ class Repository implements RepositoryInterface
                 }
                 //Indexer - remove old doc & insert new one
                 $entityTerm = $this->indexerHelper->buildEntityTerm($entity);
+                $delQuery   = new TermQuery($entityTerm);
                 $entityDoc  = $this->indexerHelper->createDocument($entity);
-                $this->indexer->deleteByTerm($entityTerm);
+                $this->indexer->delete($delQuery);
                 $this->indexer->addDocument($entityDoc);
                 //UuidConvertor
                 $this->uuidConvertor->set($entity->getUuid(), $entity->getPath());

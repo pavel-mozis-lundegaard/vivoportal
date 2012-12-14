@@ -252,7 +252,10 @@ return array(
         ),
         'templates' => array (
             'template_map' => array(
+                // UI components
+                'Vivo\UI\ComponentContainer'        => __DIR__.'/../view/Vivo/UI/ComponentContainer.phtml',
                 'Vivo\UI\Page'                      => __DIR__.'/../view/Vivo/UI/Page.phtml',
+                // generic contents
                 'Vivo\CMS\UI\Content\Layout'        => __DIR__.'/../view/Vivo/CMS/UI/Content/Layout.phtml',
                 'Vivo\CMS\UI\Content\File:html'     => __DIR__.'/../view/Vivo/CMS/UI/Content/File.html.phtml',
                 'Vivo\CMS\UI\Content\File:plain'    => __DIR__.'/../view/Vivo/CMS/UI/Content/File.plain.phtml',
@@ -261,7 +264,12 @@ return array(
                 'Vivo\CMS\UI\Content\File'          => __DIR__.'/../view/Vivo/CMS/UI/Content/File.phtml',
                 'Vivo\CMS\UI\Content\Overview'      => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.phtml',
                 'Vivo\CMS\UI\Content\Logon'         => __DIR__.'/../view/Vivo/CMS/UI/Content/Logon.phtml',
-                'Vivo\UI\ComponentContainer'        => __DIR__.'/../view/Vivo/UI/ComponentContainer.phtml',
+                //backend
+                'Vivo\CMS\UI\Manager\HeaderBar'     => __DIR__ . '/../view/Vivo/CMS/UI/Manager/HeaderBar.phtml',
+                'Vivo\CMS\UI\Manager\FooterBar'     => __DIR__ . '/../view/Vivo/CMS/UI/Manager/FooterBar.phtml',
+                'Vivo\CMS\UI\Manager\ModulesPanel'  => __DIR__ . '/../view/Vivo/CMS/UI/Manager/ModulesPanel.phtml',
+                'Vivo\CMS\UI\Manager\Explorer\Explorer' => __DIR__ .  '/../view/Vivo/CMS/UI/Manager/Explorer/Explorer.phtml',
+                'Vivo\CMS\UI\Manager\Explorer\DocumentTree' => __DIR__ .  '/../view/Vivo/CMS/UI/Manager/Explorer/DocumentTree.phtml',
             ),
         ),
         'component_mapping' => array (

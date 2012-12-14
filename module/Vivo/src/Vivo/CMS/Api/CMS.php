@@ -460,7 +460,7 @@ class CMS
         return $parts[1];
     }
 
-    public function getSiteEntity($entityPath, $site)
+    public function getSiteEntity($entityPath, Model\Site $site)
     {
         $path = $site->getPath(). '/ROOT/'. $entityPath;
         return $this->getEntity($path);

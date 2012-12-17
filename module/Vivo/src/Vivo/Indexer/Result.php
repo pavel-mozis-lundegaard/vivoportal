@@ -32,9 +32,9 @@ class Result implements IteratorAggregate
      * Constructor
      * @param QueryHit[] $hits
      * @param integer $totalHits
-     * @param QueryParams $queryParams
+     * @param QueryParams|null $queryParams
      */
-    public function __construct(array $hits, $totalHits, QueryParams $queryParams)
+    public function __construct(array $hits, $totalHits, QueryParams $queryParams = null)
     {
         $this->hits         = $hits;
         $this->totalHits    = $totalHits;

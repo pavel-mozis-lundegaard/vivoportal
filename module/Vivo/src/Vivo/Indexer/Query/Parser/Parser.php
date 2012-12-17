@@ -140,34 +140,4 @@ class Parser implements ParserInterface
         }
         return $string;
     }
-
-
-
-    /* ***************************************************************************** */
-
-    protected function tokenize($exp)
-    {
-        $tokens = array();
-        $pos    = 0;
-        $len    = mb_strlen($exp);
-        while (false) {
-            $current    = $exp[$pos];
-            if ($pos == $len) {
-                $ahead  = null;
-            } else {
-                $ahead      = $exp[$pos+1];
-            }
-            if ($current == '(') {
-                $tokens[]   = '(';
-            } elseif ($current == ')') {
-                $tokens = ')';
-            } elseif ($current == ' ') {
-                //Skip whitespace
-            } else {
-                //Anything else
-
-            }
-        }
-    }
-
 }

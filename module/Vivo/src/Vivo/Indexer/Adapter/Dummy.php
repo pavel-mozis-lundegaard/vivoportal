@@ -18,15 +18,14 @@ class Dummy implements AdapterInterface
      * Finds documents matching the query in the index and returns a search result
      * If there are no documents found, returns an empty Result
      * @param \Vivo\Indexer\Query\QueryInterface $query
-     * @param \Vivo\Indexer\QueryParams $queryParams
+     * @param \Vivo\Indexer\QueryParams|null $queryParams
      * @return Result
      */
-    public function find(Query\QueryInterface $query, QueryParams $queryParams)
+    public function find(Query\QueryInterface $query, QueryParams $queryParams = null)
     {
-        $result     = new Result(0, 0, $queryParams);
+        $result     = new Result(array(), 0, $queryParams);
         return $result;
     }
-
 
     /**
      * Finds and returns a document by its ID

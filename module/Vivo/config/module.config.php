@@ -108,15 +108,13 @@ return array(
             'zdb_abstract_factory'      => 'Vivo\Service\ZdbAbstractFactoryFactory',
             'path_builder'              => 'Vivo\Service\PathBuilderFactory',
             'solr_service'              => 'Vivo\Service\SolrServiceFactory',
-            'indexer_adapter_solr'      => 'Vivo\Service\IndexerAdapterSolrFactory',
-            'indexer_adapter_dummy'     => 'Vivo\Service\IndexerAdapterDummyFactory',
+            'indexer_adapter'           => 'Vivo\Service\IndexerAdapterFactory',
         ),
         'aliases' => array(
                 'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
                 'Vivo\Repository\Repository'        => 'repository',
                 'Zend\Http\Response'                => 'response',
                 'Zend\View\HelperPluginManager'     => 'view_helper_manager',
-                'indexer_adapter'                   => 'indexer_adapter_solr',
         ),
     ),
     'translator' => array(
@@ -218,6 +216,20 @@ return array(
         'module_install_manager'    => array(
             //Default db source is configured in a local config
             //'default_db_source'     => '',
+        ),
+        'indexer'   => array(
+            'adapter'   => array(
+                'type'      => 'dummy',
+                //Solr options
+//                'options'   => array(
+//                    'id_field'      => 'vivo_cms_model_entity_path',
+//                    'solr_service'  => array(
+//                        'host'          => 'localhost',
+//                        'port'          => 8983,
+//                        'path'          => '/solr/',
+//                    ),
+//                ),
+            ),
         ),
         'cms'       => array(
             'repository'    => array(

@@ -37,6 +37,12 @@ interface AdapterInterface extends TransactionalInterface
     public function addDocument(Document $doc);
 
     /**
+     * Updates document in index
+     * @param Document $doc
+     */
+    public function update(Document $doc);
+
+    /**
      * Deletes documents from the index
      * @param \Vivo\Indexer\Query\QueryInterface $query
      * @return void

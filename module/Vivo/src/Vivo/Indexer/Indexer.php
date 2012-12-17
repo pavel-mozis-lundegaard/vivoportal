@@ -113,4 +113,18 @@ class Indexer implements IndexerInterface
     {
         $this->adapter->deleteAllDocuments();
     }
+
+    /**
+     * Updates document in index
+     * @param Document $document
+     * @throws Exception\InvalidArgumentException
+     * @return void
+     */
+    public function update(Document $document)
+    {
+        if (!$document->getDocId()) {
+            throw new Exception\InvalidArgumentException(
+                sprintf('%s: Cannot update document; Document has no ID', __METHOD__));
+        }
+    }
 }

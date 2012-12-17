@@ -360,4 +360,13 @@ class Solr implements AdapterInterface
         $doc->setDocId($doc->getFieldValue($this->idField));
         return $doc;
     }
+
+    /**
+     * Updates document in index
+     * @param Document $doc
+     */
+    public function update(Document $doc)
+    {
+        $this->addDocument($doc);
+    }
 }

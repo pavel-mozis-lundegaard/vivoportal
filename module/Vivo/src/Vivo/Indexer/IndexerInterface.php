@@ -31,6 +31,12 @@ interface IndexerInterface extends  TransactionalInterface
     public function addDocument(Document $document);
 
     /**
+     * Updates document in index
+     * @param Document $document
+     */
+    public function update(Document $document);
+
+    /**
      * Deletes documents identified by a query from the index
      * @param Query\QueryInterface $query
      */

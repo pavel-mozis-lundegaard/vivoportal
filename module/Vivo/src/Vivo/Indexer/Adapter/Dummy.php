@@ -92,4 +92,12 @@ class Dummy implements AdapterInterface
     public function rollback()
     {
     }
+
+    /**
+     * Updates document in index
+     * @param Document $doc
+     */
+    public function update(Document $doc)
+    {
+    }
 }

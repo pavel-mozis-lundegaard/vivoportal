@@ -1,15 +1,12 @@
 <?php
 namespace Vivo\Controller;
 
-use Vivo\SiteManager\Event\SiteEvent;
-
-use Vivo\Http\StreamResponse;
-
 use Vivo\CMS\ComponentFactory;
 use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Model\Site;
 use Vivo\Controller\Exception;
 use Vivo\IO\InputStreamInterface;
+use Vivo\SiteManager\Event\SiteEvent;
 use Vivo\UI\Component;
 use Vivo\UI\Exception\ExceptionInterface as UIException;
 use Vivo\UI\TreeUtil;
@@ -86,11 +83,14 @@ class CMSFrontController implements DispatchableInterface,
      */
     public function dispatch(Request $request, Response $response = null)
     {
+        if (!$this->siteEvent->getSite()) {
+            throw new Exception\SiteNotFoundException(
+                    sprintf("%s: Site not found for hostname '%s'.",
+                            __METHOD__ , $this->siteEvent->getHost()));
+        }
+
         //TODO: add exception when document doesn't exist
         //TODO: redirects based on document properties(https, $document->url etc.)
-        $response->getHeaders()->addHeaderLine('X-Generated-By: Vivo')
-            ->addHeaderLine(
-                'X-Generated-At: ' . gmdate('D, d M Y H:i:s', time()) . ' GMT');
 
         $documentPath = $this->event->getRouteMatch()->getParam('path');
         $document = $this->cms->getSiteDocument($documentPath, $this->siteEvent->getSite());

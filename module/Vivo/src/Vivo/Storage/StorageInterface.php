@@ -41,9 +41,9 @@ interface StorageInterface {
 
 	/**
 	 * Retrieves an item from storage and returns it
-	 * If the item doesn't exist under specified path returns NULL
+	 * If the item doesn't exist under specified path throws an exception
 	 * @param string $path to item
-	 * @return mixed|null
+	 * @return mixed
      * @throws \Vivo\Storage\Exception\IOException When file does not exist
 	 */
 	public function get($path);

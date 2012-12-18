@@ -73,6 +73,13 @@ class Lexer implements LexerInterface
         return $tokens;
     }
 
+    /**
+     * Reads and returns a field name from the input string
+     * @param string $inputStr
+     * @param integer $len Input string length
+     * @param integer $pos Read from this position
+     * @return string
+     */
     protected function readFieldName($inputStr, $len, &$pos)
     {
         $cont       = true;
@@ -89,6 +96,13 @@ class Lexer implements LexerInterface
         return $fieldName;
     }
 
+    /**
+     * Reads a string literal from the input string
+     * @param string $inputStr
+     * @param integer $len Input string length
+     * @param integer $pos Read from this position
+     * @return string
+     */
     protected function readStringLiteral($inputStr, $len, &$pos)
     {
         $cont       = true;
@@ -111,6 +125,13 @@ class Lexer implements LexerInterface
         return $stringLit;
     }
 
+    /**
+     * Reads a range literal from the input string
+     * @param string $inputStr
+     * @param integer $len Input string length
+     * @param integer $pos Read from this position
+     * @return string
+     */
     protected function readRange($inputStr, $len, &$pos)
     {
         $cont       = true;
@@ -133,6 +154,13 @@ class Lexer implements LexerInterface
         return $range;
     }
 
+    /**
+     * Reads an operator from the input string
+     * @param string $inputStr
+     * @param integer $len Input string length
+     * @param integer $pos Read from this position
+     * @return string
+     */
     protected function readOperator($inputStr, $len, &$pos)
     {
         $cont       = true;
@@ -149,9 +177,16 @@ class Lexer implements LexerInterface
         return $operator;
     }
 
+    /**
+     * Returns character at the specified position in the input string or null if position is out of bounds
+     * @param string $inputStr
+     * @param integer $len Input string length
+     * @param integer $pos Position in the input string
+     * @return null|string
+     */
     protected function getCharAt($inputStr, $len, $pos)
     {
-        if ($pos >= $len) {
+        if ($pos >= $len || $pos < 0) {
             $char  = null;
         } else {
             $char  = mb_substr($inputStr, $pos, 1);
@@ -163,10 +198,12 @@ class Lexer implements LexerInterface
      * Evaluates tokens and sets their value
      * @param TokenInterface[] $tokens
      * @throws Exception\UnsupportedTokenTypeException
+     * @throws Exception\IllegalRangeLiteralException
      * @return void
      */
     protected function evaluate(array &$tokens)
     {
+        $reRange    = '/^\[(.+)\s+[tT][oO]\s+(.+)\]$/';
         /** @var $tokens TokenInterface[] */
         foreach ($tokens as $key => $token) {
            switch ($token->getType()) {
@@ -181,10 +218,17 @@ class Lexer implements LexerInterface
                    $tokens[$key]->setValue($token->getLexeme());
                    break;
                case TokenInterface::TYPE_OPERATOR:
-                   $tokens[$key]->setValue($token->getLexeme());
+                   $tokens[$key]->setValue(mb_strtoupper($token->getLexeme()));
                    break;
                case TokenInterface::TYPE_RANGE:
-                   $tokens[$key]->setValue($token->getLexeme());
+                   $matches = array();
+                   $matched = preg_match($reRange, $token->getLexeme(), $matches);
+                   if ($matched !== 1) {
+                       throw new Exception\IllegalRangeLiteralException(
+                           sprintf("%s: Illegal range literal '%s'", __METHOD__, $token->getLexeme()));
+                   }
+                   $value   = '[' . $matches[1] . ' TO ' . $matches[2] . ']';
+                   $tokens[$key]->setValue($value);
                    break;
                case TokenInterface::TYPE_RIGHT_PARENTHESIS:
                    $tokens[$key]->setValue($token->getLexeme());

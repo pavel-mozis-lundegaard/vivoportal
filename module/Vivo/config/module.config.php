@@ -86,7 +86,7 @@ return array(
         'factories' => array(
             'translator'                => 'Zend\I18n\Translator\TranslatorServiceFactory',
             'response'                  => 'Vivo\Service\ResponseFactory',
-            'di'                        => 'Vivo\Service\DiFactory',
+            'dependencyinjector'        => 'Vivo\Service\DiFactory',
             'db_service_manager'        => 'Vivo\Service\DbServiceManagerFactory',
             'uuid_convertor'            => 'Vivo\Service\UuidConvertorFactory',
             'module_storage'            => 'Vivo\Service\ModuleStorageFactory',

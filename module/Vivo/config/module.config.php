@@ -110,6 +110,7 @@ return array(
             'path_builder'              => 'Vivo\Service\PathBuilderFactory',
             'solr_service'              => 'Vivo\Service\SolrServiceFactory',
             'indexer_adapter'           => 'Vivo\Service\IndexerAdapterFactory',
+            'indexer_query_parser'      => 'Vivo\Service\IndexerQueryParserFactory',
         ),
         'aliases' => array(
                 'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',

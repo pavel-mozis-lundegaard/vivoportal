@@ -9,6 +9,7 @@ use Vivo\Indexer\Query\Range;
 use Vivo\Indexer\Query\Term as TermQuery;
 use Vivo\Indexer\Query\Wildcard;
 use Vivo\Indexer\Term as IndexerTerm;
+use Vivo\Indexer\Query\Parser\TokenInterface;
 
 /**
  * QueryBuilder
@@ -25,10 +26,9 @@ class QueryBuilder
      */
     public function cond($cond, $field = null, $neg = false)
     {
-        $reRange    = '/^\[(.+)\s+[tT][oO]\s+(.+)\]$/';
         $cond       = trim($cond);
         $matches    = array();
-        if (preg_match($reRange, $cond, $matches) === 1) {
+        if (preg_match(TokenInterface::RE_RANGE_LITERAL, $cond, $matches) === 1) {
             //Range query
             if (is_null($field)) {
                 throw new Exception\InvalidArgumentException(

@@ -11,11 +11,15 @@ interface TokenInterface
      */
     const TYPE_LEFT_PARENTHESIS     = 'left_parenthesis';
     const TYPE_RIGHT_PARENTHESIS    = 'right_parenthesis';
-    const TYPE_FIELD_LIKE           = 'field_like';
     const TYPE_FIELD_NAME           = 'field_name';
     const TYPE_STRING_LITERAL       = 'string_literal';
-    const TYPE_RANGE                = 'range';
+    const TYPE_RANGE_LITERAL        = 'range';
     const TYPE_OPERATOR             = 'operator';
+
+    /**
+     * RegEx for a range literal
+     */
+    const RE_RANGE_LITERAL          = '/^\[(.+)\s+[tT][oO]\s+(.+)\]$/';
 
     /**
      * Returns the token type

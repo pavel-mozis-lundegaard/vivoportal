@@ -42,13 +42,13 @@ class Lexer implements LexerInterface
                 $tokens[]   = $token;
                 $pos++;
             } elseif ($char == ':') {
-                $token      = new Token(TokenInterface::TYPE_FIELD_LIKE, $char, $pos);
+                $token      = new Token(TokenInterface::TYPE_OPERATOR, $char, $pos);
                 $tokens[]   = $token;
                 $pos++;
             } elseif ($char == ' ') {
                 //Skip whitespace
                 $pos++;
-            } elseif ($char == '$') {
+            } elseif ($char == '#' || $char == '\\') {
                 $lexemePos  = $pos;
                 $fieldName  = $this->readFieldName($inputStr, $strLen, $pos);
                 $token      = new Token(TokenInterface::TYPE_FIELD_NAME, $fieldName, $lexemePos);
@@ -61,7 +61,7 @@ class Lexer implements LexerInterface
             } elseif ($char == '[') {
                 $lexemePos  = $pos;
                 $range      = $this->readRange($inputStr, $strLen, $pos);
-                $token      = new Token(TokenInterface::TYPE_RANGE, $range, $lexemePos);
+                $token      = new Token(TokenInterface::TYPE_RANGE_LITERAL, $range, $lexemePos);
                 $tokens[]   = $token;
             } else {
                 $lexemePos  = $pos;
@@ -198,20 +198,30 @@ class Lexer implements LexerInterface
      * Evaluates tokens and sets their value
      * @param TokenInterface[] $tokens
      * @throws Exception\UnsupportedTokenTypeException
+     * @throws Exception\FieldNameLeadingCharInvalidException
      * @throws Exception\IllegalRangeLiteralException
+     * @throws \Exception
      * @return void
      */
     protected function evaluate(array &$tokens)
     {
-        $reRange    = '/^\[(.+)\s+[tT][oO]\s+(.+)\]$/';
         /** @var $tokens TokenInterface[] */
         foreach ($tokens as $key => $token) {
            switch ($token->getType()) {
-               case TokenInterface::TYPE_FIELD_LIKE:
-                   $tokens[$key]->setValue($token->getLexeme());
-                   break;
                case TokenInterface::TYPE_FIELD_NAME:
-                   $fieldName   = mb_substr($token->getLexeme(), 1);
+                   $firstChar   = mb_substr($token->getLexeme(), 0, 1);
+                   if ($firstChar == '\\') {
+                       //Fully specified field name
+                       $fieldName   = $token->getLexeme();
+                   } elseif ($firstChar == '#') {
+                       //Partial field name
+                       //TODO - implement support for partial field names (supplement the field name)
+                       throw new \Exception(sprintf('%s: Partial field names not implemented', __METHOD__));
+                   } else {
+                       //Field name leading char invalid
+                       throw new Exception\FieldNameLeadingCharInvalidException(
+                           sprintf("%s: Field name leading character '%s' invalid", __METHOD__, $firstChar));
+                   }
                    $tokens[$key]->setValue($fieldName);
                    break;
                case TokenInterface::TYPE_LEFT_PARENTHESIS:
@@ -220,9 +230,9 @@ class Lexer implements LexerInterface
                case TokenInterface::TYPE_OPERATOR:
                    $tokens[$key]->setValue(mb_strtoupper($token->getLexeme()));
                    break;
-               case TokenInterface::TYPE_RANGE:
+               case TokenInterface::TYPE_RANGE_LITERAL:
                    $matches = array();
-                   $matched = preg_match($reRange, $token->getLexeme(), $matches);
+                   $matched = preg_match(TokenInterface::RE_RANGE_LITERAL, $token->getLexeme(), $matches);
                    if ($matched !== 1) {
                        throw new Exception\IllegalRangeLiteralException(
                            sprintf("%s: Illegal range literal '%s'", __METHOD__, $token->getLexeme()));

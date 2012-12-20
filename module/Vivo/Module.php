@@ -142,10 +142,13 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                 'CMSFront' => function (ControllerManager $cm) {
                     $fc = new \Vivo\Controller\CMSFrontController();
                     $sm = $cm->getServiceLocator();
-                    $fc->setComponentFactory($sm->get('Vivo\CMS\ComponentFactory'));
+                    $siteEvent = $sm->get('site_event');
+                    if ($siteEvent->getSite()) {
+                        $fc->setComponentFactory($sm->get('Vivo\CMS\ComponentFactory'));
+                    }
                     $fc->setTreeUtil($sm->get('di')->get('Vivo\UI\TreeUtil'));
                     $fc->setCMS($sm->get('cms'));
-                    $fc->setSiteEvent($sm->get('site_event'));
+                    $fc->setSiteEvent($siteEvent);
                     return $fc;
                 },
                 'CLI\Module'    => function(ControllerManager $cm) {

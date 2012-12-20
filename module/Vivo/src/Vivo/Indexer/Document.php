@@ -117,4 +117,13 @@ class Document implements DocumentInterface
     {
         return $this->docId;
     }
+
+    /**
+     * Returns if the document has an ID set
+     * @return bool
+     */
+    public function hasDocId()
+    {
+        return !is_null($this->docId);
+    }
 }

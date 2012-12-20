@@ -110,6 +110,7 @@ return array(
             'path_builder'              => 'Vivo\Service\PathBuilderFactory',
             'solr_service'              => 'Vivo\Service\SolrServiceFactory',
             'indexer_adapter'           => 'Vivo\Service\IndexerAdapterFactory',
+            'indexer_field_helper'      => 'Vivo\Service\IndexerFieldHelperFactory',
         ),
         'aliases' => array(
                 'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -223,13 +224,19 @@ return array(
                 'type'      => 'dummy',
                 //Solr options
 //                'options'   => array(
-//                    'id_field'      => 'vivo_cms_model_entity_path',
+//                    'id_field'      => 'uuid',
 //                    'solr_service'  => array(
 //                        'host'          => 'localhost',
 //                        'port'          => 8983,
 //                        'path'          => '/solr/',
 //                    ),
 //                ),
+            ),
+            'field_def' => array(
+                '\uuid'     => 's-is',
+                '\path'     => 's-is',
+                '\author'   => 's-ist',
+                '\title'    => 's-ist',
             ),
         ),
         'cms'       => array(

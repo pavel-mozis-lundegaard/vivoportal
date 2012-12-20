@@ -19,9 +19,11 @@ class IndexerAdapterFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $config         = $serviceLocator->get('config');
-        $idxAdapterCfg  = $config['vivo']['indexer']['adapter'];
+        $idxConfig      = $config['vivo']['indexer'];
+        $idxAdapterCfg  = $idxConfig['adapter'];
         $type           = $idxAdapterCfg['type'];
         $options        = $idxAdapterCfg['options'];
+        $fieldHelper    = $serviceLocator->get('indexer_field_helper');
         switch ($type) {
             case 'dummy':
                 $adapter    = new \Vivo\Indexer\Adapter\Dummy();
@@ -32,7 +34,7 @@ class IndexerAdapterFactory implements FactoryInterface
                 $solrService    = new \ApacheSolr\Service($solrSvcOpts['host'],
                                                           $solrSvcOpts['port'],
                                                           $solrSvcOpts['path']);
-                $adapter        =  new \Vivo\Indexer\Adapter\Solr($solrService, $idField);
+                $adapter        =  new \Vivo\Indexer\Adapter\Solr($solrService, $idField, $fieldHelper);
                 break;
             default:
                 throw new Exception\UnsupportedIndexerAdapterException(

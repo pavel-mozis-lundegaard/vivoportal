@@ -8,6 +8,7 @@ use Vivo\Indexer\QueryParams;
 use Vivo\Indexer\Query;
 use Vivo\Indexer\Field;
 use Vivo\Indexer\FieldHelper;
+use Vivo\Indexer\FieldHelperInterface;
 
 use ApacheSolr\Document as SolrDocument;
 use ApacheSolr\Service as SolrService;
@@ -67,7 +68,7 @@ class Solr implements AdapterInterface
     protected $scoreField       = 'score';
 
     /**
-     * Direct mapping of vivo indexer field names to Solr static field names
+     * Direct mapping of vivo indexer field names to Solr field names
      * @var array
      */
     protected $fieldNameMap     = array(
@@ -81,13 +82,13 @@ class Solr implements AdapterInterface
      * @var array
      */
     protected $fieldTypeMap   = array(
-        's-i'       => '_s-i',
-        's-im'      => '_s-im',
-        's-s'       => '_s-s',
-        's-sm'      => '_s-sm',
-        's-is'      => '_s-is',
-        's-ist'     => '_s-ist',
-        's-ism'     => '_s-ism',
+        FieldHelperInterface::FIELD_TYPE_STRING_I   => '_s-i',
+        FieldHelperInterface::FIELD_TYPE_STRING_IM  => '_s-im',
+        FieldHelperInterface::FIELD_TYPE_STRING_S   => '_s-s',
+        FieldHelperInterface::FIELD_TYPE_STRING_SM  => '_s-sm',
+        FieldHelperInterface::FIELD_TYPE_STRING_IS  => '_s-is',
+        FieldHelperInterface::FIELD_TYPE_STRING_IST => '_s-ist',
+        FieldHelperInterface::FIELD_TYPE_STRING_ISM => '_s-ism',
     );
 
     /**

@@ -82,6 +82,7 @@ return array(
             'site_event'                => 'Vivo\SiteManager\Event\SiteEvent',
             'indexer_helper'            => 'Vivo\Repository\IndexerHelper',
             'indexer_query_builder'     => 'Vivo\Indexer\QueryBuilder',
+            'indexer_document_builder'  => 'Vivo\Indexer\DocumentBuilder',
         ),
         'factories' => array(
             'translator'                => 'Zend\I18n\Translator\TranslatorServiceFactory',

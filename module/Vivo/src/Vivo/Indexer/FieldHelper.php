@@ -76,7 +76,7 @@ class FieldHelper implements FieldHelperInterface
      */
     protected function addFieldDefFromEntityMetadata($fieldName)
     {
-        //TODO - implement getFieldDefFromEntityMetaData()
+        //TODO - implement addFieldDefFromEntityMetaData()
         throw new \Exception(sprintf('%s not implemented', __METHOD__));
     }
 }

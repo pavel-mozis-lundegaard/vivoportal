@@ -326,7 +326,8 @@ class Solr implements AdapterInterface
         } elseif ($query instanceof Query\BooleanNot) {
             //Boolean NOT query
             /* @var $query Query\BooleanNot */
-            $solrQuery      = sprintf('(NOT %s)', $query->getQuery());
+            $positiveQuery  = $this->buildSolrQuery($query->getQuery());
+            $solrQuery      = sprintf('(NOT %s)', $positiveQuery);
         } elseif ($query instanceof Query\RangeInterface) {
             //Range query
             /* @var $query Query\RangeInterface */

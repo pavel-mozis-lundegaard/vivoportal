@@ -1,0 +1,32 @@
+<?php
+$param = $view_all ? '-all' : '';
+?>
+<div id="tabContainer<?=$param?>">
+    <div id="tabs<?=$param?>">
+        <div class="tabsHolder<?=$param?>">
+            <ul class="tabs">
+                <?
+                $position = 0;
+                foreach ($tabs as $tab):
+                    $position++;
+                ?>
+                <li<?if (!$view_all && $tab['name'] == $selected):?> class="selected"<?endif?> rel="tab<?=$position?>">
+                    <a href="<?=$this->action('select', array($tab['name']))?>"><?=htmlspecialchars($tab['label'])?></a>
+                </li>
+               <?endforeach?>
+            </ul>
+            <div class="clear"></div>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div class="tabContent">
+        <?
+        if ($view_all) {
+            foreach ($components as $name)
+                echo ${$name};
+        } else {
+            echo ${$selected};
+        }?>
+    </div>
+</div>
+<div class="clear"></div>

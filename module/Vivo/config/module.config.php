@@ -232,6 +232,11 @@ return array(
                 'Vivo\CMS\UI\Content\File' => __DIR__.'/../view/Vivo/CMS/UI/Content/File.phtml',
                 'Vivo\CMS\UI\Content\Overview' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.phtml',
                 'Vivo\UI\ComponentContainer' => __DIR__.'/../view/Vivo/UI/ComponentContainer.phtml',
+                'Vivo\UI\TabContainer' => __DIR__.'/../view/Vivo/UI/TabContainer.phtml',
+                'Vivo\UI\Ribbon' => __DIR__.'/../view/Vivo/UI/TabContainer.phtml',
+                'Vivo\UI\Ribbon\Tab' => __DIR__.'/../view/Vivo/UI/Ribbon/Tab.phtml',
+                'Vivo\UI\Ribbon\Group' => __DIR__.'/../view/Vivo/UI/Ribbon/Group.phtml',
+                'Vivo\UI\Ribbon\Item' => __DIR__.'/../view/Vivo/UI/Ribbon/Item.phtml',
             ),
         ),
         'component_mapping' => array (
@@ -267,14 +272,14 @@ return array(
                         'links' => array (
                             array(
                                 'rel'  => 'stylesheet',
-                                'href' => '/.ModuleName.resource/css/definedInVivoConfig.css',
+                                'href' => '/.vivo.resource/css/front.css',
                                 'type' => 'text/css',
                                 'media' => 'screen'
                             ),
                         ),
                         'scripts' => array (
                             array(
-                                'src' => '/.ModuleName.resource/js/front.js',
+                                'src' => '/.vivo.resource/js/front.js',
                                 'type' => 'text/javascript',
                             ),
                         ),

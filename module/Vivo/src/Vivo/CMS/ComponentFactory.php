@@ -102,6 +102,7 @@ class ComponentFactory
             $panels = $this->getDocumentLayoutPanels($document);
             $frontComponent = $this->applyLayout($layout, $frontComponent, $panels);
         }
+
         return $frontComponent;
     }
 
@@ -186,7 +187,7 @@ class ComponentFactory
             Document $document)
     {
         $className = $this->resolver->resolve($content);
-        $component = $this->di->newInstance($className);
+        $component = $this->di->get($className);
         if ($component instanceof InjectModelInterface) {
             //TODO how to properly inject document and content
             $component->setContent($content);

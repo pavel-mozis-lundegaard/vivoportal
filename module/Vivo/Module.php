@@ -1,6 +1,10 @@
 <?php
 namespace Vivo;
 
+use Vivo\View\Model\UIViewModel;
+use Vivo\CMS\UI\Manager\Explorer\Ribbon;
+use Zend\EventManager\EventManager;
+
 use Vivo\Util\Path\PathParser;
 use Vivo\View\Helper as ViewHelper;
 use Vivo\Service\Exception;
@@ -70,7 +74,6 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         $phtmlRenderingStrategy = $locator->get('phtml_rendering_strategy');
         $view->getEventManager()->attach($phtmlRenderingStrategy, 100);
     }
-
     /**
      * Registers view helpers to the view helper manager.
      * @param MvcEvent $e
@@ -107,6 +110,38 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
     {
         return array(
             'factories' => array(
+                'Vivo\CMS\UI\Manager\Explorer\Explorer' => function (ServiceManager $sm) {
+                    $siteSelector = $sm->get('Vivo\CMS\UI\Manager\SiteSelector');
+                    $explorer = new \Vivo\CMS\UI\Manager\Explorer\Explorer($sm->get('request'), $sm->get('cms'), $sm->get('session_manager'), $siteSelector);
+                    $explorer->setEventManager(new EventManager());
+                    $explorer->addComponent($sm->get('Vivo\CMS\UI\Manager\Explorer\Ribbon'), 'ribbon');
+
+                    $tree = new \Vivo\CMS\UI\Manager\Explorer\Tree();
+                    $tree->setView(new UIViewModel());
+                    $tree->setEntityManager($explorer);
+                    $explorer->addComponent($tree, 'tree');
+
+                    $finder = new \Vivo\CMS\UI\Manager\Explorer\Finder();
+                    $finder->setEntityManager($explorer);
+                    $finder->setView(new UIViewModel());
+                    $explorer->addComponent($finder, 'finder');
+
+                    return $explorer;
+                },
+                'Vivo\CMS\UI\Manager\Explorer\Ribbon' => function (ServiceManager $sm) {
+                    $ribbon = new \Vivo\CMS\UI\Manager\Explorer\Ribbon();
+                    return $ribbon;
+                },
+
+                'Vivo\CMS\UI\Manager\SiteSelector' => function (ServiceManager $sm) {
+                    $siteSelector = new \Vivo\CMS\UI\Manager\SiteSelector(new \Vivo\CMS\Api\Manager\Manager(), $sm->get('session_manager'));
+                    return $siteSelector;
+                },
+
+                'session_manager' => function (ServiceManager $sm) {
+                    return new \Zend\Session\SessionManager();
+                },
+
                 'vivo_service_manager' => function (ServiceManager $sm) {
                     //TODO - this exception is caught!
                     throw new Exception\ServiceNotAvailableException(

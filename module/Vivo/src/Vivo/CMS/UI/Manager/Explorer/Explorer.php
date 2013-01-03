@@ -1,14 +1,28 @@
 <?php
 namespace Vivo\CMS\UI\Manager\Explorer;
 
+use Vivo\CMS\UI\Manager\SiteSelector;
+
+use Zend\Session\Container;
+
+use Zend\Session\SessionManager;
+
 use Vivo\CMS\Api\CMS;
-
-use Vivo\UI\ComponentContainer;
 use Vivo\CMS\Model;
+use Vivo\UI\ComponentContainer;
 
+use Zend\EventManager\Event;
+use Zend\EventManager\EventManagerInterface;
+use Zend\EventManager\EventManagerAwareInterface;
+use Zend\EventManager\SharedEventManager;
 use Zend\Http\Request;
 
-class Explorer extends ComponentContainer //implements IEntityManager
+/**
+ *
+ * @todo save entity/site to session
+ */
+class Explorer extends ComponentContainer implements EventManagerAwareInterface,
+        EntityManagerInterface
 {
     /**
      * Entity beeing explored.
@@ -17,124 +31,111 @@ class Explorer extends ComponentContainer //implements IEntityManager
     private $entity;
 
     /**
-     * Last item selected in ribbon
-     * @var Vivo\UI\Ribbon\Item
+     *  Site beeing explored
+     * @var \Vivo\CMS\Model\Site
      */
-    private $last_item;
+    private $site;
 
     /**
      * Current component
-     * @var Vivo\UI\Component
+     * @var string
      */
-    private $current;
+    private $currentName = 'browser';
 
-    private $entityChangeListeners = array();
+    /**
+     * @var EventManagerInterface
+     */
+    private $eventManager;
 
-    public function __construct(Request $request, CMS $cms)
+    private $siteSelector;
+
+    public function __construct(Request $request, CMS $cms, SessionManager $sessionManager, SiteSelector $siteSelector)
     {
-
+        parent::__construct();
         $this->request = $request;
         $this->cms = $cms;
-//         $this->ribbon = new Explorer\Ribbon(
-//                 new UI\Ribbon\Tab(__CLASS__ . '\entity',
-//                         new UI\Ribbon\Group(__CLASS__ . '\show',
-//                                 new RibbonItem($this, 'viewer',
-//                                         __CLASS__ . '\Viewer\label', 'show',
-//                                         RibbonItem::NORMAL,
-//                                         array($this, 'invoke')),
-//                                 new RibbonItem($this, 'browser',
-//                                         __CLASS__ . '\Browser\label', 'browse',
-//                                         RibbonItem::NORMAL,
-//                                         array($this, 'invoke')),
-//                                 new RibbonItem($this, 'references',
-//                                         __CLASS__ . '\References\label',
-//                                         'RedirectMap', RibbonItem::NORMAL,
-//                                         array($this, 'invoke'))),
-//                         new UI\Ribbon\Group(__CLASS__ . '\edit',
-//                                 new RibbonItem($this, 'editor',
-//                                         __CLASS__ . '\Editor\label', 'edit',
-//                                         RibbonItem::NORMAL,
-//                                         array($this, 'invoke')),
-//                                 new RibbonItem($this, 'contents',
-//                                         __CLASS__ . '\Contents\label',
-//                                         'Overview', RibbonItem::NORMAL,
-//                                         array($this, 'invoke'))),
-//                         new UI\Ribbon\Group(__CLASS__ . '\structure',
-//                                 new RibbonItem($this, 'creator',
-//                                         __CLASS__ . '\Creator\label', 'create',
-//                                         RibbonItem::NORMAL,
-//                                         array($this, 'invoke')),
-//                                 new RibbonItem($this, 'copy',
-//                                         __CLASS__ . '\Transform\label_copy',
-//                                         'copy', RibbonItem::NORMAL,
-//                                         array($this, 'invoke')),
-//                                 new RibbonItem($this, 'move',
-//                                         __CLASS__ . '\Transform\label_move',
-//                                         'move-rename', RibbonItem::NORMAL,
-//                                         array($this, 'invoke')),
-//                                 new RibbonItem($this, 'delete',
-//                                         __CLASS__ . '\Delete\label', 'delete',
-//                                         RibbonItem::NORMAL,
-//                                         array($this, 'invoke')))),
-//                 new UI\Ribbon\Tab(__CLASS__ . '\advanced',
-//                         new UI\Ribbon\Group(__CLASS__ . '\secure',
-//                                 new RibbonItem($this, 'security',
-//                                         __CLASS__ . '\Secure\label',
-//                                         'zabezpeceni', RibbonItem::NORMAL,
-//                                         array($this, 'invoke')),
-//                                 new RibbonItem($this, 'audit',
-//                                         __CLASS__ . '\Audit\label', 'show',
-//                                         RibbonItem::NORMAL,
-//                                         array($this, 'invoke'))),
-//                         new UI\Ribbon\Group(__CLASS__ . '\expert',
-//                                 new RibbonItem($this, 'reindex',
-//                                         __CLASS__ . '\Reindex\label', 'edit',
-//                                         RibbonItem::NORMAL,
-//                                         array($this, 'invoke')),
-//                                 new RibbonItem($this, 'inspector',
-//                                         __CLASS__ . '\Inspect\label',
-//                                         'inspect', RibbonItem::NORMAL,
-//                                         array($this, 'invoke')))));
-        $this->viewer = new Viewer;
-        $this->browser = new Browser;
-//         $this->editor = $this
-//                 ->addEntityChangeListener(new Explorer\Editor($this));
-//         $this->security = new Explorer\Secure;
-//         $this->contents = new Explorer\Contents;
-//         $this->references = new Explorer\References;
-//         $this->audit = new Explorer\Audit;
-//         $this->inspector = new Explorer\Inspector;
-//         $this->reindex = new Explorer\Reindex;
-//         $this->creator = new Explorer\Creator;
-//         $this->copy = new Explorer\Transform(Explorer\Transform::MODE_COPY);
-//         $this->move = new Explorer\Transform(Explorer\Transform::MODE_MOVE);
-//         $this->delete = new Explorer\Delete;
+        $this->session = new Container(__CLASS__, $sessionManager);
+        $this->siteSelector = $siteSelector;
     }
 
-    public function __set($name, $value)
+    public function loadState()
     {
-        if ($name == 'current')
-            die($name);
-        parent::__set($name, $value);
+        $this->entity = $this->session->entity;
+        $this->currentName = $this->session->currentName;
     }
 
-    function init()
+    public function init()
     {
-        if ($relPath = $this->request->getQuery('url', false)) {
-            $entity = $this->cms->getSiteEntity($relPath, $this->site);
-        } else {
-            $entity = $this->cms->getSiteEntity('', $this->site);
-        }
-
-//         if ($url = Context::$instance->parameters['url'])
-//             $this
-//                     ->setEntity(
-//                             Context::$instance->site->getEntity('ROOT' . $url),
-//                             Context::$instance->parameters['item']);
-//         if (!$this->entity) {
-//             $this->setEntity(Context::$instance->site->getEntity('ROOT'));
-//         }
+        $this->loadState();
+        $this->setCurrent($this->currentName);
+        $this->siteSelector->getEventManager()->attach('setSite', array($this, 'onSiteChange'));
+        $this->ribbon->getEventManager()->attach('itemClick', array ($this, 'onRibbonClick'));
         parent::init();
+    }
+
+    public function done() {
+        $this->session->entity = $this->entity;
+        $this->session->currentName = $this->currentName;
+        parent::done();
+    }
+
+    /**
+     * @todo move to factory class
+     */
+    public function createComponent($name)
+    {
+        switch($name) {
+            case 'browser':
+                $component = new Browser($this);
+                break;
+            case 'viewer':
+                $component = new Viewer($this);
+                break;
+            case 'editor':
+                $component = new Editor($this);
+                break;
+            default:
+                $component = null;
+        }
+        return $component;
+    }
+
+    public function setCurrent($name)
+    {
+        $component = $this->createComponent($name);
+        if ($component) {
+            $this->currentName = $name;
+
+            if ($this->hasComponent('current')) {
+//                $this->removeComponent('current');
+            }
+            $this->addComponent($component, 'current');
+        }
+    }
+
+    public function loadEntity()
+    {
+        $site = $this->siteSelector->getSite();
+        if ($this->site) {
+            if ($relPath = $this->request->getQuery('url', false)) {
+                $entity = $this->cms->getSiteEntity($relPath, $site);
+                $this->setEntity($entity);
+            } elseif ($this->entity === null) {
+                $entity = $this->cms->getSiteEntity('', $site);
+                $this->setEntity($entity);
+            }
+        }
+    }
+
+    public function onSiteChange(Event $event)
+    {
+        $this->site = $event->getParam('site');
+        $this->setEntityByRelPath('/');
+    }
+
+    public function onRibbonClick(Event $event)
+    {
+        $this->setCurrent($event->getParam('itemName'));
     }
 
     /**
@@ -157,74 +158,66 @@ class Explorer extends ComponentContainer //implements IEntityManager
         }
     }
 
-    function view()
-    {
-?>
-		<div class="ribbon-holder">
-			<?$this->ribbon->view(UI\Ribbon::VIEW_ALL) ?>
-		</div>
-		<div>
-		<?
-        if ($this->current)
-            $this->current->view();
-        ?>
-		</div>
-		<?
-    }
-
-    function addEntityChangeListener(IEntityChangeListener $listener)
-    {
-        return ($this->entityChangeListeners[] = $listener);
-    }
-
     /**
-     * @return Vivo\CMS\Model\Entity
+     * @return \Vivo\CMS\Model\Entity
      */
-    function getEntity()
+    public function getEntity()
     {
+        if ($this->entity === null) {
+            $this->loadEntity();
+        }
         return $this->entity;
     }
 
     /**
      * @param Vivo\CMS\Model\Entity $entity
      */
-    function setEntity(\Vivo\CMS\Model\Entity $entity, $item_name = false)
+    public function setEntity(\Vivo\CMS\Model\Entity $entity)
     {
-        $this->entity = $entity;
-        foreach ($this->entityChangeListeners as $listener)
-            $listener->onEntityChange($this->entity);
-        if (!Context::$instance->async) {
-            $this
-                    ->setItem(
-                            $item_name ? $item_name
-                                    : (($this->last_item
-                                            && in_array(
-                                                    $this->last_item->name,
-                                                    array('editor', 'browser',
-                                                            'viewer'))) ? $this
-                                                    ->last_item->name : 'editor'));
-            $this->ribbon->tab1->label = get_class($entity);
-        }
+        $this->eventManager->trigger(__FUNCTION__, $this, array('entity'=>$entity));
     }
 
-    function setItem($name)
+    //     function setItem($name)
+    //     {
+    //         if ($name == 'viewer') {
+    //             if ($this->entity instanceof Model\Document) {
+    //                 $this->ribbon->select('tab1');
+    //                 $this->invoke($this->ribbon->tab1->group1->viewer);
+    //             } else {
+    //                 $name = 'browser';
+    //             }
+    //         }
+    //         if ($name == 'editor') {
+    //             $this->ribbon->select('tab1');
+    //             $this->invoke($this->ribbon->tab1->group2->editor);
+    //         }
+    //         if ($name == 'browser') {
+    //             $this->ribbon->select('tab1');
+    //             $this->invoke($this->ribbon->tab1->group1->browser);
+    //         }
+    //     }
+
+    public function setEntityByRelPath($relPath)
     {
-        if ($name == 'viewer') {
-            if ($this->entity instanceof Model\Document) {
-                $this->ribbon->select('tab1');
-                $this->invoke($this->ribbon->tab1->group1->viewer);
-            } else {
-                $name = 'browser';
-            }
-        }
-        if ($name == 'editor') {
-            $this->ribbon->select('tab1');
-            $this->invoke($this->ribbon->tab1->group2->editor);
-        }
-        if ($name == 'browser') {
-            $this->ribbon->select('tab1');
-            $this->invoke($this->ribbon->tab1->group1->browser);
-        }
+        $this->cms->getSiteEntity($relPath, $this->site);
     }
 
+    public function setEventManager(EventManagerInterface $eventManager)
+    {
+        $this->eventManager = $eventManager;
+        $this->eventManager->addIdentifiers(__CLASS__);
+        $eventManager->getSharedManager()
+                ->attach('Vivo\CMS\UI\Manager\SiteSelector', 'setSite',
+                        array($this, 'onSiteChange'));
+    }
+
+    public function getEventManager()
+    {
+        return $this->eventManager;
+    }
+
+    public function getSite()
+    {
+        return $this->site;
+    }
 }

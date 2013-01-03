@@ -122,6 +122,9 @@ return array(
                 'Zend\Http\Response'                => 'response',
                 'Zend\View\HelperPluginManager'     => 'view_helper_manager',
         ),
+        'shared' => array(
+            'Vivo\CMS\UI\Manager\SiteSelector' => true,
+        ),
     ),
     'translator' => array(
         'locale' => 'en_US',
@@ -270,6 +273,13 @@ return array(
                 'Vivo\CMS\UI\Manager\ModulesPanel'  => __DIR__ . '/../view/Vivo/CMS/UI/Manager/ModulesPanel.phtml',
                 'Vivo\CMS\UI\Manager\Explorer\Explorer' => __DIR__ .  '/../view/Vivo/CMS/UI/Manager/Explorer/Explorer.phtml',
                 'Vivo\CMS\UI\Manager\Explorer\DocumentTree' => __DIR__ .  '/../view/Vivo/CMS/UI/Manager/Explorer/DocumentTree.phtml',
+                'Vivo\CMS\UI\Manager\Explorer\Browser' => __DIR__ .  '/../view/Vivo/CMS/UI/Manager/Explorer/Browser.phtml',
+                'Vivo\CMS\UI\Manager\Explorer\Editor' => __DIR__ .  '/../view/Vivo/CMS/UI/Manager/Explorer/Editor.phtml',
+                'Vivo\CMS\UI\Manager\Explorer\Tree' => __DIR__ .  '/../view/Vivo/CMS/UI/Manager/Explorer/Tree.phtml',
+                'Vivo\CMS\UI\Manager\Explorer\Viewer' => __DIR__ .  '/../view/Vivo/CMS/UI/Manager/Explorer/Viewer.phtml',
+                'Vivo\CMS\UI\Manager\Explorer\Ribbon' => __DIR__ .  '/../view/Vivo/CMS/UI/Manager/Explorer/Ribbon.phtml',
+                'Vivo\CMS\UI\Manager\Explorer\Finder' => __DIR__ .  '/../view/Vivo/CMS/UI/Manager/Explorer/Finder.phtml',
+                'Vivo\CMS\UI\Manager\SiteSelector' => __DIR__ .  '/../view/Vivo/CMS/UI/Manager/SiteSelector.phtml',
             ),
         ),
         'component_mapping' => array (
@@ -286,9 +296,33 @@ return array(
         //configuration of modules service manager
         ),
         'di' => array (
+            'definition' => array (
+                'class' => array (
+                    'Vivo\CMS\UI\Manager\HeaderBar' => array (
+                        'addComponent' => array (
+                            'component' => array ('type' => 'Vivo\UI\Component'),
+                            'name' => array ('type' => 'scalar'),
+                        )
+                    ),
+//                     'Vivo\CMS\UI\Manager\Explorer\Explorer' => array (
+//                         'addComponent' => array (
+//                             'component' => array ('type' => 'Vivo\UI\Component'),
+//                             'name' => array ('type' => 'scalar'),
+//                         )
+//                     ),
+                ),
+            ),
             'instance' => array (
                 'alias' => array (
                     'viewModel' =>  'Vivo\View\Model\UIViewModel',
+                ),
+                'Vivo\CMS\UI\Manager\HeaderBar' => array (
+                    'injections' => array (
+                        'addComponent' => array (
+                            'component' => 'Vivo\CMS\UI\Manager\SiteSelector',
+                            'name' => 'siteSelector'
+                        ),
+                    ),
                 ),
                 'viewModel' => array (
                     'shared' => false, //new viewModel for each UI/component
@@ -303,18 +337,18 @@ return array(
                         'doctype' => 'HTML5',
                         //globaly defined links and scripts
                         'links' => array (
-                            array(
-                                'rel'  => 'stylesheet',
-                                'href' => '/.ModuleName.resource/css/definedInVivoConfig.css',
-                                'type' => 'text/css',
-                                'media' => 'screen'
-                            ),
+//                             array(
+//                                 'rel'  => 'stylesheet',
+//                                 'href' => '/.ModuleName.resource/css/definedInVivoConfig.css',
+//                                 'type' => 'text/css',
+//                                 'media' => 'screen'
+//                             ),
                         ),
                         'scripts' => array (
-                            array(
-                                'src' => '/.ModuleName.resource/js/front.js',
-                                'type' => 'text/javascript',
-                            ),
+//                             array(
+//                                 'src' => '/.ModuleName.resource/js/front.js',
+//                                 'type' => 'text/javascript',
+//                             ),
                         ),
                         'metas' => array (
                             array (

@@ -1,7 +1,7 @@
 <?php
 namespace Vivo\UI;
 
-use Zend\View\Helper\UIViewModel;
+use Vivo\View\Model\UIViewModel;
 
 use Zend\View\Model\ModelInterface;
 

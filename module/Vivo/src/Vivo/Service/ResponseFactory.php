@@ -21,6 +21,10 @@ class ResponseFactory implements FactoryInterface
         if (Console::isConsole()) {
             return new ConsoleResponse();
         }
-        return new StreamResponse();
+        $response = new StreamResponse();
+        $response->getHeaders()->addHeaderLine('X-Generated-By: Vivo')
+        ->addHeaderLine(
+                'X-Generated-At: ' . gmdate('D, d M Y H:i:s', time()) . ' GMT');
+        return $response;
     }
 }

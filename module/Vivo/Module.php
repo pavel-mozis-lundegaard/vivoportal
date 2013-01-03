@@ -1,19 +1,13 @@
 <?php
 namespace Vivo;
 
-use Vivo\CMS\ComponentFactory;
-use Vivo\CMS\ComponentResolver;
 use Vivo\Util\Path\PathParser;
 use Vivo\View\Helper as ViewHelper;
-use Vivo\View\Strategy\PhtmlRenderingStrategy;
 use Vivo\Service\Exception;
 
 use Zend\Console\Adapter\AdapterInterface as Console;
-use Zend\Di\Config;
-use Zend\Di\Di;
 use Zend\ModuleManager\Feature\ConsoleBannerProviderInterface;
 use Zend\ModuleManager\Feature\ConsoleUsageProviderInterface;
-use Zend\Mvc\Controller\ControllerManager;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
 use Zend\ServiceManager\ServiceManager;
@@ -73,7 +67,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         $app          = $e->getTarget();
         $locator      = $app->getServiceManager();
         $view         = $locator->get('Zend\View\View');
-        $phtmlRenderingStrategy = $locator->get('Vivo\View\Strategy\PhtmlRenderingStrategy');
+        $phtmlRenderingStrategy = $locator->get('phtml_rendering_strategy');
         $view->getEventManager()->attach($phtmlRenderingStrategy, 100);
     }
 
@@ -104,69 +98,11 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
     {
         return array(
             'factories' => array(
-                'io_util'            => function(ServiceManager $sm) {
-                    $ioUtil     = new \Vivo\IO\IOUtil();
-                    return $ioUtil;
-                },
-                'Vivo\View\Strategy\PhtmlRenderingStrategy' => function(ServiceManager $sm) {
-                    $config = $sm->get('config');
-                    $parser = new \Vivo\Util\Path\PathParser();
-                    $resolver = new \Vivo\View\Resolver\TemplateResolver($sm->get('module_resource_manager'), $parser, $config['vivo']['templates']);
-                    $renderer = new \Vivo\View\Renderer\PhtmlRenderer();
-                    $renderer->setResolver($resolver);
-                    $renderer->setHelperPluginManager($sm->get('ViewHelperManager'));
-                    $strategy = new PhtmlRenderingStrategy($renderer, $resolver);
-                    return $strategy;
-                },
-                'Vivo\CMS\ComponentFactory' => function(ServiceManager $sm) {
-                    $di = $sm->get('vivo_service_manager')->get('di_proxy');
-                    $cf = new ComponentFactory($di, $sm->get('cms'), $sm->get('site_event')->getSite());
-                    $resolver = new ComponentResolver($sm->get('config'));
-                    $cf->setResolver($resolver);
-                    return $cf;
-                },
                 'vivo_service_manager' => function (ServiceManager $sm) {
                     //TODO - this exception is caught!
                     throw new Exception\ServiceNotAvailableException(
                         sprintf('%s: Vivo service manager is not available until site and modules are loaded.',
                         __METHOD__));
-                },
-            ),
-        );
-    }
-
-    public function getControllerConfig()
-    {
-        return array(
-            'factories'     => array(
-                'CMSFront' => function (ControllerManager $cm) {
-                    $fc = new \Vivo\Controller\CMSFrontController();
-                    $sm = $cm->getServiceLocator();
-                    $fc->setComponentFactory($sm->get('Vivo\CMS\ComponentFactory'));
-                    $fc->setTreeUtil($sm->get('di')->get('Vivo\UI\TreeUtil'));
-                    $fc->setCMS($sm->get('cms'));
-                    $fc->setSiteEvent($sm->get('site_event'));
-                    return $fc;
-                },
-                'CLI\Module'    => function(ControllerManager $cm) {
-                    $sm                     = $cm->getServiceLocator();
-                    $moduleStorageManager   = $sm->get('module_storage_manager');
-                    $remoteModule           = $sm->get('remote_module');
-                    $repository             = $sm->get('repository');
-                    $moduleApi              = $sm->get('cms_api_module');
-                    $controller             = new \Vivo\Controller\CLI\ModuleController($moduleStorageManager,
-                                                                                        $remoteModule,
-                                                                                        $repository,
-                                                                                        $moduleApi);
-                    return $controller;
-                },
-                'ResourceFront'    => function(ControllerManager $cm) {
-                    $sm                     = $cm->getServiceLocator();
-                    $controller             = new \Vivo\Controller\ResourceFrontController();
-                    $controller->setCMS($sm->get('cms'));
-                    $controller->setResourceManager($sm->get('module_resource_manager'));
-                    $controller->setSiteEvent($sm->get('site_event'));
-                    return $controller;
                 },
             ),
         );

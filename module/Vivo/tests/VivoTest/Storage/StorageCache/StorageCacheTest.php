@@ -82,24 +82,6 @@ class StorageCacheTest extends TestCase
         $this->assertEquals($data, $dataRead);
     }
 
-    public function testGetCacheIsNotCalledToStoreForNotFoundItem()
-    {
-        $path   = 'foo/bar';
-        //Set up the cache mock not to find the data
-        $this->cache->setData(null);
-        $this->cache->setSuccess(false);
-        //We expect the storage to be called to retrieve the item
-        $this->storage->expects($this->once())
-            ->method('get')
-            ->with($this->equalTo($path))
-            ->will($this->returnValue(null));
-        //We expect the cache not to be called
-        $this->cache->expects($this->never())
-            ->method('setItem');
-        $dataRead   = $this->storageCache->get($path);
-        $this->assertNull($dataRead);
-    }
-
     public function testContainsDoesNotQueryStorageIfInCache()
     {
         $path   = 'foo/bar';

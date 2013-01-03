@@ -18,7 +18,7 @@ return array(
                             'regex'    => '/((?<path>.*)/)?',
                             'spec'    => '/%path%/',
                             'defaults' => array(
-                                'controller' => 'CMSFront',
+                                'controller' => 'cms_front_controller',
                                 'path' => '',
                             ),
                         ),
@@ -36,7 +36,7 @@ return array(
                             'regex'    => '/\.(?<source>.+)\.(?<type>.+?)/(?<path>.+)',
                             'spec'    => '/.%source%.%type%/%path%',
                             'defaults' => array(
-                                'controller' => 'ResourceFront',
+                                'controller' => 'resource_front_controller',
                                 'type' => '',
                                 'path' => '',
                                 'source' => '',
@@ -50,7 +50,7 @@ return array(
                                     'regex'    => '/\.entity/(?<entity>.+?)((\.path(?<path>.+)))',
                                     'spec'    => '/.entity/%entity%/.path/%path%',
                                     'defaults' => array(
-                                            'controller' => 'ResourceFront',
+                                            'controller' => 'resource_front_controller',
                                             'path' => '',
                                             'source' => 'entity',
                                     ),
@@ -64,7 +64,7 @@ return array(
                             'regex'    => '/system/manager/(?<path>.*)',
                             'spec'    => '/system/manager/%path%',
                             'defaults' => array(
-                                'controller' => 'CMSFront',
+                                'controller' => 'cms_front_controller',
                                 'path' => '',
                                 'module' => '',
                             ),
@@ -81,11 +81,12 @@ return array(
             'storage_factory'           => 'Vivo\Storage\Factory',
             'site_event'                => 'Vivo\SiteManager\Event\SiteEvent',
             'indexer_helper'            => 'Vivo\Repository\IndexerHelper',
+            'io_util'                   => 'Vivo\IO\IOUtil',
         ),
         'factories' => array(
             'translator'                => 'Zend\I18n\Translator\TranslatorServiceFactory',
             'response'                  => 'Vivo\Service\ResponseFactory',
-            'di'                        => 'Vivo\Service\DiFactory',
+            'dependencyinjector'        => 'Vivo\Service\DiFactory',
             'db_service_manager'        => 'Vivo\Service\DbServiceManagerFactory',
             'uuid_convertor'            => 'Vivo\Service\UuidConvertorFactory',
             'module_storage'            => 'Vivo\Service\ModuleStorageFactory',
@@ -107,8 +108,8 @@ return array(
             'pdo_abstract_factory'      => 'Vivo\Service\PdoAbstractFactoryFactory',
             'zdb_abstract_factory'      => 'Vivo\Service\ZdbAbstractFactoryFactory',
             'path_builder'              => 'Vivo\Service\PathBuilderFactory',
-
-
+            'component_factory'         => 'Vivo\Service\ComponentFactoryFactory',
+            'phtml_rendering_strategy'  => 'Vivo\Service\PhtmlRenderingStrategyFactory',
         ),
         'aliases' => array(
                 'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -129,8 +130,13 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-            'CLI\Indexer' => 'Vivo\Controller\CLI\IndexerController',
-            'CLI\Info' => 'Vivo\Controller\CLI\InfoController',
+            'cli_indexer' => 'Vivo\Controller\CLI\IndexerController',
+            'cli_info' => 'Vivo\Controller\CLI\InfoController',
+        ),
+        'factories' => array(
+            'cms_front_controller' => 'Vivo\Service\Controller\CMSFrontControllerFactory',
+            'resource_front_controller' => 'Vivo\Service\Controller\ResourceFrontControllerFactory',
+            'cli_module' => 'Vivo\Service\Controller\CLI\CLIModuleControllerFactory',
         ),
     ),
     'view_manager' => array(
@@ -301,7 +307,7 @@ return array(
                     'options' => array(
                         'route'    => 'info [<action>]',
                         'defaults' => array(
-                            'controller' => 'CLI\Info',
+                            'controller' => 'cli_info',
                             'action'     => 'default',
                         ),
                     ),
@@ -310,7 +316,7 @@ return array(
                     'options' => array(
                         'route'    => 'module [<action>]',
                         'defaults' => array(
-                            'controller' => 'CLI\Module',
+                            'controller' => 'cli_module',
                             'action'     => 'default',
                         ),
                     ),
@@ -319,7 +325,7 @@ return array(
                     'options' => array(
                         'route'    => 'module add <module_url> [--force|-f]',
                         'defaults' => array(
-                            'controller' => 'CLI\Module',
+                            'controller' => 'cli_module',
                             'action'     => 'add',
                         ),
                     ),
@@ -328,7 +334,7 @@ return array(
                     'options' => array(
                         'route'    => 'module install <module_name> [<site>]',
                         'defaults' => array(
-                            'controller' => 'CLI\Module',
+                            'controller' => 'cli_module',
                             'action'     => 'install',
                         ),
                     ),
@@ -337,7 +343,7 @@ return array(
                     'options' => array(
                         'route'    => 'module uninstall <module_name> [<site>]',
                         'defaults' => array(
-                            'controller' => 'CLI\Module',
+                            'controller' => 'cli_module',
                             'action'     => 'uninstall',
                         ),
                     ),
@@ -346,7 +352,7 @@ return array(
                     'options' => array(
                         'route'    => 'module enable <module_name> [<site>]',
                         'defaults' => array(
-                            'controller' => 'CLI\Module',
+                            'controller' => 'cli_module',
                             'action'     => 'enable',
                         ),
                     ),
@@ -355,7 +361,7 @@ return array(
                     'options' => array(
                         'route'    => 'module disable <module_name> [<site>]',
                         'defaults' => array(
-                            'controller' => 'CLI\Module',
+                            'controller' => 'cli_module',
                             'action'     => 'disable',
                         ),
                     ),
@@ -364,7 +370,7 @@ return array(
                     'options' => array(
                         'route'    => 'module isinstalled <module_name> [<site>]',
                         'defaults' => array(
-                            'controller' => 'CLI\Module',
+                            'controller' => 'cli_module',
                             'action'     => 'isInstalled',
                         ),
                     ),
@@ -373,7 +379,7 @@ return array(
                     'options' => array(
                         'route'    => 'module isenabled <module_name> [<site>]',
                         'defaults' => array(
-                            'controller' => 'CLI\Module',
+                            'controller' => 'cli_module',
                             'action'     => 'isEnabled',
                         ),
                     ),
@@ -382,7 +388,7 @@ return array(
                     'options' => array(
                         'route'    => 'module getinstalled [<site>]',
                         'defaults' => array(
-                            'controller' => 'CLI\Module',
+                            'controller' => 'cli_module',
                             'action'     => 'getInstalled',
                         ),
                     ),
@@ -391,7 +397,7 @@ return array(
                     'options' => array(
                         'route'    => 'module getenabled [<site>]',
                         'defaults' => array(
-                            'controller' => 'CLI\Module',
+                            'controller' => 'cli_module',
                             'action'     => 'getEnabled',
                         ),
                     ),
@@ -400,7 +406,7 @@ return array(
                     'options' => array(
                         'route'    => 'indexer [<action>]',
                         'defaults' => array(
-                            'controller' => 'CLI\Indexer',
+                            'controller' => 'cli_indexer',
                             'action'     => 'default',
                         ),
                     ),

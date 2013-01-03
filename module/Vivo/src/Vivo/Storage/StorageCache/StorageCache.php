@@ -85,7 +85,7 @@ class StorageCache implements StorageCacheInterface
     /**
      * Returns item from cache, if not there, gets the item from the underlying storage
      * @param string $path to item
-     * @return mixed|null
+     * @return mixed
      */
     public function get($path)
     {
@@ -94,9 +94,7 @@ class StorageCache implements StorageCacheInterface
         $item       = $this->cache->getItem($cacheKey, $success);
         if (!$success) {
             $item   = $this->storage->get($path);
-            if (!is_null($item)) {
-                $result = $this->cache->setItem($cacheKey, $item);
-            }
+            $this->cache->setItem($cacheKey, $item);
         }
         return $item;
     }

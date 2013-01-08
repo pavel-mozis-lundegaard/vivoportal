@@ -71,8 +71,9 @@ class ResourceFrontController implements DispatchableInterface,
                 $resourceStream = $this->resourceManager
                         ->readResource($source, $pathToResource);
             }
-
-            $filename = $filename ? : pathinfo($pathToResource, PATHINFO_BASENAME);
+            if (!isset($filename)) {
+                $filename   = pathinfo($pathToResource, PATHINFO_BASENAME);
+            }
             $ext = pathinfo($filename, PATHINFO_EXTENSION);
             $mimeType = Util\MIME::getType($ext);
             $response->getHeaders()->addHeaderLine('Content-Type: ' . $mimeType)

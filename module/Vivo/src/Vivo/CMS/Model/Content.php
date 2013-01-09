@@ -1,12 +1,20 @@
 <?php
 namespace Vivo\CMS\Model;
 
+use Vivo\CMS\Model\Content\ProvideTemplateInterface;
+
 /**
- * Base class for all VIVO models.
+ * Base class for all Vivo contents models.
  * @todo remove content index functions
  */
-class Content extends Entity
+class Content extends Entity implements ProvideTemplateInterface
 {
+
+    /**
+     * Template key in template map.
+     * @var string
+     */
+    protected $template;
 
     /**
      * @var string Workflow state
@@ -85,5 +93,21 @@ class Content extends Entity
     {
         return 'Contents' . (($index = $this->getIndex()) ? '.' . $index : '')
                 . '/' . $this->getVersion();
+    }
+    /**
+     * Returns template key.
+     * @return string
+     */
+    public function getTemplate()
+    {
+        return $this->template;
+    }
+    /**
+     * Set template key in template map.
+     * @param string $template
+     */
+    public function setTemplate($template)
+    {
+        $this->template - $template;
     }
 }

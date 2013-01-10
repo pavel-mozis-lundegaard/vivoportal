@@ -4,47 +4,63 @@ namespace Vivo\CMS\Model;
 /**
  * Represents web site as VIVO model.
  */
-class Site extends Folder {
-	/**
-	 * @var string Security domain name.
-	 */
-	protected $domain;
-	/**
-	 * @var string Parent site name.
-	 * @example META-SITE
-	 */
-	protected $parentSite;
-	/**
-	 * @var array Hosts are domain address under which you accessed the site.
-	 */
-	protected $hosts = array();
+class Site extends Folder
+{
+    /**
+     * @var string Security domain name.
+     */
+    protected $domain;
 
-	/**
-	 * @param string Path to entity.
-	 * @param Vivo\CMS\Model\Entity\Security
-	 */
-	public function __construct($path = null, $security = null) {
-		parent::__construct($path, $security);
-	}
+    /**
+     * @var string Parent site name.
+     * @example META-SITE
+     */
+    protected $parentSite;
 
-	/**
-	 * @param string $domain Security domain name.
-	 */
-	public function setDomain($domain) {
-		$this->domain = $domain;
-	}
+    /**
+     * @var array Hosts are domain address under which you accessed the site.
+     */
+    protected $hosts = array();
 
-	/**
-	 * @param array $hosts
-	 */
-	public function setHosts(array $hosts) {
-		$this->hosts = $hosts;
-	}
+    /**
+     * @param string Path to entity.
+     * @param Vivo\CMS\Model\Entity\Security
+     */
+    public function __construct($path = null, $security = null)
+    {
+        parent::__construct($path, $security);
+    }
 
-	/**
-	 * @return array
-	 */
-	public function getHosts() {
-		return $this->hosts;
-	}
+    /**
+     * @param string $domain Security domain name.
+     */
+    public function setDomain($domain)
+    {
+        $this->domain = $domain;
+    }
+
+    /**
+     * Returns security domain name.
+     * @return string
+     */
+    public function getDomain()
+    {
+        return $this->domain;
+    }
+
+    /**
+     * @param array $hosts
+     */
+    public function setHosts(array $hosts)
+    {
+        $this->hosts = $hosts;
+    }
+
+    /**
+     * @return array
+     */
+    public function getHosts()
+    {
+        return $this->hosts;
+    }
 }

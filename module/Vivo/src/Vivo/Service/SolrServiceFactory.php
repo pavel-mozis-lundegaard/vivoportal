@@ -5,9 +5,10 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
 
 /**
- * IndexerAdapterLuceneFactory
+ * SolrServiceFactory
+ * Instantiates the SolrService
  */
-class IndexerAdapterLuceneFactory implements FactoryInterface
+class SolrServiceFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -16,8 +17,8 @@ class IndexerAdapterLuceneFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $index                  = $serviceLocator->get('lucene');
-        $adapter                = new \Vivo\Indexer\Adapter\Lucene($index);
-        return $adapter;
+        //TODO - configure Solr service using config
+        $solrService    = new \ApacheSolr\Service('localhost', 8983, '/solr/');
+        return $solrService;
     }
 }

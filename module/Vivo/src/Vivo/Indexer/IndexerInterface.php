@@ -9,29 +9,32 @@ use Vivo\TransactionalInterface;
 interface IndexerInterface extends  TransactionalInterface
 {
     /**
-     * Returns an array of hits
+     * Returns a search result
      * @param Query\QueryInterface $query
-     * @return QueryHit[]
+     * @param QueryParams|null $queryParams
+     * @return Result
      */
-    public function find(Query\QueryInterface $query);
+    public function find(Query\QueryInterface $query, QueryParams $queryParams = null);
 
     /**
-     * Finds documents based on a term (returns docIds)
-     * This is usually faster than find()
-     * Returns an array of document ids, if no documents are found, returns an empty array
-     * @param Term $term
-     * @return array
+     * Finds and returns a document by its ID
+     * If the document is not found, returns null
+     * @param string $docId
+     * @return Document|null
      */
-    public function termDocs(Term $term);
+    public function findById($docId);
 
     /**
-     * Finds documents based on a term (returns document objects)
-     * This is usually faster than find()
-     * Returns an array of document objects, if no documents are found, returns an empty array
-     * @param Term $term
-     * @return Document[]
+     * Adds a document into index
+     * @param Document $document
      */
-    public function termDocsObj(Term $term);
+    public function addDocument(Document $document);
+
+    /**
+     * Updates document in index
+     * @param Document $document
+     */
+    public function update(Document $document);
 
     /**
      * Deletes documents identified by a query from the index
@@ -40,30 +43,10 @@ interface IndexerInterface extends  TransactionalInterface
     public function delete(Query\QueryInterface $query);
 
     /**
-     * Deletes documents identified by a term from the index (faster than delete())
-     * @param Term $term
-     */
-    public function deleteByTerm(Term $term);
-
-    /**
-     * Returns a document by its ID
-     * If the document with this ID does not exist, returns null
-     * @param string $docId
-     * @return null|Document
-     */
-    public function getDocument($docId);
-
-    /**
-     * Deletes a document from the index
+     * Deletes document by its unique ID
      * @param string $docId
      */
-    public function removeDocument($docId);
-
-    /**
-     * Optimizes the index
-     * @return void
-     */
-    public function optimize();
+    public function deleteById($docId);
 
     /**
      * Deletes all documents from index
@@ -72,26 +55,8 @@ interface IndexerInterface extends  TransactionalInterface
     public function deleteAllDocuments();
 
     /**
-     * Returns number of all (undeleted + deleted) documents in the index
-     * @return integer
+     * Optimizes the index
+     * @return void
      */
-    public function getDocumentCountAll();
-
-    /**
-     * Returns number of undeleted document in the index
-     * @return int
-     */
-    public function getDocumentCountUndeleted();
-
-    /**
-     * Returns number of deleted documents in the index
-     * @return int
-     */
-    public function getDocumentCountDeleted();
-
-    /**
-     * Adds a document into index
-     * @param Document $document
-     */
-    public function addDocument(Document $document);
+    public function optimize();
 }

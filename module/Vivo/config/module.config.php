@@ -115,6 +115,7 @@ return array(
             'indexer_adapter'           => 'Vivo\Service\IndexerAdapterFactory',
             'indexer_query_parser'      => 'Vivo\Service\IndexerQueryParserFactory',
             'module_name_resolver'      => 'Vivo\Service\ModuleNameResolverFactory',
+            'metadata_manager'          => 'Vivo\Service\MetadataManagerFactory',
         ),
         'aliases' => array(
                 'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',

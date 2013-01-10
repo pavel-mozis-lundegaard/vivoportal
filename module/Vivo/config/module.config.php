@@ -82,6 +82,7 @@ return array(
             'indexer_helper'            => 'Vivo\Repository\IndexerHelper',
             'io_util'                   => 'Vivo\IO\IOUtil',
             'indexer_query_builder'     => 'Vivo\Indexer\QueryBuilder',
+            'session_manager'           => 'Zend\Session\SessionManager',
         ),
         'factories' => array(
             'translator'                => 'Zend\I18n\Translator\TranslatorServiceFactory',
@@ -115,6 +116,7 @@ return array(
             'indexer_query_parser'      => 'Vivo\Service\IndexerQueryParserFactory',
             'module_name_resolver'      => 'Vivo\Service\ModuleNameResolverFactory',
             'metadata_manager'          => 'Vivo\Service\MetadataManagerFactory',
+            'security_manager'          => 'Vivo\Service\SecurityManagerFactory',
         ),
         'aliases' => array(
                 'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -276,6 +278,9 @@ return array(
         ),
         'service_manager' => array (
         //configuration of modules service manager
+            'factories' => array (
+                'security_manager' => 'Vivo\Service\SecurityManagerFactory',
+            ),
         ),
         'di' => array (
             'instance' => array (

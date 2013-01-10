@@ -2,7 +2,7 @@
 namespace Vivo\UI;
 
 /**
- * Interface for UI componets.
+ * Interface for UI components.
  */
 interface ComponentInterface
 {

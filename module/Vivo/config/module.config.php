@@ -1,7 +1,6 @@
 <?php
 /**
- * Main CMS config, can be splited to the topic related files in the future.
- *
+ * Main CMS config, can be split into topic related files in future
  */
 return array(
     'router' => array(
@@ -251,22 +250,23 @@ return array(
         ),
         'templates' => array (
             'template_map' => array(
-                'Vivo\UI\Page' => __DIR__.'/../view/Vivo/UI/Page.phtml',
-                'Vivo\CMS\UI\Content\Layout' => __DIR__.'/../view/Vivo/CMS/UI/Content/Layout.phtml',
-                'Vivo\CMS\UI\Content\File:html' => __DIR__.'/../view/Vivo/CMS/UI/Content/File.html.phtml',
-                'Vivo\CMS\UI\Content\File:plain' => __DIR__.'/../view/Vivo/CMS/UI/Content/File.plain.phtml',
-                'Vivo\CMS\UI\Content\File:flash' => __DIR__.'/../view/Vivo/CMS/UI/Content/File.flash.phtml',
-                'Vivo\CMS\UI\Content\File:image' => __DIR__.'/../view/Vivo/CMS/UI/Content/File.image.phtml',
-                'Vivo\CMS\UI\Content\File' => __DIR__.'/../view/Vivo/CMS/UI/Content/File.phtml',
-                'Vivo\CMS\UI\Content\Overview' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.phtml',
-                'Vivo\UI\ComponentContainer' => __DIR__.'/../view/Vivo/UI/ComponentContainer.phtml',
+                'Vivo\UI\Page'                      => __DIR__.'/../view/Vivo/UI/Page.phtml',
+                'Vivo\CMS\UI\Content\Layout'        => __DIR__.'/../view/Vivo/CMS/UI/Content/Layout.phtml',
+                'Vivo\CMS\UI\Content\File:html'     => __DIR__.'/../view/Vivo/CMS/UI/Content/File.html.phtml',
+                'Vivo\CMS\UI\Content\File:plain'    => __DIR__.'/../view/Vivo/CMS/UI/Content/File.plain.phtml',
+                'Vivo\CMS\UI\Content\File:flash'    => __DIR__.'/../view/Vivo/CMS/UI/Content/File.flash.phtml',
+                'Vivo\CMS\UI\Content\File:image'    => __DIR__.'/../view/Vivo/CMS/UI/Content/File.image.phtml',
+                'Vivo\CMS\UI\Content\File'          => __DIR__.'/../view/Vivo/CMS/UI/Content/File.phtml',
+                'Vivo\CMS\UI\Content\Overview'      => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.phtml',
+                'Vivo\CMS\UI\Content\Logon'         => __DIR__.'/../view/Vivo/CMS/UI/Content/Logon.phtml',
+                'Vivo\UI\ComponentContainer'        => __DIR__.'/../view/Vivo/UI/ComponentContainer.phtml',
             ),
         ),
         'component_mapping' => array (
             'front_component' => array (
-                'Vivo\CMS\Model\Content\Layout' => 'Vivo\CMS\UI\Content\Layout',
-                'Vivo\CMS\Model\Content\File' => 'Vivo\CMS\UI\Content\File',
-                'Vivo\CMS\Model\Content\Overview' => 'Vivo\CMS\UI\Content\Overview',
+                'Vivo\CMS\Model\Content\Layout'     => 'Vivo\CMS\UI\Content\Layout',
+                'Vivo\CMS\Model\Content\File'       => 'Vivo\CMS\UI\Content\File',
+                'Vivo\CMS\Model\Content\Overview'   => 'Vivo\CMS\UI\Content\Overview',
             ),
             'editor_component' => array (
 

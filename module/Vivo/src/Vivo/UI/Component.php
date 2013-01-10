@@ -13,7 +13,7 @@ class Component implements ComponentInterface
 {
 
     /**
-     * String used to separate names of component in path.
+     * String used to separate component names in path
      * @var string
      */
     const COMPONENT_SEPARATOR = '->';

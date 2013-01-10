@@ -114,6 +114,7 @@ return array(
             'solr_service'              => 'Vivo\Service\SolrServiceFactory',
             'indexer_adapter'           => 'Vivo\Service\IndexerAdapterFactory',
             'indexer_query_parser'      => 'Vivo\Service\IndexerQueryParserFactory',
+            'module_name_resolver'      => 'Vivo\Service\ModuleNameResolverFactory',
         ),
         'aliases' => array(
                 'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',

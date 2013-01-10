@@ -5,9 +5,9 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
 
 /**
- * IndexerAdapterLuceneFactory
+ * ModuleNameResolverFactory
  */
-class IndexerAdapterLuceneFactory implements FactoryInterface
+class ModuleNameResolverFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -16,8 +16,7 @@ class IndexerAdapterLuceneFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $index                  = $serviceLocator->get('lucene');
-        $adapter                = new \Vivo\Indexer\Adapter\Lucene($index);
-        return $adapter;
+        $moduleNameResolver = new \Vivo\Module\ModuleNameResolver();
+        return $moduleNameResolver;
     }
 }

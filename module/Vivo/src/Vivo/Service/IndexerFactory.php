@@ -16,9 +16,8 @@ class IndexerFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-//        $adapter                = $serviceLocator->get('indexer_adapter_lucene');
-//        $indexer                = new \Vivo\Indexer\Indexer($adapter);
-        $indexer                = new \Vivo\Indexer\Dummy();
+        $adapter        = $serviceLocator->get('indexer_adapter');
+        $indexer        = new \Vivo\Indexer\Indexer($adapter);
         return $indexer;
     }
 }

@@ -195,6 +195,7 @@ return array(
                     'view'      => 'view',
                     'layout'    => 'view/layout',
                     'resource'  => 'resource',
+                    'metadata'  => 'config/metadata',
                 ),
                 //Default resource type
                 'default_type'  => 'resource',

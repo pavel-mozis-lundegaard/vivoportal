@@ -87,17 +87,45 @@ class MetadataManager
      * @return array
      */
     public function getMetadata($entity) {
-        // $proper = $entity...
+        $config = $this->getRawMetadata($entity);
+        $this->applyProvider($entity, $config);
 
-        // if(string z metada class exists...
-        //   if(class instance of ProviderI)
+        return $config;
+    }
 
-        // $prov = new ClassMetadatPro(locator)
+    /**
+     * Applies metadata privider for all classes defined in config.
+     *
+     * @param object $entity
+     * @param array $config
+     * @throws \Exception
+     */
+    private function applyProvider($entity, &$config) {
+        foreach ($config as $key => &$value) {
+            if(is_array($value)) {
+                $this->applyProvider($entity, $value);
+            }
+            else {
+                if (strpos($value, '\\')) {
+                    if(class_exists($value) && is_subclass_of($value, 'Vivo\Metadata\MetadataValueProviderInterface')) {
+                        if(is_subclass_of($value, 'Vivo\Metadata\AbstractMetadataValueProvider')) {
+                            $provider = new $value($this->serviceManager);
+                        }
+                        else {
+                            $provider = new $value();
+                        }
 
-
-        // Medatadata
-        // $configArray = $...
-
-        return $this->getRawMetadata($entity);
+                        $value = $provider->getValue($entity);
+                    }
+                    else {
+                        //@todo
+                        throw new \Exception(
+                            sprintf('Metadata value provider \'%s\' defined in metadata %s::%s is not instance of Vivo\Metadata\MetadataValueProviderInterface',
+                            $value, get_class($entity), $key)
+                        );
+                    }
+                }
+            }
+        }
     }
 }

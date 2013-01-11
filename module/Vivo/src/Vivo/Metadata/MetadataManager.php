@@ -22,6 +22,13 @@ class MetadataManager
      * @var \Vivo\Module\ModuleNameResolver
      */
     protected $moduleNameResolver;
+    /**
+     * @var array
+     */
+    protected $cache = array(
+        'rawmeta' => array(),
+        'meta' => array()
+    );
 
     /**
      * @param \Zend\ServiceManager\ServiceLocatorInterface $serviceManager
@@ -39,10 +46,16 @@ class MetadataManager
      * @return array
      */
     public function getRawMetadata($entity) {
+        $className = get_class($entity);
+
+        if(isset($this->cache['rawmeta'][$className])) {
+            return $this->cache['rawmeta'][$className];
+        }
+
         $config = new Config(array());
         $reader = new ConfigReader();
 
-        $className = $parent = get_class($entity);
+        $parent = $className;
         $parents = array($parent);
         while(($parent = get_parent_class($parent)) && $parent !== false) {
             $parents[] = $parent;
@@ -80,21 +93,31 @@ class MetadataManager
 
         $config = $config->toArray();
 
+        $this->cache['rawmeta'][$className] = $config;
+
         return $config;
     }
 
     /**
+     * @param object $entity
      * @return array
      */
     public function getMetadata($entity) {
+        $key = get_class($entity);
+
+        if(isset($this->cache['meta'][$key])) {
+            return $this->cache['meta'][$key];
+        }
+
         $config = $this->getRawMetadata($entity);
         $this->applyProvider($entity, $config);
+        $this->cache['meta'][$key] = $config;
 
         return $config;
     }
 
     /**
-     * Applies metadata privider for all classes defined in config.
+     * Applies metadata provider for all classes defined in config.
      *
      * @param object $entity
      * @param array $config

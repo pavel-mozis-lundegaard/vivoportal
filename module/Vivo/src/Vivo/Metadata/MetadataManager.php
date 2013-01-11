@@ -53,7 +53,7 @@ class MetadataManager
             // Vivo CMS model, other is a module model
             if(strpos($class, 'Vivo\\') === 0) {
                 //@todo: path
-                $path = realpath(sprintf('%s/../../../config/metadata/%s.ini', __DIR__, str_replace('\\', DIRECTORY_SEPARATOR, $class)));
+                $path = realpath(sprintf('%s/../../../config/metadata/%s.ini', __DIR__, $class));
 
                 if($path) {
                     $resource = file_get_contents($path);

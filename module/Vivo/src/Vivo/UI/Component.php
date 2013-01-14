@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\UI;
 
+use Vivo\View\Model\UIViewModel;
+
 use Zend\View\Model\ModelInterface;
 
 /**
@@ -11,7 +13,7 @@ class Component implements ComponentInterface
 {
 
     /**
-     * String used to separate names of component in path.
+     * String used to separate component names in path
      * @var string
      */
     const COMPONENT_SEPARATOR = '->';
@@ -52,6 +54,14 @@ class Component implements ComponentInterface
         $this->view = $view;
     }
 
+    public function getView()
+    {
+        if ($this->view === null) {
+            $this->view = new UIViewModel();
+        }
+        return $this->view;
+    }
+
     public function init()
     {
 
@@ -59,11 +69,11 @@ class Component implements ComponentInterface
 
     public function view()
     {
-        if ($this->view->getTemplate() == '') {
-            $this->view->setTemplate($this->getDefaultTemplate());
+        if ($this->getView()->getTemplate() == '') {
+            $this->getView()->setTemplate($this->getDefaultTemplate());
         }
-        $this->view->setVariable('component', $this);
-        $this->view->setVariable('cpath', $this->getPath());
+        $this->getView()->setVariable('component', $this);
+        $this->getView()->setVariable('cpath', $this->getPath());
         return $this->view;
     }
 

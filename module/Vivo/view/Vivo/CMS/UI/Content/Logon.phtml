@@ -1,0 +1,25 @@
+<?
+// example how to add css and js from template
+//$this->headLink()->appendStylesheet('/.VivoSandboxModule.resource/css/Sample.css');
+//$this->headScript()->appendFile('/.VivoSandboxModule.resource/js/DefinedInTemplate.js');
+?>
+<div class="samplediv">
+<h4>LOGON UI COMPONENT</h4>
+<?php
+    /** @var $form \Vivo\Form\Logon */
+    if ($form->getMessages()) {
+        echo '<p>' . $this->escapeHtml($this->translate('Invalid input provided')) . '</p>';
+    }
+    //TODO - remove 'action' attribute and set the hidden field 'act' when hidden field approach works
+    $form->setAttribute('action', $this->action('submit'));
+    //Add hidden field containing the required action
+//    $form->add(array(
+//        'name'          => 'act',
+//        'attributes'    => array(
+//            'type'          => 'hidden',
+//            'value'         => $this->action('submit'),
+//        ),
+//    ));
+    echo $this->vivoForm($form);
+?>
+</div>

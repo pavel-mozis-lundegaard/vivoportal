@@ -6,89 +6,102 @@ use Vivo\CMS\Model;
 /**
  * VIVO model represents overview documents by path and other criteria on front-end.
  */
-class Overview extends Model\Content {
+class Overview extends Model\Content
+{
 
-	const TYPE_DYNAMIC = 'DYNAMIC';
-	const TYPE_STATIC = 'STATIC';
+    const TYPE_DYNAMIC = 'DYNAMIC';
+    const TYPE_STATIC = 'STATIC';
 
-	/**
-	 * @var string View / tempate path.
-	 */
-	protected $frontView;
+    /**
+     * Overview type.
+     *
+     * @var string see TYPE_DYNAMIC and TYPE_STATIC constants
+     */
+    protected $overviewType;
 
-	//@todo: proc se tohle vse jmenuje overviewXXXX - proc to neni rovnou $this->XXXX ????????????????
-	// +1 grafa
+    /**
+     * @var string Path to a document, which sub-documents of it should be displayed in the overview. If a overview path is not set, it shows sub-documents of the current document, which overview is the content of that document.
+     * @example en/news/archive/
+     */
+    protected $overviewPath;
 
-	/**
-	 * Overview type.
-	 *
-	 * @var string see TYPE_DYNAMIC and TYPE_STATIC constants
-	 */
-	protected $overviewType;
+    /**
+     * @var string Fulltext criteria.
+     */
+    protected $overviewCriteria;
 
-	/**
-	 * @var string Path to a document, which sub-documents of it should be displayed in the overview. If a overview path is not set, it shows sub-documents of the current document, which overview is the content of that document.
-	 * @example en/news/archive/
-	 */
-	protected $overviewPath;
+    /**
+     * @var string Documents sorting.
+     * @see Vivo\CMS\Model\Document::$sorting
+     */
+    protected $overviewSorting;
 
-	/**
-	 * @var string Fulltext criteria.
-	 */
-	protected $overviewCriteria;
+    /**
+     * @var int A number represent documents count in overview.
+     */
+    protected $overviewLimit;
 
-	/**
-	 * @var string Documents sorting.
-	 * @see Vivo\CMS\Model\Document::$sorting
-	 */
-	protected $overviewSorting;
+    /**
+     * @var array items for static overview.
+     */
+    protected $overviewItems = array();
 
-	/**
-	 * @var int A number represent documents count in overview.
-	 */
-	protected $overviewLimit;
+    /**
+     * Setting default values
+     *
+     * @param string $path Entity path
+     */
+    public function __construct($path = null)
+    {
+        parent::__construct($path);
+    }
 
-	/**
-	 * @var array items for static overview.
-	 */
-	protected $overviewItems = array();
+    /**
+     * Sets overview type
+     *
+     * @param string $type Overview type
+     **/
+    public function setType($type)
+    {
+        $this->overviewType = $type;
+    }
 
-	/**
-	 * Setting default values
-	 *
-	 * @param string $path Entity path
-	 */
-	public function __construct($path = null) {
-		parent::__construct($path);
-	}
+    /**
+     * @param array $field_names
+     * @return string
+     * @todo what is it?
+     */
+    public function getTextContent($field_names = array())
+    {
+        return parent::getTextContent(
+                array_merge($field_names,
+                        array('overview_path', 'overview_items')));
+    }
 
-	/**
-	 * Sets overview type
-	 *
-	 * @param string $type Overview type 
-	 **/
-	public function setType($type) {
-		$this->overviewType = $type;
-	}
+    /**
+     * Returns overview path.
+     * @return string
+     */
+    public function getOverviewPath()
+    {
+        return $this->overviewPath;
+    }
 
-	/**
-	 * @param array $field_names
-	 * @return string
-	 */
-	public function getTextContent($field_names = array()) {
-		return parent::getTextContent(array_merge($field_names, array('overview_path', 'overview_items')));
-	}
+    /**
+     * Returns array of overview items (for static overview).
+     * @return array
+     */
+    public function getOverviewItems()
+    {
+        return $this->overviewItems;
+    }
 
-	public function getOverviewPath() {
-	    return $this->overviewPath;
-	}
-
-	public function getOverviewItems() {
-	    return $this->overviewItems;
-	}
-
-	public function getOverviewType() {
-	    return $this->overviewType;
-	}
-
+    /**
+     * Returns overview type (STATIC|DYNAMIC).
+     * @return string
+     */
+    public function getOverviewType()
+    {
+        return $this->overviewType;
+    }
 }

@@ -103,6 +103,7 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
 
     /**
      * @param string $name
+     * @return bool
      */
     public function hasComponent($name)
     {

@@ -78,6 +78,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
     public function registerViewHelpers($e) {
         $app          = $e->getTarget();
         $serviceLocator      = $app->getServiceManager();
+        /** @var $plugins \Zend\View\HelperPluginManager */
         $plugins      = $serviceLocator->get('view_helper_manager');
         $plugins->setFactory('action', function($sm) use($serviceLocator) {
             $helper = new ViewHelper\Action($sm->get('url'));
@@ -89,8 +90,16 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
             return $helper;
         });
         $plugins->setFactory('document', function($sm) use($serviceLocator) {
-                $helper = new ViewHelper\Document($sm->get('url'), $serviceLocator->get('cms'));
-                return $helper;
+            $helper = new ViewHelper\Document($sm->get('url'), $serviceLocator->get('cms'));
+            return $helper;
+        });
+        $plugins->setFactory('vivoform', function($sm) {
+            $helper = new ViewHelper\VivoForm();
+            return $helper;
+        });
+        $plugins->setFactory('vivoformfieldset', function($sm) {
+            $helper = new ViewHelper\VivoFormFieldset();
+            return $helper;
         });
     }
 

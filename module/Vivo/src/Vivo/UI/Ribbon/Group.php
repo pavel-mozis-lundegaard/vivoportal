@@ -5,8 +5,6 @@ use Vivo\UI;
 
 /**
  * Ribbon Tab Group
- * 
- * @author peter.krajcar
  */
 class Group extends UI\ComponentContainer
 {

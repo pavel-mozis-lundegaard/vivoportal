@@ -11,7 +11,7 @@ class TabContainer extends ComponentContainer
      */
     public $selected = false;
     
-    private $view_all = false;
+    private $viewAll = false;
 
     /**
      * Method for selecting a tab. Call method selected() on selected component.
@@ -19,10 +19,10 @@ class TabContainer extends ComponentContainer
      */
     public function select($name = false)
     {
-        $selected_component = $this->components[$name];
+        $selectedComponent = $this->components[$name];
 
-        if ($selected_component instanceof TabContainerItemInterface) {
-            $selected_component->select();
+        if ($selectedComponent instanceof TabContainerItemInterface) {
+            $selectedComponent->select();
         }
 
         return $this->selected = $name;
@@ -30,7 +30,7 @@ class TabContainer extends ComponentContainer
     
     public function setViewAll($value)
     {
-        $this->view_all = $value;
+        $this->viewAll = $value;
     }
 
     public function prepareTabs()
@@ -62,7 +62,7 @@ class TabContainer extends ComponentContainer
         $this->view->tabs = $this->prepareTabs();
         $this->view->components = $keys = array_keys($this->components);
         $this->view->selected = $this->selected ?  : reset($keys);
-        $this->view->view_all = $this->view_all;
+        $this->view->viewAll = $this->viewAll;
         return parent::view();
     }
 

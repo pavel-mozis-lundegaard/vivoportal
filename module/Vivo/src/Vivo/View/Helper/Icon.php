@@ -10,7 +10,7 @@ use Zend\View\Helper\AbstractHelper;
  */
 class Icon extends AbstractHelper
 {
-    private $icon_path = '/system/Images/icons/';
+    private $iconPath = '/system/Images/icons/';
     
     /**
 	 * Return icon URL.
@@ -21,6 +21,6 @@ class Icon extends AbstractHelper
 	 */
 	public function __invoke($name, $size = 16)
     {
-		return $this->icon_path.$size.'x'.$size.'/'.$name.'.png';
+		return $this->iconPath.$size.'x'.$size.'/'.$name.'.png';
 	}
 }

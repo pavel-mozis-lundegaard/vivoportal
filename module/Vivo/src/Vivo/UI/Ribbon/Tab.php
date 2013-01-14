@@ -5,8 +5,6 @@ use Vivo\UI;
 
 /**
  * Ribbon Tab
- * 
- * @author peter.krajcar
  */
 class Tab extends UI\ComponentContainer
 {

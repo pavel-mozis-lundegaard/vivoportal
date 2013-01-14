@@ -5,29 +5,22 @@ use Vivo\UI;
 
 /**
  * Ribbon Tab Group Item
- * 
- * @author peter.krajcar
  */
 class Item extends UI\Component implements UI\TabContainerItemInterface, UI\RibbonItemInterface
 {
-    const SMALL = 16;
-    const NORMAL = 24;
-    const LARGE = 48;
 
     private $icon;
-    private $size;
-    private $handler;
+    private $ribbon;
     private $visible = true;
     private $active = false;
     private $enabled = true;
 
-    public function __construct($name, $label, $icon, $size = self::NORMAL, $handler = NULL)
+    public function __construct($name, $label, $icon, $ribbon = NULL)
     {
         $this->name = $name;
         $this->label = $label;
         $this->icon = $icon;
-        $this->size = $size;
-        $this->setHandler($handler);
+        $this->ribbon = $ribbon;
     }
 
     public function getLabel()
@@ -38,11 +31,6 @@ class Item extends UI\Component implements UI\TabContainerItemInterface, UI\Ribb
     public function getIcon()
     {
         return $this->icon;
-    }
-
-    public function getSize()
-    {
-        return $this->size;
     }
 
     public function getHandler()
@@ -96,19 +84,9 @@ class Item extends UI\Component implements UI\TabContainerItemInterface, UI\Ribb
         $this->active = (bool) $active;
     }
 
-    function invoke()
+    function click()
     {
-        $handler = $this->getHandler();
-        if (is_object($handler)) {
-            if ($handler instanceof \Closure) {
-                $closure = $handler;
-                $closure($this);
-            } elseif ($handler instanceof UI\Ribbon\Handler) {
-                $handler->invoke($this);
-            }
-        } elseif (is_array($handler)) {
-            $handler[0]->{$handler[1]}($this);
-        }
+        $this->ribbon->itemClick($this->getName());
     }
 
     public function select()
@@ -124,7 +102,6 @@ class Item extends UI\Component implements UI\TabContainerItemInterface, UI\Ribb
     public function init() {
         $this->view->name = $this->getName();
         $this->view->icon = $this->getIcon();
-        $this->view->size = $this->getSize();
         $this->view->enabled = $this->isEnabled();
     }
 }

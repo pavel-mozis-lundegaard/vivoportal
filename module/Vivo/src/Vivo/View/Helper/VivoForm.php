@@ -27,7 +27,7 @@ class VivoForm extends AbstractHelper
     }
 
     /**
-     * Invoke the helper as a PhpRenderer method call
+     * Renders the form
      * @param \Zend\Form\Form $form
      * @return string
      */

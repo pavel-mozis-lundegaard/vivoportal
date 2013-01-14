@@ -8,7 +8,7 @@
 <?php
     /** @var $form \Vivo\Form\Logon */
     if ($form->getMessages()) {
-        echo '<p>' . $this->translate('Invalid input provided') . '</p>';
+        echo '<p>' . $this->escapeHtml($this->translate('Invalid input provided')) . '</p>';
     }
     //TODO - remove 'action' attribute and set the hidden field 'act' when hidden field approach works
     $form->setAttribute('action', $this->action('submit'));

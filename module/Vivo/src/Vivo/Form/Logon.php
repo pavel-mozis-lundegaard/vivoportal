@@ -18,7 +18,8 @@ class Logon extends Form
         parent::__construct('logon');
 
         $this->setAttribute('method', 'post');
-        $this->setInputFilter(new InputFilter());
+        $inputFilter    = new InputFilter();
+        $this->setInputFilter($inputFilter);
 
         //Logon fieldset
         $this->add(array(

@@ -25,6 +25,10 @@ class MetadataManager
     /**
      * @var array
      */
+    protected $options = array();
+    /**
+     * @var array
+     */
     protected $cache = array(
         'rawmeta' => array(),
         'meta' => array()
@@ -34,8 +38,15 @@ class MetadataManager
      * @param \Zend\ServiceManager\ServiceLocatorInterface $serviceManager
      * @param \Vivo\Module\ResourceManager\ResourceManager $resourceManager
      * @param \Vivo\Module\ModuleNameResolver $moduleNameResolver
+     * @param array $options
      */
-    public function __construct(ServiceLocatorInterface $serviceManager, ResourceManager $resourceManager, ModuleNameResolver $moduleNameResolver) {
+    public function __construct(
+            ServiceLocatorInterface $serviceManager,
+            ResourceManager $resourceManager,
+            ModuleNameResolver $moduleNameResolver,
+            array $options = array())
+    {
+        $this->options = $options;
         $this->serviceManager = $serviceManager;
         $this->resourceManager = $resourceManager;
         $this->moduleNameResolver = $moduleNameResolver;
@@ -65,8 +76,7 @@ class MetadataManager
         foreach ($parents as $class) {
             // Vivo CMS model, other is a module model
             if(strpos($class, 'Vivo\\') === 0) {
-                //@todo: path
-                $path = realpath(sprintf('%s/../../../config/metadata/%s.ini', __DIR__, $class));
+                $path = realpath(sprintf('%s/%s.ini', $this->options['config_path'], $class));
 
                 if($path) {
                     $resource = file_get_contents($path);
@@ -141,8 +151,7 @@ class MetadataManager
                         $value = $provider->getValue($entity);
                     }
                     else {
-                        //@todo
-                        throw new \Exception(
+                        throw new Exception\DescriptiorException(
                             sprintf('Metadata value provider \'%s\' defined in metadata %s::%s is not instance of Vivo\Metadata\MetadataValueProviderInterface',
                             $value, get_class($entity), $key)
                         );

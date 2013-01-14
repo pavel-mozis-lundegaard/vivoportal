@@ -164,15 +164,15 @@ return array(
             'ViewJsonStrategy',
         ),
     ),
-
     'view_helpers' => array(
-            'invokables' => array(
-            ),
+        'invokables' => array(
+        ),
     ),
-
     'di' => array(
     ),
-
+    'metadata_manager' => array(
+        'config_path' => __DIR__ . '/../config/metadata',
+    ),
     'vivo'      => array(
         //Vivo Modules configuration
         'modules'  => array(

@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\Indexer;
 
+use Vivo\CMS\Model\Entity;
+
 /**
  * FieldHelperInterface
  */
@@ -42,16 +44,18 @@ interface FieldHelperInterface
     const FIELD_TYPE_STRING_ISM = 's-ism';
 
     /**
-     * Returns type of the submitted field
-     * @param string $fieldName
+     * Returns type of the submitted field name
+     * @param \Vivo\CMS\Model\Entity $entity
+     * @param string $property
      * @return string
      */
-    public function getFieldType($fieldName);
+    public function getIndexerTypeForProperty(Entity $entity, $property);
 
     /**
      * Returns true when the specified field exists
-     * @param string $fieldName
+     * @param \Vivo\CMS\Model\Entity $entity
+     * @param string $property
      * @return bool
      */
-    public function fieldExists($fieldName);
+    public function propertyDefinitionExists(Entity $entity, $property);
 }

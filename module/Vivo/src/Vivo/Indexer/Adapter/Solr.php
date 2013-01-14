@@ -430,7 +430,7 @@ class Solr implements AdapterInterface
             $solrFieldName  = $this->fieldNameMap[$vivoFieldName];
         } else {
             //Resolve using fieldHelper
-            $fieldType      = $this->fieldHelper->getFieldType($vivoFieldName);
+            $fieldType      = $this->fieldHelper->getIndexerTypeForProperty($vivoFieldName);
             //Replace backslashes with underscores
             $solrFieldName  = str_replace('\\', '_', $vivoFieldName);
             if (!array_key_exists($fieldType, $this->fieldTypeMap)) {

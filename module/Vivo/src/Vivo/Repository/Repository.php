@@ -9,6 +9,7 @@ use Vivo\Indexer\IndexerInterface;
 use Vivo\Repository\UuidConvertor\UuidConvertorInterface;
 use Vivo\Repository\Watcher;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
+use Vivo\Indexer\QueryBuilder;
 
 use Vivo\IO;
 use Vivo\Storage\StorageInterface;
@@ -71,6 +72,12 @@ class Repository implements RepositoryInterface
 	 * @var Serializer
 	 */
 	private $serializer;
+
+    /**
+     * QueryBuilder
+     * @var QueryBuilder
+     */
+    protected $queryBuilder;
 
     /**
      * The cache for objects of the model
@@ -158,6 +165,7 @@ class Repository implements RepositoryInterface
      * @param Watcher $watcher
      * @param \Vivo\Uuid\GeneratorInterface $uuidGenerator
      * @param \Vivo\IO\IOUtil $ioUtil
+     * @param \Vivo\Indexer\QueryBuilder $queryBuilder
      * @throws Exception\Exception
      */
     public function __construct(Storage\StorageInterface $storage,
@@ -168,7 +176,8 @@ class Repository implements RepositoryInterface
                                 UuidConvertorInterface $uuidConvertor,
                                 Watcher $watcher,
                                 UuidGenerator $uuidGenerator,
-                                IOUtil $ioUtil)
+                                IOUtil $ioUtil,
+                                QueryBuilder $queryBuilder)
 	{
         if ($cache) {
             //Check that cache supports all required data types
@@ -191,6 +200,7 @@ class Repository implements RepositoryInterface
         $this->uuidGenerator    = $uuidGenerator;
         $this->ioUtil           = $ioUtil;
         $this->pathBuilder      = $this->storage->getPathBuilder();
+        $this->queryBuilder     = $queryBuilder;
 	}
 
     /**
@@ -629,8 +639,8 @@ class Repository implements RepositoryInterface
                 $delQuery   = $this->indexerHelper->buildTreeQuery($path);
                 $this->indexer->delete($delQuery);
             } else {
-                $term       = new IndexerTerm($path, 'path');
-                $this->indexer->deleteByTerm($term);
+                $query          = $this->queryBuilder->cond('path:/*');
+                $this->indexer->delete($query);
             }
             $count      = 0;
             $entity     = $this->getEntityFromStorage($path);

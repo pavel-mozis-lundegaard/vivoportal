@@ -18,9 +18,11 @@ class IndexerFieldHelperFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $config         = $serviceLocator->get('config');
-        $fieldDef       = $config['vivo']['indexer']['field_def'];
-        $fieldHelper    = new \Vivo\Indexer\FieldHelper($fieldDef);
+        $config             = $serviceLocator->get('config');
+        $fieldDef           = $config['vivo']['indexer']['field_def'];
+        $metadataManager    = $serviceLocator->get('metadata_manager');
+        $pathBuilder        = $serviceLocator->get('path_builder');
+        $fieldHelper        = new \Vivo\Indexer\FieldHelper($fieldDef, $metadataManager, $pathBuilder);
         return $fieldHelper;
     }
 }

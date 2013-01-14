@@ -33,6 +33,7 @@ class RepositoryFactory implements FactoryInterface
         $watcher                = new \Vivo\Repository\Watcher();
         $uuidGenerator          = $serviceLocator->get('uuid_generator');
         $ioUtil                 = $serviceLocator->get('io_util');
+        $queryBuilder           = $serviceLocator->get('indexer_query_builder');
         //TODO - supply a real cache
         $repository             = new \Vivo\Repository\Repository($storage,
             null,
@@ -42,7 +43,8 @@ class RepositoryFactory implements FactoryInterface
             $uuidConvertor,
             $watcher,
             $uuidGenerator,
-            $ioUtil);
+            $ioUtil,
+            $queryBuilder);
         return $repository;
     }
 }

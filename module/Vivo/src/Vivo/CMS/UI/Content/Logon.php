@@ -14,6 +14,8 @@ class Logon extends AbstractForm
 {
     public function init()
     {
+        //Prepare the form
+        $this->form->prepare();
         $this->view->form   = $this->form;
     }
 
@@ -39,6 +41,10 @@ class Logon extends AbstractForm
     protected function createForm()
     {
         $form   = new ZfFormLogon();
+        //Set form name if needed
+//        $form->setName('logon_form');
+        //Prepare form name if needed
+//        $form->setWrapElements(true);
         return $form;
     }
 }

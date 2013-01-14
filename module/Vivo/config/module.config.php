@@ -114,6 +114,7 @@ return array(
             'indexer_adapter'           => 'Vivo\Service\IndexerAdapterFactory',
             'indexer_query_parser'      => 'Vivo\Service\IndexerQueryParserFactory',
             'module_name_resolver'      => 'Vivo\Service\ModuleNameResolverFactory',
+            'metadata_manager'          => 'Vivo\Service\MetadataManagerFactory',
         ),
         'aliases' => array(
                 'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -162,15 +163,15 @@ return array(
             'ViewJsonStrategy',
         ),
     ),
-
     'view_helpers' => array(
-            'invokables' => array(
-            ),
+        'invokables' => array(
+        ),
     ),
-
     'di' => array(
     ),
-
+    'metadata_manager' => array(
+        'config_path' => __DIR__ . '/../config/metadata',
+    ),
     'vivo'      => array(
         //Vivo Modules configuration
         'modules'  => array(
@@ -193,6 +194,7 @@ return array(
                     'view'      => 'view',
                     'layout'    => 'view/layout',
                     'resource'  => 'resource',
+                    'metadata'  => 'config/metadata',
                 ),
                 //Default resource type
                 'default_type'  => 'resource',

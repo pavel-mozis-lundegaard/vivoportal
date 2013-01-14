@@ -22,7 +22,7 @@ class Component extends Model\Content implements ProvideFrontComponentInterface
     /**
      * @param string $path Entity path in CMS repository
      */
-    function __construct($path = null)
+    public function __construct($path = null)
     {
         parent::__construct($path);
         $this->frontComponent = self::$DEFAULT_FRONT_COMPONENT;

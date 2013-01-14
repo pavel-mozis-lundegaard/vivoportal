@@ -43,7 +43,7 @@ class Logon extends AbstractForm
         $form   = new ZfFormLogon();
         //Set form name if needed
 //        $form->setName('logon_form');
-        //Prepare form name if needed
+        //Prepend form name to elements if needed
 //        $form->setWrapElements(true);
         return $form;
     }

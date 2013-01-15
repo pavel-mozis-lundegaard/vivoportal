@@ -260,8 +260,17 @@ return array(
                 'Vivo\CMS\UI\Content\File:image'    => __DIR__.'/../view/Vivo/CMS/UI/Content/File.image.phtml',
                 'Vivo\CMS\UI\Content\File'          => __DIR__.'/../view/Vivo/CMS/UI/Content/File.phtml',
                 'Vivo\CMS\UI\Content\Overview'      => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.phtml',
+                'Vivo\CMS\UI\Content\Overview:Description' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.Description.phtml',
                 'Vivo\CMS\UI\Content\Logon'         => __DIR__.'/../view/Vivo/CMS/UI/Content/Logon.phtml',
                 'Vivo\UI\ComponentContainer'        => __DIR__.'/../view/Vivo/UI/ComponentContainer.phtml',
+            ),
+
+            'custom_templates' => array (
+             // custom selectable templates
+                'Vivo\CMS\Model\Content\Overview' => array (
+                    'Vivo\CMS\UI\Content\Overview:Description',
+                    'Vivo\CMS\UI\Content\Overview',
+                ),
             ),
         ),
         'component_mapping' => array (

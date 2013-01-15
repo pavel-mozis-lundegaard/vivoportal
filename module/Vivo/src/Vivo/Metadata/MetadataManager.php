@@ -8,24 +8,31 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Config\Reader\Ini as ConfigReader;
 use Zend\Config\Config;
 
+/**
+ * MetadataManager
+ */
 class MetadataManager
 {
     /**
      * @var \Zend\ServiceManager\ServiceLocatorInterface
      */
     protected $serviceManager;
+
     /**
      * @var \Vivo\Module\ResourceManager\ResourceManager
      */
     protected $resourceManager;
+
     /**
      * @var \Vivo\Module\ModuleNameResolver
      */
     protected $moduleNameResolver;
+
     /**
      * @var array
      */
     protected $options = array();
+
     /**
      * @var array
      */
@@ -53,20 +60,19 @@ class MetadataManager
     }
 
     /**
-     * @param object $entity
+     * Returns raw metadata
+     * @param string $entityClass
      * @return array
      */
-    public function getRawMetadata($entity) {
-        $className = get_class($entity);
-
-        if(isset($this->cache['rawmeta'][$className])) {
-            return $this->cache['rawmeta'][$className];
+    public function getRawMetadata($entityClass) {
+        if(isset($this->cache['rawmeta'][$entityClass])) {
+            return $this->cache['rawmeta'][$entityClass];
         }
 
         $config = new Config(array());
         $reader = new ConfigReader();
 
-        $parent = $className;
+        $parent = $entityClass;
         $parents = array($parent);
         while(($parent = get_parent_class($parent)) && $parent !== false) {
             $parents[] = $parent;
@@ -103,25 +109,24 @@ class MetadataManager
 
         $config = $config->toArray();
 
-        $this->cache['rawmeta'][$className] = $config;
+        $this->cache['rawmeta'][$entityClass] = $config;
 
         return $config;
     }
 
     /**
-     * @param object $entity
+     * Returns metadata
+     * @param string $entityClass
      * @return array
      */
-    public function getMetadata($entity) {
-        $key = get_class($entity);
-
-        if(isset($this->cache['meta'][$key])) {
-            return $this->cache['meta'][$key];
+    public function getMetadata($entityClass) {
+        if(isset($this->cache['meta'][$entityClass])) {
+            return $this->cache['meta'][$entityClass];
         }
 
-        $config = $this->getRawMetadata($entity);
-        $this->applyProvider($entity, $config);
-        $this->cache['meta'][$key] = $config;
+        $config = $this->getRawMetadata($entityClass);
+        $this->applyProvider($entityClass, $config);
+        $this->cache['meta'][$entityClass] = $config;
 
         return $config;
     }
@@ -129,33 +134,26 @@ class MetadataManager
     /**
      * Applies metadata provider for all classes defined in config.
      *
-     * @param object $entity
+     * @param string $entityClass
      * @param array $config
      * @throws \Exception
      */
-    private function applyProvider($entity, &$config) {
+    private function applyProvider($entityClass, &$config) {
         foreach ($config as $key => &$value) {
             if(is_array($value)) {
-                $this->applyProvider($entity, $value);
+                $this->applyProvider($entityClass, $value);
             }
-            else {
-                if (strpos($value, '\\')) {
-                    if(class_exists($value) && is_subclass_of($value, 'Vivo\Metadata\MetadataValueProviderInterface')) {
-                        if(is_subclass_of($value, 'Vivo\Metadata\AbstractMetadataValueProvider')) {
-                            $provider = new $value($this->serviceManager);
-                        }
-                        else {
-                            $provider = new $value();
-                        }
-
-                        $value = $provider->getValue($entity);
-                    }
-                    else {
-                        throw new Exception\DescriptiorException(
-                            sprintf('Metadata value provider \'%s\' defined in metadata %s::%s is not instance of Vivo\Metadata\MetadataValueProviderInterface',
-                            $value, get_class($entity), $key)
-                        );
-                    }
+            elseif (strpos($value, '\\')) {
+                if(class_exists($value) && is_subclass_of($value, 'Vivo\Metadata\MetadataValueProviderInterface')) {
+                    /** @var $provider MetadataValueProviderInterface */
+                    $provider   = new $value($this->serviceManager);
+                    $value      = $provider->getValue($entityClass);
+                }
+                else {
+                    throw new Exception\DescriptiorException(
+                        sprintf('Metadata value provider \'%s\' defined in metadata %s::%s is not an instance of '
+                                . 'Vivo\Metadata\MetadataValueProviderInterface', $value, get_class($entityClass), $key)
+                    );
                 }
             }
         }

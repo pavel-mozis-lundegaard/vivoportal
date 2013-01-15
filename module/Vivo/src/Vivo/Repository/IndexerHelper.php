@@ -42,7 +42,7 @@ class IndexerHelper
         //Class field is added by default
         $field  = new Field('\class', get_class($entity));
         $doc->addField($field);
-        $entityMetadata = $this->metadataManager->getMetadata($entity);
+        $entityMetadata = $this->metadataManager->getMetadata(get_class($entity));
         foreach ($entityMetadata as $property => $metadata) {
             if ($this->indexerFieldHelper->isEnabled($entity, $property)) {
                 $getter = 'get' . ucfirst($property);

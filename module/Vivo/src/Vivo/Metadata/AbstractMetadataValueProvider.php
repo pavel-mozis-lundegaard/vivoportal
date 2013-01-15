@@ -3,6 +3,9 @@ namespace Vivo\Metadata;
 
 use Zend\ServiceManager\ServiceManager;
 
+/**
+ * AbstractMetadataValueProvider
+ */
 abstract class AbstractMetadataValueProvider implements MetadataValueProviderInterface
 {
     /**
@@ -10,6 +13,10 @@ abstract class AbstractMetadataValueProvider implements MetadataValueProviderInt
      */
     protected $serviceManager;
 
+    /**
+     * Constructor
+     * @param \Zend\ServiceManager\ServiceManager $serviceManager
+     */
     public function __construct(ServiceManager $serviceManager) {
         $this->serviceManager = $serviceManager;
     }

@@ -432,6 +432,13 @@ class Solr implements AdapterInterface
         } else {
             //Resolve using fieldHelper
 
+
+            //TODO - continue
+
+
+
+
+
             $fieldType      = $this->fieldHelper->getIndexerTypeForProperty($vivoFieldName);
             //Replace backslashes with underscores
             $solrFieldName  = str_replace('\\', '_', $vivoFieldName);

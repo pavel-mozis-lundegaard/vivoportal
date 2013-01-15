@@ -68,131 +68,147 @@ class FieldHelper implements FieldHelperInterface
     }
 
     /**
-     * Returns indexer configuration for the specified property
-     * @param \Vivo\CMS\Model\Entity $entity
-     * @param string $property
+     * Returns indexer configuration for the specified property or for the whole entity class
+     * @param string $entityClass
+     * @param string|null $property
      * @throws Exception\InvalidArgumentException
      * @return array
      */
-    public function getIndexerConfig(Entity $entity, $property)
+    public function getIndexerConfig($entityClass, $property = null)
     {
-        $entityClass    = get_class($entity);
-        $this->loadIndexerConfigs($entity);
-        if (!isset($this->indexerConfigs[$entityClass][$property])) {
+        $this->loadIndexerConfigs($entityClass);
+        $indexerConfigs = $this->indexerConfigs[$entityClass];
+        if (is_null($property)) {
+            return $indexerConfigs;
+        }
+        if (!isset($indexerConfigs[$property])) {
             throw new Exception\InvalidArgumentException(
                 sprintf("%s: Property '%s' not defined for entity '%s'", __METHOD__, $property, $entityClass));
         }
-        return $this->indexerConfigs[$entityClass][$property];
+        return $indexerConfigs[$property];
+    }
+
+    /**
+     * Returns indexer config for a full property name (\ClassName\property)
+     * @param string $fullPropertyName
+     * @return array
+     */
+    public function getIndexerConfigForFullPropertyName($fullPropertyName)
+    {
+        $parts      = explode('\\', $fullPropertyName);
+        $property   = array_pop($parts);
+        $class      = implode('\\', $parts);
+        $indexerConfig  = $this->getIndexerConfig($class, $property);
+        return $indexerConfig;
     }
 
     /**
      * Returns if the specified property is enabled for indexing
-     * @param \Vivo\CMS\Model\Entity $entity
+     * @param string $entityClass
      * @param string $property
      * @return boolean
      */
-    public function isEnabled(Entity $entity, $property)
+    public function isEnabled($entityClass, $property)
     {
-        $config = $this->getIndexerConfig($entity, $property);
+        $config = $this->getIndexerConfig($entityClass, $property);
         return $config['enabled'];
     }
 
     /**
      * Returns indexer field name for the specified property
-     * @param \Vivo\CMS\Model\Entity $entity
+     * @param string $entityClass
      * @param string $property
      * @return string
      */
-    public function getName(Entity $entity, $property)
+    public function getName($entityClass, $property)
     {
-        $config = $this->getIndexerConfig($entity, $property);
+        $config = $this->getIndexerConfig($entityClass, $property);
         return $config['name'];
     }
 
     /**
      * Returns indexer field type for the specified property
-     * @param \Vivo\CMS\Model\Entity $entity
+     * @param string $entityClass
      * @param string $property
      * @return mixed
      */
-    public function getType(Entity $entity, $property)
+    public function getType($entityClass, $property)
     {
-        $config = $this->getIndexerConfig($entity, $property);
+        $config = $this->getIndexerConfig($entityClass, $property);
         return $config['type'];
     }
 
     /**
      * Returns true when the specified property is indexed
-     * @param \Vivo\CMS\Model\Entity $entity
+     * @param string $entityClass
      * @param string $property
      * @return bool
      */
-    public function isIndexed(Entity $entity, $property)
+    public function isIndexed($entityClass, $property)
     {
-        $config = $this->getIndexerConfig($entity, $property);
+        $config = $this->getIndexerConfig($entityClass, $property);
         return $config['indexed'];
     }
 
     /**
      * Returns if the specified property is stored in the index
-     * @param \Vivo\CMS\Model\Entity $entity
+     * @param string $entityClass
      * @param string $property
      * @return bool
      */
-    public function isStored(Entity $entity, $property)
+    public function isStored($entityClass, $property)
     {
-        $config = $this->getIndexerConfig($entity, $property);
+        $config = $this->getIndexerConfig($entityClass, $property);
         return $config['stored'];
     }
 
     /**
      * Returns if the specified property is tokenized
-     * @param \Vivo\CMS\Model\Entity $entity
+     * @param string $entityClass
      * @param string $property
      * @return boolean
      */
-    public function isTokenized(Entity $entity, $property)
+    public function isTokenized($entityClass, $property)
     {
-        $config = $this->getIndexerConfig($entity, $property);
+        $config = $this->getIndexerConfig($entityClass, $property);
         return $config['tokenized'];
     }
 
     /**
      * Returns if the specified property is a multi-value
-     * @param \Vivo\CMS\Model\Entity $entity
+     * @param string $entityClass
      * @param string $property
      * @return boolean
      */
-    public function isMultiValue(Entity $entity, $property)
+    public function isMultiValue($entityClass, $property)
     {
-        $config = $this->getIndexerConfig($entity, $property);
+        $config = $this->getIndexerConfig($entityClass, $property);
         return $config['multi'];
     }
 
     /**
      * Returns full property name derived from entity and the bare property name
-     * @param \Vivo\CMS\Model\Entity $entity
+     * @param string $entityClass
      * @param string $property
      * @return string
      */
-    public function getFullPropertyName(Entity $entity, $property)
+    public function getFullPropertyName($entityClass, $property)
     {
-        $fullPropName   = get_class($entity) . '\\' . $property;
+        $fullPropName   = '\\' . $entityClass . '\\' . $property;
         return $fullPropName;
     }
 
     /**
      * Looks up indexer configurations in entity metadata and adds it to property definition array
-     * @param \Vivo\CMS\Model\Entity $entity
+     * @param string $entityClass
      * @return void
      */
-    protected function loadIndexerConfigs(Entity $entity)
+    protected function loadIndexerConfigs($entityClass)
     {
-        $entityClass    = get_class($entity);
         if (!array_key_exists($entityClass, $this->indexerConfigs)) {
-            $entityMetadata = $this->metadataManager->getMetadata($entity);
+            $entityMetadata = $this->metadataManager->getMetadata($entityClass);
             foreach ($entityMetadata as $propertyName => $metadata) {
-                $fullPropName           = $this->getFullPropertyName($entity, $propertyName);
+                $fullPropName           = $this->getFullPropertyName($entityClass, $propertyName);
                 $indexerConfig          = $this->defaultIndexingOptions;
                 //Indexer field name is set to the full property name by default
                 $indexerConfig['name']  = $fullPropName;

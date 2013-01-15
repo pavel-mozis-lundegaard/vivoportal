@@ -2,9 +2,9 @@
 namespace Vivo\Indexer;
 
 use Vivo\Metadata\MetadataManager;
-use Vivo\CMS\Api\CMS;
 use Vivo\Storage\PathBuilder\PathBuilder;
 use Vivo\CMS\Model\Entity;
+use Vivo\Indexer\IndexerInterface;
 
 /**
  * FieldHelper
@@ -12,10 +12,25 @@ use Vivo\CMS\Model\Entity;
 class FieldHelper implements FieldHelperInterface
 {
     /**
-     * Property definitions
+     * Indexer configurations for individual properties
+     * array(
+     *      'entity_class_name' => array(
+     *          'propertyName'  => array(
+     *              'enabled'   => true|false,              //Shall this property be included in index?
+     *              'name'      => 'field_name_in_index',   //Field name in index
+     *              'type'      => 'field_type',            //Indexer field type
+     *              'options'   => array(
+     *                  'indexed'   => true|false,
+     *                  'stored'    => true|false,
+     *                  'tokenized' => true|false,
+     *                  'multi'     => true|false,          //Is this property multi-valued?
+     *              ),
+     *          ),
+     *      ),
+     * )
      * @var array
      */
-    protected $propertyDefs         = array();
+    protected $indexerConfigs         = array();
 
     /**
      * Metadata manager
@@ -30,14 +45,19 @@ class FieldHelper implements FieldHelperInterface
     protected $pathBuilder;
 
     /**
-     * Default indexing options used when metadata does not specify them
+     * Default options used when metadata does not specify them
+     * The property metadata is merged with these defaults
      * @var array
      */
     protected $defaultIndexingOptions   = array(
-        'indexed'       => true,
-        'stored'        => true,
-        'tokenized'     => false,
-        'multi_value'   => false,
+        'indexed'       => false,
+        'type'          => IndexerInterface::FIELD_TYPE_STRING,
+        'options'       => array(
+            'indexed'       => true,
+            'stored'        => true,
+            'tokenized'     => false,
+            'multi_value'   => false,
+        ),
     );
 
     /**
@@ -45,64 +65,87 @@ class FieldHelper implements FieldHelperInterface
      * @var array
      */
     protected $fieldTypes       = array(
-        self::FIELD_TYPE_STRING_I,
-        self::FIELD_TYPE_STRING_IM,
-        self::FIELD_TYPE_STRING_S,
-        self::FIELD_TYPE_STRING_SM,
-        self::FIELD_TYPE_STRING_IS,
-        self::FIELD_TYPE_STRING_IST,
-        self::FIELD_TYPE_STRING_ISM,
+        IndexerInterface::FIELD_TYPE_STRING,
+        IndexerInterface::FIELD_TYPE_DATETIME,
+        IndexerInterface::FIELD_TYPE_FLOAT,
+        IndexerInterface::FIELD_TYPE_INT,
     );
 
     /**
      * Constructor
-     * @param array $fieldDef
      * @param \Vivo\Metadata\MetadataManager $metadataManager
      * @param \Vivo\Storage\PathBuilder\PathBuilder $pathBuilder
      */
-    public function __construct(array $fieldDef, MetadataManager $metadataManager, PathBuilder $pathBuilder)
+    public function __construct(MetadataManager $metadataManager, PathBuilder $pathBuilder)
     {
-        $this->propertyDefs         = $fieldDef;
         $this->metadataManager  = $metadataManager;
         $this->pathBuilder      = $pathBuilder;
     }
 
     /**
-     * Returns indexer type for the submitted property name
+     * Returns indexer configuration for the specified property
+     * @param \Vivo\CMS\Model\Entity $entity
+     * @param string $property
+     * @throws Exception\InvalidArgumentException
+     * @return array
+     */
+    public function getIndexerConfig(Entity $entity, $property)
+    {
+        $entityClass    = get_class($entity);
+        $this->loadIndexerConfigs($entity);
+        if (!isset($this->indexerConfigs[$entityClass][$property])) {
+            throw new Exception\InvalidArgumentException(
+                sprintf("%s: Property '%s' not defined for entity '%s'", __METHOD__, $property, $entityClass));
+        }
+        return $this->indexerConfigs[$entityClass][$property];
+    }
+
+    /**
+     * Returns if the specified property is enabled for indexing
+     * @param \Vivo\CMS\Model\Entity $entity
+     * @param string $property
+     * @return boolean
+     */
+    public function isEnabled(Entity $entity, $property)
+    {
+        $config = $this->getIndexerConfig($entity, $property);
+        return $config['enabled'];
+    }
+
+    /**
+     * Returns indexer field name for the specified property
      * @param \Vivo\CMS\Model\Entity $entity
      * @param string $property
      * @return string
      */
-    public function getIndexerTypeForProperty(Entity $entity, $property)
+    public function getName(Entity $entity, $property)
     {
-        $fullPropName   = $this->getFullPropertyName($entity, $property);
-        if (!array_key_exists($fullPropName, $this->propertyDefs)) {
-            $this->addFieldDefFromEntityMetadata($entity);
-        }
-        return $this->propertyDefs[$fullPropName];
+        $config = $this->getIndexerConfig($entity, $property);
+        return $config['name'];
     }
 
     /**
-     * Returns true when the specified field exists
+     * Returns indexer field type for the specified property
+     * @param \Vivo\CMS\Model\Entity $entity
+     * @param string $property
+     * @return mixed
+     */
+    public function getType(Entity $entity, $property)
+    {
+        $config = $this->getIndexerConfig($entity, $property);
+        return $config['type'];
+    }
+
+    /**
+     * Returns true when the specified property is indexed
      * @param \Vivo\CMS\Model\Entity $entity
      * @param string $property
      * @return bool
      */
-    public function propertyDefinitionExists(Entity $entity, $property)
+    public function isIndexed(Entity $entity, $property)
     {
-        $fullPropName   = $this->getFullPropertyName($entity, $property);
-        if (array_key_exists($fullPropName, $this->propertyDefs)) {
-            return true;
-        }
-        try {
-            $this->addFieldDefFromEntityMetadata($entity);
-        } catch (Exception\UnknownFieldException $e) {
-            return false;
-        }
-        if (array_key_exists($fullPropName, $this->propertyDefs)) {
-            return true;
-        }
-        return false;
+        $config = $this->getIndexerConfig($entity, $property);
+        return $config['options']['indexed'];
     }
 
     /**
@@ -118,29 +161,23 @@ class FieldHelper implements FieldHelperInterface
     }
 
     /**
-     * Looks up property definitions in entity metadata and adds it to property definition array
+     * Looks up indexer configurations in entity metadata and adds it to property definition array
      * @param \Vivo\CMS\Model\Entity $entity
      * @return void
      */
-    protected function addFieldDefFromEntityMetadata(Entity $entity)
+    protected function loadIndexerConfigs(Entity $entity)
     {
-        $entityMetadata = $this->metadataManager->getMetadata($entity);
-        foreach ($entityMetadata as $propertyName => $metadata) {
-            if (isset($metadata['index']['indexed']) && $metadata['index']['indexed']) {
-                //Get field type
-                if (isset($metadata['type'])) {
-                    $type   = $metadata['type'];
-                } else {
-                    $type   = 'string';
+        $entityClass    = get_class($entity);
+        if (!array_key_exists($entityClass, $this->indexerConfigs)) {
+            $entityMetadata = $this->metadataManager->getMetadata($entity);
+            foreach ($entityMetadata as $propertyName => $metadata) {
+                $fullPropName           = $this->getFullPropertyName($entity, $propertyName);
+                $indexerConfig          = $this->defaultIndexingOptions;
+                $indexerConfig['name']  = $fullPropName;
+                if (isset($metadata['index'])) {
+                    $indexerConfig  = array_merge($indexerConfig, $metadata['index']);
                 }
-                //Get indexing options
-                $options    = $this->defaultIndexingOptions;
-                if (isset($metadata['index']['options'])) {
-                    $options    = array_merge($options, $metadata['index']['options']);
-                }
-                $indexerFieldType   = $this->getIndexerFieldType($type, $options);
-                $fullPropName       = $this->getFullPropertyName($entity, $propertyName);
-                $this->propertyDefs[$fullPropName] = $indexerFieldType;
+                $this->indexerConfigs[$entityClass][$propertyName] = $indexerConfig;
             }
         }
     }
@@ -152,44 +189,43 @@ class FieldHelper implements FieldHelperInterface
      * @return string
      * @throws Exception\InvalidArgumentException
      */
-    protected function getIndexerFieldType($type, array $options)
-    {
-        $type               = strtolower($type);
-        $indexerFieldType   = '';
-        switch ($type) {
-            case 'string':
-                $indexerFieldType   = 's-';
-                break;
-            case 'datetime':
-                //TODO - implement datetime support
-                throw new Exception\InvalidArgumentException(
-                    sprintf("%s: Vivo field type 'DateTime' will be supported soon.", __METHOD__));
-                break;
-            default:
-                throw new Exception\InvalidArgumentException(
-                    sprintf("%s: Vivo field type '%s' not supported by Indexer implementation.", __METHOD__, $type));
-                break;
-        }
-        //Indexed
-        if ($options['indexed']) {
-            $indexerFieldType   .= 'i';
-        }
-        //Stored
-        if ($options['stored']) {
-            $indexerFieldType   .= 's';
-        }
-        //Tokenized
-        if ($options['tokenized']) {
-            $indexerFieldType   .= 't';
-        }
-        //Multi-value
-        if ($options['multi_value']) {
-            $indexerFieldType   .= 'm';
-        }
-        if (!in_array($indexerFieldType, $this->fieldTypes)) {
-            throw new Exception\InvalidArgumentException(
-                sprintf("%s: Indexer field type '%s' not supported.", __METHOD__, $indexerFieldType));
-        }
-        return $indexerFieldType;
-    }
+//    protected function getIndexerFieldType($type, array $options)
+//    {
+//        $type               = strtolower($type);
+//        switch ($type) {
+//            case 'string':
+//                $indexerFieldType   = 's-';
+//                break;
+//            case 'datetime':
+//                //TODO - implement datetime support
+//                throw new Exception\InvalidArgumentException(
+//                    sprintf("%s: Vivo field type 'DateTime' will be supported soon.", __METHOD__));
+//                break;
+//            default:
+//                throw new Exception\InvalidArgumentException(
+//                    sprintf("%s: Vivo field type '%s' not supported by Indexer implementation.", __METHOD__, $type));
+//                break;
+//        }
+//        //Indexed
+//        if ($options['indexed']) {
+//            $indexerFieldType   .= 'i';
+//        }
+//        //Stored
+//        if ($options['stored']) {
+//            $indexerFieldType   .= 's';
+//        }
+//        //Tokenized
+//        if ($options['tokenized']) {
+//            $indexerFieldType   .= 't';
+//        }
+//        //Multi-value
+//        if ($options['multi_value']) {
+//            $indexerFieldType   .= 'm';
+//        }
+//        if (!in_array($indexerFieldType, $this->fieldTypes)) {
+//            throw new Exception\InvalidArgumentException(
+//                sprintf("%s: Indexer field type '%s' not supported.", __METHOD__, $indexerFieldType));
+//        }
+//        return $indexerFieldType;
+//    }
 }

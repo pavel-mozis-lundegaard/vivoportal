@@ -11,51 +11,51 @@ interface FieldHelperInterface
     /**
      * Field Type: String - indexed
      */
-    const FIELD_TYPE_STRING_I   = 's-i';
+//    const FIELD_TYPE_STRING_I   = 's-i';
 
     /**
      * Field Type: String - indexed, multi-valued
      */
-    const FIELD_TYPE_STRING_IM  = 's-im';
+//    const FIELD_TYPE_STRING_IM  = 's-im';
 
     /**
      * Field Type: String - stored
      */
-    const FIELD_TYPE_STRING_S   = 's-s';
+//    const FIELD_TYPE_STRING_S   = 's-s';
 
     /**
      * Field Type: String - stored, multi-valued
      */
-    const FIELD_TYPE_STRING_SM  = 's-sm';
+//    const FIELD_TYPE_STRING_SM  = 's-sm';
 
     /**
      * Field Type: String - indexed, stored
      */
-    const FIELD_TYPE_STRING_IS  = 's-is';
+//    const FIELD_TYPE_STRING_IS  = 's-is';
 
     /**
      * Field Type: String - indexed, stored, tokenized
      */
-    const FIELD_TYPE_STRING_IST = 's-ist';
+//    const FIELD_TYPE_STRING_IST = 's-ist';
 
     /**
      * Field Type: String - indexed, stored, multi-valued
      */
-    const FIELD_TYPE_STRING_ISM = 's-ism';
+//    const FIELD_TYPE_STRING_ISM = 's-ism';
 
     /**
-     * Returns type of the submitted field name
+     * Returns indexer configuration for the specified property
      * @param \Vivo\CMS\Model\Entity $entity
      * @param string $property
-     * @return string
+     * @return array
      */
-    public function getIndexerTypeForProperty(Entity $entity, $property);
+    public function getIndexerConfig(Entity $entity, $property);
 
     /**
-     * Returns true when the specified field exists
+     * Returns true when the specified property is indexed
      * @param \Vivo\CMS\Model\Entity $entity
      * @param string $property
      * @return bool
      */
-    public function propertyDefinitionExists(Entity $entity, $property);
+    public function isIndexed(Entity $entity, $property);
 }

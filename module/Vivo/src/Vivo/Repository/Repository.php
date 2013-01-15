@@ -615,6 +615,7 @@ class Repository implements RepositoryInterface
         $list   = $this->storage->scan($this->storage->getPathBuilder()->getStoragePathSeparator());
         $count  = 0;
         foreach ($list as $path) {
+            $path   = '/' . $path;
             $count  += $this->reindex($path, true);
         }
         return $count;
@@ -637,11 +638,10 @@ class Repository implements RepositoryInterface
         try {
             if ($deep) {
                 $delQuery   = $this->indexerHelper->buildTreeQuery($path);
-                $this->indexer->delete($delQuery);
             } else {
-                $query          = $this->queryBuilder->cond('path:/*');
-                $this->indexer->delete($query);
+                $delQuery   = $this->queryBuilder->cond(sprintf('path:%s', $path));
             }
+            $this->indexer->delete($delQuery);
             $count      = 0;
             $entity     = $this->getEntityFromStorage($path);
             if ($entity) {

@@ -9,6 +9,8 @@ use Vivo\Indexer\Query\Wildcard as WildcardQuery;
 use Vivo\Indexer\Query\BooleanOr;
 use Vivo\Indexer\Query\Term as TermQuery;
 use Vivo\Repository\Exception;
+use Vivo\Metadata\MetadataManager;
+use Vivo\Indexer\FieldHelperInterface as IndexerFieldHelper;
 
 /**
  * IndexerHelper
@@ -17,13 +19,51 @@ use Vivo\Repository\Exception;
 class IndexerHelper
 {
     /**
+     * Metadata manager
+     * @var MetadataManager
+     */
+    protected $metadataManager;
+
+    /**
+     * Indexer field helper
+     * @var IndexerFieldHelper
+     */
+    protected $indexerFieldHelper;
+
+    /**
      * Creates an indexer document for the submitted entity
      * @param \Vivo\CMS\Model\Entity $entity
      * @return \Vivo\Indexer\Document
      */
     public function createDocument(Entity $entity)
     {
-        $doc    = new Document();
+        $doc            = new Document();
+        $entityMetadata = $this->metadataManager->getMetadata($entity);
+        foreach ($entityMetadata as $property => $metadata) {
+
+
+            if (isset($metadata['index']['indexed']) && $metadata['index']['indexed']) {
+                //Get field type
+                if (isset($metadata['type'])) {
+                    $type   = $metadata['type'];
+                } else {
+                    $type   = 'string';
+                }
+                //Get indexing options
+                $options    = $this->defaultIndexingOptions;
+                if (isset($metadata['index']['options'])) {
+                    $options    = array_merge($options, $metadata['index']['options']);
+                }
+                $indexerFieldType   = $this->getIndexerFieldType($type, $options);
+                $fullPropName       = $this->getFullPropertyName($entity, $propertyName);
+                $this->propertyDefs[$fullPropName] = $indexerFieldType;
+            }
+
+        }
+
+
+
+
         //UUID
         $doc->addField(new Field('uuid', $entity->getUuid()));
         //Path

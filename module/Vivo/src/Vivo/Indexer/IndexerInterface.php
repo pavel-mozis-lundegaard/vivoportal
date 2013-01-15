@@ -8,6 +8,12 @@ use Vivo\TransactionalInterface;
  */
 interface IndexerInterface extends  TransactionalInterface
 {
+    const FIELD_TYPE_STRING     = 'string';
+    const FIELD_TYPE_DATETIME   = 'datetime';
+    const FIELD_TYPE_INT        = 'int';
+    const FIELD_TYPE_FLOAT      = 'float';
+
+
     /**
      * Returns a search result
      * @param Query\QueryInterface $query

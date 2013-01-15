@@ -109,21 +109,33 @@ class MetadataManager
     }
 
     /**
+     * Returns metadata for all properties of an entity or for a single property
      * @param object $entity
+     * @param string|null $property
+     * @throws Exception\InvalidArgumentException
      * @return array
      */
-    public function getMetadata($entity) {
+    public function getMetadata($entity, $property = null) {
         $key = get_class($entity);
 
-        if(isset($this->cache['meta'][$key])) {
-            return $this->cache['meta'][$key];
+        if(!isset($this->cache['meta'][$key])) {
+            $config = $this->getRawMetadata($entity);
+            $this->applyProvider($entity, $config);
+            $this->cache['meta'][$key] = $config;
         }
-
-        $config = $this->getRawMetadata($entity);
-        $this->applyProvider($entity, $config);
-        $this->cache['meta'][$key] = $config;
-
-        return $config;
+        if (is_null($property)) {
+            //Return metadata for all properties
+            $metadata   = $this->cache['meta'][$key];
+        } else {
+            //Return metadata for a single property
+            if (!array_key_exists($property, $this->cache['meta'][$key])) {
+                //Property not defined
+                throw new Exception\InvalidArgumentException(
+                    sprintf("%s: Property '%s' not defined", __METHOD__, $property));
+            }
+            $metadata   = $this->cache['meta'][$key][$property];
+        }
+        return $metadata;
     }
 
     /**

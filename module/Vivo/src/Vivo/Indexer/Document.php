@@ -19,7 +19,7 @@ class Document implements DocumentInterface
      * Array of document fields
      * @var Field[]
      */
-    protected $fields   = array();
+    protected $fields           = array();
 
     /**
      * Constructor
@@ -46,7 +46,7 @@ class Document implements DocumentInterface
      */
     public function addField(Field $field)
     {
-        $this->fields[$field->getName()]    = $field;
+        $this->fields[$field->getName()]            = $field;
     }
 
     /**

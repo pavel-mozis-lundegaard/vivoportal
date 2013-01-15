@@ -7,8 +7,8 @@ use Vivo\Indexer\Document;
 use Vivo\Indexer\QueryParams;
 use Vivo\Indexer\Query;
 use Vivo\Indexer\Field;
-use Vivo\Indexer\FieldHelper;
 use Vivo\Indexer\FieldHelperInterface;
+use Vivo\Indexer\IndexerInterface;
 
 use ApacheSolr\Document as SolrDocument;
 use ApacheSolr\Service as SolrService;
@@ -72,28 +72,28 @@ class Solr implements AdapterInterface
      * @var array
      */
     protected $fieldNameMap     = array(
-        '\uuid'     => 'uuid',
-        '\path'     => 'path',
+        '\\uuid'     => 'uuid',
+        '\\path'     => 'path',
+        '\\class'    => 'class',
     );
 
     /**
-     * Field type mapping
-     * Maps Vivo field types to Solr dynamic type suffices
+     * Supported type suffices
      * @var array
      */
-    protected $fieldTypeMap   = array(
-        FieldHelperInterface::FIELD_TYPE_STRING_I   => '_s-i',
-        FieldHelperInterface::FIELD_TYPE_STRING_IM  => '_s-im',
-        FieldHelperInterface::FIELD_TYPE_STRING_S   => '_s-s',
-        FieldHelperInterface::FIELD_TYPE_STRING_SM  => '_s-sm',
-        FieldHelperInterface::FIELD_TYPE_STRING_IS  => '_s-is',
-        FieldHelperInterface::FIELD_TYPE_STRING_IST => '_s-ist',
-        FieldHelperInterface::FIELD_TYPE_STRING_ISM => '_s-ism',
+    protected $supportedTypeSuffices    = array(
+        '_s-i',     //string, indexed
+        '_s-im',    //string, indexed, multi-value
+        '_s-s',     //string, stored
+        '_s-sm',    //string, stored, multi-value
+        '_s-is',    //string, indexed, multi-value
+        '_s-ist',   //string, indexed, stored, tokenized
+        '_s-ism',   //string, indexed, stored, multi-value
     );
 
     /**
      * Field Helper
-     * @var FieldHelper
+     * @var FieldHelperInterface
      */
     protected $fieldHelper;
 
@@ -101,21 +101,22 @@ class Solr implements AdapterInterface
      * Constructor
      * @param SolrService $solrService
      * @param string $idField
-     * @param FieldHelper $fieldHelper
+     * @param FieldHelperInterface $fieldHelper
      * @param array $fieldNameMap
-     * @param array $fieldTypeMap
+     * @param array $supportedTypeSuffices
+     * @internal param array $fieldTypeMap
      */
     public function __construct(SolrService $solrService,
                                 $idField,
-                                FieldHelper $fieldHelper,
+                                FieldHelperInterface $fieldHelper,
                                 array $fieldNameMap = array(),
-                                array $fieldTypeMap = array())
+                                array $supportedTypeSuffices = array())
     {
-        $this->solrService  = $solrService;
-        $this->idField      = $idField;
-        $this->fieldHelper  = $fieldHelper;
-        $this->fieldNameMap = array_merge($this->fieldNameMap, $fieldNameMap);
-        $this->fieldTypeMap = array_merge($this->fieldTypeMap, $fieldTypeMap);
+        $this->solrService              = $solrService;
+        $this->idField                  = $idField;
+        $this->fieldHelper              = $fieldHelper;
+        $this->fieldNameMap             = array_merge($this->fieldNameMap, $fieldNameMap);
+        $this->supportedTypeSuffices    = array_merge($this->supportedTypeSuffices, $supportedTypeSuffices);
     }
 
     /**
@@ -430,6 +431,7 @@ class Solr implements AdapterInterface
             $solrFieldName  = $this->fieldNameMap[$vivoFieldName];
         } else {
             //Resolve using fieldHelper
+
             $fieldType      = $this->fieldHelper->getIndexerTypeForProperty($vivoFieldName);
             //Replace backslashes with underscores
             $solrFieldName  = str_replace('\\', '_', $vivoFieldName);
@@ -466,5 +468,53 @@ class Solr implements AdapterInterface
             }
         }
         return $vivoFieldName;
+    }
+
+    /**
+     * Returns Solr type suffix based on the Vivo type and indexing options
+     * @param array $indexerConfig
+     * @throws Exception\InvalidArgumentException
+     * @return string
+     */
+    protected function getTypeSuffix(array $indexerConfig)
+    {
+        $requiredKeys   = array('type', 'indexed', 'stored', 'tokenized', 'multi');
+        foreach($requiredKeys as $key) {
+            if (!array_key_exists($key, $indexerConfig)) {
+                throw new Exception\InvalidArgumentException(
+                    sprintf("%s: Indexer config key '%s' missing", __METHOD__, $key));
+            }
+        }
+        $vivoType       = strtolower($indexerConfig['type']);
+        switch ($vivoType) {
+            case IndexerInterface::FIELD_TYPE_STRING:
+                $typeSuffix = 's-';
+                break;
+            default:
+                throw new Exception\InvalidArgumentException(
+                    sprintf("%s: Vivo field type '%s' not supported by Solr adapter.", __METHOD__, $vivoType));
+                break;
+        }
+        //Indexed
+        if ($indexerConfig['indexed']) {
+            $typeSuffix   .= 'i';
+        }
+        //Stored
+        if ($indexerConfig['stored']) {
+            $typeSuffix   .= 's';
+        }
+        //Tokenized
+        if ($indexerConfig['tokenized']) {
+            $typeSuffix   .= 't';
+        }
+        //Multi-value
+        if ($indexerConfig['multi']) {
+            $typeSuffix   .= 'm';
+        }
+        if (!in_array($typeSuffix, $this->supportedTypeSuffices)) {
+            throw new Exception\InvalidArgumentException(
+                sprintf("%s: Solr type suffix '%s' not supported.", __METHOD__, $typeSuffix));
+        }
+        return $typeSuffix;
     }
 }

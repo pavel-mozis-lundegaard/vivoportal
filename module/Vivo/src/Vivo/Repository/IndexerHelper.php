@@ -33,54 +33,27 @@ class IndexerHelper
     /**
      * Creates an indexer document for the submitted entity
      * @param \Vivo\CMS\Model\Entity $entity
+     * @throws Exception\MethodNotFoundException
      * @return \Vivo\Indexer\Document
      */
     public function createDocument(Entity $entity)
     {
-        $doc            = new Document();
+        $doc    = new Document();
+        //Class field is added by default
+        $field  = new Field('\class', get_class($entity));
+        $doc->addField($field);
         $entityMetadata = $this->metadataManager->getMetadata($entity);
         foreach ($entityMetadata as $property => $metadata) {
-
-
-            if (isset($metadata['index']['indexed']) && $metadata['index']['indexed']) {
-                //Get field type
-                if (isset($metadata['type'])) {
-                    $type   = $metadata['type'];
-                } else {
-                    $type   = 'string';
+            if ($this->indexerFieldHelper->isEnabled($entity, $property)) {
+                $getter = 'get' . ucfirst($property);
+                if (!method_exists($entity, $getter)) {
+                    throw new Exception\MethodNotFoundException(
+                        sprintf("%s: Method '%s' not found in '%s'", __METHOD__, $getter, get_class($entity)));
                 }
-                //Get indexing options
-                $options    = $this->defaultIndexingOptions;
-                if (isset($metadata['index']['options'])) {
-                    $options    = array_merge($options, $metadata['index']['options']);
-                }
-                $indexerFieldType   = $this->getIndexerFieldType($type, $options);
-                $fullPropName       = $this->getFullPropertyName($entity, $propertyName);
-                $this->propertyDefs[$fullPropName] = $indexerFieldType;
+                $value  = $entity->$getter();
+                $field  = new Field($this->indexerFieldHelper->getName($entity, $property), $value);
+                $doc->addField($field);
             }
-
-        }
-
-
-
-
-        //UUID
-        $doc->addField(new Field('uuid', $entity->getUuid()));
-        //Path
-        $doc->addField(new Field('path', $entity->getPath()));
-        $entityClass    = get_class($entity);
-        //Entity type
-        $doc->addField(new Field('type', $entityClass));
-        //TODO - a temporary solution - when entity descriptions are implemented as annotations or whatever, refactor!
-        switch ($entityClass) {
-            case 'Vivo\CMS\Model\Site':
-                 /** @var $entity \Vivo\CMS\Model\Site  */
-                //Hosts
-                $doc->addField(new Field('hosts', $entity->getHosts()));
-                break;
-            default:
-                //No other fields will be indexed for other entity types
-                break;
         }
         return $doc;
     }

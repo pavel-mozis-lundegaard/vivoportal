@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Main CMS config, can be split into topic related files in future
  */
@@ -116,6 +117,8 @@ return array(
             'module_name_resolver'      => 'Vivo\Service\ModuleNameResolverFactory',
             'metadata_manager'          => 'Vivo\Service\MetadataManagerFactory',
             'redirector'                => 'Vivo\Service\RedirectorFactory',
+            'logger'                    => 'Vivo\Service\LoggerFactory',
+            'default_log'               => 'Vivo\Service\LogFileWriterFactory',
         ),
         'aliases' => array(
                 'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -174,6 +177,21 @@ return array(
     'metadata_manager' => array(
         'config_path' => __DIR__ . '/../config/metadata',
     ),
+
+    'logger' => array(
+        'listener' => array (
+            'attach' => array (
+                array('*', 'log'), //log 'log' events
+                //array('*', '*'), //log all events
+            ),
+        ),
+        'writers' => array (
+            //writers from writer plugin manager or main service manager
+            'default_log',
+            //'firephp',
+        ),
+    ),
+
     'vivo'      => array(
         //Vivo Modules configuration
         'modules'  => array(

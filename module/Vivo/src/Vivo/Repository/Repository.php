@@ -203,6 +203,8 @@ class Repository implements RepositoryInterface
         $this->queryBuilder     = $queryBuilder;
 	}
 
+
+
     /**
      * Returns entity from repository
      * @param string $ident Entity identification (path, UUID or symbolic reference)
@@ -283,7 +285,7 @@ class Repository implements RepositoryInterface
 
     /**
      * Looks up an entity in storage and returns it
-     * If the entity does not exist, returns null
+     * If the entity is not found returns null
      * @param string $path
      * @return \Vivo\CMS\Model\Entity|null
      */
@@ -291,19 +293,18 @@ class Repository implements RepositoryInterface
     {
         $pathComponents = array($path, self::ENTITY_FILENAME);
         $fullPath       = $this->pathBuilder->buildStoragePath($pathComponents, true);
-        if ($this->storage->isObject($fullPath)) {
-            $entitySer      = $this->storage->get($fullPath);
-            $entity         = $this->serializer->unserialize($entitySer);
-            /* @var $entity \Vivo\CMS\Model\Entity */
-            $entity->setPath($path); // set volatile path property of entity instance
-            //Store entity to watcher
-            $this->watcher->add($entity);
-            //Store entity to cache
-            if ($this->cache) {
-                $this->cache->setItem($entity->getUuid(), $entity);
-            }
-        } else {
-            $entity = null;
+        if (!$this->storage->isObject($fullPath)) {
+            return null;
+        }
+        $entitySer      = $this->storage->get($fullPath);
+        $entity         = $this->serializer->unserialize($entitySer);
+        /* @var $entity \Vivo\CMS\Model\Entity */
+        $entity->setPath($path); // set volatile path property of entity instance
+        //Store entity to watcher
+        $this->watcher->add($entity);
+        //Store entity to cache
+        if ($this->cache) {
+            $this->cache->setItem($entity->getUuid(), $entity);
         }
         return $entity;
     }
@@ -639,7 +640,7 @@ class Repository implements RepositoryInterface
             if ($deep) {
                 $delQuery   = $this->indexerHelper->buildTreeQuery($path);
             } else {
-                $delQuery   = $this->queryBuilder->cond(sprintf('path:%s', $path));
+                $delQuery   = $this->queryBuilder->cond(sprintf('\path:%s', $path));
             }
             $this->indexer->delete($delQuery);
             $count      = 0;
@@ -656,7 +657,7 @@ class Repository implements RepositoryInterface
         //					$count += $this->reindex($content, true);
         //		}
                 if ($deep) {
-                    $descendants    = $this->getChildren($entity, false, true);
+                    $descendants    = $this->getDescendantsFromStorage($path);
                     foreach ($descendants as $descendant) {
                         $idxDoc     = $this->indexerHelper->createDocument($descendant);
                         $this->indexer->addDocument($idxDoc);
@@ -671,6 +672,33 @@ class Repository implements RepositoryInterface
         }
 		return $count;
 	}
+
+    /**
+     * @param string $path
+     * @return Model\Entity[]
+     */
+    protected function getDescendantsFromStorage($path)
+    {
+        /** @var $descendants Model\Entity[] */
+        $descendants    = array();
+        $names = $this->storage->scan($path);
+        foreach ($names as $name) {
+            $childPath = $this->pathBuilder->buildStoragePath(array($path, $name), true);
+            if (!$this->storage->isObject($childPath)) {
+                try {
+                    $entity = $this->getEntityFromStorage($childPath);
+                    if ($entity) {
+                        $descendants[]      = $entity;
+                        $childDescendants   = $this->getDescendantsFromStorage($entity->getPath());
+                        $descendants        = array_merge($descendants, $childDescendants);
+                    }
+                } catch (Exception\EntityNotFoundException $e) {
+                    //Fix for the situation when a directory exists without an Entity.object
+                }
+            }
+        }
+        return $descendants;
+    }
 
     /**
      * Begins transaction

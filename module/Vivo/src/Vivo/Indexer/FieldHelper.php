@@ -12,12 +12,52 @@ use Vivo\Indexer\IndexerInterface;
 class FieldHelper implements FieldHelperInterface
 {
     /**
+     * Default options used when metadata does not specify them
+     * The property metadata is merged with these defaults
+     * @var array
+     */
+    protected $defaultIndexingOptions   = array(
+        'type'          => IndexerInterface::FIELD_TYPE_STRING,
+        'indexed'       => true,
+        'stored'        => true,
+        'tokenized'     => false,
+        'multi'         => false,
+    );
+
+    /**
+     * Indexing options presets
+     * These are NOT merged with $defaultIndexingOptions
+     * @var array
+     */
+    protected $presets  = array(
+        '\\uuid'        => array(
+            'type'          => IndexerInterface::FIELD_TYPE_STRING,
+            'indexed'       => true,
+            'stored'        => true,
+            'tokenized'     => false,
+            'multi'         => false,
+        ),
+        '\\path'        => array(
+            'type'          => IndexerInterface::FIELD_TYPE_STRING,
+            'indexed'       => true,
+            'stored'        => true,
+            'tokenized'     => false,
+            'multi'         => false,
+        ),
+        '\\class'        => array(
+            'type'          => IndexerInterface::FIELD_TYPE_STRING,
+            'indexed'       => true,
+            'stored'        => true,
+            'tokenized'     => false,
+            'multi'         => false,
+        ),
+    );
+
+    /**
      * Indexer configurations for individual properties
      * array(
      *      'entity_class_name' => array(
      *          'propertyName'  => array(
-     *              'enabled'   => true|false,              //Shall this property be included in index?
-     *              'name'      => 'field_name_in_index',   //Field name in index
      *              'type'      => 'field_type',            //Indexer field type
      *              'indexed'   => true|false,
      *              'stored'    => true|false,
@@ -43,20 +83,6 @@ class FieldHelper implements FieldHelperInterface
     protected $pathBuilder;
 
     /**
-     * Default options used when metadata does not specify them
-     * The property metadata is merged with these defaults
-     * @var array
-     */
-    protected $defaultIndexingOptions   = array(
-        'enabled'       => false,
-        'type'          => IndexerInterface::FIELD_TYPE_STRING,
-        'indexed'       => true,
-        'stored'        => true,
-        'tokenized'     => false,
-        'multi_value'   => false,
-    );
-
-    /**
      * Constructor
      * @param \Vivo\Metadata\MetadataManager $metadataManager
      * @param \Vivo\Storage\PathBuilder\PathBuilder $pathBuilder
@@ -77,6 +103,10 @@ class FieldHelper implements FieldHelperInterface
     public function getIndexerConfig($entityClass, $property = null)
     {
         $this->loadIndexerConfigs($entityClass);
+        if (!array_key_exists($entityClass, $this->indexerConfigs)) {
+            throw new Exception\InvalidArgumentException(
+                sprintf("%s: Indexer config for entity '%s' not found", __METHOD__, $entityClass));
+        }
         $indexerConfigs = $this->indexerConfigs[$entityClass];
         if (is_null($property)) {
             return $indexerConfigs;
@@ -89,15 +119,18 @@ class FieldHelper implements FieldHelperInterface
     }
 
     /**
-     * Returns indexer config for a full property name (\ClassName\property)
+     * Returns indexer config for a full property name (\ClassName\property or preset name)
      * @param string $fullPropertyName
      * @return array
      */
     public function getIndexerConfigForFullPropertyName($fullPropertyName)
     {
+        if ($this->hasPreset($fullPropertyName)) {
+            return $this->getPreset($fullPropertyName);
+        }
         $parts      = explode('\\', $fullPropertyName);
         $property   = array_pop($parts);
-        $class      = implode('\\', $parts);
+        $class      = trim(implode('\\', $parts), '\\');
         $indexerConfig  = $this->getIndexerConfig($class, $property);
         return $indexerConfig;
     }
@@ -187,7 +220,7 @@ class FieldHelper implements FieldHelperInterface
     }
 
     /**
-     * Returns full property name derived from entity and the bare property name
+     * Returns full property name derived from entity class and the bare property name
      * @param string $entityClass
      * @param string $property
      * @return string
@@ -196,6 +229,36 @@ class FieldHelper implements FieldHelperInterface
     {
         $fullPropName   = '\\' . $entityClass . '\\' . $property;
         return $fullPropName;
+    }
+
+    /**
+     * Returns indexing options preset with the given name
+     * @param string $name
+     * @throws Exception\InvalidArgumentException
+     * @return array
+     */
+    public function getPreset($name)
+    {
+        if (!array_key_exists($name, $this->presets)) {
+            throw new Exception\InvalidArgumentException(
+                sprintf("%s: Indexing options preset '%s' not found", __METHOD__, $name));
+        }
+        return $this->presets[$name];
+    }
+
+    /**
+     * Returns true if the specified preset exists
+     * @param string $name
+     * @return bool
+     */
+    public function hasPreset($name)
+    {
+        if (array_key_exists($name, $this->presets)) {
+            return true;
+        } else {
+            return false;
+        }
+
     }
 
     /**
@@ -208,14 +271,22 @@ class FieldHelper implements FieldHelperInterface
         if (!array_key_exists($entityClass, $this->indexerConfigs)) {
             $entityMetadata = $this->metadataManager->getMetadata($entityClass);
             foreach ($entityMetadata as $propertyName => $metadata) {
-                $fullPropName           = $this->getFullPropertyName($entityClass, $propertyName);
-                $indexerConfig          = $this->defaultIndexingOptions;
-                //Indexer field name is set to the full property name by default
-                $indexerConfig['name']  = $fullPropName;
                 if (isset($metadata['index'])) {
-                    $indexerConfig  = array_merge($indexerConfig, $metadata['index']);
+                    if (isset($metadata['index']['preset'])) {
+                        //Config by preset (ignore all remaining indexing metadata)
+                        $presetName     = $metadata['index']['preset'];
+                        $indexerConfig  = $this->getPreset($presetName);
+                        //Indexer field name is set to the preset name
+                        $indexerConfig['name']  = $presetName;
+                    } else {
+                        //Explicit config from metadata
+                        $indexerConfig  = $this->defaultIndexingOptions;
+                        $indexerConfig  = array_merge($indexerConfig, $metadata['index']);
+                        //Indexer field name is set to the full property name
+                        $indexerConfig['name']  = $this->getFullPropertyName($entityClass, $propertyName);
+                    }
+                    $this->indexerConfigs[$entityClass][$propertyName] = $indexerConfig;
                 }
-                $this->indexerConfigs[$entityClass][$propertyName] = $indexerConfig;
             }
         }
     }

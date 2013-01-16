@@ -79,7 +79,6 @@ return array(
             'uuid_generator'            => 'Vivo\Uuid\Generator',
             'storage_factory'           => 'Vivo\Storage\Factory',
             'site_event'                => 'Vivo\SiteManager\Event\SiteEvent',
-            'indexer_helper'            => 'Vivo\Repository\IndexerHelper',
             'io_util'                   => 'Vivo\IO\IOUtil',
             'indexer_query_builder'     => 'Vivo\Indexer\QueryBuilder',
             'indexer_document_builder'  => 'Vivo\Indexer\DocumentBuilder',
@@ -101,6 +100,7 @@ return array(
             'indexer_adapter_lucene'    => 'Vivo\Service\IndexerAdapterLuceneFactory',
             'indexer'                   => 'Vivo\Service\IndexerFactory',
             'repository'                => 'Vivo\Service\RepositoryFactory',
+            'indexer_helper'            => 'Vivo\Service\IndexerHelperFactory',
             'cms'                       => 'Vivo\Service\CmsFactory',
             'module_resource_manager'   => 'Vivo\Service\ModuleResourceManagerFactory',
             'module_install_manager'    => 'Vivo\Service\ModuleInstallManagerFactory',
@@ -246,12 +246,6 @@ return array(
 //                        'path'          => '/solr/',
 //                    ),
 //                ),
-            ),
-            'field_def' => array(
-                '\uuid'     => 's-is',
-                '\path'     => 's-is',
-                '\author'   => 's-ist',
-                '\title'    => 's-ist',
             ),
         ),
         'cms'       => array(

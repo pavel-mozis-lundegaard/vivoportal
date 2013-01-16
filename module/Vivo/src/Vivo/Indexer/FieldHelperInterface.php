@@ -17,6 +17,13 @@ interface FieldHelperInterface
     public function getIndexerConfig($entityClass, $property = null);
 
     /**
+     * Returns indexer config for a full property name (\ClassName\property)
+     * @param string $fullPropertyName
+     * @return array
+     */
+    public function getIndexerConfigForFullPropertyName($fullPropertyName);
+
+    /**
      * Returns if the specified property is enabled for indexing
      * @param string $entityClass
      * @param string $property

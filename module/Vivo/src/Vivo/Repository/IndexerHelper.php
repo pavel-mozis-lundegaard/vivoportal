@@ -9,8 +9,9 @@ use Vivo\Indexer\Query\Wildcard as WildcardQuery;
 use Vivo\Indexer\Query\BooleanOr;
 use Vivo\Indexer\Query\Term as TermQuery;
 use Vivo\Repository\Exception;
-use Vivo\Metadata\MetadataManager;
 use Vivo\Indexer\FieldHelperInterface as IndexerFieldHelper;
+
+use \DateTime;
 
 /**
  * IndexerHelper
@@ -19,16 +20,19 @@ use Vivo\Indexer\FieldHelperInterface as IndexerFieldHelper;
 class IndexerHelper
 {
     /**
-     * Metadata manager
-     * @var MetadataManager
-     */
-    protected $metadataManager;
-
-    /**
      * Indexer field helper
      * @var IndexerFieldHelper
      */
     protected $indexerFieldHelper;
+
+    /**
+     * Constructor
+     * @param \Vivo\Indexer\FieldHelperInterface $indexerFieldHelper
+     */
+    public function __construct(IndexerFieldHelper $indexerFieldHelper)
+    {
+        $this->indexerFieldHelper   = $indexerFieldHelper;
+    }
 
     /**
      * Creates an indexer document for the submitted entity
@@ -38,20 +42,21 @@ class IndexerHelper
      */
     public function createDocument(Entity $entity)
     {
-        $doc    = new Document();
+        $doc            = new Document();
+        $entityClass    = get_class($entity);
         //Class field is added by default
-        $field  = new Field('\class', get_class($entity));
+        $field  = new Field('\class', $entityClass);
         $doc->addField($field);
-        $entityMetadata = $this->metadataManager->getMetadata(get_class($entity));
-        foreach ($entityMetadata as $property => $metadata) {
-            if ($this->indexerFieldHelper->isEnabled($entity, $property)) {
+        $indexerConfigs  = $this->indexerFieldHelper->getIndexerConfig($entityClass);
+        foreach ($indexerConfigs as $property => $indexerConfig) {
+            if ($indexerConfig['enabled']) {
                 $getter = 'get' . ucfirst($property);
                 if (!method_exists($entity, $getter)) {
                     throw new Exception\MethodNotFoundException(
                         sprintf("%s: Method '%s' not found in '%s'", __METHOD__, $getter, get_class($entity)));
                 }
                 $value  = $entity->$getter();
-                $field  = new Field($this->indexerFieldHelper->getName($entity, $property), $value);
+                $field  = new Field($indexerConfig['name'], $value);
                 $doc->addField($field);
             }
         }
@@ -74,9 +79,9 @@ class IndexerHelper
         } else {
             throw new Exception\InvalidArgumentException(sprintf('%s: Unsupported specification type', __METHOD__));
         }
-        $entityTerm          = new IndexerTerm($path, 'path');
+        $entityTerm          = new IndexerTerm($path, '\path');
         $entityQuery         = new TermQuery($entityTerm);
-        $descendantPattern   = new IndexerTerm($path . '/*', 'path');
+        $descendantPattern   = new IndexerTerm($path . '/*', '\path');
         $descendantQuery     = new WildcardQuery($descendantPattern);
         $boolQuery           = new BooleanOr($entityQuery, $descendantQuery);
         return $boolQuery;
@@ -89,7 +94,7 @@ class IndexerHelper
      */
     public function buildEntityTerm(Entity $entity)
     {
-        $term   = new IndexerTerm($entity->getUuid(), 'uuid');
+        $term   = new IndexerTerm($entity->getUuid(), '\uuid');
         return $term;
     }
 }

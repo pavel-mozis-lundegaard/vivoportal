@@ -13,6 +13,8 @@ use Vivo\Indexer\IndexerInterface;
 use ApacheSolr\Document as SolrDocument;
 use ApacheSolr\Service as SolrService;
 
+use \DateTime;
+
 /**
  * Solr
  * Solr indexer adapter
@@ -89,6 +91,7 @@ class Solr implements AdapterInterface
         '_s-is',    //string, indexed, multi-value
         '_s-ist',   //string, indexed, stored, tokenized
         '_s-ism',   //string, indexed, stored, multi-value
+        '_dt-is'    //date, indexed, stored
     );
 
     /**
@@ -382,11 +385,13 @@ class Solr implements AdapterInterface
             if ($field->isMultiValued()) {
                 //MultiValued field
                 foreach ($field->getValue() as $singleValue) {
-                    $solrDoc->addField($solrFieldName, $singleValue);
+                    $value  = $this->convertToSolrValue($singleValue, $field->getName());
+                    $solrDoc->addField($solrFieldName, $value);
                 }
             } else {
                 //SingleValued field
-                $solrDoc->addField($solrFieldName, $field->getValue());
+                $value  = $this->convertToSolrValue($field->getValue(), $field->getName());
+                $solrDoc->addField($solrFieldName, $value);
             }
         }
         return $solrDoc;
@@ -430,23 +435,12 @@ class Solr implements AdapterInterface
             //Direct field name mapping found
             $solrFieldName  = $this->fieldNameMap[$vivoFieldName];
         } else {
-            //Resolve using fieldHelper
-
-
-            //TODO - continue
-
-
-
-
-
-            $fieldType      = $this->fieldHelper->getIndexerTypeForProperty($vivoFieldName);
+            //Build the dynamic solr field name
+            $idxConfig  = $this->fieldHelper->getIndexerConfigForFullPropertyName($vivoFieldName);
+            $solrSuffix = $this->getTypeSuffix($idxConfig);
             //Replace backslashes with underscores
             $solrFieldName  = str_replace('\\', '_', $vivoFieldName);
-            if (!array_key_exists($fieldType, $this->fieldTypeMap)) {
-                throw new Exception\FieldTypeNotSupportedByIndexerAdapterException(
-                    sprintf("%s: Field type '%s' not supported by this indexer adapter", __METHOD__, $fieldType));
-            }
-            $solrFieldName  .= $this->fieldTypeMap[$fieldType];
+            $solrFieldName  .= $solrSuffix;
         }
         return $solrFieldName;
     }
@@ -461,7 +455,7 @@ class Solr implements AdapterInterface
         $vivoFieldName  = array_search($solrFieldName, $this->fieldNameMap);
         if ($vivoFieldName === false) {
             //Field name not found in direct mappings
-            foreach ($this->fieldTypeMap as $vivoType => $solrSuffix) {
+            foreach ($this->supportedTypeSuffices as $solrSuffix) {
                 $solrSuffixLen  = strlen($solrSuffix);
                 if (substr($solrFieldName, -1 * $solrSuffixLen) == $solrSuffix) {
                     $solrBareName   = substr($solrFieldName, 0, strlen($solrFieldName) - $solrSuffixLen);
@@ -480,6 +474,7 @@ class Solr implements AdapterInterface
     /**
      * Returns Solr type suffix based on the Vivo type and indexing options
      * @param array $indexerConfig
+     * @throws Exception\FieldTypeNotSupportedByIndexerAdapterException
      * @throws Exception\InvalidArgumentException
      * @return string
      */
@@ -492,16 +487,21 @@ class Solr implements AdapterInterface
                     sprintf("%s: Indexer config key '%s' missing", __METHOD__, $key));
             }
         }
+        $typeSuffix     = '_';
         $vivoType       = strtolower($indexerConfig['type']);
         switch ($vivoType) {
             case IndexerInterface::FIELD_TYPE_STRING:
-                $typeSuffix = 's-';
+                $typeSuffix .= 's';
+                break;
+            case IndexerInterface::FIELD_TYPE_DATETIME:
+                $typeSuffix .= 'dt';
                 break;
             default:
                 throw new Exception\InvalidArgumentException(
                     sprintf("%s: Vivo field type '%s' not supported by Solr adapter.", __METHOD__, $vivoType));
                 break;
         }
+        $typeSuffix     .= '-';
         //Indexed
         if ($indexerConfig['indexed']) {
             $typeSuffix   .= 'i';
@@ -518,10 +518,49 @@ class Solr implements AdapterInterface
         if ($indexerConfig['multi']) {
             $typeSuffix   .= 'm';
         }
+        //Check that the suffix is supported
         if (!in_array($typeSuffix, $this->supportedTypeSuffices)) {
-            throw new Exception\InvalidArgumentException(
-                sprintf("%s: Solr type suffix '%s' not supported.", __METHOD__, $typeSuffix));
+            throw new Exception\FieldTypeNotSupportedByIndexerAdapterException(
+                sprintf("%s: Solr type suffix '%s' not supported", __METHOD__, $typeSuffix));
         }
         return $typeSuffix;
+    }
+
+    /**
+     * Converts a vivo value to solr value
+     * @param mixed $vivoValue A string, DateTime, etc.
+     * @param string $vivoFieldName
+     * @throws Exception\InvalidArgumentException
+     * @return string
+     */
+    protected function convertToSolrValue($vivoValue = null, $vivoFieldName)
+    {
+        $idxConfig  = $this->fieldHelper->getIndexerConfigForFullPropertyName($vivoFieldName);
+        $type       = $idxConfig['type'];
+        switch ($type) {
+            //String
+            case IndexerInterface::FIELD_TYPE_STRING:
+                $solrValue  = (string) $vivoValue;
+                break;
+            //DateTime
+            case IndexerInterface::FIELD_TYPE_DATETIME:
+                if (!is_null($vivoValue)) {
+                    if (!$vivoValue instanceof DateTime) {
+                        throw new Exception\InvalidArgumentException(
+                            sprintf("%s: A DateTime value expected for 'datetime' indexer type", __METHOD__));
+                    }
+                    $solrValue  = $vivoValue->format('Y-m-d H:i:s');
+                } else {
+                    $solrValue  = '';
+                }
+                break;
+            case IndexerInterface::FIELD_TYPE_INT:
+            case IndexerInterface::FIELD_TYPE_FLOAT:
+            default:
+                throw new Exception\InvalidArgumentException(
+                    sprintf("%s: Indexer type '%s' not supported", __METHOD__, $type));
+                break;
+        }
+        return $solrValue;
     }
 }

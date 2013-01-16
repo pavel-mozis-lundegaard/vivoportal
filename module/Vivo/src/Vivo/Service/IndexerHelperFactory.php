@@ -5,10 +5,10 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
 
 /**
- * IndexerFieldHelperFactory
- * Instantiates the indexer field helper
+ * IndexerHelperFactory
+ * Instantiates the indexer helper
  */
-class IndexerFieldHelperFactory implements FactoryInterface
+class IndexerHelperFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -18,9 +18,8 @@ class IndexerFieldHelperFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $metadataManager    = $serviceLocator->get('metadata_manager');
-        $pathBuilder        = $serviceLocator->get('path_builder');
-        $fieldHelper        = new \Vivo\Indexer\FieldHelper($metadataManager, $pathBuilder);
-        return $fieldHelper;
+        $indexerFieldHelper = $serviceLocator->get('indexer_field_helper');
+        $indexerHelper      = new \Vivo\Repository\IndexerHelper($indexerFieldHelper);
+        return $indexerHelper;
     }
 }

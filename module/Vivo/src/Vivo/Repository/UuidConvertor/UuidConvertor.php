@@ -54,12 +54,14 @@ class UuidConvertor implements UuidConvertorInterface
         if (isset($this->pathToUuid[$path])) {
             $uuid   = $this->pathToUuid[$path];
         } else {
-            $query  = new TermQuery(new IndexerTerm($path, 'path'));
+            $query  = new TermQuery(new IndexerTerm($path, '\path'));
             $result = $this->indexer->find($query);
             if ($result->getTotalHitCount() > 0) {
-                /** @var $doc Document */
-                $doc    = current($result);
-                $uuid   = $doc->getFieldValue('uuid');
+                $hits   = $result->getHits();
+                /** @var $hit \Vivo\Indexer\QueryHit */
+                $hit    = reset($hits);
+                $doc    = $hit->getDocument();
+                $uuid   = $doc->getFieldValue('\uuid');
                 $this->set($uuid, $path);
             } else {
                 $uuid   = null;
@@ -80,12 +82,12 @@ class UuidConvertor implements UuidConvertorInterface
         if (isset($this->uuidToPath[$uuid])) {
             $path   = $this->uuidToPath[$uuid];
         } else {
-            $query  = new TermQuery(new IndexerTerm($uuid, 'uuid'));
+            $query  = new TermQuery(new IndexerTerm($uuid, '\uuid'));
             $result = $this->indexer->find($query);
             if ($result->getTotalHitCount() > 0) {
                 /** @var $doc Document */
                 $doc    = current($result);
-                $path   = $doc->getFieldValue('path');
+                $path   = $doc->getFieldValue('\path');
                 $this->set($uuid, $path);
             } else {
                 $path   = null;

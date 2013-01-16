@@ -39,6 +39,12 @@ class ComponentFactory
     private $resolver;
 
     /**
+     *
+     * @var Site
+     */
+    private $site;
+
+    /**
      * @param CMS $cms
      * @param Di $di
      */
@@ -73,10 +79,10 @@ class ComponentFactory
      * Returns front component for the given document.
      *
      * @param Document $document
-     * @param array $options (Disable Layout)
+     * @param array $parameters (Disable Layout)
      * @return \Vivo\UI\Component
      */
-    public function getFrontComponent(Document $document, $options = array())
+    public function getFrontComponent(Document $document, $parameters = array())
     {
         $contents = $this->cms->getPublishedContents($document);
 
@@ -99,10 +105,13 @@ class ComponentFactory
             return $frontComponent;
         }
 
-        if ($layoutPath = $document->getLayout()) {
-            $layout = $this->cms->getSiteDocument($layoutPath, $this->site);
-            $panels = $this->getDocumentLayoutPanels($document);
-            $frontComponent = $this->applyLayout($layout, $frontComponent, $panels);
+        if (!isset($parameters['noLayout']) || !$parameters['noLayout'] == true)
+        {
+            if ($layoutPath = $document->getLayout()) {
+                $layout = $this->cms->getSiteDocument($layoutPath, $this->site);
+                $panels = $this->getDocumentLayoutPanels($document);
+                $frontComponent = $this->applyLayout($layout, $frontComponent, $panels);
+            }
         }
         return $frontComponent;
     }
@@ -187,6 +196,13 @@ class ComponentFactory
     public function getContentFrontComponent(Content $content,
             Document $document)
     {
+        if ($content instanceof \Vivo\CMS\Model\Content\Link) {
+            $linkedDocument = $this->cms->getSiteDocument($content->getRelPath(),
+                    $this->site);
+            return $this->getFrontComponent($linkedDocument,
+                    array('noLayout' => true));
+        }
+
         $className = $this->resolver->resolve($content);
         $component = $this->di->newInstance($className);
         /* @var $component \Vivo\UI\Component */

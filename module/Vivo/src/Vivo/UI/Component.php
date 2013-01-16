@@ -108,9 +108,15 @@ class Component implements ComponentInterface
      * Return parent of component in component tree.
      * @return ComponentContainerInterface
      */
-    public function getParent()
+    public function getParent($className = null)
     {
-        return $this->parent;
+        $parent = $this->parent;
+        if ($className) {
+            while ($parent || $parent instanceof $className) {
+                $parent = $parent->getParent();
+            }
+        }
+        return $parent;
     }
 
     /**

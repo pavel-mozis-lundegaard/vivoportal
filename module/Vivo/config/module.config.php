@@ -115,12 +115,14 @@ return array(
             'indexer_query_parser'      => 'Vivo\Service\IndexerQueryParserFactory',
             'module_name_resolver'      => 'Vivo\Service\ModuleNameResolverFactory',
             'metadata_manager'          => 'Vivo\Service\MetadataManagerFactory',
+            'redirector'                => 'Vivo\Service\RedirectorFactory',
         ),
         'aliases' => array(
                 'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
                 'Vivo\Repository\Repository'        => 'repository',
                 'Zend\Http\Response'                => 'response',
                 'Zend\View\HelperPluginManager'     => 'view_helper_manager',
+                'Vivo\Util\Redirector'              => 'redirector',
         ),
     ),
     'translator' => array(
@@ -278,6 +280,7 @@ return array(
                 'Vivo\CMS\Model\Content\Layout'     => 'Vivo\CMS\UI\Content\Layout',
                 'Vivo\CMS\Model\Content\File'       => 'Vivo\CMS\UI\Content\File',
                 'Vivo\CMS\Model\Content\Overview'   => 'Vivo\CMS\UI\Content\Overview',
+                'Vivo\CMS\Model\Content\Hyperlink'   => 'Vivo\CMS\UI\Content\Hyperlink',
             ),
             'editor_component' => array (
 

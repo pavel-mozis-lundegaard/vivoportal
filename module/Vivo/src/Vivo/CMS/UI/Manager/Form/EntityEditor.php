@@ -1,6 +1,7 @@
 <?php
 namespace Vivo\CMS\UI\Manager\Form;
 
+use Vivo\CMS\UI\Manager\Form\Fieldset\EntityEditor as EntityEditorFieldset;
 use Zend\Form\Form;
 use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
 
@@ -10,63 +11,32 @@ use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
 class EntityEditor extends Form
 {
     /**
-     * Constructor
+     * Constructor.
+     *
+     * @param string $name
+     * @param array $metadata
      */
-    public function __construct($name, $metadata)
+    public function __construct($name, array $metadata)
     {
         parent::__construct($name);
 
         $this->setAttribute('method', 'post');
-        $this->setHydrator(new ClassMethodsHydrator(false));
 
-        foreach ($metadata as $name => $attrs) {
-            // Options
-            $options = array(
-                 //@TODO: human name
-                'label' => $name,
-            );
+        // Fieldset
+        $fieldset = new EntityEditorFieldset($metadata);
+        $fieldset->setHydrator(new ClassMethodsHydrator(false));
+        $fieldset->setOptions(array('use_as_base_fieldset' => true));
 
-            if(!empty($attrs['important'])) {
-                $options['class'] = 'important';
-            }
+        $this->add($fieldset);
 
-            // Attributes
-            $attributes = array();
-
-            if(!empty($attrs['options']) && is_array($attrs['options'])) {
-                $attributes['options'] = $attrs['options'];
-            }
-            if(!empty($attrs['field_attributes']) && is_array($attrs['field_attributes'])) {
-                $attributes = array_merge($attributes, $attrs['field_attributes']);
-            }
-            if(!empty($attrs['important'])) {
-                $attributes['class'] = 'important';
-            }
-
-            // Field init
-            $this->add(array(
-                'name' => $name,
-                'type' => $this->getFieldType($attrs['field_type']),
-                'options' => $options,
-                'attributes' => $attributes,
-            ));
-        }
-    }
-
-    /**
-     * @param string $type
-     * @return string
-     */
-    protected function getFieldType($type)
-    {
-        if(strpos($type, '\\') && class_exists($type)) {
-            return $type;
-        }
-
-        $elementClass = 'Zend\Form\Element\\'.ucfirst($type);
-
-        return $elementClass;
+        // Submit
+        $this->add(array(
+            'name' => 'submit',
+            'attributes' => array(
+                'type'  => 'submit',
+                'value' => 'Login',
+            ),
+        ));
     }
 
 }
-

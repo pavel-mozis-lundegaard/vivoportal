@@ -1,12 +1,22 @@
-<?=$this->doctype(); ?>
+<?php
+foreach ($links as $link) {
+    $this->headLink()->append($link);
+}
+
+foreach ($scripts as $script) {
+    $this->headScript()->append($script);
+}
+?><?=$this->doctype($doctype);?>
 
 <head>
-<?= $this->headMeta()?>
+
+<? foreach ($metas as $element): ?>
+<meta<? foreach ($element as $name => $value) echo " $name=\"".htmlspecialchars($value).'"' ?> />
+<? endforeach ?>
 
 <?= $this->headLink()?>
 
 <?= $this->headScript()?>
-
 </head>
 <body>
 <?=$main?>

@@ -83,6 +83,7 @@ return array(
             'io_util'                   => 'Vivo\IO\IOUtil',
             'indexer_query_builder'     => 'Vivo\Indexer\QueryBuilder',
             'indexer_document_builder'  => 'Vivo\Indexer\DocumentBuilder',
+            'view_model'                => 'Vivo\View\Model\UIViewModel'
         ),
         'factories' => array(
             'translator'                => 'Zend\I18n\Translator\TranslatorServiceFactory',
@@ -319,53 +320,55 @@ return array(
         ),
         'service_manager' => array (
         //configuration of modules service manager
+            'factories' => array (
+                'Vivo\UI\Page' => 'Vivo\Service\UI\PageFactory',
+            ),
         ),
         'di' => array (
             'instance' => array (
                 'alias' => array (
-                    'viewModel' =>  'Vivo\View\Model\UIViewModel',
+                    'view_model' =>  'Vivo\View\Model\UIViewModel',
                 ),
-                'viewModel' => array (
+                'view_model' => array (
                     'shared' => false, //new viewModel for each UI/component
                 ),
                 'Vivo\UI\Component' => array (
                     'parameters' => array (
-                        'view' => 'viewModel',
-                    ),
-                ),
-                'Vivo\UI\Page' => array (
-                    'parameters' => array (
-                        'doctype' => 'HTML5',
-                        //globaly defined links and scripts
-                        'links' => array (
-                            array(
-                                'rel'  => 'stylesheet',
-                                'href' => '/.ModuleName.resource/css/definedInVivoConfig.css',
-                                'type' => 'text/css',
-                                'media' => 'screen'
-                            ),
-                        ),
-                        'scripts' => array (
-                            array(
-                                'src' => '/.ModuleName.resource/js/front.js',
-                                'type' => 'text/javascript',
-                            ),
-                        ),
-                        'metas' => array (
-                            array (
-                                'name' => 'Robots',
-                                'content' => 'INDEX,FOLLOW',
-                            ),
-                            array (
-                                'charset' => 'UTF-8',
-                            ),
-                        ),
-                        'viewHelpers' => 'Zend\View\HelperPluginManager',
+                        'view' => 'view_model',
                     ),
                 ),
             ),
         ),
 
+        'ui' => array (
+            //configuration of ui components
+            'Vivo\UI\Page' => array (
+                'doctype' => 'HTML5',
+                'links' => array (
+                    array(
+                        'rel'  => 'stylesheet',
+                        'href' => '/.ModuleName.resource/css/definedInVivoConfig.css',
+                        'type' => 'text/css',
+                        'media' => 'screen'
+                    ),
+                ),
+                'scripts' => array (
+                    array(
+                        'src' => '/.ModuleName.resource/js/front.js',
+                        'type' => 'text/javascript',
+                    ),
+                ),
+                'metas' => array (
+                    array (
+                        'name' => 'Robots',
+                        'content' => 'INDEX,FOLLOW',
+                    ),
+                    array (
+                        'charset' => 'UTF-8',
+                    ),
+                ),
+            ),
+        ),
     ),
     'console' => array(
         'router' => array(

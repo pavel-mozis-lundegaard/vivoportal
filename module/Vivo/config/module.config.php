@@ -266,6 +266,7 @@ return array(
                 'Vivo\CMS\UI\Content\File:image'    => __DIR__.'/../view/Vivo/CMS/UI/Content/File.image.phtml',
                 'Vivo\CMS\UI\Content\File'          => __DIR__.'/../view/Vivo/CMS/UI/Content/File.phtml',
                 'Vivo\CMS\UI\Content\Overview'      => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.phtml',
+                'Vivo\CMS\UI\Content\Overview:Description' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.Description.phtml',
                 'Vivo\CMS\UI\Content\Logon'         => __DIR__.'/../view/Vivo/CMS/UI/Content/Logon.phtml',
                 //backend
                 'Vivo\CMS\UI\Manager\HeaderBar'     => __DIR__ . '/../view/Vivo/CMS/UI/Manager/HeaderBar.phtml',
@@ -280,6 +281,14 @@ return array(
                 'Vivo\CMS\UI\Manager\Explorer\Ribbon' => __DIR__ .  '/../view/Vivo/CMS/UI/Manager/Explorer/Ribbon.phtml',
                 'Vivo\CMS\UI\Manager\Explorer\Finder' => __DIR__ .  '/../view/Vivo/CMS/UI/Manager/Explorer/Finder.phtml',
                 'Vivo\CMS\UI\Manager\SiteSelector' => __DIR__ .  '/../view/Vivo/CMS/UI/Manager/SiteSelector.phtml',
+            ),
+
+            'custom_templates' => array (
+             // custom selectable templates
+                'Vivo\CMS\Model\Content\Overview' => array (
+                    'Vivo\CMS\UI\Content\Overview:Description',
+                    'Vivo\CMS\UI\Content\Overview',
+                ),
             ),
         ),
         'component_mapping' => array (

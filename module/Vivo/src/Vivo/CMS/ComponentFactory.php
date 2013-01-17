@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\CMS;
 
+use Vivo\CMS\Model\Content\ProvideTemplateInterface;
+
 use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Exception\Exception;
 use Vivo\CMS\Exception\LogicException;
@@ -188,10 +190,14 @@ class ComponentFactory
     {
         $className = $this->resolver->resolve($content);
         $component = $this->di->get($className);
+        /* @var $component \Vivo\UI\Component */
         if ($component instanceof InjectModelInterface) {
             //TODO how to properly inject document and content
             $component->setContent($content);
             $component->setDocument($document);
+        }
+        if ($content instanceof ProvideTemplateInterface) {
+            $component->getView()->setTemplate($content->getTemplate());
         }
         return $component;
     }

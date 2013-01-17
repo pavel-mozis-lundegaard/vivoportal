@@ -37,8 +37,6 @@ class RepositoryController extends AbstractCliController
         /* @var $request \Zend\Console\Request */
         $host   = $request->getParam('host');
         $path   = $request->getParam('path');
-
-
         $numIndexed = $this->repositoryApi->reindex($path);
         $output = sprintf("%s items reindexed", $numIndexed);
         return $output;

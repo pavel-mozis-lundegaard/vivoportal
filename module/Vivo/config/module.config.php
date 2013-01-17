@@ -143,14 +143,14 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-            'cli_indexer'   => 'Vivo\Controller\CLI\IndexerController',
             'cli_info'      => 'Vivo\Controller\CLI\InfoController',
         ),
         'factories' => array(
-            'cms_front_controller' => 'Vivo\Service\Controller\CMSFrontControllerFactory',
+            'cms_front_controller'      => 'Vivo\Service\Controller\CMSFrontControllerFactory',
             'resource_front_controller' => 'Vivo\Service\Controller\ResourceFrontControllerFactory',
-            'cli_module'    => 'Vivo\Service\Controller\CLI\CLIModuleControllerFactory',
-            'cli_repository'=> 'Vivo\Service\Controller\CLI\CLIRepositoryControllerFactory',
+            'cli_module'                => 'Vivo\Service\Controller\CLI\CLIModuleControllerFactory',
+            'cli_repository'            => 'Vivo\Service\Controller\CLI\CLIRepositoryControllerFactory',
+            'cli_indexer'               => 'Vivo\Service\Controller\CLI\CLIIndexerControllerFactory',
         ),
     ),
     'view_manager' => array(
@@ -475,6 +475,15 @@ return array(
                         'defaults' => array(
                             'controller' => 'cli_indexer',
                             'action'     => 'default',
+                        ),
+                    ),
+                ),
+                'indexer_clear' => array(
+                    'options' => array(
+                        'route'    => 'indexer clear',
+                        'defaults' => array(
+                            'controller' => 'cli_indexer',
+                            'action'     => 'clear',
                         ),
                     ),
                 ),

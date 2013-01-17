@@ -49,6 +49,8 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
 
     private $siteSelector;
 
+    private $serviceManager;
+
     public function __construct(Request $request, CMS $cms, SessionManager $sessionManager, SiteSelector $siteSelector)
     {
         parent::__construct();
@@ -56,6 +58,11 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
         $this->cms = $cms;
         $this->session = new Container(__CLASS__, $sessionManager);
         $this->siteSelector = $siteSelector;
+    }
+
+    public function setServiceManager($manager)
+    {
+        $this->serviceManager = $manager;
     }
 
     public function loadState()
@@ -92,7 +99,7 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
                 $component = new Viewer($this);
                 break;
             case 'editor':
-                $component = new Editor($this);
+                $component = $this->serviceManager->get('Vivo\CMS\UI\Manager\Explorer\Editor');
                 break;
             default:
                 $component = null;

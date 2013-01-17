@@ -115,6 +115,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $explorer = new \Vivo\CMS\UI\Manager\Explorer\Explorer($sm->get('request'), $sm->get('cms'), $sm->get('session_manager'), $siteSelector);
                     $explorer->setEventManager(new EventManager());
                     $explorer->addComponent($sm->get('Vivo\CMS\UI\Manager\Explorer\Ribbon'), 'ribbon');
+                    $explorer->setServiceManager($sm);
 
                     $tree = new \Vivo\CMS\UI\Manager\Explorer\Tree();
                     $tree->setView(new UIViewModel());
@@ -128,6 +129,16 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
 
                     return $explorer;
                 },
+
+                'Vivo\CMS\UI\Manager\Explorer\Editor' => function (ServiceManager $sm) {
+                    $ex = $sm->get('Vivo\CMS\UI\Manager\Explorer\Explorer');
+                    $mm = $sm->get('metadata_manager');
+
+                    $editor = new \Vivo\CMS\UI\Manager\Explorer\Editor($ex, $mm);
+
+                    return $editor;
+                },
+
                 'Vivo\CMS\UI\Manager\Explorer\Ribbon' => function (ServiceManager $sm) {
                     $ribbon = new \Vivo\CMS\UI\Manager\Explorer\Ribbon();
                     return $ribbon;

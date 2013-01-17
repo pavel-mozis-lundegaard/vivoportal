@@ -42,10 +42,6 @@ class Component implements ComponentInterface
      */
     protected $view;
 
-    public function __construct() {
-
-    }
-
     /**
      * @param ModelInterface $view
      */

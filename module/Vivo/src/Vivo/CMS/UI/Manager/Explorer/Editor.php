@@ -21,11 +21,12 @@ class Editor extends AbstractForm
     public function init()
     {
         $this->entity = $this->explorer->getEntity();
-print_r($this->entity);
-        $this->form->bind($this->entity);
-        $this->form->prepare();
 
-        $this->getView()->form = $this->form;
+        $form = $this->getForm();
+        $form->bind($this->entity);
+        $form->prepare();
+
+        $this->getView()->form = $form;
     }
 
     protected function doGetForm()

@@ -17,7 +17,8 @@ class CmsFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $repository             = $serviceLocator->get('repository');
-        $cms                    = new \Vivo\CMS\Api\CMS($repository);
+        $qb                     = $serviceLocator->get('indexer_query_builder');
+        $cms                    = new \Vivo\CMS\Api\CMS($repository, $qb);
         return $cms;
     }
 }

@@ -52,6 +52,13 @@ class FieldHelper implements FieldHelperInterface
             'tokenized'     => false,
             'multi'         => false,
         ),
+        '\\hosts'        => array(
+            'type'          => IndexerInterface::FIELD_TYPE_STRING,
+            'indexed'       => true,
+            'stored'        => true,
+            'tokenized'     => false,
+            'multi'         => true,
+        ),
         '\\state'        => array(
             'type'          => IndexerInterface::FIELD_TYPE_STRING,
             'indexed'       => true,

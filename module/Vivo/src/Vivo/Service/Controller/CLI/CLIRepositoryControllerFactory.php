@@ -19,7 +19,8 @@ class CLIRepositoryControllerFactory implements FactoryInterface
     {
         $sm             = $serviceLocator->getServiceLocator();
         $apiRepository  = $sm->get('cms_api_repository');
-        $controller     = new \Vivo\Controller\CLI\RepositoryController($apiRepository);
+        $siteEvent      = $sm->get('site_event');
+        $controller     = new \Vivo\Controller\CLI\RepositoryController($apiRepository, $siteEvent);
         return $controller;
     }
 }

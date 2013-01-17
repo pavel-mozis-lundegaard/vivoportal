@@ -88,7 +88,7 @@ return array(
         'factories' => array(
             'translator'                => 'Zend\I18n\Translator\TranslatorServiceFactory',
             'response'                  => 'Vivo\Service\ResponseFactory',
-            'dependencyinjector'        => 'Vivo\Service\DiFactory',
+//            'dependencyinjector'        => 'Vivo\Service\DiFactory',
             'db_service_manager'        => 'Vivo\Service\DbServiceManagerFactory',
             'uuid_convertor'            => 'Vivo\Service\UuidConvertorFactory',
             'module_storage'            => 'Vivo\Service\ModuleStorageFactory',
@@ -130,6 +130,12 @@ return array(
                 'Zend\Http\Response'                => 'response',
                 'Zend\View\HelperPluginManager'     => 'view_helper_manager',
                 'Vivo\Util\Redirector'              => 'redirector',
+        ),
+        'shared' => array(
+            'view_model' => false,
+        ),
+        'initializers' => array(
+            'component' => 'Vivo\Service\Initializer\ComponentInitializer',
         ),
     ),
     'translator' => array(

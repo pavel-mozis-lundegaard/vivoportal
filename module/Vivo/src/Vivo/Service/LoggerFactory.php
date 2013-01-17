@@ -37,7 +37,7 @@ class LoggerFactory implements FactoryInterface
             foreach ($config['writers'] as $writer) {
                     $logger->addWriter($writer);
             }
-            $logger->log(Logger::INFO, 'Logger init.'.$lo);
+            $logger->log(Logger::INFO, 'Logger init.');
             $eventListener = new EventListener($logger, $config['listener']);
             $eventListener->setSharedManager($serviceLocator->get('shared_event_manager'));
         }

@@ -80,9 +80,9 @@ return array(
             'uuid_generator'            => 'Vivo\Uuid\Generator',
             'storage_factory'           => 'Vivo\Storage\Factory',
             'site_event'                => 'Vivo\SiteManager\Event\SiteEvent',
-            'indexer_helper'            => 'Vivo\Repository\IndexerHelper',
             'io_util'                   => 'Vivo\IO\IOUtil',
             'indexer_query_builder'     => 'Vivo\Indexer\QueryBuilder',
+            'indexer_document_builder'  => 'Vivo\Indexer\DocumentBuilder',
         ),
         'factories' => array(
             'translator'                => 'Zend\I18n\Translator\TranslatorServiceFactory',
@@ -101,10 +101,12 @@ return array(
             'indexer_adapter_lucene'    => 'Vivo\Service\IndexerAdapterLuceneFactory',
             'indexer'                   => 'Vivo\Service\IndexerFactory',
             'repository'                => 'Vivo\Service\RepositoryFactory',
+            'indexer_helper'            => 'Vivo\Service\IndexerHelperFactory',
             'cms'                       => 'Vivo\Service\CmsFactory',
             'module_resource_manager'   => 'Vivo\Service\ModuleResourceManagerFactory',
             'module_install_manager'    => 'Vivo\Service\ModuleInstallManagerFactory',
             'cms_api_module'            => 'Vivo\Service\CmsApiModuleFactory',
+            'cms_api_repository'        => 'Vivo\Service\CmsApiRepositoryFactory',
             'db_provider_factory'       => 'Vivo\Service\DbProviderFactoryFactory',
             'pdo_abstract_factory'      => 'Vivo\Service\PdoAbstractFactoryFactory',
             'zdb_abstract_factory'      => 'Vivo\Service\ZdbAbstractFactoryFactory',
@@ -113,6 +115,7 @@ return array(
             'phtml_rendering_strategy'  => 'Vivo\Service\PhtmlRenderingStrategyFactory',
             'solr_service'              => 'Vivo\Service\SolrServiceFactory',
             'indexer_adapter'           => 'Vivo\Service\IndexerAdapterFactory',
+            'indexer_field_helper'      => 'Vivo\Service\IndexerFieldHelperFactory',
             'indexer_query_parser'      => 'Vivo\Service\IndexerQueryParserFactory',
             'module_name_resolver'      => 'Vivo\Service\ModuleNameResolverFactory',
             'metadata_manager'          => 'Vivo\Service\MetadataManagerFactory',
@@ -140,13 +143,14 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-            'cli_indexer' => 'Vivo\Controller\CLI\IndexerController',
-            'cli_info' => 'Vivo\Controller\CLI\InfoController',
+            'cli_indexer'   => 'Vivo\Controller\CLI\IndexerController',
+            'cli_info'      => 'Vivo\Controller\CLI\InfoController',
         ),
         'factories' => array(
             'cms_front_controller' => 'Vivo\Service\Controller\CMSFrontControllerFactory',
             'resource_front_controller' => 'Vivo\Service\Controller\ResourceFrontControllerFactory',
-            'cli_module' => 'Vivo\Service\Controller\CLI\CLIModuleControllerFactory',
+            'cli_module'    => 'Vivo\Service\Controller\CLI\CLIModuleControllerFactory',
+            'cli_repository'=> 'Vivo\Service\Controller\CLI\CLIRepositoryControllerFactory',
         ),
     ),
     'view_manager' => array(
@@ -257,13 +261,22 @@ return array(
                 'type'      => 'dummy',
                 //Solr options
 //                'options'   => array(
-//                    'id_field'      => 'vivo_cms_model_entity_path',
+//                    'id_field'      => 'uuid',
 //                    'solr_service'  => array(
 //                        'host'          => 'localhost',
 //                        'port'          => 8983,
 //                        'path'          => '/solr/',
 //                    ),
 //                ),
+            ),
+            'default_indexing_options'  => array(
+                'type'          => \Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
+                'indexed'       => true,
+                'stored'        => true,
+                'tokenized'     => false,
+                'multi'         => false,
+            ),
+            'presets'                   => array(
             ),
         ),
         'cms'       => array(
@@ -462,6 +475,24 @@ return array(
                         'defaults' => array(
                             'controller' => 'cli_indexer',
                             'action'     => 'default',
+                        ),
+                    ),
+                ),
+                'repository_reindex' => array(
+                    'options' => array(
+                        'route'    => 'repository reindex <host> <path>',
+                        'defaults' => array(
+                            'controller' => 'cli_repository',
+                            'action'     => 'reindex',
+                        ),
+                    ),
+                ),
+                'repository_help' => array(
+                    'options' => array(
+                        'route'    => 'repository help',
+                        'defaults' => array(
+                            'controller' => 'cli_repository',
+                            'action'     => 'help',
                         ),
                     ),
                 ),

@@ -15,14 +15,14 @@ class Field
 
     /**
      * Field value
-     * @var string|array
+     * @var mixed|array
      */
     protected $value;
 
     /**
      * Constructor
      * @param string $name
-     * @param string $value
+     * @param mixed|array $value
      */
     public function __construct($name, $value)
     {
@@ -41,7 +41,7 @@ class Field
 
     /**
      * Return value of the field
-     * @return string|array
+     * @return mixed|array
      */
     public function getValue()
     {

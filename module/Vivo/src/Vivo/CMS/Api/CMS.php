@@ -5,8 +5,8 @@ use Vivo\CMS\Model;
 use Vivo\CMS\Workflow;
 use Vivo\CMS\Exception;
 use Vivo\Repository\Repository;
-use Vivo\Indexer\Term as IndexerTerm;
 use Vivo\Indexer\Query\MultiTerm as MultiTermQuery;
+use Vivo\Indexer\Query\QueryInterface;
 
 use Zend\Config;
 
@@ -513,5 +513,15 @@ class CMS
             $siteExists = false;
         }
         return $siteExists;
+    }
+
+    /**
+     * Returns entities specified by the indexer query
+     * @param QueryInterface|string $spec Either QueryInterface or a string query
+     * @return \Vivo\CMS\Model\Entity[]
+     */
+    public function getEntitiesByQuery($spec)
+    {
+        return $this->repository->getEntities($spec);
     }
 }

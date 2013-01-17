@@ -9,6 +9,7 @@ use Vivo\Indexer\IndexerInterface;
 use Vivo\Repository\UuidConvertor\UuidConvertorInterface;
 use Vivo\Repository\Watcher;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
+use Vivo\Indexer\QueryBuilder;
 
 use Vivo\IO;
 use Vivo\Storage\StorageInterface;
@@ -16,10 +17,9 @@ use Vivo\Uuid\GeneratorInterface as UuidGenerator;
 use Vivo\IO\IOUtil;
 use Vivo\Repository\Exception;
 use Vivo\Repository\IndexerHelper;
-use Vivo\Indexer\Term as IndexerTerm;
 use Vivo\Indexer\Query\QueryInterface;
 use Vivo\Indexer\Query\Term as TermQuery;
-use Vivo\Indexer\QueryParams;
+use Vivo\Indexer\Query\Parser\ParserInterface as QueryParser;
 
 use Zend\Serializer\Adapter\AdapterInterface as Serializer;
 use Zend\Cache\Storage\StorageInterface as Cache;
@@ -71,6 +71,18 @@ class Repository implements RepositoryInterface
 	 * @var Serializer
 	 */
 	private $serializer;
+
+    /**
+     * QueryBuilder
+     * @var QueryBuilder
+     */
+    protected $queryBuilder;
+
+    /**
+     * Indexer query parser
+     * @var QueryParser
+     */
+    protected $queryParser;
 
     /**
      * The cache for objects of the model
@@ -158,6 +170,8 @@ class Repository implements RepositoryInterface
      * @param Watcher $watcher
      * @param \Vivo\Uuid\GeneratorInterface $uuidGenerator
      * @param \Vivo\IO\IOUtil $ioUtil
+     * @param \Vivo\Indexer\QueryBuilder $queryBuilder
+     * @param \Vivo\Indexer\Query\Parser\ParserInterface $queryParser
      * @throws Exception\Exception
      */
     public function __construct(Storage\StorageInterface $storage,
@@ -168,7 +182,9 @@ class Repository implements RepositoryInterface
                                 UuidConvertorInterface $uuidConvertor,
                                 Watcher $watcher,
                                 UuidGenerator $uuidGenerator,
-                                IOUtil $ioUtil)
+                                IOUtil $ioUtil,
+                                QueryBuilder $queryBuilder,
+                                QueryParser $queryParser)
 	{
         if ($cache) {
             //Check that cache supports all required data types
@@ -191,6 +207,8 @@ class Repository implements RepositoryInterface
         $this->uuidGenerator    = $uuidGenerator;
         $this->ioUtil           = $ioUtil;
         $this->pathBuilder      = $this->storage->getPathBuilder();
+        $this->queryBuilder     = $queryBuilder;
+        $this->queryParser      = $queryParser;
 	}
 
     /**
@@ -229,17 +247,22 @@ class Repository implements RepositoryInterface
 
     /**
      * Returns array of entities returned by the specified indexer query
-     * @param \Vivo\Indexer\Query\QueryInterface $query
+     * @param QueryInterface|string $spec
      * @return Model\Entity[]
      */
-    public function getEntities(QueryInterface $query)
+    public function getEntities($spec)
     {
-        $result     = $this->indexer->find($query);
+        if (is_string($spec)) {
+            //Parse string query to Query object
+            $spec   = $this->queryParser->stringToQuery($spec);
+        }
+        $result     = $this->indexer->find($spec);
+        $hits       = $result->getHits();
         $entities   = array();
         /** @var $hit \Vivo\Indexer\QueryHit */
-        foreach ($result as $hit) {
-            $doc    = $hit-> getDocument();
-            $uuid   = $doc->getFieldValue('uuid');
+        foreach ($hits as $hit) {
+            $doc    = $hit->getDocument();
+            $uuid   = $doc->getFieldValue('\\uuid');
             try {
                 $entity = $this->getEntity($uuid);
                 $entities[] = $entity;
@@ -273,7 +296,7 @@ class Repository implements RepositoryInterface
 
     /**
      * Looks up an entity in storage and returns it
-     * If the entity does not exist, returns null
+     * If the entity is not found returns null
      * @param string $path
      * @return \Vivo\CMS\Model\Entity|null
      */
@@ -281,19 +304,18 @@ class Repository implements RepositoryInterface
     {
         $pathComponents = array($path, self::ENTITY_FILENAME);
         $fullPath       = $this->pathBuilder->buildStoragePath($pathComponents, true);
-        if ($this->storage->isObject($fullPath)) {
-            $entitySer      = $this->storage->get($fullPath);
-            $entity         = $this->serializer->unserialize($entitySer);
-            /* @var $entity \Vivo\CMS\Model\Entity */
-            $entity->setPath($path); // set volatile path property of entity instance
-            //Store entity to watcher
-            $this->watcher->add($entity);
-            //Store entity to cache
-            if ($this->cache) {
-                $this->cache->setItem($entity->getUuid(), $entity);
-            }
-        } else {
-            $entity = null;
+        if (!$this->storage->isObject($fullPath)) {
+            return null;
+        }
+        $entitySer      = $this->storage->get($fullPath);
+        $entity         = $this->serializer->unserialize($entitySer);
+        /* @var $entity \Vivo\CMS\Model\Entity */
+        $entity->setPath($path); // set volatile path property of entity instance
+        //Store entity to watcher
+        $this->watcher->add($entity);
+        //Store entity to cache
+        if ($this->cache) {
+            $this->cache->setItem($entity->getUuid(), $entity);
         }
         return $entity;
     }
@@ -605,6 +627,7 @@ class Repository implements RepositoryInterface
         $list   = $this->storage->scan($this->storage->getPathBuilder()->getStoragePathSeparator());
         $count  = 0;
         foreach ($list as $path) {
+            $path   = '/' . $path;
             $count  += $this->reindex($path, true);
         }
         return $count;
@@ -627,11 +650,10 @@ class Repository implements RepositoryInterface
         try {
             if ($deep) {
                 $delQuery   = $this->indexerHelper->buildTreeQuery($path);
-                $this->indexer->delete($delQuery);
             } else {
-                $term       = new IndexerTerm($path, 'path');
-                $this->indexer->deleteByTerm($term);
+                $delQuery   = $this->queryBuilder->cond(sprintf('\path:%s', $path));
             }
+            $this->indexer->delete($delQuery);
             $count      = 0;
             $entity     = $this->getEntityFromStorage($path);
             if ($entity) {
@@ -646,7 +668,7 @@ class Repository implements RepositoryInterface
         //					$count += $this->reindex($content, true);
         //		}
                 if ($deep) {
-                    $descendants    = $this->getChildren($entity, false, true);
+                    $descendants    = $this->getDescendantsFromStorage($path);
                     foreach ($descendants as $descendant) {
                         $idxDoc     = $this->indexerHelper->createDocument($descendant);
                         $this->indexer->addDocument($idxDoc);
@@ -661,6 +683,33 @@ class Repository implements RepositoryInterface
         }
 		return $count;
 	}
+
+    /**
+     * @param string $path
+     * @return Model\Entity[]
+     */
+    protected function getDescendantsFromStorage($path)
+    {
+        /** @var $descendants Model\Entity[] */
+        $descendants    = array();
+        $names = $this->storage->scan($path);
+        foreach ($names as $name) {
+            $childPath = $this->pathBuilder->buildStoragePath(array($path, $name), true);
+            if (!$this->storage->isObject($childPath)) {
+                try {
+                    $entity = $this->getEntityFromStorage($childPath);
+                    if ($entity) {
+                        $descendants[]      = $entity;
+                        $childDescendants   = $this->getDescendantsFromStorage($entity->getPath());
+                        $descendants        = array_merge($descendants, $childDescendants);
+                    }
+                } catch (Exception\EntityNotFoundException $e) {
+                    //Fix for the situation when a directory exists without an Entity.object
+                }
+            }
+        }
+        return $descendants;
+    }
 
     /**
      * Begins transaction

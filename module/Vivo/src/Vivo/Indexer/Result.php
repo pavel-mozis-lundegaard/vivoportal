@@ -1,14 +1,10 @@
 <?php
 namespace Vivo\Indexer;
 
-use IteratorAggregate;
-use Traversable;
-use ArrayObject;
-
 /**
  * Result
  */
-class Result implements IteratorAggregate
+class Result
 {
     /**
      * Query hits (hits actually contained in this result)
@@ -60,31 +56,20 @@ class Result implements IteratorAggregate
     }
 
     /**
-     * (PHP 5 &gt;= 5.0.0)<br/>
-     * Retrieve an external iterator
-     * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
-     * @return Traversable An instance of an object implementing <b>Iterator</b> or
-     * <b>Traversable</b>
-     * IteratorAggregate implementation function. Allows usage:
-     * <code>
-     * foreach ($result as $queryHit)
-     * {
-     * 	...
-     * }
-     * </code>
-     */
-    public function getIterator()
-    {
-        $arrayObject = new ArrayObject($this->hits);
-        return $arrayObject->getIterator();
-    }
-
-    /**
      * Returns parameters the query was run with
      * @return QueryParams
      */
     public function getQueryParams()
     {
         return $this->queryParams;
+    }
+
+    /**
+     * Returns array of QueryHits
+     * @return QueryHit[]
+     */
+    public function getHits()
+    {
+        return $this->hits;
     }
 }

@@ -19,7 +19,7 @@ class Document implements DocumentInterface
      * Array of document fields
      * @var Field[]
      */
-    protected $fields   = array();
+    protected $fields           = array();
 
     /**
      * Constructor
@@ -46,7 +46,7 @@ class Document implements DocumentInterface
      */
     public function addField(Field $field)
     {
-        $this->fields[$field->getName()]    = $field;
+        $this->fields[$field->getName()]            = $field;
     }
 
     /**
@@ -116,5 +116,14 @@ class Document implements DocumentInterface
     public function getDocId()
     {
         return $this->docId;
+    }
+
+    /**
+     * Returns if the document has an ID set
+     * @return bool
+     */
+    public function hasDocId()
+    {
+        return !is_null($this->docId);
     }
 }

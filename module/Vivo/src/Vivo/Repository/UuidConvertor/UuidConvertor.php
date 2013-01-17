@@ -73,7 +73,6 @@ class UuidConvertor implements UuidConvertorInterface
     /**
      * Returns entity path based on its UUID
      * If the UUID does not exist returns null instead
-     *
      * @param string $uuid
      * @return null|string
      */
@@ -85,8 +84,10 @@ class UuidConvertor implements UuidConvertorInterface
             $query  = new TermQuery(new IndexerTerm($uuid, '\uuid'));
             $result = $this->indexer->find($query);
             if ($result->getTotalHitCount() > 0) {
-                /** @var $doc Document */
-                $doc    = current($result);
+                $hits   = $result->getHits();
+                /** @var $hit \Vivo\Indexer\QueryHit */
+                $hit    = reset($hits);
+                $doc    = $hit->getDocument();
                 $path   = $doc->getFieldValue('\path');
                 $this->set($uuid, $path);
             } else {

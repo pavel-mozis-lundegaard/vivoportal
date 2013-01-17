@@ -49,16 +49,14 @@ class IndexerHelper
         $doc->addField($field);
         $indexerConfigs  = $this->indexerFieldHelper->getIndexerConfig($entityClass);
         foreach ($indexerConfigs as $property => $indexerConfig) {
-            if ($indexerConfig['enabled']) {
-                $getter = 'get' . ucfirst($property);
-                if (!method_exists($entity, $getter)) {
-                    throw new Exception\MethodNotFoundException(
-                        sprintf("%s: Method '%s' not found in '%s'", __METHOD__, $getter, get_class($entity)));
-                }
-                $value  = $entity->$getter();
-                $field  = new Field($indexerConfig['name'], $value);
-                $doc->addField($field);
+            $getter = 'get' . ucfirst($property);
+            if (!method_exists($entity, $getter)) {
+                throw new Exception\MethodNotFoundException(
+                    sprintf("%s: Method '%s' not found in '%s'", __METHOD__, $getter, get_class($entity)));
             }
+            $value  = $entity->$getter();
+            $field  = new Field($indexerConfig['name'], $value);
+            $doc->addField($field);
         }
         return $doc;
     }

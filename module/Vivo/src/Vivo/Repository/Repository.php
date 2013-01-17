@@ -17,10 +17,9 @@ use Vivo\Uuid\GeneratorInterface as UuidGenerator;
 use Vivo\IO\IOUtil;
 use Vivo\Repository\Exception;
 use Vivo\Repository\IndexerHelper;
-use Vivo\Indexer\Term as IndexerTerm;
 use Vivo\Indexer\Query\QueryInterface;
 use Vivo\Indexer\Query\Term as TermQuery;
-use Vivo\Indexer\QueryParams;
+use Vivo\Indexer\Query\Parser\ParserInterface as QueryParser;
 
 use Zend\Serializer\Adapter\AdapterInterface as Serializer;
 use Zend\Cache\Storage\StorageInterface as Cache;
@@ -78,6 +77,12 @@ class Repository implements RepositoryInterface
      * @var QueryBuilder
      */
     protected $queryBuilder;
+
+    /**
+     * Indexer query parser
+     * @var QueryParser
+     */
+    protected $queryParser;
 
     /**
      * The cache for objects of the model
@@ -166,6 +171,7 @@ class Repository implements RepositoryInterface
      * @param \Vivo\Uuid\GeneratorInterface $uuidGenerator
      * @param \Vivo\IO\IOUtil $ioUtil
      * @param \Vivo\Indexer\QueryBuilder $queryBuilder
+     * @param \Vivo\Indexer\Query\Parser\ParserInterface $queryParser
      * @throws Exception\Exception
      */
     public function __construct(Storage\StorageInterface $storage,
@@ -177,7 +183,8 @@ class Repository implements RepositoryInterface
                                 Watcher $watcher,
                                 UuidGenerator $uuidGenerator,
                                 IOUtil $ioUtil,
-                                QueryBuilder $queryBuilder)
+                                QueryBuilder $queryBuilder,
+                                QueryParser $queryParser)
 	{
         if ($cache) {
             //Check that cache supports all required data types
@@ -201,9 +208,8 @@ class Repository implements RepositoryInterface
         $this->ioUtil           = $ioUtil;
         $this->pathBuilder      = $this->storage->getPathBuilder();
         $this->queryBuilder     = $queryBuilder;
+        $this->queryParser      = $queryParser;
 	}
-
-
 
     /**
      * Returns entity from repository
@@ -241,17 +247,22 @@ class Repository implements RepositoryInterface
 
     /**
      * Returns array of entities returned by the specified indexer query
-     * @param \Vivo\Indexer\Query\QueryInterface $query
+     * @param QueryInterface|string $spec
      * @return Model\Entity[]
      */
-    public function getEntities(QueryInterface $query)
+    public function getEntities($spec)
     {
-        $result     = $this->indexer->find($query);
+        if (is_string($spec)) {
+            //Parse string query to Query object
+            $spec   = $this->queryParser->stringToQuery($spec);
+        }
+        $result     = $this->indexer->find($spec);
+        $hits       = $result->getHits();
         $entities   = array();
         /** @var $hit \Vivo\Indexer\QueryHit */
-        foreach ($result as $hit) {
-            $doc    = $hit-> getDocument();
-            $uuid   = $doc->getFieldValue('uuid');
+        foreach ($hits as $hit) {
+            $doc    = $hit->getDocument();
+            $uuid   = $doc->getFieldValue('\\uuid');
             try {
                 $entity = $this->getEntity($uuid);
                 $entities[] = $entity;

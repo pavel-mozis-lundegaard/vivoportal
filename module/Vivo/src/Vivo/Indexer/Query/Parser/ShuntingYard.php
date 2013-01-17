@@ -116,6 +116,7 @@ class ShuntingYard implements RpnConvertorInterface
      * This is a convenience function which just isolates the logical condition
      * @param TokenInterface $operator
      * @param TokenInterface[] $stack
+     * @throws Exception\UnsupportedOperatorException
      * @return bool
      */
     protected function shouldPopOpFromStack(TokenInterface $operator, array &$stack)
@@ -128,8 +129,18 @@ class ShuntingYard implements RpnConvertorInterface
                 return false;
             }
             //The token at the top of the stack is an operator
-            $o1Props    = $this->operatorPrec[$operator->getValue()];
-            $o2Props    = $this->operatorPrec[$stackTop->getValue()];
+            $op1    = $operator->getValue();
+            if (!array_key_exists($op1, $this->operatorPrec)) {
+                throw new Exception\UnsupportedOperatorException(
+                    sprintf("%s: Cannot get operator precedence for unsupported operator '%s'", __METHOD__, $op1));
+            }
+            $op2    = $stackTop->getValue();
+            if (!array_key_exists($op2, $this->operatorPrec)) {
+                throw new Exception\UnsupportedOperatorException(
+                    sprintf("%s: Cannot get operator precedence for unsupported operator '%s'", __METHOD__, $op2));
+            }
+            $o1Props    = $this->operatorPrec[$op1];
+            $o2Props    = $this->operatorPrec[$op2];
             if (((!$o1Props['rAssoc']) && ($o1Props['prec'] <= $o2Props['prec']))
                 || ($o1Props['prec'] < $o2Props['prec'])) {
                 return true;

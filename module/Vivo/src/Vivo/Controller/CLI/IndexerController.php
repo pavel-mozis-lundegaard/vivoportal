@@ -13,10 +13,6 @@ class IndexerController extends AbstractCliController
         return 'indexer usage: ...';
     }
 
-    public function reindexAction()
-    {
-
-    }
 
     public function clearAction()
     {

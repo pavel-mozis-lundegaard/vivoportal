@@ -6,5 +6,4 @@ namespace Vivo\Indexer\Exception;
  */
 class UnknownFieldException extends \InvalidArgumentException implements ExceptionInterface
 {
-
 }

@@ -19,6 +19,7 @@ class FieldHelper implements FieldHelperInterface
     protected $defaultIndexingOptions   = array(
         'type'          => IndexerInterface::FIELD_TYPE_STRING,
         'indexed'       => true,
+        //TODO - change default indexing option 'stored' to false?
         'stored'        => true,
         'tokenized'     => false,
         'multi'         => false,
@@ -45,6 +46,20 @@ class FieldHelper implements FieldHelperInterface
             'multi'         => false,
         ),
         '\\class'        => array(
+            'type'          => IndexerInterface::FIELD_TYPE_STRING,
+            'indexed'       => true,
+            'stored'        => true,
+            'tokenized'     => false,
+            'multi'         => false,
+        ),
+        '\\state'        => array(
+            'type'          => IndexerInterface::FIELD_TYPE_STRING,
+            'indexed'       => true,
+            'stored'        => true,
+            'tokenized'     => false,
+            'multi'         => false,
+        ),
+        '\\createdBy'        => array(
             'type'          => IndexerInterface::FIELD_TYPE_STRING,
             'indexed'       => true,
             'stored'        => true,
@@ -86,11 +101,16 @@ class FieldHelper implements FieldHelperInterface
      * Constructor
      * @param \Vivo\Metadata\MetadataManager $metadataManager
      * @param \Vivo\Storage\PathBuilder\PathBuilder $pathBuilder
+     * @param array $defaultIndexingOptions
+     * @param array $presets
      */
-    public function __construct(MetadataManager $metadataManager, PathBuilder $pathBuilder)
+    public function __construct(MetadataManager $metadataManager, PathBuilder $pathBuilder,
+                                array $defaultIndexingOptions = array(), array $presets = array())
     {
-        $this->metadataManager  = $metadataManager;
-        $this->pathBuilder      = $pathBuilder;
+        $this->metadataManager          = $metadataManager;
+        $this->pathBuilder              = $pathBuilder;
+        $this->defaultIndexingOptions   = array_merge($this->defaultIndexingOptions, $defaultIndexingOptions);
+        $this->presets                  = array_merge($this->presets, $presets);
     }
 
     /**
@@ -119,18 +139,27 @@ class FieldHelper implements FieldHelperInterface
     }
 
     /**
-     * Returns indexer config for a full property name (\ClassName\property or preset name)
-     * @param string $fullPropertyName
+     * Returns indexer config for an index field name
+     * @param string $fieldName Either \ClassName\property or preset name
+     * @throws Exception\CannotDecomposeFieldnameException
      * @return array
      */
-    public function getIndexerConfigForFullPropertyName($fullPropertyName)
+    public function getIndexerConfigForFieldName($fieldName)
     {
-        if ($this->hasPreset($fullPropertyName)) {
-            return $this->getPreset($fullPropertyName);
+        if ($this->hasPreset($fieldName)) {
+            return $this->getPreset($fieldName);
         }
-        $parts      = explode('\\', $fullPropertyName);
+        $parts      = explode('\\', $fieldName);
         $property   = array_pop($parts);
+        if (empty($property)) {
+            throw new Exception\CannotDecomposeFieldnameException(
+                sprintf("%s: Property name could not be assessed from field name '%s'", __METHOD__, $fieldName));
+        }
         $class      = trim(implode('\\', $parts), '\\');
+        if (empty($class)) {
+            throw new Exception\CannotDecomposeFieldnameException(
+                sprintf("%s: Class name could not be assessed from field name '%s'", __METHOD__, $fieldName));
+        }
         $indexerConfig  = $this->getIndexerConfig($class, $property);
         return $indexerConfig;
     }
@@ -272,20 +301,27 @@ class FieldHelper implements FieldHelperInterface
             $entityMetadata = $this->metadataManager->getMetadata($entityClass);
             foreach ($entityMetadata as $propertyName => $metadata) {
                 if (isset($metadata['index'])) {
-                    if (isset($metadata['index']['preset'])) {
-                        //Config by preset (ignore all remaining indexing metadata)
-                        $presetName     = $metadata['index']['preset'];
-                        $indexerConfig  = $this->getPreset($presetName);
-                        //Indexer field name is set to the preset name
-                        $indexerConfig['name']  = $presetName;
-                    } else {
-                        //Explicit config from metadata
+                    $indexOptions   = $metadata['index'];
+                    if (is_array($indexOptions)) {
+                        //Explicitly set indexing options
                         $indexerConfig  = $this->defaultIndexingOptions;
-                        $indexerConfig  = array_merge($indexerConfig, $metadata['index']);
+                        $indexerConfig  = array_merge($indexerConfig, $indexOptions);
                         //Indexer field name is set to the full property name
                         $indexerConfig['name']  = $this->getFullPropertyName($entityClass, $propertyName);
+                        $this->indexerConfigs[$entityClass][$propertyName] = $indexerConfig;
+                    } elseif (is_string($indexOptions) && $this->hasPreset($indexOptions)) {
+                        //Index preset
+                        $indexerConfig  = $this->getPreset($indexOptions);
+                        //Indexer field name is set to the preset name
+                        $indexerConfig['name']  = $indexOptions;
+                        $this->indexerConfigs[$entityClass][$propertyName] = $indexerConfig;
+                    } elseif ($indexOptions) {
+                        //Index options evaluates as a boolean true - use defaults
+                        $indexerConfig  = $this->defaultIndexingOptions;
+                        //Indexer field name is set to the full property name
+                        $indexerConfig['name']  = $this->getFullPropertyName($entityClass, $propertyName);
+                        $this->indexerConfigs[$entityClass][$propertyName] = $indexerConfig;
                     }
-                    $this->indexerConfigs[$entityClass][$propertyName] = $indexerConfig;
                 }
             }
         }

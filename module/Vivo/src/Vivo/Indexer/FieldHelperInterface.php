@@ -18,10 +18,10 @@ interface FieldHelperInterface
 
     /**
      * Returns indexer config for a full property name (\ClassName\property)
-     * @param string $fullPropertyName
+     * @param string $fieldName
      * @return array
      */
-    public function getIndexerConfigForFullPropertyName($fullPropertyName);
+    public function getIndexerConfigForFieldName($fieldName);
 
     /**
      * Returns if the specified property is enabled for indexing

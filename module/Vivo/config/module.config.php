@@ -181,8 +181,14 @@ return array(
     ),
     'view_helpers' => array(
         'invokables' => array(
+            'action'            => 'Vivo\View\Helper\Action',
+            'action_link'       => 'Vivo\View\Helper\ActionLink',
+            'action_url'        => 'Vivo\View\Helper\ActionUrl',
+            'vivoform'          => 'Vivo\View\Helper\VivoForm',
+            'vivoformfieldset'  => 'Vivo\View\Helper\VivoFormFieldset',
         ),
     ),
+
     'di' => array(
     ),
     'metadata_manager' => array(

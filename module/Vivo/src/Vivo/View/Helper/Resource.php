@@ -26,11 +26,6 @@ class Resource extends AbstractHelper
             );
 
     /**
-     * @var Url
-     */
-    private $urlHelper;
-
-    /**
      * @var CMS
      */
     private $cms;
@@ -38,9 +33,8 @@ class Resource extends AbstractHelper
     /**
      * @param Url $urlhelper
      */
-    public function __construct(Url $urlhelper, CMS $cms, $options = array())
+    public function __construct(CMS $cms, $options = array())
     {
-        $this->urlHelper = $urlhelper;
         $this->cms = $cms;
         $this->options  = array_merge($this->options, $options);
     }
@@ -54,16 +48,16 @@ class Resource extends AbstractHelper
         if ($this->options['check_resource'] == true) {
             $this->checkResource($resourcePath, $source);
         }
+        $urlHelper = $this->view->plugin('url');
+
         if ($source instanceof Entity) {
             $entityUrl = $this->cms->getEntityUrl($source);
-            $url = $this->urlHelper
-                    ->__invoke('vivo/resource_entity',
+            $url = $urlHelper('vivo/resource_entity',
                             array('path' => $resourcePath,
                                     'entity' => $entityUrl,
                                     ));
         } elseif (is_string($source)) {
-            $url = $this->urlHelper
-                    ->__invoke('vivo/resource',
+            $url = $urlHelper('vivo/resource',
                             array('source' => $source, 'path' => $resourcePath, 'type' => 'resource'));
         } else {
             throw new InvalidArgumentException(
@@ -72,7 +66,7 @@ class Resource extends AbstractHelper
         }
 
         //Replace encoded slashes in the url. It's needed because apache returns 404 when the url contains encoded slashes
-        //This behvaior could be changed in apache config, but it is not possible to do that in .htacces context.
+        //This behvaior could be changed in apache config, but it is not possible to do that in .htaccess context.
         //@see http://httpd.apache.org/docs/current/mod/core.html#allowencodedslashes
         $url = str_replace('%2F', '/', $url);
 

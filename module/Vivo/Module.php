@@ -20,6 +20,9 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
      */
     public function onBootstrap(MvcEvent $e)
     {
+        //initialize logger
+        $logger = $e->getApplication()->getServiceManager()->get('logger');
+
         $e->getApplication()->getServiceManager()->get('translator');
         $eventManager        = $e->getApplication()->getEventManager();
         $moduleRouteListener = new ModuleRouteListener();

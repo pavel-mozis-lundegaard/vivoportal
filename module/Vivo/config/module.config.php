@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Main CMS config, can be split into topic related files in future
  */
@@ -118,12 +119,16 @@ return array(
             'indexer_query_parser'      => 'Vivo\Service\IndexerQueryParserFactory',
             'module_name_resolver'      => 'Vivo\Service\ModuleNameResolverFactory',
             'metadata_manager'          => 'Vivo\Service\MetadataManagerFactory',
+            'redirector'                => 'Vivo\Service\RedirectorFactory',
+            'logger'                    => 'Vivo\Service\LoggerFactory',
+            'default_log'               => 'Vivo\Service\LogFileWriterFactory',
         ),
         'aliases' => array(
                 'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
                 'Vivo\Repository\Repository'        => 'repository',
                 'Zend\Http\Response'                => 'response',
                 'Zend\View\HelperPluginManager'     => 'view_helper_manager',
+                'Vivo\Util\Redirector'              => 'redirector',
         ),
     ),
     'translator' => array(
@@ -176,6 +181,21 @@ return array(
     'metadata_manager' => array(
         'config_path' => __DIR__ . '/../config/metadata',
     ),
+
+    'logger' => array(
+        'listener' => array (
+            'attach' => array (
+                array('*', 'log'), //log 'log' events
+                //array('*', '*'), //log all events
+            ),
+        ),
+        'writers' => array (
+            //writers from writer plugin manager or main service manager
+            'default_log',
+            //'firephp',
+        ),
+    ),
+
     'vivo'      => array(
         //Vivo Modules configuration
         'modules'  => array(
@@ -291,6 +311,7 @@ return array(
                 'Vivo\CMS\Model\Content\Layout'     => 'Vivo\CMS\UI\Content\Layout',
                 'Vivo\CMS\Model\Content\File'       => 'Vivo\CMS\UI\Content\File',
                 'Vivo\CMS\Model\Content\Overview'   => 'Vivo\CMS\UI\Content\Overview',
+                'Vivo\CMS\Model\Content\Hyperlink'   => 'Vivo\CMS\UI\Content\Hyperlink',
             ),
             'editor_component' => array (
 

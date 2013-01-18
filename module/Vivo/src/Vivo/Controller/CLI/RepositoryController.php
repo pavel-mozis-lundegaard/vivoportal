@@ -2,6 +2,7 @@
 namespace Vivo\Controller\CLI;
 
 use Vivo\CMS\Api\Repository as RepositoryApi;
+use Vivo\SiteManager\Event\SiteEvent;
 
 /**
  * Vivo CLI controller for command 'repository'
@@ -17,12 +18,20 @@ class RepositoryController extends AbstractCliController
     protected $repositoryApi;
 
     /**
+     * SiteEvent
+     * @var SiteEvent
+     */
+    protected $siteEvent;
+
+    /**
      * Constructor
      * @param \Vivo\CMS\Api\Repository $repositoryApi
+     * @param \Vivo\SiteManager\Event\SiteEvent $siteEvent
      */
-    public function __construct(RepositoryApi $repositoryApi)
+    public function __construct(RepositoryApi $repositoryApi, SiteEvent $siteEvent)
     {
         $this->repositoryApi    = $repositoryApi;
+        $this->siteEvent        = $siteEvent;
     }
 
     public function getConsoleUsage()
@@ -37,6 +46,11 @@ class RepositoryController extends AbstractCliController
         /* @var $request \Zend\Console\Request */
         $host   = $request->getParam('host');
         $path   = $request->getParam('path');
+        if (!$this->siteEvent->getSite()) {
+            $output = sprintf("No site object created; host = '%s', path = '%s'", $host, $path);
+            return $output;
+        }
+
         $numIndexed = $this->repositoryApi->reindex($path);
         $output = sprintf("%s items reindexed", $numIndexed);
         return $output;

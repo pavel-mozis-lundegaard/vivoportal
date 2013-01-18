@@ -5,8 +5,8 @@ use Vivo\CMS\Model;
 use Vivo\CMS\Workflow;
 use Vivo\CMS\Exception;
 use Vivo\Repository\Repository;
-use Vivo\Indexer\Query\MultiTerm as MultiTermQuery;
 use Vivo\Indexer\Query\QueryInterface;
+use Vivo\Indexer\QueryBuilder;
 
 use Zend\Config;
 
@@ -16,13 +16,26 @@ use Zend\Config;
 class CMS
 {
     /**
+     * Repository
      * @var \Vivo\Repository\Repository
      */
     private $repository;
 
-    public function __construct(Repository $repository)
+    /**
+     * Query Builder
+     * @var QueryBuilder
+     */
+    protected $qb;
+
+    /**
+     * Constructor
+     * @param \Vivo\Repository\Repository $repository
+     * @param \Vivo\Indexer\QueryBuilder $qb
+     */
+    public function __construct(Repository $repository, QueryBuilder $qb)
     {
-        $this->repository = $repository;
+        $this->repository   = $repository;
+        $this->qb           = $qb;
     }
 
     /**
@@ -33,14 +46,24 @@ class CMS
      */
     public function getSiteByHost($host)
     {
-        $sites  = $this->getChildren(new Model\Folder(''));
-        foreach ($sites as $site) {
-            /** @var $site \Vivo\CMS\Model\Site */
-            if (in_array($host, $site->getHosts())) {
-                return $site;
+        $query      = $this->qb->cond($host, '\\hosts');
+        $entities   = $this->getEntitiesByQuery($query);
+        if (count($entities) > 0) {
+            //Site found - if more than one site defines this host, take the first one
+            $site   = reset($entities);
+        } else {
+            //Site not found - fallback to traversing the repo (necessary for reindexing)
+            $sites  = $this->getChildren(new Model\Folder(''));
+            $site   = null;
+            foreach ($sites as $siteIter) {
+                /** @var $siteIter \Vivo\CMS\Model\Site */
+                if (in_array($host, $siteIter->getHosts())) {
+                    $site   = $siteIter;
+                    break;
+                }
             }
         }
-        return null;
+        return $site;
 
 //        $termHost   = new IndexerTerm('###host###/' . $host);
 //        $termType   = new IndexerTerm('Vivo\CMS\Model\Site', 'type');

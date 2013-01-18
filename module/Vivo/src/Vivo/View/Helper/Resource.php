@@ -1,16 +1,11 @@
 <?php
 namespace Vivo\View\Helper;
 
-use Vivo\Util\Path\PathParser;
-
 use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Model\Entity;
-use Vivo\UI\Component;
 use Vivo\View\Helper\Exception\InvalidArgumentException;
 
-use Zend\Mvc\Router\RouteStackInterface;
 use Zend\View\Helper\AbstractHelper;
-use Zend\View\Helper\Url;
 
 /**
  * View helper for gettting resource url.
@@ -31,16 +26,14 @@ class Resource extends AbstractHelper
     private $cms;
 
     /**
-     * @param Url $urlhelper
+     * Constructor.
+     * @param CMS $cms
+     * @param array $options
      */
     public function __construct(CMS $cms, $options = array())
     {
         $this->cms = $cms;
         $this->options  = array_merge($this->options, $options);
-    }
-
-    public function setParser(PathParser $parser) {
-        $this->parser = $parser;
     }
 
     public function __invoke($resourcePath, $source)

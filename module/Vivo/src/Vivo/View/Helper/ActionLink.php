@@ -3,9 +3,7 @@ namespace Vivo\View\Helper;
 
 use Vivo\UI\Component;
 
-use Zend\Mvc\Router\RouteStackInterface;
 use Zend\View\Helper\AbstractHelper;
-use Zend\View\Helper\Url;
 
 /**
  * View helper for gettting action url
@@ -13,16 +11,16 @@ use Zend\View\Helper\Url;
 class ActionLink extends AbstractHelper
 {
 
-    public function __invoke($action, $body,  $params = array())
+    public function __invoke($action, $body, $params = array())
     {
-        $model = $this->getView()->getCurrentModel();
+        $model = $this->view->plugin('view_model')->getCurrent();
         $component = $model->getVariable('component');
 
-        $act =  $component['path'] . Component::COMPONENT_SEPARATOR
-            . $action;
-        $urlHelper =  $this->getView()->plugin('url');
+        $act = $component['path'] . Component::COMPONENT_SEPARATOR . $action;
+        $urlHelper = $this->getView()->plugin('url');
 
-        $url = $urlHelper('vivo/cms/query', array('act' => $act, 'args' => $params), true);
+        $url = $urlHelper('vivo/cms/query',
+                array('act' => $act, 'args' => $params), true);
         $link = "<a href='$url'>$body</a>";
         return $link;
     }

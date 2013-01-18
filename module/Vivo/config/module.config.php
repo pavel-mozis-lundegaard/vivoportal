@@ -123,11 +123,13 @@ return array(
             'redirector'                => 'Vivo\Service\RedirectorFactory',
             'logger'                    => 'Vivo\Service\LoggerFactory',
             'default_log'               => 'Vivo\Service\LogFileWriterFactory',
+            'template_resolver'         => 'Vivo\Service\TemplateResolverFActory',
         ),
         'aliases' => array(
                 'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
                 'Vivo\Repository\Repository'        => 'repository',
                 'Zend\Http\Response'                => 'response',
+                'Zend\Http\Request'                 => 'request',
                 'Zend\View\HelperPluginManager'     => 'view_helper_manager',
                 'Vivo\Util\Redirector'              => 'redirector',
         ),
@@ -356,20 +358,20 @@ return array(
             //configuration of ui components
             'Vivo\UI\Page' => array (
                 'doctype' => 'HTML5',
-                'links' => array (
-                    array(
-                        'rel'  => 'stylesheet',
-                        'href' => '/.ModuleName.resource/css/definedInVivoConfig.css',
-                        'type' => 'text/css',
-                        'media' => 'screen'
-                    ),
-                ),
-                'scripts' => array (
-                    array(
-                        'src' => '/.ModuleName.resource/js/front.js',
-                        'type' => 'text/javascript',
-                    ),
-                ),
+//                 'links' => array (
+//                     array(
+//                         'rel'  => 'stylesheet',
+//                         'href' => '/.ModuleName.resource/css/definedInVivoConfig.css',
+//                         'type' => 'text/css',
+//                         'media' => 'screen'
+//                     ),
+//                 ),
+//                 'scripts' => array (
+//                     array(
+//                         'src' => '/.ModuleName.resource/js/front.js',
+//                         'type' => 'text/javascript',
+//                     ),
+//                 ),
                 'metas' => array (
                     array (
                         'name' => 'Robots',

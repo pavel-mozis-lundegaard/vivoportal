@@ -402,8 +402,8 @@ class CMS
 
     /**
      * Returns array of published contents of given document.
-     * @param Document $document
-     * @return Content[]
+     * @param Model\Document $document
+     * @return Model\Content[]
      */
     public function getPublishedContents(Model\Document $document)
     {

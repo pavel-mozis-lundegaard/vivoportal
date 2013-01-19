@@ -10,6 +10,9 @@ use Vivo\Indexer\Query\BooleanOr;
 use Vivo\Indexer\Query\Term as TermQuery;
 use Vivo\Repository\Exception;
 use Vivo\Indexer\FieldHelperInterface as IndexerFieldHelper;
+use Vivo\CMS\Model\Document as DocumentModel;
+use Vivo\CMS\Model\Content;
+use Vivo\CMS\Api\CMS;
 
 use \DateTime;
 
@@ -26,12 +29,20 @@ class IndexerHelper
     protected $indexerFieldHelper;
 
     /**
+     * CMS Api
+     * @var CMS
+     */
+    protected $cms;
+
+    /**
      * Constructor
      * @param \Vivo\Indexer\FieldHelperInterface $indexerFieldHelper
+     * @param \Vivo\CMS\Api\CMS $cms
      */
-    public function __construct(IndexerFieldHelper $indexerFieldHelper)
+    public function __construct(IndexerFieldHelper $indexerFieldHelper, CMS $cms)
     {
         $this->indexerFieldHelper   = $indexerFieldHelper;
+        $this->cms                  = $cms;
     }
 
     /**
@@ -44,9 +55,26 @@ class IndexerHelper
     {
         $doc            = new Document();
         $entityClass    = get_class($entity);
-        //Class field is added by default
+        //Fields added by default
+        //Published content types
+        if ($entity instanceof DocumentModel) {
+            $publishedContents  = $this->cms->getPublishedContents($entity);
+            if (count($publishedContents) > 0) {
+                //There are some published contents
+                $publishedContentTypes  = array();
+                /** @var $publishedContent Content */
+                foreach ($publishedContents as $publishedContent) {
+                    $publishedContentTypes[]    = get_class($publishedContent);
+                }
+                $field  = new Field('\publishedContents', $publishedContentTypes);
+                $doc->addField($field);
+            }
+        }
+        //Class field
         $field  = new Field('\class', $entityClass);
         $doc->addField($field);
+
+        //Fields added by metadata config
         $indexerConfigs  = $this->indexerFieldHelper->getIndexerConfig($entityClass);
         foreach ($indexerConfigs as $property => $indexerConfig) {
             $getter = 'get' . ucfirst($property);

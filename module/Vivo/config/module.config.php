@@ -83,7 +83,7 @@ return array(
             'io_util'                   => 'Vivo\IO\IOUtil',
             'indexer_query_builder'     => 'Vivo\Indexer\QueryBuilder',
             'indexer_document_builder'  => 'Vivo\Indexer\DocumentBuilder',
-            'view_model'                => 'Vivo\View\Model\UIViewModel'
+            'view_model'                => 'Zend\View\Model\ViewModel',
         ),
         'factories' => array(
             'translator'                => 'Zend\I18n\Translator\TranslatorServiceFactory',
@@ -132,6 +132,8 @@ return array(
                 'Zend\Http\Request'                 => 'request',
                 'Zend\View\HelperPluginManager'     => 'view_helper_manager',
                 'Vivo\Util\Redirector'              => 'redirector',
+//                'Zend\View\Model\ModelInterface'    => 'view_model',
+//                'Zend\View\Model\ViewModel'         => 'view_model',
         ),
         'shared' => array(
             'view_model' => false,
@@ -341,7 +343,7 @@ return array(
         'di' => array (
             'instance' => array (
                 'alias' => array (
-                    'view_model' =>  'Vivo\View\Model\UIViewModel',
+                    'view_model' => 'Zend\View\Model\ViewModel',
                 ),
                 'view_model' => array (
                     'shared' => false, //new viewModel for each UI/component

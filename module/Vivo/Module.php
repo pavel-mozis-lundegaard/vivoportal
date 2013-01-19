@@ -61,7 +61,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
     }
 
     /**
-     * Register rendering strategy fo Vivo UI.
+     * Register template resolver.
      * @param MvcEvent $e
      */
     public function registerTemplateResolver(MvcEvent $e)

@@ -1,8 +1,6 @@
 <?php
 namespace Vivo\Service\Initializer;
 
-use Vivo\View\Model\UIViewModel;
-
 use Zend\ServiceManager\InitializerInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 

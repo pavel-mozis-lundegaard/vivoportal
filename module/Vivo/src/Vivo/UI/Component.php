@@ -1,9 +1,8 @@
 <?php
 namespace Vivo\UI;
 
-use Vivo\View\Model\UIViewModel;
-
 use Zend\View\Model\ModelInterface;
+use Zend\View\Model\ViewModel;
 
 /**
  * Base class for UI components.
@@ -51,7 +50,7 @@ class Component implements ComponentInterface
     public function getView()
     {
         if ($this->view === null) {
-            $this->view = new UIViewModel();
+            $this->view = new ViewModel();
         }
         return $this->view;
     }

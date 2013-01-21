@@ -1,9 +1,8 @@
 <?php
 namespace Vivo\UI;
 
-use Vivo\View\Model\UIViewModel;
-
 use Zend\View\Model\ModelInterface;
+use Zend\View\Model\ViewModel;
 
 /**
  * Base class for UI components.
@@ -17,12 +16,6 @@ class Component implements ComponentInterface
      * @var string
      */
     const COMPONENT_SEPARATOR = '->';
-
-    /**
-     * Template name
-     * @var string
-     */
-    private $template;
 
     /**
      * Component parent.
@@ -57,7 +50,7 @@ class Component implements ComponentInterface
     public function getView()
     {
         if ($this->view === null) {
-            $this->view = new UIViewModel();
+            $this->view = new ViewModel();
         }
         return $this->view;
     }
@@ -72,8 +65,12 @@ class Component implements ComponentInterface
         if ($this->getView()->getTemplate() == '') {
             $this->getView()->setTemplate($this->getDefaultTemplate());
         }
-        $this->getView()->setVariable('component', $this);
-        $this->getView()->setVariable('cpath', $this->getPath());
+        $component = array(
+                'component' => $this,
+                'path' => $this->getPath(),
+                'name' => $this->getName(),
+        );
+        $this->getView()->setVariable('component', $component);
         return $this->view;
     }
 
@@ -92,11 +89,6 @@ class Component implements ComponentInterface
             $component = $component->getParent();
         }
         return $path;
-    }
-
-    public function setTemplate($template)
-    {
-        $this->template = $template;
     }
 
     public function getDefaultTemplate()

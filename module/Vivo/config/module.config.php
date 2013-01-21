@@ -83,11 +83,12 @@ return array(
             'io_util'                   => 'Vivo\IO\IOUtil',
             'indexer_query_builder'     => 'Vivo\Indexer\QueryBuilder',
             'indexer_document_builder'  => 'Vivo\Indexer\DocumentBuilder',
+            'view_model'                => 'Zend\View\Model\ViewModel',
         ),
         'factories' => array(
             'translator'                => 'Zend\I18n\Translator\TranslatorServiceFactory',
             'response'                  => 'Vivo\Service\ResponseFactory',
-            'dependencyinjector'        => 'Vivo\Service\DiFactory',
+//            'dependencyinjector'        => 'Vivo\Service\DiFactory',
             'db_service_manager'        => 'Vivo\Service\DbServiceManagerFactory',
             'uuid_convertor'            => 'Vivo\Service\UuidConvertorFactory',
             'module_storage'            => 'Vivo\Service\ModuleStorageFactory',
@@ -122,13 +123,23 @@ return array(
             'redirector'                => 'Vivo\Service\RedirectorFactory',
             'logger'                    => 'Vivo\Service\LoggerFactory',
             'default_log'               => 'Vivo\Service\LogFileWriterFactory',
+            'template_resolver'         => 'Vivo\Service\TemplateResolverFActory',
         ),
         'aliases' => array(
                 'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
                 'Vivo\Repository\Repository'        => 'repository',
                 'Zend\Http\Response'                => 'response',
+                'Zend\Http\Request'                 => 'request',
                 'Zend\View\HelperPluginManager'     => 'view_helper_manager',
                 'Vivo\Util\Redirector'              => 'redirector',
+//                'Zend\View\Model\ModelInterface'    => 'view_model',
+//                'Zend\View\Model\ViewModel'         => 'view_model',
+        ),
+        'shared' => array(
+            'view_model' => false,
+        ),
+        'initializers' => array(
+            'component' => 'Vivo\Service\Initializer\ComponentInitializer',
         ),
     ),
     'translator' => array(
@@ -174,8 +185,14 @@ return array(
     ),
     'view_helpers' => array(
         'invokables' => array(
+            'action'            => 'Vivo\View\Helper\Action',
+            'action_link'       => 'Vivo\View\Helper\ActionLink',
+            'action_url'        => 'Vivo\View\Helper\ActionUrl',
+            'vivoform'          => 'Vivo\View\Helper\VivoForm',
+            'vivoformfieldset'  => 'Vivo\View\Helper\VivoFormFieldset',
         ),
     ),
+
     'di' => array(
     ),
     'metadata_manager' => array(
@@ -319,53 +336,55 @@ return array(
         ),
         'service_manager' => array (
         //configuration of modules service manager
+            'factories' => array (
+                'Vivo\UI\Page' => 'Vivo\Service\UI\PageFactory',
+            ),
         ),
         'di' => array (
             'instance' => array (
                 'alias' => array (
-                    'viewModel' =>  'Vivo\View\Model\UIViewModel',
+                    'view_model' => 'Zend\View\Model\ViewModel',
                 ),
-                'viewModel' => array (
+                'view_model' => array (
                     'shared' => false, //new viewModel for each UI/component
                 ),
                 'Vivo\UI\Component' => array (
                     'parameters' => array (
-                        'view' => 'viewModel',
-                    ),
-                ),
-                'Vivo\UI\Page' => array (
-                    'parameters' => array (
-                        'doctype' => 'HTML5',
-                        //globaly defined links and scripts
-                        'links' => array (
-                            array(
-                                'rel'  => 'stylesheet',
-                                'href' => '/.ModuleName.resource/css/definedInVivoConfig.css',
-                                'type' => 'text/css',
-                                'media' => 'screen'
-                            ),
-                        ),
-                        'scripts' => array (
-                            array(
-                                'src' => '/.ModuleName.resource/js/front.js',
-                                'type' => 'text/javascript',
-                            ),
-                        ),
-                        'metas' => array (
-                            array (
-                                'name' => 'Robots',
-                                'content' => 'INDEX,FOLLOW',
-                            ),
-                            array (
-                                'charset' => 'UTF-8',
-                            ),
-                        ),
-                        'viewHelpers' => 'Zend\View\HelperPluginManager',
+                        'view' => 'view_model',
                     ),
                 ),
             ),
         ),
 
+        'ui' => array (
+            //configuration of ui components
+            'Vivo\UI\Page' => array (
+                'doctype' => 'HTML5',
+//                 'links' => array (
+//                     array(
+//                         'rel'  => 'stylesheet',
+//                         'href' => '/.ModuleName.resource/css/definedInVivoConfig.css',
+//                         'type' => 'text/css',
+//                         'media' => 'screen'
+//                     ),
+//                 ),
+//                 'scripts' => array (
+//                     array(
+//                         'src' => '/.ModuleName.resource/js/front.js',
+//                         'type' => 'text/javascript',
+//                     ),
+//                 ),
+                'metas' => array (
+                    array (
+                        'name' => 'Robots',
+                        'content' => 'INDEX,FOLLOW',
+                    ),
+                    array (
+                        'charset' => 'UTF-8',
+                    ),
+                ),
+            ),
+        ),
     ),
     'console' => array(
         'router' => array(

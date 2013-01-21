@@ -26,7 +26,7 @@ class Redirector
      * @param string $url
      * @param string $statusCode
      */
-    public function redirect($url = false, $statusCode = null) {
+    public function redirect($url = null, $statusCode = null) {
         if (!$url) {
             $url = $this->event->getRequest()->getUri()->getPath();
         }

@@ -109,7 +109,14 @@ class Repository implements RepositoryInterface
 
     /**
      * List of entities that are prepared to be persisted
-     * @var Model\Entity[]
+     * array(
+     *  array(
+     *      'entity'    => $entity,
+     *      'options'   => array of entity options
+     *  ),
+     *  ...
+     * )
+     * @var array
      */
     protected $saveEntities         = array();
 
@@ -300,7 +307,7 @@ class Repository implements RepositoryInterface
      * @param string $path
      * @return \Vivo\CMS\Model\Entity|null
      */
-    protected function getEntityFromStorage($path)
+    public function getEntityFromStorage($path)
     {
         $pathComponents = array($path, self::ENTITY_FILENAME);
         $fullPath       = $this->pathBuilder->buildStoragePath($pathComponents, true);
@@ -425,10 +432,11 @@ class Repository implements RepositoryInterface
      * Saves entity state to repository.
      * Changes become persistent when commit method is called within request.
      * @param \Vivo\CMS\Model\Entity $entity Entity to save
+     * @param array $options Entity options
      * @throws Exception\Exception
      * @return \Vivo\CMS\Model\Entity
      */
-	public function saveEntity(Model\Entity $entity)
+	public function saveEntity(Model\Entity $entity, array $options = array())
 	{
         $entityPath = $entity->getPath();
 		if (!$entityPath) {
@@ -445,7 +453,7 @@ class Repository implements RepositoryInterface
 					? $entityPath{$i} : '-';
 		}
 		$entity->setPath($path);
-        $this->saveEntities[$path]  = $entity;
+        $this->saveEntities[$path]  = array('entity' => $entity, 'options' => $options);
         return $entity;
 	}
 
@@ -634,61 +642,10 @@ class Repository implements RepositoryInterface
     }
 
     /**
-     * Reindex all entities (contents and children) saved under entity
-     * First commits any uncommitted changes in the repository
-     * Returns number of reindexed items
-     * @param string $path Path to entity
-     * @param bool $deep If true reindexes whole subtree
-     * @throws \Exception
-     * @return int
-     */
-    public function reindex($path, $deep = false)
-	{
-        //The reindexing may not rely on the indexer in any way! Presume the indexer data is corrupt.
-        $this->commit();
-        $this->indexer->begin();
-        try {
-            if ($deep) {
-                $delQuery   = $this->indexerHelper->buildTreeQuery($path);
-            } else {
-                $delQuery   = $this->queryBuilder->cond(sprintf('\path:%s', $path));
-            }
-            $this->indexer->delete($delQuery);
-            $count      = 0;
-            $entity     = $this->getEntityFromStorage($path);
-            if ($entity) {
-                $idxDoc     = $this->indexerHelper->createDocument($entity);
-                $this->indexer->addDocument($idxDoc);
-                $count      = 1;
-                //TODO - reindex entity Contents
-        //		if ($entity instanceof Vivo\CMS\Model\Document) {
-        //            /* @var $entity \Vivo\CMS\Model\Document */
-        //			for ($index = 1; $index <= $entity->getContentCount(); $index++)
-        //				foreach ($entity->getContents($index) as $content)
-        //					$count += $this->reindex($content, true);
-        //		}
-                if ($deep) {
-                    $descendants    = $this->getDescendantsFromStorage($path);
-                    foreach ($descendants as $descendant) {
-                        $idxDoc     = $this->indexerHelper->createDocument($descendant);
-                        $this->indexer->addDocument($idxDoc);
-                        $count++;
-                    }
-                }
-            }
-            $this->indexer->commit();
-        } catch (\Exception $e) {
-            $this->indexer->rollback();
-            throw $e;
-        }
-		return $count;
-	}
-
-    /**
      * @param string $path
      * @return Model\Entity[]
      */
-    protected function getDescendantsFromStorage($path)
+    public function getDescendantsFromStorage($path)
     {
         /** @var $descendants Model\Entity[] */
         $descendants    = array();
@@ -747,7 +704,10 @@ class Repository implements RepositoryInterface
             //Save - Phase 1 (serialize entities and files into temp files)
             //a) Entity
             $now = new \DateTime();
-            foreach ($this->saveEntities as $entity) {
+            foreach ($this->saveEntities as $entitySpec) {
+                /** @var $entity Model\Entity */
+                $entity         = $entitySpec['entity'];
+                $entityOptions  = $entitySpec['options'];
                 if (!$entity->getCreated() instanceof \DateTime) {
                     $entity->setCreated($now);
                 }
@@ -810,8 +770,11 @@ class Repository implements RepositoryInterface
                 $this->indexer->delete($delQuery);
  			}
             //Save entities to Watcher, Cache and Indexer, update cached results in UuidConverter
- 			foreach ($this->saveEntities as $entity) {
-                //Watcher
+ 			foreach ($this->saveEntities as $entitySpec) {
+                 /** @var $entity Model\Entity */
+                 $entity         = $entitySpec['entity'];
+                 $entityOptions  = $entitySpec['options'];
+                 //Watcher
                 $this->watcher->add($entity);
                 //Cache
                 if ($this->cache) {
@@ -820,7 +783,7 @@ class Repository implements RepositoryInterface
                 //Indexer - remove old doc & insert new one
                 $entityTerm = $this->indexerHelper->buildEntityTerm($entity);
                 $delQuery   = new TermQuery($entityTerm);
-                $entityDoc  = $this->indexerHelper->createDocument($entity);
+                $entityDoc  = $this->indexerHelper->createDocument($entity, $entityOptions);
                 $this->indexer->delete($delQuery);
                 $this->indexer->addDocument($entityDoc);
                 //UuidConvertor

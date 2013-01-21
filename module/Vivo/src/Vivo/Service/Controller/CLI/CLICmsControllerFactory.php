@@ -6,9 +6,9 @@ use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 /**
- * Factory for CLI\Repository controller.
+ * Factory for CLI\Cms controller.
  */
-class CLIRepositoryControllerFactory implements FactoryInterface
+class CLICmsControllerFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -18,8 +18,9 @@ class CLIRepositoryControllerFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $sm             = $serviceLocator->getServiceLocator();
-        $apiRepository  = $sm->get('cms_api_repository');
-        $controller     = new \Vivo\Controller\CLI\RepositoryController($apiRepository);
+        $cms            = $sm->get('cms');
+        $siteEvent      = $sm->get('site_event');
+        $controller     = new \Vivo\Controller\CLI\CmsController($cms, $siteEvent);
         return $controller;
     }
 }

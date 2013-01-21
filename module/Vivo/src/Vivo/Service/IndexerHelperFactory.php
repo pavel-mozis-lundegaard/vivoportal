@@ -19,8 +19,7 @@ class IndexerHelperFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $indexerFieldHelper = $serviceLocator->get('indexer_field_helper');
-        $cms                = $serviceLocator->get('cms');
-        $indexerHelper      = new \Vivo\Repository\IndexerHelper($indexerFieldHelper, $cms);
+        $indexerHelper      = new \Vivo\Repository\IndexerHelper($indexerFieldHelper);
         return $indexerHelper;
     }
 }

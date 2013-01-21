@@ -150,6 +150,7 @@ return array(
             'resource_front_controller' => 'Vivo\Service\Controller\ResourceFrontControllerFactory',
             'cli_module'                => 'Vivo\Service\Controller\CLI\CLIModuleControllerFactory',
             'cli_repository'            => 'Vivo\Service\Controller\CLI\CLIRepositoryControllerFactory',
+            'cli_cms'                   => 'Vivo\Service\Controller\CLI\CLICmsControllerFactory',
             'cli_indexer'               => 'Vivo\Service\Controller\CLI\CLIIndexerControllerFactory',
         ),
     ),
@@ -487,20 +488,20 @@ return array(
                         ),
                     ),
                 ),
-                'repository_reindex' => array(
+                'cms_reindex' => array(
                     'options' => array(
-                        'route'    => 'repository reindex <host> <path>',
+                        'route'    => 'cms reindex <host> <path>',
                         'defaults' => array(
-                            'controller' => 'cli_repository',
+                            'controller' => 'cli_cms',
                             'action'     => 'reindex',
                         ),
                     ),
                 ),
-                'repository_help' => array(
+                'cms_help' => array(
                     'options' => array(
-                        'route'    => 'repository help',
+                        'route'    => 'cms help',
                         'defaults' => array(
-                            'controller' => 'cli_repository',
+                            'controller' => 'cli_cms',
                             'action'     => 'help',
                         ),
                     ),

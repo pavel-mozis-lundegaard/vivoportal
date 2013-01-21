@@ -56,15 +56,6 @@ interface RepositoryInterface extends TransactionalInterface {
 	public function getChildren(Model\Entity $entity, $className = false, $deep = false);
 
     /**
-     * Reindex all entities (contents and children) saved under entity
-     * Returns number of reindexed items
-     * @param string $path Path to entity
-     * @param bool $deep If true reindexes whole subtree
-     * @return int
-     */
-    public function reindex($path, $deep = false);
-
-    /**
      * Schedules resource for deletion from storage
      * @param \Vivo\CMS\Model\Entity $entity
      * @param string $name

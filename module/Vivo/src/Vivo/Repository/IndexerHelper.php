@@ -28,45 +28,34 @@ class IndexerHelper
      */
     protected $indexerFieldHelper;
 
-    /**
-     * CMS Api
-     * @var CMS
-     */
-    protected $cms;
 
     /**
      * Constructor
      * @param \Vivo\Indexer\FieldHelperInterface $indexerFieldHelper
-     * @param \Vivo\CMS\Api\CMS $cms
      */
-    public function __construct(IndexerFieldHelper $indexerFieldHelper, CMS $cms)
+    public function __construct(IndexerFieldHelper $indexerFieldHelper)
     {
         $this->indexerFieldHelper   = $indexerFieldHelper;
-        $this->cms                  = $cms;
     }
 
     /**
      * Creates an indexer document for the submitted entity
      * @param \Vivo\CMS\Model\Entity $entity
+     * @param mixed|null $options Various options required to index the entity
      * @throws Exception\MethodNotFoundException
      * @return \Vivo\Indexer\Document
      */
-    public function createDocument(Entity $entity)
+    public function createDocument(Entity $entity, array $options = array())
     {
         $doc            = new Document();
         $entityClass    = get_class($entity);
         //Fields added by default
         //Published content types
         if ($entity instanceof DocumentModel) {
-            $publishedContents  = $this->cms->getPublishedContents($entity);
-            if (count($publishedContents) > 0) {
+            if (array_key_exists('published_content_types', $options)
+                && is_array($options['published_content_types'])) {
                 //There are some published contents
-                $publishedContentTypes  = array();
-                /** @var $publishedContent Content */
-                foreach ($publishedContents as $publishedContent) {
-                    $publishedContentTypes[]    = get_class($publishedContent);
-                }
-                $field  = new Field('\publishedContents', $publishedContentTypes);
+                $field  = new Field('\publishedContents', $options['published_content_types']);
                 $doc->addField($field);
             }
         }

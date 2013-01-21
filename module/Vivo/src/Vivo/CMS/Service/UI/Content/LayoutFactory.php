@@ -1,10 +1,12 @@
 <?php
-namespace Vivo\Service\UI;
+namespace Vivo\CMS\Service\UI\Content;
+
+use Vivo\CMS\UI\Content\Layout;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
 
-class PageFactory implements FactoryInterface
+class LayoutFactory implements FactoryInterface
 {
     /**
      * Create UI Page object.
@@ -14,9 +16,7 @@ class PageFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $config = $serviceLocator->get('cms_config');
-        $page = new \Vivo\UI\Page($serviceLocator->get('response'),
-                $config['ui']['Vivo\UI\Page']);
-        return $page;
+        $layout = new Layout($serviceLocator->get('Vivo\CMS\Api\CMS'));
+        return $layout;
     }
 }

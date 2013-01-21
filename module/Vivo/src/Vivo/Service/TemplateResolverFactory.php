@@ -16,10 +16,10 @@ class TemplateResolverFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $config = $serviceLocator->get('config');
+        $config = $serviceLocator->get('cms_config');
         return new \Vivo\View\Resolver\TemplateResolver(
                 $serviceLocator->get('module_resource_manager'),
                 new \Vivo\Util\Path\PathParser(),
-                $config['vivo']['templates']);
+                $config['templates']);
     }
 }

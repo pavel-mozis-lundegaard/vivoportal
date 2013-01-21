@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Main CMS config, can be split into topic related files in future
  */
@@ -88,7 +87,6 @@ return array(
         'factories' => array(
             'translator'                => 'Zend\I18n\Translator\TranslatorServiceFactory',
             'response'                  => 'Vivo\Service\ResponseFactory',
-//            'dependencyinjector'        => 'Vivo\Service\DiFactory',
             'db_service_manager'        => 'Vivo\Service\DbServiceManagerFactory',
             'uuid_convertor'            => 'Vivo\Service\UuidConvertorFactory',
             'module_storage'            => 'Vivo\Service\ModuleStorageFactory',
@@ -124,6 +122,8 @@ return array(
             'logger'                    => 'Vivo\Service\LoggerFactory',
             'default_log'               => 'Vivo\Service\LogFileWriterFactory',
             'template_resolver'         => 'Vivo\Service\TemplateResolverFActory',
+            'di_proxy'                  => 'Vivo\Service\DiProxyFactory',
+
         ),
         'aliases' => array(
                 'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -132,8 +132,7 @@ return array(
                 'Zend\Http\Request'                 => 'request',
                 'Zend\View\HelperPluginManager'     => 'view_helper_manager',
                 'Vivo\Util\Redirector'              => 'redirector',
-//                'Zend\View\Model\ModelInterface'    => 'view_model',
-//                'Zend\View\Model\ViewModel'         => 'view_model',
+                'Zend\View\Model\ViewModel'         => 'view_model',
         ),
         'shared' => array(
             'view_model' => false,
@@ -335,22 +334,34 @@ return array(
             ),
         ),
         'service_manager' => array (
-        //configuration of modules service manager
+        //configuration of service manager
+            'invokables' => array (
+                    'Vivo\CMS\UI\Root'             => 'Vivo\CMS\UI\Root',
+                    'Vivo\UI\ComponentContainer'   => 'Vivo\UI\ComponentContainer',
+            ),
             'factories' => array (
-                'Vivo\UI\Page' => 'Vivo\Service\UI\PageFactory',
+                    'Vivo\CMS\UI\Content\File'     => 'Vivo\CMS\Service\UI\Content\FileFactory',
+                    'Vivo\CMS\UI\Content\Hyperlink'=> 'Vivo\CMS\Service\UI\Content\HyperlinkFactory',
+                    'Vivo\CMS\UI\Content\Layout'   => 'Vivo\CMS\Service\UI\Content\LayoutFactory',
+                    'Vivo\CMS\UI\Content\Overview' => 'Vivo\CMS\Service\UI\Content\OverviewFactory',
+                    'Vivo\UI\Page'                 => 'Vivo\Service\UI\PageFactory',
+            ),
+            'aliases' => array(
+            ),
+            'shared' => array(
+            ),
+            'initializers' => array(
             ),
         ),
         'di' => array (
             'instance' => array (
                 'alias' => array (
-                    'view_model' => 'Zend\View\Model\ViewModel',
-                ),
-                'view_model' => array (
-                    'shared' => false, //new viewModel for each UI/component
-                ),
+                 ),
                 'Vivo\UI\Component' => array (
+                    'injection' => array (
+                     ),
                     'parameters' => array (
-                        'view' => 'view_model',
+                        'view' => 'Zend\View\Model\ViewModel',
                     ),
                 ),
             ),

@@ -593,22 +593,7 @@ class CMS
             $this->indexer->delete($delQuery);
             $count      = 0;
             $entity     = $this->repository->getEntityFromStorage($path);
-
-
-            $uuids  = array();
-
-
-
             if ($entity) {
-
-
-
-                if (!isset($uuids[$entity->getUuid()])) {
-                    $uuids[$entity->getUuid()]  = array();
-                }
-                $uuids[$entity->getUuid()][]    = $entity->getPath();
-
-
                 if ($entity instanceof Model\Document) {
                     $publishedContentTypes  = $this->getPublishedContentTypes($entity);
                 } else {
@@ -628,16 +613,6 @@ class CMS
                 if ($deep) {
                     $descendants    = $this->repository->getDescendantsFromStorage($path);
                     foreach ($descendants as $descendant) {
-
-
-
-                        if (!isset($uuids[$descendant->getUuid()])) {
-                            $uuids[$descendant->getUuid()]  = array();
-                        }
-                        $uuids[$descendant->getUuid()][]    = $descendant->getPath();
-
-
-
                         if ($descendant instanceof Model\Document) {
                             $publishedContentTypes  = $this->getPublishedContentTypes($descendant);
                         } else {
@@ -650,17 +625,6 @@ class CMS
                     }
                 }
             }
-
-
-            foreach ($uuids as $uuid => $paths) {
-                if (count($paths) > 1) {
-                    echo '<br>' . $uuid;
-                    \Zend\Debug\Debug::dump($paths);
-                }
-            }
-
-
-
             $this->indexer->commit();
         } catch (\Exception $e) {
             $this->indexer->rollback();

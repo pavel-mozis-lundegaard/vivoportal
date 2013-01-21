@@ -490,7 +490,7 @@ return array(
                 ),
                 'cms_reindex' => array(
                     'options' => array(
-                        'route'    => 'cms reindex <host> <path>',
+                        'route'    => 'cms reindex <host>',
                         'defaults' => array(
                             'controller' => 'cli_cms',
                             'action'     => 'reindex',
@@ -502,6 +502,33 @@ return array(
                         'route'    => 'cms help',
                         'defaults' => array(
                             'controller' => 'cli_cms',
+                            'action'     => 'help',
+                        ),
+                    ),
+                ),
+                'repository_duplicate_uuids' => array(
+                    'options' => array(
+                        'route'    => 'repository duplicateuuids <host>',
+                        'defaults' => array(
+                            'controller' => 'cli_repository',
+                            'action'     => 'getDuplicateUuids',
+                        ),
+                    ),
+                ),
+                'repository_make_uuids_unique' => array(
+                    'options' => array(
+                        'route'    => 'repository uniqueuuids <host>',
+                        'defaults' => array(
+                            'controller' => 'cli_repository',
+                            'action'     => 'makeUuidsUnique',
+                        ),
+                    ),
+                ),
+                'repository_help' => array(
+                    'options' => array(
+                        'route'    => 'repository help',
+                        'defaults' => array(
+                            'controller' => 'cli_repository',
                             'action'     => 'help',
                         ),
                     ),

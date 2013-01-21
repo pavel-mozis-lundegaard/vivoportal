@@ -900,4 +900,39 @@ class Repository implements RepositoryInterface
         );
         return $result;
     }
+
+    /**
+     * Returns an array of duplicate uuids
+     * array(
+     *  'uuid1' => array(
+     *      'path1',
+     *      'path2',
+     *  ),
+     *  'uuid2' => array(
+     *      'path3',
+     *      'path4',
+     *  ),
+     * )
+     * @param string $path
+     * @return array
+     */
+    public function getDuplicateUuids($path)
+    {
+        $uuids          = array();
+        $descendants    = $this->getDescendantsFromStorage($path);
+        /** @var $descendant Model\Entity */
+        foreach ($descendants as $descendant) {
+            $uuid   = $descendant->getUuid();
+            if (!array_key_exists($uuid, $uuids)) {
+                $uuids[$uuid]   = array();
+            }
+            $uuids[$uuid][]  = $descendant->getPath();
+        }
+        foreach ($uuids as $uuid => $paths) {
+            if (count($paths) == 1) {
+                unset($uuids[$uuid]);
+            }
+        }
+        return $uuids;
+    }
 }

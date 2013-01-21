@@ -45,12 +45,12 @@ class CmsController extends AbstractCliController
         $request    = $this->getRequest();
         /* @var $request \Zend\Console\Request */
         $host   = $request->getParam('host');
-        $path   = $request->getParam('path');
         if (!$this->siteEvent->getSite()) {
-            $output = sprintf("No site object created; host = '%s', path = '%s'", $host, $path);
+            $output = sprintf("No site object created; host = '%s'", $host);
             return $output;
         }
-
+        $site   = $this->siteEvent->getSite();
+        $path   = $site->getPath();
         $numIndexed = $this->cms->reindex($path, true);
         $output = sprintf("%s items reindexed", $numIndexed);
         return $output;
@@ -58,7 +58,7 @@ class CmsController extends AbstractCliController
 
     public function helpAction()
     {
-        $output = 'cms reindex <host> <full_path>';
+        $output = 'cms reindex <host>';
         return $output;
     }
 }

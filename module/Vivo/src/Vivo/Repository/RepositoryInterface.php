@@ -112,4 +112,21 @@ interface RepositoryInterface extends TransactionalInterface {
      * @return bool
      */
 	public function hasChildren(Model\Folder $folder);
+
+    /**
+     * Returns an array of duplicate uuids
+     * array(
+     *  'uuid1' => array(
+     *      'path1',
+     *      'path2',
+     *  ),
+     *  'uuid2' => array(
+     *      'path3',
+     *      'path4',
+     *  ),
+     * )
+     * @param string $path
+     * @return array
+     */
+    public function getDuplicateUuids($path);
 }

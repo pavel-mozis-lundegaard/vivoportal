@@ -14,7 +14,7 @@ abstract class AbstractForm extends Component
     /**
      * @var ZfForm
      */
-    protected $form;
+    private $form;
 
     /**
      * @var Request
@@ -28,13 +28,16 @@ abstract class AbstractForm extends Component
     protected $dataLoaded   = false;
 
     /**
-     * Constructor
-     * @param Request $request
+     * Get ZF form
+     * @return ZfForm
      */
-    public function __construct(Request $request)
+    protected function getForm()
     {
-        $this->request  = $request;
-        $this->form     = $this->createForm();
+        if($this->form == null) {
+            $this->form = $this->doGetForm();
+        }
+
+        return $this->form;
     }
 
     /**
@@ -42,7 +45,7 @@ abstract class AbstractForm extends Component
      * Factory method
      * @return ZfForm
      */
-    abstract protected function createForm();
+    abstract protected function doGetForm();
 
     /**
      * Loads data into the form from the HTTP request
@@ -55,7 +58,7 @@ abstract class AbstractForm extends Component
         }
         $data   = $this->request->getQuery()->toArray();
         $data   = array_merge($data, $this->request->getPost()->toArray());
-        $this->form->setData($data);
+        $this->getForm()->setData($data);
         $this->dataLoaded   = true;
     }
 
@@ -68,23 +71,24 @@ abstract class AbstractForm extends Component
      */
     public function isFieldValid($fieldName, array &$messages)
     {
+        $form = $this->getForm();
         $fieldSpec  = $this->getFieldSpecFromArrayNotation($fieldName);
-        $this->form->setValidationGroup($fieldSpec);
+        $form->setValidationGroup($fieldSpec);
         $this->loadFromRequest();
         //Store the current bind on validate flag setting and set it to manual
-        $bindOnValidateFlag = $this->form->bindOnValidate();
-        $this->form->setBindOnValidate(FormInterface::BIND_MANUAL);
+        $bindOnValidateFlag = $form->bindOnValidate();
+        $form->setBindOnValidate(FormInterface::BIND_MANUAL);
         //Validate the field
-        $valid  = $this->form->isValid();
+        $valid  = $form->isValid();
         //Restore the original bind on validate setting
-        $this->form->setBindOnValidate($bindOnValidateFlag);
+        $form->setBindOnValidate($bindOnValidateFlag);
         if (!$valid) {
-            $formMessages   = $this->form->getMessages();
+            $formMessages   = $form->getMessages();
             $fieldMessages  = $this->getFieldMessages($formMessages, $fieldName);
             $messages   = array_merge($messages, $fieldMessages);
         }
         //Reset the validation group to whole form
-        $this->form->setValidationGroup(FormInterface::VALIDATE_ALL);
+        $form->setValidationGroup(FormInterface::VALIDATE_ALL);
         return $valid;
     }
 

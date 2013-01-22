@@ -20,6 +20,7 @@ use Vivo\Repository\IndexerHelper;
 use Vivo\Indexer\Query\QueryInterface;
 use Vivo\Indexer\Query\Term as TermQuery;
 use Vivo\Indexer\Query\Parser\ParserInterface as QueryParser;
+use Vivo\Indexer\QueryParams;
 
 use Zend\Serializer\Adapter\AdapterInterface as Serializer;
 use Zend\Cache\Storage\StorageInterface as Cache;
@@ -255,15 +256,16 @@ class Repository implements RepositoryInterface
     /**
      * Returns array of entities returned by the specified indexer query
      * @param QueryInterface|string $spec
+     * @param QueryParams|array|null $queryParams Either a QueryParams object or an array specifying the params
      * @return Model\Entity[]
      */
-    public function getEntities($spec)
+    public function getEntities($spec, $queryParams = null)
     {
         if (is_string($spec)) {
             //Parse string query to Query object
             $spec   = $this->queryParser->stringToQuery($spec);
         }
-        $result     = $this->indexer->find($spec);
+        $result     = $this->indexer->find($spec, $queryParams);
         $hits       = $result->getHits();
         $entities   = array();
         /** @var $hit \Vivo\Indexer\QueryHit */
@@ -922,6 +924,10 @@ class Repository implements RepositoryInterface
     {
         $uuids          = array();
         $descendants    = $this->getDescendantsFromStorage($path);
+        $me             = $this->getEntityFromStorage($path);
+        if ($me) {
+            $descendants[]  = $me;
+        }
         /** @var $descendant Model\Entity */
         foreach ($descendants as $descendant) {
             $uuid   = $descendant->getUuid();

@@ -555,6 +555,15 @@ return array(
                         ),
                     ),
                 ),
+                'repository_unique_uuids' => array(
+                    'options' => array(
+                        'route'    => 'repository uniqueuuids <host> [--force|-f]',
+                        'defaults' => array(
+                            'controller' => 'cli_repository',
+                            'action'     => 'unique-uuids',
+                        ),
+                    ),
+                ),
             ),
         ),
     ),

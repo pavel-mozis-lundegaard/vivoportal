@@ -85,15 +85,15 @@ class Solr implements AdapterInterface
      * @var array
      */
     protected $supportedTypeSuffices    = array(
-        '_s-i',     //string, indexed
-        '_s-im',    //string, indexed, multi-value
-        '_s-s',     //string, stored
-        '_s-sm',    //string, stored, multi-value
-        '_s-is',    //string, indexed, multi-value
-        '_s-ist',   //string, indexed, stored, tokenized
-        '_s-ism',   //string, indexed, stored, multi-value
-        '_dt-i',    //date, indexed
-        '_dt-is'    //date, indexed, stored
+        '_si',     //string, indexed
+        '_sim',    //string, indexed, multi-value
+        '_ss',     //string, stored
+        '_ssm',    //string, stored, multi-value
+        '_sis',    //string, indexed, multi-value
+        '_sist',   //string, indexed, stored, tokenized
+        '_sism',   //string, indexed, stored, multi-value
+        '_dti',    //date, indexed
+        '_dtis'    //date, indexed, stored
     );
 
     /**
@@ -143,6 +143,28 @@ class Solr implements AdapterInterface
         }
         $solrQuery  = $this->buildSolrQuery($query);
         $solrParams = array('fl' => '*,score');
+        //Sorting
+        $sortConds  = $queryParams->getSort();
+        if (count($sortConds) > 0) {
+            //Sorting is specified
+            foreach ($sortConds as &$sortCond) {
+                //Replace field name with Solr field name
+                $words  =  explode(' ', $sortCond);
+                $last   = strtolower(array_pop($words));
+                if ($last == 'asc' || $last == 'desc') {
+                    //Direction specified
+                    $fieldName  = implode(' ', $words);
+                } else {
+                    //Direction not specified
+                    $last       = 'asc';
+                    $fieldName  = $sortCond;
+                }
+                $solrFieldName  = $this->getSolrFieldName($fieldName);
+                $sortCond       = $solrFieldName . ' ' . $last;
+            }
+            $sort   = implode(', ', $sortConds);
+            $solrParams['sort'] = $sort;
+        }
         $solrResult = $this->solrService->search($solrQuery,
                                                  $queryParams->getStartOffset(),
                                                  $queryParams->getPageSize(),
@@ -301,21 +323,23 @@ class Solr implements AdapterInterface
             //Term query
             /* @var $query Query\TermInterface */
             $term           = $query->getTerm();
+            $escaped        = $this->solrService->escapePhrase($term->getText());
             if ($term->getField()) {
                 $solrField      = $this->getSolrFieldName($term->getField());
-                $solrQuery      = sprintf('%s:"%s"', $solrField, $term->getText());
+                $solrQuery      = sprintf('%s:"%s"', $solrField, $escaped);
             } else {
-                $solrQuery      = sprintf('"%s"', $term->getText());
+                $solrQuery      = sprintf('"%s"', $escaped);
             }
         } elseif ($query instanceof Query\WildcardInterface) {
             //Wildcard query
             /* @var $query Query\WildcardInterface */
             $pattern        = $query->getPattern();
+            $escaped        = $this->solrService->escapePhrase($pattern->getText());
             if ($pattern->getField()) {
                 $solrField      = $this->getSolrFieldName($pattern->getField());
-                $solrQuery      = sprintf('%s:%s', $solrField, $pattern->getText());
+                $solrQuery      = sprintf('%s:%s', $solrField, $escaped);
             } else {
-                $solrQuery      = sprintf('%s', $pattern->getText());
+                $solrQuery      = sprintf('%s', $escaped);
             }
         } elseif ($query instanceof Query\BooleanAnd) {
             //Boolean AND query
@@ -508,7 +532,6 @@ class Solr implements AdapterInterface
                     sprintf("%s: Vivo field type '%s' not supported by Solr adapter.", __METHOD__, $vivoType));
                 break;
         }
-        $typeSuffix     .= '-';
         //Indexed
         if ($indexerConfig['indexed']) {
             $typeSuffix   .= 'i';

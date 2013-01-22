@@ -346,6 +346,7 @@ return array(
                     'Vivo\CMS\UI\Content\Hyperlink'=> 'Vivo\CMS\Service\UI\Content\HyperlinkFactory',
                     'Vivo\CMS\UI\Content\Layout'   => 'Vivo\CMS\Service\UI\Content\LayoutFactory',
                     'Vivo\CMS\UI\Content\Overview' => 'Vivo\CMS\Service\UI\Content\OverviewFactory',
+                    'Vivo\CMS\UI\Content\Logon'    => 'Vivo\CMS\Service\UI\Content\LogonFactory',
                     'Vivo\UI\Page'                 => 'Vivo\Service\UI\PageFactory',
 
                     'security_manager'          => 'Vivo\Service\SecurityManagerFactory',

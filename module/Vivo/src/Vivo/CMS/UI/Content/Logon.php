@@ -3,6 +3,7 @@ namespace Vivo\CMS\UI\Content;
 
 use Vivo\CMS\UI\AbstractForm;
 use Vivo\Form\Logon as ZfFormLogon;
+use Vivo\Security\Manager as SecurityManager;
 
 use Zend\Form\Form as ZfForm;
 
@@ -12,11 +13,29 @@ use Zend\Form\Form as ZfForm;
  */
 class Logon extends AbstractForm
 {
+    /**
+     * Security Manager
+     * @var SecurityManager
+     */
+    protected $securityManager;
+
+    /**
+     * Constructor
+     * @param \Vivo\Security\Manager $securityManager
+     */
+    public function __construct(SecurityManager $securityManager, $request)
+    {
+        $this->securityManager  = $securityManager;
+        //TODO - remove $request from constructor when RequestAware interface is available
+        $this->request          = $request;
+    }
+
     public function init()
     {
+        $form   = $this->getForm();
         //Prepare the form
-        $this->form->prepare();
-        $this->view->form   = $this->form;
+        $form->prepare();
+        $this->view->form   = $form;
     }
 
     /**
@@ -24,9 +43,10 @@ class Logon extends AbstractForm
      */
     public function submit() {
         $this->loadFromRequest();
-        if ($this->form->isValid()) {
+        $form   = $this->getForm();
+        if ($form->isValid()) {
             //Form is valid
-            $validatedData  = $this->form->getData();
+            $validatedData  = $form->getData();
             //TODO - Log the user in and redirect
             die (sprintf("Login not implemented. (Username = '%s', Password = '%s')",
                          $validatedData['logon']['username'], $validatedData['logon']['password']));
@@ -38,7 +58,7 @@ class Logon extends AbstractForm
      * Factory method
      * @return ZfForm
      */
-    protected function createForm()
+    protected function doGetForm()
     {
         $form   = new ZfFormLogon();
         //Set form name if needed

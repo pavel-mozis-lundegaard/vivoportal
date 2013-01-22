@@ -18,7 +18,11 @@ class LogonFactory implements FactoryInterface
     {
         $securityManager    = $serviceLocator->get('security_manager');
         $request            = $serviceLocator->get('request');
-        $logon  = new \Vivo\CMS\UI\Content\Logon($securityManager, $request);
+        $redirector         = $serviceLocator->get('redirector');
+        /** @var $siteEvent \Vivo\SiteManager\Event\SiteEventInterface */
+        $siteEvent          = $serviceLocator->get('site_event');
+        $securityDomain     = $siteEvent->getSite()->getDomain();
+        $logon  = new \Vivo\CMS\UI\Content\Logon($securityManager, $securityDomain, $redirector,  $request);
         return $logon;
     }
 }

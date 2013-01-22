@@ -4,6 +4,7 @@ namespace Vivo\CMS\UI\Content;
 use Vivo\CMS\UI\AbstractForm;
 use Vivo\Form\Logon as ZfFormLogon;
 use Vivo\Security\Manager as SecurityManager;
+use Vivo\Util\Redirector;
 
 use Zend\Form\Form as ZfForm;
 
@@ -20,12 +21,28 @@ class Logon extends AbstractForm
     protected $securityManager;
 
     /**
+     * Security domain
+     * @var string
+     */
+    protected $securityDomain;
+
+    /**
+     * Redirector
+     * @var Redirector
+     */
+    protected $redirector;
+
+    /**
      * Constructor
      * @param \Vivo\Security\Manager $securityManager
+     * @param $securityDomain
+     * @param \Vivo\Util\Redirector $redirector
      */
-    public function __construct(SecurityManager $securityManager, $request)
+    public function __construct(SecurityManager $securityManager, $securityDomain, Redirector $redirector, $request)
     {
         $this->securityManager  = $securityManager;
+        $this->securityDomain   = $securityDomain;
+        $this->redirector       = $redirector;
         //TODO - remove $request from constructor when RequestAware interface is available
         $this->request          = $request;
     }
@@ -47,9 +64,17 @@ class Logon extends AbstractForm
         if ($form->isValid()) {
             //Form is valid
             $validatedData  = $form->getData();
-            //TODO - Log the user in and redirect
-            die (sprintf("Login not implemented. (Username = '%s', Password = '%s')",
-                         $validatedData['logon']['username'], $validatedData['logon']['password']));
+//            $result = $this->securityManager->authenticate($this->securityDomain,
+//                                                           $validatedData['logon']['username'],
+//                                                           $validatedData['logon']['password']);
+            $result = true;
+            if ($result) {
+                //Authentication successful
+                $this->redirector->redirect();
+            } else {
+                //Authentication failed
+                $this->redirector->redirect();
+            }
         }
     }
 

@@ -92,12 +92,13 @@ class LoadModulesListener implements ListenerAggregateInterface
         $siteConfig = ArrayUtils::merge($modulesConfig, $siteConfig);
         $e->setSiteConfig($siteConfig);
         //Merge site config into the main config's 'vivo' namespace
+        //TODO rename Vivoconfig na CMS config
         $mainConfig = $this->serviceManager->get('config');
         $vivoConfig = $mainConfig['vivo'];
         $vivoConfig = ArrayUtils::merge($vivoConfig, $siteConfig);
         $mainConfig['vivo'] = $vivoConfig;
         $this->serviceManager->setService('config', $mainConfig);
-
+        $this->serviceManager->setService('cms_config', $vivoConfig);
         //Prepare Vivo service manager
         $this->initializeVivoServiceManager($vivoConfig);
 
@@ -109,12 +110,11 @@ class LoadModulesListener implements ListenerAggregateInterface
      */
     protected function initializeVivoServiceManager(array $vivoConfig)
     {
-        $vsmConfig  = new SmConfig($vivoConfig['service_manager']);
-        $vsm        = new ServiceManager($vsmConfig);
-        $vsm->addPeeringServiceManager($this->serviceManager);
-        $di         = $this->serviceManager->get('di');
+        //disable overriding - modules & sites are not supposed to override existing services
+        $this->serviceManager->setAllowOverride(false);
+        $smConfig = new SmConfig($vivoConfig['service_manager']);
+        $di = $this->serviceManager->get('di');
         $di->configure(new DiConfig($vivoConfig['di']));
-        $vsm->setFactory('di_proxy', 'Vivo\Service\DiProxyFactory');
-        $this->serviceManager->setService('vivo_service_manager', $vsm);
+        $smConfig->configureServiceManager($this->serviceManager);
     }
 }

@@ -91,16 +91,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
 
     public function getServiceConfig()
     {
-        return array(
-            'factories' => array(
-                'vivo_service_manager' => function (ServiceManager $sm) {
-                    //TODO - this exception is caught!
-                    throw new Exception\ServiceNotAvailableException(
-                        sprintf('%s: Vivo service manager is not available until site and modules are loaded.',
-                        __METHOD__));
-                },
-            ),
-        );
+        return array();
     }
 
     public function getConsoleBanner(Console $console)

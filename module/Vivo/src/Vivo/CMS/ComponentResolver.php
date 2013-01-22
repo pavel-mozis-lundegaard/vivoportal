@@ -21,8 +21,8 @@ class ComponentResolver
      */
     public function __construct($config = array())
     {
-        if (isset($config['vivo']['component_mapping'])) {
-            $this->mappings = $config['vivo']['component_mapping'];
+        if (isset($config['component_mapping'])) {
+            $this->mappings = $config['component_mapping'];
         }
     }
 

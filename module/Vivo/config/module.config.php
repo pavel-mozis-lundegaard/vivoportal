@@ -129,6 +129,7 @@ return array(
                 'Zend\Http\Response'                => 'response',
                 'Zend\View\HelperPluginManager'     => 'view_helper_manager',
                 'Vivo\Util\Redirector'              => 'redirector',
+                'Vivo\CMS\Api\CMS'                  => 'cms',
         ),
     ),
     'translator' => array(

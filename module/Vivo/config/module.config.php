@@ -83,6 +83,7 @@ return array(
             'indexer_query_builder'     => 'Vivo\Indexer\QueryBuilder',
             'indexer_document_builder'  => 'Vivo\Indexer\DocumentBuilder',
             'view_model'                => 'Zend\View\Model\ViewModel',
+            'session_manager'           => 'Zend\Session\SessionManager',
         ),
         'factories' => array(
             'translator'                => 'Zend\I18n\Translator\TranslatorServiceFactory',
@@ -123,7 +124,6 @@ return array(
             'default_log'               => 'Vivo\Service\LogFileWriterFactory',
             'template_resolver'         => 'Vivo\Service\TemplateResolverFActory',
             'di_proxy'                  => 'Vivo\Service\DiProxyFactory',
-
         ),
         'aliases' => array(
                 'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -347,6 +347,8 @@ return array(
                     'Vivo\CMS\UI\Content\Layout'   => 'Vivo\CMS\Service\UI\Content\LayoutFactory',
                     'Vivo\CMS\UI\Content\Overview' => 'Vivo\CMS\Service\UI\Content\OverviewFactory',
                     'Vivo\UI\Page'                 => 'Vivo\Service\UI\PageFactory',
+
+                    'security_manager'          => 'Vivo\Service\SecurityManagerFactory',
             ),
             'aliases' => array(
             ),

@@ -7,6 +7,8 @@ use Vivo\CMS\Exception;
 use Vivo\Repository\Repository;
 use Vivo\Indexer\Query\QueryInterface;
 use Vivo\Indexer\QueryBuilder;
+use Vivo\Indexer\IndexerInterface;
+use Vivo\Repository\IndexerHelper;
 
 use Zend\Config;
 
@@ -22,6 +24,18 @@ class CMS
     private $repository;
 
     /**
+     * Indexer
+     * @var IndexerInterface
+     */
+    protected $indexer;
+
+    /**
+     * Indexer Helper
+     * @var IndexerHelper
+     */
+    protected $indexerHelper;
+
+    /**
      * Query Builder
      * @var QueryBuilder
      */
@@ -30,12 +44,17 @@ class CMS
     /**
      * Constructor
      * @param \Vivo\Repository\Repository $repository
+     * @param \Vivo\Indexer\IndexerInterface $indexer
+     * @param \Vivo\Repository\IndexerHelper $indexerHelper
      * @param \Vivo\Indexer\QueryBuilder $qb
      */
-    public function __construct(Repository $repository, QueryBuilder $qb)
+    public function __construct(Repository $repository, IndexerInterface $indexer, IndexerHelper $indexerHelper,
+                                QueryBuilder $qb)
     {
-        $this->repository   = $repository;
-        $this->qb           = $qb;
+        $this->repository       = $repository;
+        $this->indexer          = $indexer;
+        $this->indexerHelper    = $indexerHelper;
+        $this->qb               = $qb;
     }
 
     /**
@@ -196,7 +215,10 @@ class CMS
                     );
                 }
          */
-        $this->repository->saveEntity($document);
+        $options    = array(
+            'published_content_types'   => $this->getPublishedContentTypes($document),
+        );
+        $this->repository->saveEntity($document, $options);
         $this->repository->commit();
     }
 
@@ -402,8 +424,8 @@ class CMS
 
     /**
      * Returns array of published contents of given document.
-     * @param Document $document
-     * @return Content[]
+     * @param Model\Document $document
+     * @return Model\Content[]
      */
     public function getPublishedContents(Model\Document $document)
     {
@@ -546,5 +568,85 @@ class CMS
     public function getEntitiesByQuery($spec)
     {
         return $this->repository->getEntities($spec);
+    }
+
+    /**
+     * Reindex all entities (contents and children) saved under entity
+     * First commits any uncommitted changes in the repository
+     * Returns number of reindexed items
+     * @param string $path Path to entity
+     * @param bool $deep If true reindexes whole subtree
+     * @throws \Exception
+     * @return int
+     */
+    public function reindex($path, $deep = false)
+    {
+        //The reindexing may not rely on the indexer in any way! Presume the indexer data is corrupt.
+        $this->repository->commit();
+        $this->indexer->begin();
+        try {
+            if ($deep) {
+                $delQuery   = $this->indexerHelper->buildTreeQuery($path);
+            } else {
+                $delQuery   = $this->qb->cond(sprintf('\path:%s', $path));
+            }
+            $this->indexer->delete($delQuery);
+            $count      = 0;
+            $entity     = $this->repository->getEntityFromStorage($path);
+            if ($entity) {
+                if ($entity instanceof Model\Document) {
+                    $publishedContentTypes  = $this->getPublishedContentTypes($entity);
+                } else {
+                    $publishedContentTypes    = array();
+                }
+                $options    = array('published_content_types' => $publishedContentTypes);
+                $idxDoc     = $this->indexerHelper->createDocument($entity, $options);
+                $this->indexer->addDocument($idxDoc);
+                $count      = 1;
+                //TODO - reindex entity Contents
+                //		if ($entity instanceof Vivo\CMS\Model\Document) {
+                //            /* @var $entity \Vivo\CMS\Model\Document */
+                //			for ($index = 1; $index <= $entity->getContentCount(); $index++)
+                //				foreach ($entity->getContents($index) as $content)
+                //					$count += $this->reindex($content, true);
+                //		}
+                if ($deep) {
+                    $descendants    = $this->repository->getDescendantsFromStorage($path);
+                    foreach ($descendants as $descendant) {
+                        if ($descendant instanceof Model\Document) {
+                            $publishedContentTypes  = $this->getPublishedContentTypes($descendant);
+                        } else {
+                            $publishedContentTypes  = array();
+                        }
+                        $options    = array('published_content_types' => $publishedContentTypes);
+                        $idxDoc     = $this->indexerHelper->createDocument($descendant, $options);
+                        $this->indexer->addDocument($idxDoc);
+                        $count++;
+                    }
+                }
+            }
+            $this->indexer->commit();
+        } catch (\Exception $e) {
+            $this->indexer->rollback();
+            throw $e;
+        }
+        return $count;
+    }
+
+    /**
+     * Returns array of published content types (class names of published contents)
+     * If there are no published contents, returns an empty array
+     * @param \Vivo\CMS\Model\Document $document
+     * @return string[]
+     */
+    protected function getPublishedContentTypes(Model\Document $document)
+    {
+        $publishedContents      = $this->getPublishedContents($document);
+        $publishedContentTypes  = array();
+        /** @var $publishedContent Model\Content */
+        foreach ($publishedContents as $publishedContent) {
+            $publishedContentTypes[]    = get_class($publishedContent);
+        }
+        return $publishedContentTypes;
     }
 }

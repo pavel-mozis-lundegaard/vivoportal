@@ -10,6 +10,9 @@ use Vivo\Indexer\Query\BooleanOr;
 use Vivo\Indexer\Query\Term as TermQuery;
 use Vivo\Repository\Exception;
 use Vivo\Indexer\FieldHelperInterface as IndexerFieldHelper;
+use Vivo\CMS\Model\Document as DocumentModel;
+use Vivo\CMS\Model\Content;
+use Vivo\CMS\Api\CMS;
 
 use \DateTime;
 
@@ -25,6 +28,7 @@ class IndexerHelper
      */
     protected $indexerFieldHelper;
 
+
     /**
      * Constructor
      * @param \Vivo\Indexer\FieldHelperInterface $indexerFieldHelper
@@ -37,16 +41,29 @@ class IndexerHelper
     /**
      * Creates an indexer document for the submitted entity
      * @param \Vivo\CMS\Model\Entity $entity
+     * @param mixed|null $options Various options required to index the entity
      * @throws Exception\MethodNotFoundException
      * @return \Vivo\Indexer\Document
      */
-    public function createDocument(Entity $entity)
+    public function createDocument(Entity $entity, array $options = array())
     {
         $doc            = new Document();
         $entityClass    = get_class($entity);
-        //Class field is added by default
+        //Fields added by default
+        //Published content types
+        if ($entity instanceof DocumentModel) {
+            if (array_key_exists('published_content_types', $options)
+                && is_array($options['published_content_types'])) {
+                //There are some published contents
+                $field  = new Field('\publishedContents', $options['published_content_types']);
+                $doc->addField($field);
+            }
+        }
+        //Class field
         $field  = new Field('\class', $entityClass);
         $doc->addField($field);
+
+        //Fields added by metadata config
         $indexerConfigs  = $this->indexerFieldHelper->getIndexerConfig($entityClass);
         foreach ($indexerConfigs as $property => $indexerConfig) {
             $getter = 'get' . ucfirst($property);

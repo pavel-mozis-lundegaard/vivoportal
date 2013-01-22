@@ -132,6 +132,7 @@ return array(
                 'Zend\Http\Request'                 => 'request',
                 'Zend\View\HelperPluginManager'     => 'view_helper_manager',
                 'Vivo\Util\Redirector'              => 'redirector',
+                'Vivo\CMS\Api\CMS'                  => 'cms',
 //                'Zend\View\Model\ModelInterface'    => 'view_model',
 //                'Zend\View\Model\ViewModel'         => 'view_model',
         ),
@@ -161,6 +162,7 @@ return array(
             'resource_front_controller' => 'Vivo\Service\Controller\ResourceFrontControllerFactory',
             'cli_module'                => 'Vivo\Service\Controller\CLI\CLIModuleControllerFactory',
             'cli_repository'            => 'Vivo\Service\Controller\CLI\CLIRepositoryControllerFactory',
+            'cli_cms'                   => 'Vivo\Service\Controller\CLI\CLICmsControllerFactory',
             'cli_indexer'               => 'Vivo\Service\Controller\CLI\CLIIndexerControllerFactory',
         ),
     ),
@@ -506,21 +508,39 @@ return array(
                         ),
                     ),
                 ),
-                'repository_reindex' => array(
+                'cms' => array(
                     'options' => array(
-                        'route'    => 'repository reindex <host> <path>',
+                        'route'    => 'cms [<action>]',
                         'defaults' => array(
-                            'controller' => 'cli_repository',
+                            'controller' => 'cli_cms',
+                            'action'     => 'default',
+                        ),
+                    ),
+                ),
+                'cms_reindex' => array(
+                    'options' => array(
+                        'route'    => 'cms reindex <host>',
+                        'defaults' => array(
+                            'controller' => 'cli_cms',
                             'action'     => 'reindex',
                         ),
                     ),
                 ),
-                'repository_help' => array(
+                'repository' => array(
                     'options' => array(
-                        'route'    => 'repository help',
+                        'route'    => 'repository [<action>]',
                         'defaults' => array(
                             'controller' => 'cli_repository',
-                            'action'     => 'help',
+                            'action'     => 'default',
+                        ),
+                    ),
+                ),
+                'repository_host_action' => array(
+                    'options' => array(
+                        'route'    => 'repository <action> <host>',
+                        'defaults' => array(
+                            'controller' => 'cli_repository',
+                            'action'     => 'default',
                         ),
                     ),
                 ),

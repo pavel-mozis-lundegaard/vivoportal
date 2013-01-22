@@ -5,9 +5,9 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
 
 /**
- * CmsFactory
+ * RepositoryApiFactory
  */
-class CmsFactory implements FactoryInterface
+class RepositoryApiFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -17,10 +17,7 @@ class CmsFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $repository             = $serviceLocator->get('repository');
-        $indexer                = $serviceLocator->get('indexer');
-        $indexerHelper          = $serviceLocator->get('indexer_helper');
-        $qb                     = $serviceLocator->get('indexer_query_builder');
-        $cms                    = new \Vivo\CMS\Api\CMS($repository, $indexer, $indexerHelper, $qb);
-        return $cms;
+        $repositoryApi          = new \Vivo\CMS\Api\Repository($repository);
+        return $repositoryApi;
     }
 }

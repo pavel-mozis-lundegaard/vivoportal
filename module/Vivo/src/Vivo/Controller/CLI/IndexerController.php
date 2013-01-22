@@ -27,7 +27,9 @@ class IndexerController extends AbstractCliController
 
     public function getConsoleUsage()
     {
-        return 'indexer usage: ...';
+        $output = "\nIndexer usage:";
+        $output .= "\n\nindexer clear";
+        return $output;
     }
 
     /**

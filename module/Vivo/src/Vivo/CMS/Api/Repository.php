@@ -1,24 +1,22 @@
 <?php
 namespace Vivo\CMS\Api;
 
-use Vivo\Repository\Repository as VivoRepository;
-use Vivo\CMS\Model\Site;
+use Vivo\Repository\RepositoryInterface as VivoRepository;
 
 /**
- * Repository
  * Repository API
  */
 class Repository
 {
     /**
-     * Repository
+     * Vivo Repository
      * @var VivoRepository
      */
     protected $repository;
 
     /**
      * Constructor
-     * @param \Vivo\Repository\Repository $repository
+     * @param \Vivo\Repository\RepositoryInterface $repository
      */
     public function __construct(VivoRepository $repository)
     {
@@ -26,12 +24,22 @@ class Repository
     }
 
     /**
-     * Reindexes the given path and returns the number of reindexed items
+     * Returns an array of duplicate uuids
+     * array(
+     *  'uuid1' => array(
+     *      'path1',
+     *      'path2',
+     *  ),
+     *  'uuid2' => array(
+     *      'path3',
+     *      'path4',
+     *  ),
+     * )
      * @param string $path
-     * @return int
+     * @return array
      */
-    public function reindex($path)
+    public function getDuplicateUuids($path)
     {
-        return $this->repository->reindex($path, true);
+        return $this->repository->getDuplicateUuids($path);
     }
 }

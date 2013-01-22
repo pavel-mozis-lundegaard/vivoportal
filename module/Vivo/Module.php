@@ -115,6 +115,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                 array ('info','Show information about CMS instance.'),
                 array ('module', 'Manage modules.'),
                 array ('repository', 'Administer the repository.'),
+                array ('cms', 'CMS functions.'),
         );
     }
 }

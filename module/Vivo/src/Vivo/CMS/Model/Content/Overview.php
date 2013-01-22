@@ -20,8 +20,11 @@ class Overview extends Model\Content
     protected $overviewType;
 
     /**
-     * @var string Path to a document, which sub-documents of it should be displayed in the overview. If a overview path is not set, it shows sub-documents of the current document, which overview is the content of that document.
-     * @example en/news/archive/
+     * Path to a document, which sub-documents of it should be displayed in
+     * the overview. If a overview path is not set, it shows sub-documents
+     * of the current document, which overview is the content of that document.
+     * @var string
+     * @example /en/news/archive/
      */
     protected $overviewPath;
 
@@ -61,21 +64,9 @@ class Overview extends Model\Content
      *
      * @param string $type Overview type
      **/
-    public function setType($type)
+    public function setOverviewType($type)
     {
         $this->overviewType = $type;
-    }
-
-    /**
-     * @param array $field_names
-     * @return string
-     * @todo what is it?
-     */
-    public function getTextContent($field_names = array())
-    {
-        return parent::getTextContent(
-                array_merge($field_names,
-                        array('overview_path', 'overview_items')));
     }
 
     /**
@@ -103,5 +94,64 @@ class Overview extends Model\Content
     public function getOverviewType()
     {
         return $this->overviewType;
+    }
+
+    /**
+     * @return integer
+     */
+    public function getOverviewLimit()
+    {
+        return $this->overviewLimit;
+    }
+
+    /**
+     * @param integer $limit
+     */
+    public function setOverviewLimit($limit)
+    {
+        $this->overviewLimit = $limit;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOverviewSorting()
+    {
+        return $this->overviewSorting;
+    }
+
+    /**
+     * @param string $sorting
+     */
+    public function setOverviewSorting($sorting)
+    {
+        $this->overviewSorting = $sorting;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOverviewCriteria()
+    {
+        return $this->overviewCriteria;
+    }
+
+    /**
+     * @param string $criteria
+     */
+    public function setOverviewCriteria($criteria)
+    {
+        $this->overviewCriteria = $criteria;
+    }
+
+    /**
+     * @param array $field_names
+     * @return string
+     */
+    public function getTextContent($field_names = array())
+    {
+        return parent::getTextContent(
+                array_merge($field_names,
+                        array('overviewPath', 'overviewItems')));
     }
 }

@@ -109,30 +109,56 @@ class RepositoryController extends AbstractCliController
             $output = sprintf("No site object created; host = '%s'", $host);
             return $output;
         }
+        // Check force flag
+        $force  = $request->getParam('force') || $request->getParam('f');
+
         $site   = $this->siteEvent->getSite();
         $path   = $site->getPath();
 
-        $duplicateUuids = $this->repositoryApi->getDuplicateUuids($path);
-        $numOfDuplicates    = count($duplicateUuids);
-        if ($numOfDuplicates == 0) {
-            $output = "\nThere are no duplicate uuids";
-        } else {
-            $output = sprintf("\n%s UUIDs are duplicated (not unique) in repository", $numOfDuplicates);
-            foreach ($duplicateUuids as $uuid => $paths) {
-                $output .= sprintf("\n\n%s", $uuid);
-                array_shift($paths);
-                foreach ($paths as $pathOfDup) {
-                    $entity = $this->repository->getEntity($pathOfDup);
-                    $newUuid    = $this->uuidGenerator->create();
-                    $entity->setUuid($newUuid);
-                    $this->repository->saveEntity($entity);
-                    $output .= sprintf("\n    %s -> %s", $pathOfDup, $newUuid);
-                }
+        if ($force) {
+            //Replace all UUIDs
+            $entities   = $this->repository->getDescendantsFromStorage($path);
+            $me         = $this->repository->getEntityFromStorage($path);
+            if ($me) {
+                $entities[] = $me;
+            }
+            $output     = "\nReplacing all UUIDs...";
+            $count      = 0;
+            foreach ($entities as $entity) {
+                $newUuid    = $this->uuidGenerator->create();
+                $entity->setUuid($newUuid);
+                $this->repository->saveEntity($entity);
+                $count++;
             }
             $this->repository->commit();
+            $output     .= sprintf("\nCommitted %s updated entities into repository", $count);
             //Reindex
             $reindexedNum   = $this->cms->reindex($path, true);
             $output .= sprintf("\n\nReindexed %s", $reindexedNum);
+        } else {
+            //Replace only duplicate UUIDs
+            $duplicateUuids = $this->repositoryApi->getDuplicateUuids($path);
+            $numOfDuplicates    = count($duplicateUuids);
+            if ($numOfDuplicates == 0) {
+                $output = "\nThere are no duplicate uuids";
+            } else {
+                $output = sprintf("\n%s UUIDs are duplicated (not unique) in repository", $numOfDuplicates);
+                foreach ($duplicateUuids as $uuid => $paths) {
+                    $output .= sprintf("\n\n%s", $uuid);
+                    array_shift($paths);
+                    foreach ($paths as $pathOfDup) {
+                        $entity = $this->repository->getEntity($pathOfDup);
+                        $newUuid    = $this->uuidGenerator->create();
+                        $entity->setUuid($newUuid);
+                        $this->repository->saveEntity($entity);
+                        $output .= sprintf("\n    %s -> %s", $pathOfDup, $newUuid);
+                    }
+                }
+                $this->repository->commit();
+                //Reindex
+                $reindexedNum   = $this->cms->reindex($path, true);
+                $output .= sprintf("\n\nReindexed %s", $reindexedNum);
+            }
         }
         return $output;
 
@@ -141,8 +167,8 @@ class RepositoryController extends AbstractCliController
     public function getConsoleUsage()
     {
         $output = "\nRepository usage:";
-        $output .= "\n\nrepository duplicate-uuids <host>";
-        $output .= "\nrepository unique-uuids <host>";
+        $output .= "\n\nrepository duplicateuuids <host>";
+        $output .= "\nrepository uniqueuuids <host> [--force|-f]";
         return $output;
     }
 }

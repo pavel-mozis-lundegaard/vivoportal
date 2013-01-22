@@ -8,6 +8,7 @@ use Vivo\Repository\Repository;
 use Vivo\Indexer\Query\QueryInterface;
 use Vivo\Indexer\QueryBuilder;
 use Vivo\Indexer\IndexerInterface;
+use Vivo\Indexer\QueryParams;
 use Vivo\Repository\IndexerHelper;
 
 use Zend\Config;
@@ -563,11 +564,12 @@ class CMS
     /**
      * Returns entities specified by the indexer query
      * @param QueryInterface|string $spec Either QueryInterface or a string query
+     * @param QueryParams|array|null $queryParams Either a QueryParams object or an array specifying the params
      * @return \Vivo\CMS\Model\Entity[]
      */
-    public function getEntitiesByQuery($spec)
+    public function getEntitiesByQuery($spec, $queryParams = null)
     {
-        return $this->repository->getEntities($spec);
+        return $this->repository->getEntities($spec, $queryParams);
     }
 
     /**

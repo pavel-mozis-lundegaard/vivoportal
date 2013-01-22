@@ -26,11 +26,15 @@ class Indexer implements IndexerInterface
     /**
      * Returns a search result
      * @param Query\QueryInterface $query
-     * @param QueryParams|null $queryParams
+     * @param QueryParams|array|null $queryParams Either a QueryParams object or an array specifying the params
+     * @see Vivo\Indexer\QueryParams for supported $queryParams keys
      * @return Result
      */
-    public function find(Query\QueryInterface $query, QueryParams $queryParams = null)
+    public function find(Query\QueryInterface $query, $queryParams = null)
 	{
+        if (is_array($queryParams)) {
+            $queryParams    = new QueryParams($queryParams);
+        }
         return $this->adapter->find($query, $queryParams);
 	}
 

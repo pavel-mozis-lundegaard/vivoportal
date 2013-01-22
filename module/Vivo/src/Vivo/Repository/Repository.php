@@ -877,11 +877,11 @@ class Repository implements RepositoryInterface
         if (preg_match('/^'.self::UUID_PATTERN.'$/i', $ident)) {
             //UUID
             $uuid   = $ident;
-//            $uuid   = strtoupper($uuid);
+            $uuid   = strtoupper($uuid);
         } elseif (preg_match('/^\[ref:('.self::UUID_PATTERN.')\]$/i', $ident, $matches)) {
             //Symbolic reference in [ref:uuid] format
             $uuid   = $matches[1];
-//            $uuid = strtoupper($uuid);
+            $uuid = strtoupper($uuid);
         } else {
             //Attempt conversion from path
             $uuid = $this->uuidConvertor->getUuid($ident);

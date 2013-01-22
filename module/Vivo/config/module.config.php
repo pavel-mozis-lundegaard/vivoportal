@@ -488,6 +488,15 @@ return array(
                         ),
                     ),
                 ),
+                'cms' => array(
+                    'options' => array(
+                        'route'    => 'cms [<action>]',
+                        'defaults' => array(
+                            'controller' => 'cli_cms',
+                            'action'     => 'default',
+                        ),
+                    ),
+                ),
                 'cms_reindex' => array(
                     'options' => array(
                         'route'    => 'cms reindex <host>',
@@ -497,39 +506,21 @@ return array(
                         ),
                     ),
                 ),
-                'cms_help' => array(
+                'repository' => array(
                     'options' => array(
-                        'route'    => 'cms help',
+                        'route'    => 'repository [<action>]',
                         'defaults' => array(
-                            'controller' => 'cli_cms',
-                            'action'     => 'help',
+                            'controller' => 'cli_repository',
+                            'action'     => 'default',
                         ),
                     ),
                 ),
-                'repository_duplicate_uuids' => array(
+                'repository_host_action' => array(
                     'options' => array(
-                        'route'    => 'repository duplicateuuids <host>',
+                        'route'    => 'repository <action> <host>',
                         'defaults' => array(
                             'controller' => 'cli_repository',
-                            'action'     => 'getDuplicateUuids',
-                        ),
-                    ),
-                ),
-                'repository_make_uuids_unique' => array(
-                    'options' => array(
-                        'route'    => 'repository uniqueuuids <host>',
-                        'defaults' => array(
-                            'controller' => 'cli_repository',
-                            'action'     => 'makeUuidsUnique',
-                        ),
-                    ),
-                ),
-                'repository_help' => array(
-                    'options' => array(
-                        'route'    => 'repository help',
-                        'defaults' => array(
-                            'controller' => 'cli_repository',
-                            'action'     => 'help',
+                            'action'     => 'default',
                         ),
                     ),
                 ),

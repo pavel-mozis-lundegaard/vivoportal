@@ -36,7 +36,9 @@ class CmsController extends AbstractCliController
 
     public function getConsoleUsage()
     {
-        return 'CMS usage: ...';
+        $output = "\nCMS usage:";
+        $output .= "\n\ncms reindex <host>";
+        return $output;
     }
 
     public function reindexAction()
@@ -56,9 +58,4 @@ class CmsController extends AbstractCliController
         return $output;
     }
 
-    public function helpAction()
-    {
-        $output = 'cms reindex <host>';
-        return $output;
-    }
 }

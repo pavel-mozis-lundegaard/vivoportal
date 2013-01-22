@@ -1,6 +1,7 @@
 <?php
 namespace Vivo\CMS\Api;
 
+use Vivo\CMS\Exception\InvalidArgumentException;
 use Vivo\CMS\Model;
 use Vivo\CMS\Workflow;
 use Vivo\CMS\Exception;
@@ -506,11 +507,64 @@ class CMS
         return $parts[1];
     }
 
-    public function getSiteEntity($entityPath, $site)
+    /**
+     * Returns entity ralative path within site.
+     *
+     * Relative path starts and ends with slash.
+     * @param Model\Entity $entity
+     * @example '/path/to/some-document-within-site/'
+     * @return string
+     */
+    public function getEntityRelPath(Model\Entity $entity)
     {
-        $path = $site->getPath(). '/ROOT/'. $entityPath;
+        $parts = explode('/ROOT', $entity->getPath());
+        return $parts[1];
+    }
+
+    /**
+     * Returns site path of given entity.
+     * @param Model\Entity $entity
+     * @return string
+     */
+    public function getEntitySitePath(Model\Entity $entity) {
+        $parts = explode('/ROOT/', $entity->getPath());
+        return $parts[0];
+    }
+
+    /**
+     * Returns entity within site by rel path.
+     * @param string $relPath
+     * @param Model\Site $site
+     * @return Model\Entity
+     */
+    public function getSiteEntity($relPath, Model\Site $site)
+    {
+        $path = $this->getEntityAbsolutePath($relPath, $site);
         return $this->getEntity($path);
     }
+
+    /**
+     * Returns
+     * @param unknown $path
+     * @param Model\Site $site
+     * @throws InvalidArgumentException
+     * @return string|unknown
+     */
+    public function getEntityAbsolutePath($path, Model\Site $site = null)
+    {
+        if (substr($path, 0, 1) == '/' && substr($path, -1) == '/') {
+            //it's relative path
+            if (!$site instanceof Model\Site) {
+                throw new InvalidArgumentException('Can\'t create entity absolute path');
+            }
+            return $site->getPath() .'/ROOT/' .trim($path, '/');
+        } else {
+            //it's absolute path
+            return $path;
+        }
+
+    }
+
 
     /**
      * Returns child documents.

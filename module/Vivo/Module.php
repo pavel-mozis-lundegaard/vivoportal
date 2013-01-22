@@ -1,7 +1,6 @@
 <?php
 namespace Vivo;
 
-use Vivo\Util\Path\PathParser;
 use Vivo\View\Helper as ViewHelper;
 use Vivo\Service\Exception;
 
@@ -41,8 +40,8 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         $streamName     = $config['vivo']['modules']['stream_name'];
         \Vivo\Module\StreamWrapper::register($streamName, $moduleStorage);
 
-        $eventManager->attach('render', array ($this, 'registerUIRenderingStrategies'), 100);
-        $eventManager->attach('render', array ($this, 'registerViewHelpers'), 100);
+        $eventManager->attach(MvcEvent::EVENT_RENDER, array ($this, 'registerTemplateResolver'), 100);
+        $eventManager->attach(MvcEvent::EVENT_RENDER, array ($this, 'registerViewHelpers'), 100);
     }
 
     public function getConfig()
@@ -62,16 +61,13 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
     }
 
     /**
-     * Register rendering strategy fo Vivo UI.
+     * Register template resolver.
      * @param MvcEvent $e
      */
-    public function registerUIRenderingStrategies(MvcEvent $e)
+    public function registerTemplateResolver(MvcEvent $e)
     {
-        $app          = $e->getTarget();
-        $locator      = $app->getServiceManager();
-        $view         = $locator->get('Zend\View\View');
-        $phtmlRenderingStrategy = $locator->get('phtml_rendering_strategy');
-        $view->getEventManager()->attach($phtmlRenderingStrategy, 100);
+        $sm = $e->getTarget()->getServiceManager();
+        $sm->get('viewresolver')->attach($sm->get('template_resolver'));
     }
 
     /**
@@ -81,27 +77,14 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
     public function registerViewHelpers($e) {
         $app          = $e->getTarget();
         $serviceLocator      = $app->getServiceManager();
-        /** @var $plugins \Zend\View\HelperPluginManager */
+        /* @var $plugins \Zend\View\HelperPluginManager */
         $plugins      = $serviceLocator->get('view_helper_manager');
-        $plugins->setFactory('action', function($sm) use($serviceLocator) {
-            $helper = new ViewHelper\Action($sm->get('url'));
-            return $helper;
-        });
         $plugins->setFactory('resource', function($sm) use($serviceLocator) {
-            $helper = new ViewHelper\Resource($sm->get('url'), $serviceLocator->get('cms'));
-            $helper->setParser(new PathParser());
+            $helper = new ViewHelper\Resource($serviceLocator->get('cms'));
             return $helper;
         });
         $plugins->setFactory('document', function($sm) use($serviceLocator) {
-            $helper = new ViewHelper\Document($sm->get('url'), $serviceLocator->get('cms'));
-            return $helper;
-        });
-        $plugins->setFactory('vivoform', function($sm) {
-            $helper = new ViewHelper\VivoForm();
-            return $helper;
-        });
-        $plugins->setFactory('vivoformfieldset', function($sm) {
-            $helper = new ViewHelper\VivoFormFieldset();
+            $helper = new ViewHelper\Document($serviceLocator->get('cms'));
             return $helper;
         });
     }

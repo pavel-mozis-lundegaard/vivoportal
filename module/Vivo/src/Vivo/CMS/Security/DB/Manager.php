@@ -10,7 +10,7 @@ use Vivo\Util;
 /**
  * SQL queries according to standard SQL-92.
  */
-class Manager extends CMS\Security\Manager
+class Manager extends CMS\Security\AbstractManager
 {
 
     /**
@@ -415,9 +415,12 @@ class Manager extends CMS\Security\Manager
     }
 
     /**
-     * @param string $domain Security domain name.
-     * @param string $username User login.
-     * @param bool|null
+     * Authenticates a user
+     * Returns user object upon successful authentication or null otherwise
+     * @param string $domain
+     * @param string $username
+     * @param string $password
+     * @return stdClass|null
      */
     function authenticate($domain, $username, $password)
     {

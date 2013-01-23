@@ -4,7 +4,7 @@ namespace Vivo\Service\Initializer;
 use Zend\Stdlib\RequestInterface;
 
 /**
- * Interaface for injecting Request
+ * Interface for injecting Request
  */
 interface RequestAwareInterface
 {

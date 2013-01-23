@@ -3,7 +3,7 @@ namespace Vivo\CMS\UI\Content;
 
 use Vivo\CMS\UI\AbstractForm;
 use Vivo\Form\Logon as ZfFormLogon;
-use Vivo\Security\Manager as SecurityManager;
+use Vivo\CMS\Security\AbstractManager as AbstractSecurityManager;
 use Vivo\Util\Redirector;
 
 use Zend\Form\Form as ZfForm;
@@ -16,7 +16,7 @@ class Logon extends AbstractForm
 {
     /**
      * Security Manager
-     * @var SecurityManager
+     * @var AbstractSecurityManager
      */
     protected $securityManager;
 
@@ -34,11 +34,11 @@ class Logon extends AbstractForm
 
     /**
      * Constructor
-     * @param \Vivo\Security\Manager $securityManager
+     * @param AbstractSecurityManager $securityManager
      * @param $securityDomain
      * @param \Vivo\Util\Redirector $redirector
      */
-    public function __construct(SecurityManager $securityManager, $securityDomain, Redirector $redirector, $request)
+    public function __construct(AbstractSecurityManager $securityManager, $securityDomain, Redirector $redirector, $request)
     {
         $this->securityManager  = $securityManager;
         $this->securityDomain   = $securityDomain;
@@ -53,6 +53,7 @@ class Logon extends AbstractForm
         //Prepare the form
         $form->prepare();
         $this->view->form   = $form;
+        $this->view->user   = $this->securityManager->getUserPrincipal();
     }
 
     /**
@@ -65,16 +66,9 @@ class Logon extends AbstractForm
         if ($form->isValid()) {
             //Form is valid
             $validatedData  = $form->getData();
-
-            //TODO - enable security manager!
-//            $result = $this->securityManager->authenticate($this->securityDomain,
-//                                                           $validatedData['logon']['username'],
-//                                                           $validatedData['logon']['password']);
-            $result = false;
-
-
-
-
+            $result = $this->securityManager->authenticate($this->securityDomain,
+                                                           $validatedData['logon']['username'],
+                                                           $validatedData['logon']['password']);
             /** @var $model \Vivo\CMS\Model\Content\Logon */
             $model      = $this->content;
             $redirUrl   = null;
@@ -91,6 +85,8 @@ class Logon extends AbstractForm
             }
             $this->redirector->redirect($redirUrl);
         }
+        //Remove password (for security reasons)
+        $form->get('logon')->get('password')->setValue('');
     }
 
     /**
@@ -98,8 +94,7 @@ class Logon extends AbstractForm
      */
     public function logoff()
     {
-        //TODO - enable security  mgr
-//        $this->securityManager->removeUserPrincipal();
+        $this->securityManager->removeUserPrincipal();
         //TODO - Destroy session?
         /** @var $model \Vivo\CMS\Model\Content\Logon */
         $model      = $this->content;

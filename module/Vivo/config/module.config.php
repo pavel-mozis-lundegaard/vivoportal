@@ -329,7 +329,8 @@ return array(
                 'Vivo\CMS\Model\Content\Layout'     => 'Vivo\CMS\UI\Content\Layout',
                 'Vivo\CMS\Model\Content\File'       => 'Vivo\CMS\UI\Content\File',
                 'Vivo\CMS\Model\Content\Overview'   => 'Vivo\CMS\UI\Content\Overview',
-                'Vivo\CMS\Model\Content\Hyperlink'   => 'Vivo\CMS\UI\Content\Hyperlink',
+                'Vivo\CMS\Model\Content\Hyperlink'  => 'Vivo\CMS\UI\Content\Hyperlink',
+                'Vivo\CMS\Model\Content\Logon'      => 'Vivo\CMS\UI\Content\Logon',
             ),
             'editor_component' => array (
 

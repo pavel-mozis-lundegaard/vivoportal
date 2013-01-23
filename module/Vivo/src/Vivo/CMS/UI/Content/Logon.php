@@ -56,26 +56,57 @@ class Logon extends AbstractForm
     }
 
     /**
-     * Submit action
+     * Logon action
      */
-    public function submit() {
+    public function logon()
+    {
         $this->loadFromRequest();
         $form   = $this->getForm();
         if ($form->isValid()) {
             //Form is valid
             $validatedData  = $form->getData();
+
+            //TODO - enable security manager!
 //            $result = $this->securityManager->authenticate($this->securityDomain,
 //                                                           $validatedData['logon']['username'],
 //                                                           $validatedData['logon']['password']);
-            $result = true;
+            $result = false;
+
+
+
+
+            /** @var $model \Vivo\CMS\Model\Content\Logon */
+            $model      = $this->content;
+            $redirUrl   = null;
             if ($result) {
                 //Authentication successful
-                $this->redirector->redirect();
+                if ($model->getLogonUrl()) {
+                    $redirUrl   = $model->getLogonUrl();
+                }
             } else {
                 //Authentication failed
-                $this->redirector->redirect();
+                if ($model->getErrorUrl()) {
+                    $redirUrl   = $model->getErrorUrl();
+                }
             }
+            $this->redirector->redirect($redirUrl);
         }
+    }
+
+    /**
+     * Logoff action
+     */
+    public function logoff()
+    {
+//        $this->securityManager->removeUserPrincipal();
+        //TODO - Destroy session?
+        /** @var $model \Vivo\CMS\Model\Content\Logon */
+        $model      = $this->content;
+        $redirUrl   = null;
+        if ($model->getLogoffUrl()) {
+            $redirUrl   = $model->getLogoffUrl();
+        }
+        $this->redirector->redirect($redirUrl);
     }
 
     /**

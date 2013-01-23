@@ -117,5 +117,8 @@ class EventListener implements SharedEventManagerAwareInterface
         $extra['message'] = isset($log['message']) ? $log['message'] : null;
 
         $this->logger->log($priority, $message, $extra);
+
+        //return true to continue with event propagation.
+        return true;
     }
 }

@@ -133,6 +133,7 @@ return array(
                 'Vivo\Util\Redirector'              => 'redirector',
                 'Vivo\CMS\Api\CMS'                  => 'cms',
                 'Zend\View\Model\ViewModel'         => 'view_model',
+                'Zend\Session\SessionManager'      => 'session_manager',
         ),
         'shared' => array(
             'view_model' => false,
@@ -401,12 +402,17 @@ return array(
 //                     ),
 //                 ),
                 'metas' => array (
+//                     array (
+//                         'name' => 'Robots',
+//                         'content' => 'INDEX,FOLLOW',
+//                     ),
+//                     array (
+//                         'charset' => 'UTF-8',
+//                     ),
                     array (
-                        'name' => 'Robots',
-                        'content' => 'INDEX,FOLLOW',
-                    ),
-                    array (
-                        'charset' => 'UTF-8',
+                        'http-equiv' => 'Content-Type',
+                        'content' => 'text/html',
+                        'charset' => 'utf-8',
                     ),
                 ),
             ),

@@ -1,15 +1,18 @@
 <?php
 namespace Vivo\UI;
 
+use Vivo\Service\Initializer\RequestAwareInterface;
+
 use Zend\Form\FormInterface;
 use Zend\Form\Form as ZfForm;
 use Zend\Http\PhpEnvironment\Request;
+use Zend\Stdlib\RequestInterface;
 
 /**
  * Form
  * Base abstract Vivo Form
  */
-abstract class AbstractForm extends Component
+abstract class AbstractForm extends Component implements RequestAwareInterface
 {
     /**
      * @var ZfForm
@@ -46,6 +49,12 @@ abstract class AbstractForm extends Component
      * @return ZfForm
      */
     abstract protected function doGetForm();
+
+    public function setRequest(RequestInterface $request)
+    {
+        $this->request  = $request;
+    }
+
 
     /**
      * Loads data into the form from the HTTP request

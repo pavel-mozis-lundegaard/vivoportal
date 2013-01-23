@@ -38,13 +38,11 @@ class Logon extends AbstractForm
      * @param $securityDomain
      * @param \Vivo\Util\Redirector $redirector
      */
-    public function __construct(AbstractSecurityManager $securityManager, $securityDomain, Redirector $redirector, $request)
+    public function __construct(AbstractSecurityManager $securityManager, $securityDomain, Redirector $redirector)
     {
         $this->securityManager  = $securityManager;
         $this->securityDomain   = $securityDomain;
         $this->redirector       = $redirector;
-        //TODO - remove $request from constructor when RequestAware interface is available
-        $this->request          = $request;
     }
 
     public function init()

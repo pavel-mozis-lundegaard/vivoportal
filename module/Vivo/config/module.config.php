@@ -338,6 +338,7 @@ return array(
                 'Vivo\CMS\Model\Content\File'       => 'Vivo\CMS\UI\Content\File',
                 'Vivo\CMS\Model\Content\Overview'   => 'Vivo\CMS\UI\Content\Overview',
                 'Vivo\CMS\Model\Content\Hyperlink'  => 'Vivo\CMS\UI\Content\Hyperlink',
+                'Vivo\CMS\Model\Content\Logon'      => 'Vivo\CMS\UI\Content\Logon',
             ),
             'editor_component' => array (
 
@@ -354,6 +355,7 @@ return array(
                     'Vivo\CMS\UI\Content\Hyperlink' => 'Vivo\CMS\Service\UI\Content\HyperlinkFactory',
                     'Vivo\CMS\UI\Content\Layout'    => 'Vivo\CMS\Service\UI\Content\LayoutFactory',
                     'Vivo\CMS\UI\Content\Overview'  => 'Vivo\CMS\Service\UI\Content\OverviewFactory',
+                    'Vivo\CMS\UI\Content\Logon'     => 'Vivo\CMS\Service\UI\Content\LogonFactory',
                     'Vivo\UI\Page'                  => 'Vivo\Service\UI\PageFactory',
 
                     'security_manager'              => 'Vivo\Service\SimpleSecurityManagerFactory',

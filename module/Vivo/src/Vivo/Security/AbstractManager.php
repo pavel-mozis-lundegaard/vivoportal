@@ -3,11 +3,14 @@ namespace Vivo\Security;
 
 use Zend\Session;
 
+use stdClass;
+
 /**
+ * AbstractManager
  * Security Manager defines base methods for working with users, roles and rights in Vivo applications.
- * All new security managers with must extends this.
+ * All new security managers with must extends this
  */
-abstract class Manager
+abstract class AbstractManager
 {
 
     /* default users */
@@ -212,8 +215,9 @@ abstract class Manager
      */
     public function setUserPrincipal($principal)
     {
-        if (is_object($this->session) && $principal)
+        if (is_object($this->session) && $principal) {
             $this->session->getManager()->regenerateId();
+        }
         return $this->session['security.principal'] = $principal;
     }
 
@@ -289,11 +293,14 @@ abstract class Manager
     abstract function setUserProfile($domain, $username, $profile);
 
     /**
-     * @param string $domain Security domain name.
-     * @param string $username User login.
-     * @param bool $secret
+     * Authenticates a user
+     * Returns user object upon successful authentication or null otherwise
+     * @param string $domain
+     * @param string $username
+     * @param string $password
+     * @return stdClass|null
      */
-    abstract function authenticate($domain, $username, $secret);
+    abstract function authenticate($domain, $username, $password);
 
     /**
      * @return bool

@@ -133,7 +133,7 @@ return array(
                 'Vivo\Util\Redirector'              => 'redirector',
                 'Vivo\CMS\Api\CMS'                  => 'cms',
                 'Zend\View\Model\ViewModel'         => 'view_model',
-                'Zend\Session\SessionManager'      => 'session_manager',
+                'Zend\Session\SessionManager'       => 'session_manager',
         ),
         'shared' => array(
             'view_model' => false,
@@ -204,7 +204,7 @@ return array(
     'logger' => array(
         'listener' => array (
             'attach' => array (
-                array('*', 'log'), //log 'log' events
+                //array('*', 'log'), //log 'log' events
                 //array('*', '*'), //log all events
             ),
         ),

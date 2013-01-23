@@ -46,7 +46,7 @@ return array(
                     'resource_entity' => array(
                             'type' => 'Zend\Mvc\Router\Http\Regex',
                             'options' => array(
-                                    'regex'    => '/\.entity/(?<entity>.+?)((\.path(?<path>.+)))',
+                                    'regex'    => '/\.entity(?<entity>.+?)((\.path(?<path>.+)))',
                                     'spec'    => '/.entity/%entity%/.path/%path%',
                                     'defaults' => array(
                                             'controller' => 'resource_front_controller',

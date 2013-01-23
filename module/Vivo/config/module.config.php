@@ -297,6 +297,15 @@ return array(
             'presets'                   => array(
             ),
         ),
+        'security_manager'  => array(
+            //Options for Vivo\CMS\Security\Simple\Manager
+            'options'           => array(
+                //Security domain - if not set, the security domain of the active site will be used
+//                'security_domain'   => 'my.security.domain',
+                'username'          => 'vivo.user',
+                'password'          => 'password',
+            ),
+        ),
         'cms'       => array(
             'repository'    => array(
             ),
@@ -329,7 +338,7 @@ return array(
                 'Vivo\CMS\Model\Content\Layout'     => 'Vivo\CMS\UI\Content\Layout',
                 'Vivo\CMS\Model\Content\File'       => 'Vivo\CMS\UI\Content\File',
                 'Vivo\CMS\Model\Content\Overview'   => 'Vivo\CMS\UI\Content\Overview',
-                'Vivo\CMS\Model\Content\Hyperlink'   => 'Vivo\CMS\UI\Content\Hyperlink',
+                'Vivo\CMS\Model\Content\Hyperlink'  => 'Vivo\CMS\UI\Content\Hyperlink',
             ),
             'editor_component' => array (
 
@@ -338,17 +347,17 @@ return array(
         'service_manager' => array (
         //configuration of service manager
             'invokables' => array (
-                    'Vivo\CMS\UI\Root'             => 'Vivo\CMS\UI\Root',
-                    'Vivo\UI\ComponentContainer'   => 'Vivo\UI\ComponentContainer',
+                    'Vivo\CMS\UI\Root'              => 'Vivo\CMS\UI\Root',
+                    'Vivo\UI\ComponentContainer'    => 'Vivo\UI\ComponentContainer',
             ),
             'factories' => array (
-                    'Vivo\CMS\UI\Content\File'     => 'Vivo\CMS\Service\UI\Content\FileFactory',
-                    'Vivo\CMS\UI\Content\Hyperlink'=> 'Vivo\CMS\Service\UI\Content\HyperlinkFactory',
-                    'Vivo\CMS\UI\Content\Layout'   => 'Vivo\CMS\Service\UI\Content\LayoutFactory',
-                    'Vivo\CMS\UI\Content\Overview' => 'Vivo\CMS\Service\UI\Content\OverviewFactory',
-                    'Vivo\UI\Page'                 => 'Vivo\Service\UI\PageFactory',
+                    'Vivo\CMS\UI\Content\File'      => 'Vivo\CMS\Service\UI\Content\FileFactory',
+                    'Vivo\CMS\UI\Content\Hyperlink' => 'Vivo\CMS\Service\UI\Content\HyperlinkFactory',
+                    'Vivo\CMS\UI\Content\Layout'    => 'Vivo\CMS\Service\UI\Content\LayoutFactory',
+                    'Vivo\CMS\UI\Content\Overview'  => 'Vivo\CMS\Service\UI\Content\OverviewFactory',
+                    'Vivo\UI\Page'                  => 'Vivo\Service\UI\PageFactory',
 
-                    'security_manager'          => 'Vivo\Service\SecurityManagerFactory',
+                    'security_manager'              => 'Vivo\Service\SimpleSecurityManagerFactory',
             ),
             'aliases' => array(
             ),

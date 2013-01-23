@@ -2,11 +2,14 @@
 namespace Vivo\CMS\Security;
 
 use Vivo\CMS\Exception\Exception;
+use Vivo\Security\AbstractManager as AbstractParentManager;
+
 /**
+ * AbstractManager
  * Security Manager defines base methods for working with users, roles and rights in Vivo CMS application.
- * All new Managers with must extends this.
+ * All new Managers must extends this
  */
-abstract class Manager extends \Vivo\Security\Manager
+abstract class AbstractManager extends AbstractParentManager
 {
 
     /* default global roles */

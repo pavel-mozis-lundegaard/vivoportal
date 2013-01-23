@@ -33,11 +33,9 @@ class Logon extends Fieldset implements InputFilterProviderInterface
         //Password
         $this->add(array(
             'name'      => 'password',
+            'type'      => 'Zend\Form\Element\Password',
             'options'   => array(
                 'label'     => 'Password',
-            ),
-            'attributes'    => array(
-                'type'          => 'password',
             ),
         ));
     }

@@ -48,8 +48,6 @@ class Logon extends AbstractForm
     public function init()
     {
         $form   = $this->getForm();
-        //Prepare the form
-        $form->prepare();
         $this->view->form   = $form;
         $this->view->user   = $this->securityManager->getUserPrincipal();
     }
@@ -83,8 +81,6 @@ class Logon extends AbstractForm
             }
             $this->redirector->redirect($redirUrl);
         }
-        //Remove password (for security reasons)
-        $form->get('logon')->get('password')->setValue('');
     }
 
     /**

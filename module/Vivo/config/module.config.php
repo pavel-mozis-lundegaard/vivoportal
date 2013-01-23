@@ -139,6 +139,7 @@ return array(
         ),
         'initializers' => array(
             'component' => 'Vivo\Service\Initializer\ComponentInitializer',
+            'default'   => 'Vivo\Service\Initializer\DefaultInitializer',
         ),
     ),
     'translator' => array(

@@ -64,7 +64,6 @@ class Page extends ComponentContainer
      */
     public function __construct(Response $response, $options = array())
     {
-        parent::__construct();
         $this->response = $response;
         $this->configure($options);
     }

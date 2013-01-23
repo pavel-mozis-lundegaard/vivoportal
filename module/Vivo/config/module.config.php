@@ -56,19 +56,18 @@ return array(
                             ),
                     ),
 
-                    'backend' => array(
-                    //TODO config routing for backend
-                        'type' => 'Zend\Mvc\Router\Http\Regex',
-                        'options' => array(
-                            'regex'    => '/system/manager/(?<path>.*)',
-                            'spec'    => '/system/manager/%path%',
-                            'defaults' => array(
-                                'controller' => 'cms_front_controller',
-                                'path' => '',
-                                'module' => '',
-                            ),
-                        ),
-                    ),
+//                     'backend' => array(
+//                         'type' => 'Zend\Mvc\Router\Http\Regex',
+//                         'options' => array(
+//                             'regex'    => '/system/manager/(?<path>.*)',
+//                             'spec'    => '/system/manager/%path%',
+//                             'defaults' => array(
+//                                 'controller' => 'cms_front_controller',
+//                                 'path' => '',
+//                                 'module' => '',
+//                             ),
+//                         ),
+//                     ),
                 ),
             ),
         ),

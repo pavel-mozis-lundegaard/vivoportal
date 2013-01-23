@@ -51,7 +51,7 @@ class ResourceFrontController implements DispatchableInterface,
         $pathToResource = $this->event->getRouteMatch()->getParam('path');
         $source = $this->event->getRouteMatch()->getParam('source');
         try {
-            if ($source === 'vivo') {
+            if ($source === 'Vivo') {
                 //it's vivo core resource - the core resources should be moved into own module
                     $resourceStream = new FileInputStream(
                             __DIR__ . '/../../../resource/' . $pathToResource);

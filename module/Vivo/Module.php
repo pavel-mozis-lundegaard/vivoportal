@@ -40,8 +40,8 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         $streamName     = $config['vivo']['modules']['stream_name'];
         \Vivo\Module\StreamWrapper::register($streamName, $moduleStorage);
 
-        $eventManager->attach(MvcEvent::EVENT_RENDER, array ($this, 'registerTemplateResolver'), 100);
-        $eventManager->attach(MvcEvent::EVENT_RENDER, array ($this, 'registerViewHelpers'), 100);
+        $eventManager->attach(MvcEvent::EVENT_ROUTE, array ($this, 'registerTemplateResolver'));
+        $eventManager->attach(MvcEvent::EVENT_ROUTE, array ($this, 'registerViewHelpers'));
     }
 
     public function getConfig()

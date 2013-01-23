@@ -34,7 +34,6 @@ class Overview extends Component
 
     public function __construct(CMS $cms, SiteEvent $siteEvent)
     {
-        parent::__construct();
         $this->cms = $cms;
         $this->siteEvent = $siteEvent;
     }

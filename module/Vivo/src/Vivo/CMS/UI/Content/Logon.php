@@ -98,6 +98,7 @@ class Logon extends AbstractForm
      */
     public function logoff()
     {
+        //TODO - enable security  mgr
 //        $this->securityManager->removeUserPrincipal();
         //TODO - Destroy session?
         /** @var $model \Vivo\CMS\Model\Content\Logon */

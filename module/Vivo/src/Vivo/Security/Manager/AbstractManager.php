@@ -1,33 +1,41 @@
 <?php
-namespace Vivo\Security;
+namespace Vivo\Security\Manager;
+
+use Vivo\Security\Principal;
 
 use Zend\Session;
-
-use stdClass;
 
 /**
  * AbstractManager
  * Security Manager defines base methods for working with users, roles and rights in Vivo applications.
- * All new security managers with must extends this
+ * All new security managers must extends this class
  */
 abstract class AbstractManager
 {
-
     /* default users */
-    const USER_ANONYMOUS = 'anonymous';
-    const USER_ADMINISTRATOR = 'administrator';
-    const USER_SYSTEM = 'system';
+    const USER_ANONYMOUS        = 'anonymous';
+    const USER_ADMINISTRATOR    = 'administrator';
+    const USER_SYSTEM           = 'system';
 
     /* default user groups */
-    const GROUP_ANYONE = 'Anyone';
+    const GROUP_ANYONE          = 'Anyone';
 
     /* default (builtin) security domain */
-    const DOMAIN_VIVO = 'VIVO';
+    const DOMAIN_VIVO           = 'VIVO';
 
     /**
-     * @var Container
+     * @var Session\Container
      */
     protected $session;
+
+    /**
+     * Constructor
+     * @param Session\SessionManager $sessionManager
+     */
+    public function __construct(Session\SessionManager $sessionManager)
+    {
+        $this->session = new Session\Container(__CLASS__, $sessionManager);
+    }
 
     /**
      * Returns roles in security domain.
@@ -71,7 +79,7 @@ abstract class AbstractManager
 
     /**
      * @param string $domain Domain name.
-     * @param string $pattern
+     * @param string|bool $pattern
      * @return array
      */
     abstract function getUsers($domain, $pattern = false);
@@ -79,27 +87,27 @@ abstract class AbstractManager
     /**
      * @param string $domain
      * @param string $username
-     * @return stdClass
+     * @return Principal\PrincipalInterface
      */
     abstract function getUser($domain, $username);
 
     /**
      * @param string $domain
-     * @param stdClass $user
+     * @param Principal\PrincipalInterface $user
      */
-    abstract function addUser($domain, $user);
+    abstract function addUser($domain, Principal\PrincipalInterface $user);
 
     /**
      * @param string $domain
-     * @param stdClass $user
+     * @param Principal\PrincipalInterface $user
      */
-    abstract function updateUser($domain, $user);
+    abstract function updateUser($domain, Principal\PrincipalInterface $user);
 
     /**
      * @param string $domain
-     * @param stdClass $user
+     * @param Principal\PrincipalInterface $user
      */
-    abstract function removeUser($domain, $user);
+    abstract function removeUser($domain, Principal\PrincipalInterface $user);
 
     /**
      * @param string $domain
@@ -121,17 +129,17 @@ abstract class AbstractManager
 
     /**
      * @param string $domain
-     * @param stdClass $user
+     * @param Principal\PrincipalInterface $user
      * @param string $groupname
      */
-    abstract function addUserToGroup($domain, $user, $groupname);
+    abstract function addUserToGroup($domain, Principal\PrincipalInterface $user, $groupname);
 
     /**
      * @param string $domain
-     * @param stdClass $user
+     * @param Principal\PrincipalInterface $user
      * @param string $groupname
      */
-    abstract function removeUserFromGroup($domain, $user, $groupname);
+    abstract function removeUserFromGroup($domain, Principal\PrincipalInterface $user, $groupname);
 
     /**
      * @param string $domain
@@ -141,59 +149,51 @@ abstract class AbstractManager
     abstract function getUserGroups($domain, $username);
 
     /**
-     * Constructor
-     * @param Session\SessionManager $sessionManager
-     */
-    public function __construct(Session\SessionManager $sessionManager)
-    {
-        $this->session = new Session\Container(__CLASS__, $sessionManager);
-    }
-
-    /**
      * @param string $domain Security domain name.
      * @param string $username User login.
-     * @param string $groupname
+     * @param string $groupName
      * @return bool
      */
-    public function isUserInGroup($domain, $username, $groupname)
+    public function isUserInGroup($domain, $username, $groupName)
     {
-        return ($groupname == self::GROUP_ANYONE)
+        return ($groupName == self::GROUP_ANYONE)
                 || ($username == self::USER_SYSTEM);
     }
 
     /**
-     * Returns user principal class. Principal class is a basic model of the currently
-     * logged-on client (backend) or site visitor.
-     * @return stdClass|null
+     * Returns user principal of the currently logged-on client (backend) or site visitor
+     * Returns null if no user is logged on
+     * @return Principal\PrincipalInterface|null
      */
     public function getUserPrincipal()
     {
         $principal = null;
         if (isset($this->session['security.principal'])
-                && $this->session['security.principal'] instanceof \stdClass) {
+                && $this->session['security.principal'] instanceof Principal\PrincipalInterface) {
             $principal = $this->session['security.principal'];
         }
-        if (!$principal && isset($_SERVER['REMOTE_USER'])
-                && ($remote_user = $_SERVER['REMOTE_USER'])) {
-            $principal = new \stdClass;
-            if ($pos = strpos($remote_user, '@')) {
-                // kerberos format
-                $principal->domain = substr($remote_user, $pos + 1);
-                $principal->username = strtolower(substr($remote_user, 0, $pos));
+        //TODO - refactor not to use $_SERVER
+        if (!$principal && isset($_SERVER['REMOTE_USER']) && ($remoteUser = $_SERVER['REMOTE_USER'])) {
+            $principal = new Principal\User();
+            if ($pos = strpos($remoteUser, '@')) {
+                //Kerberos format
+                $principal->setDomain(substr($remoteUser, $pos + 1));
+                $principal->setUsername(strtolower(substr($remoteUser, 0, $pos)));
             } else {
-                // winbind format
-                $remote_user = str_replace('+', '\\', $remote_user); // nahrazeni standardniho winbind separatoru na linuxu
-                $pos = strpos($remote_user, '\\');
-                if ($pos === false) { // format bez domeny
-                    $principal->username = $remote_user;
+                //Winbind format
+                //Replace the standard winbind separator on Linux
+                $remoteUser = str_replace('+', '\\', $remoteUser);
+                $pos        = strpos($remoteUser, '\\');
+                if ($pos === false) {
+                    //Format without domain
+                    $principal->setUsername($remoteUser);
                 } else {
-                    $principal->domain = substr($remote_user, 0, $pos);
-                    $principal->username = strtolower(
-                            substr($remote_user, $pos + 1));
+                    $principal->setDomain(substr($remoteUser, 0, $pos));
+                    $principal->setUsername(strtolower(substr($remoteUser, $pos + 1)));
                 }
             }
-            $principal->fullname = $this
-                    ->getUserFullname($principal->domain, $principal->username);
+            $fullName   = $this->getUserFullname($principal->getDomain(), $principal->getUsername());
+            $principal->setFullName($fullName);
             $this->setUserPrincipal($principal);
         }
         return $principal;
@@ -210,17 +210,22 @@ abstract class AbstractManager
     }
 
     /**
-     * @param stdClass $principal
-     * @return bool
+     * Sets user principal and returns it
+     * @param Principal\PrincipalInterface|null $principal
+     * @return Principal\PrincipalInterface|null
      */
-    public function setUserPrincipal($principal)
+    public function setUserPrincipal(Principal\PrincipalInterface $principal = null)
     {
-        if (is_object($this->session) && $principal) {
+        if ($principal) {
             $this->session->getManager()->regenerateId();
         }
-        return $this->session['security.principal'] = $principal;
+        $this->session['security.principal'] = $principal;
+        return $principal;
     }
 
+    /**
+     * Removes user principal
+     */
     public function removeUserPrincipal()
     {
         $this->setUserPrincipal(null);
@@ -231,6 +236,8 @@ abstract class AbstractManager
      */
     public function getPrincipalDomain()
     {
+        $principal = $this->getUserPrincipal();
+
         return ($principal = $this->getUserPrincipal()) ? $principal->domain
                 : self::DOMAIN_VIVO;
     }
@@ -245,7 +252,6 @@ abstract class AbstractManager
     }
 
     /**
-     * @param string $domain Security domain name.
      * @param array $names
      * @return bool
      */

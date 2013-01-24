@@ -1,8 +1,8 @@
 <?php
-namespace Vivo\CMS\Security;
+namespace Vivo\CMS\Security\Manager;
 
 use Vivo\CMS\Exception\Exception;
-use Vivo\Security\AbstractManager as AbstractParentManager;
+use Vivo\Security\Manager\AbstractManager as AbstractParentManager;
 
 /**
  * AbstractManager

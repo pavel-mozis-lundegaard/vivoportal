@@ -12,7 +12,7 @@ class SimpleSecurityManagerFactory implements FactoryInterface
     /**
      * Create service
      * @param ServiceLocatorInterface $serviceLocator
-     * @return \Vivo\CMS\Security\Simple\Manager
+     * @return \Vivo\CMS\Security\Manager\Simple
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
@@ -25,7 +25,7 @@ class SimpleSecurityManagerFactory implements FactoryInterface
         );
         $secManOptions      = array_merge($secManOptions, $secManConfig['options']);
         $sessionManager     = $serviceLocator->get('session_manager');
-        $securityManager    = new \Vivo\CMS\Security\Simple\Manager($sessionManager, $secManOptions);
+        $securityManager    = new \Vivo\CMS\Security\Manager\Simple($sessionManager, $secManOptions);
         return $securityManager;
     }
 }

@@ -1,16 +1,15 @@
 <?php
-namespace Vivo\CMS\Security\DB;
+namespace Vivo\CMS\Security\Manager;
 
-use Vivo;
-use Vivo\DB;
-use Vivo\CMS;
-use Vivo\Context;
-use Vivo\Util;
+//use Vivo;
+//use Vivo\CMS;
+//use Vivo\Util;
 
 /**
+ * Db
  * SQL queries according to standard SQL-92.
  */
-class Manager extends CMS\Security\AbstractManager
+class Db extends AbstractManager
 {
 
     /**
@@ -333,22 +332,22 @@ class Manager extends CMS\Security\AbstractManager
     /**
      * @param string $domain Security domain name.
      * @param string $username User login.
-     * @param string $groupname
+     * @param string $groupName
      * @return bool
      */
-    function isUserInGroup($domain, $username, $groupname)
+    function isUserInGroup($domain, $username, $groupName)
     {
         if ($isUserInGroup = parent::isUserInGroup($domain, $username,
-                $groupname))
+                $groupName))
             return $isUserInGroup;
         $cache = &$this->cache('isUserInGroup', $domain, $username);
-        if (!array_key_exists($groupname, $cache)) {
-            $isUserInGroup = $cache[$groupname] = $this->db
+        if (!array_key_exists($groupName, $cache)) {
+            $isUserInGroup = $cache[$groupName] = $this->db
                     ->getOne(
                             'SELECT COUNT(username) FROM user_groups WHERE domain = ? AND username = ? AND groupname = ?',
-                            array($domain, $username, $groupname)) > 0;
+                            array($domain, $username, $groupName)) > 0;
         } else {
-            $isUserInGroup = $cache[$groupname];
+            $isUserInGroup = $cache[$groupName];
         }
         return $isUserInGroup;
     }

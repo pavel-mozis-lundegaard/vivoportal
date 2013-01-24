@@ -1,18 +1,16 @@
 <?php
-namespace Vivo\CMS\Security\Simple;
-
-use Vivo\CMS\Security\AbstractManager;
+namespace Vivo\CMS\Security\Manager;
 
 use Zend\Session\SessionManager;
 
 use stdClass;
 
 /**
- * Manager
+ * Simple
  * Simple security manager
  * For development purposes, implements just authentication
  */
-class Manager extends AbstractManager
+class Simple extends AbstractManager
 {
     /**
      * Credentials for successful authentication

@@ -214,71 +214,43 @@ return array(
             //'firephp',
         ),
     ),
-
-    'vivo'      => array(
-        //Vivo Modules configuration
-        'modules'  => array(
-            //Name of stream (protocol) which will be registered for Vivo Module source file access in Storage
-            'stream_name'   => 'vmodule',
-            //Vivo Module paths in Vivo Module Storage
-            'module_paths'              => array(
-                '/',
-            ),
-            'descriptor_name'       => 'vivo_module.json',
-            //Default path where new modules will be added (in the module storage)
-            'default_install_path'  => '/',
-            //List of core modules loaded for all sites
-            'core_modules'          => array(
-            ),
-            //Module resource manager configuration options
-            'resource_manager'      => array(
-                //Mapping of resource types to folders within modules
-                'type_map'      => array(
-                    'view'      => 'view',
-                    'layout'    => 'view/layout',
-                    'resource'  => 'resource',
-                    'metadata'  => 'config/metadata',
-                ),
-                //Default resource type
-                'default_type'  => 'resource',
-            ),
-        ),
-        'db_service'    => array(
-            'abstract_factory'  => array(
-                //PDO
-                'pdo'       => array(
-                    'service_identifier'    => 'pdo',
-                    //The PDO connections are defined in a local config
-                    /*
-                    'config'                => array(
-                        'config_name'    => array(
-                            'dsn'       => '',
-                            'username'  => '',
-                            'password'  => '',
-                            'options'   => array(
-                            ),
+    'db_service'    => array(
+        'abstract_factory'  => array(
+            //PDO
+            'pdo'       => array(
+                'service_identifier'    => 'pdo',
+                //The PDO connections are defined in a local config
+                /*
+                'config'                => array(
+                    'config_name'    => array(
+                        'dsn'       => '',
+                        'username'  => '',
+                        'password'  => '',
+                        'options'   => array(
                         ),
                     ),
-                    */
                 ),
-                //Doctrine
-                'dem'  => array(
-                    'service_identifier'    => 'dem',
-                ),
-                //Zend DB Adapter
-                'zdb'  => array(
-                    'service_identifier'    => 'zdb',
-                ),
+                */
+            ),
+            //Doctrine
+            'dem'  => array(
+                'service_identifier'    => 'dem',
+            ),
+            //Zend DB Adapter
+            'zdb'  => array(
+                'service_identifier'    => 'zdb',
             ),
         ),
-        'module_install_manager'    => array(
-            //Default db source is configured in a local config
-            //'default_db_source'     => '',
-        ),
-        'indexer'   => array(
-            'adapter'   => array(
-                'type'      => 'dummy',
-                //Solr options
+    ),
+    //TODO - obsolete
+//    'module_install_manager'    => array(
+        //Default db source is configured in a local config
+        //'default_db_source'     => '',
+//    ),
+    'indexer'   => array(
+        'adapter'   => array(
+            'type'      => 'dummy',
+            //Solr options
 //                'options'   => array(
 //                    'id_field'      => 'uuid',
 //                    'solr_service'  => array(
@@ -287,30 +259,58 @@ return array(
 //                        'path'          => '/solr/',
 //                    ),
 //                ),
-            ),
-            'default_indexing_options'  => array(
-                'type'          => \Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
-                'indexed'       => true,
-                'stored'        => true,
-                'tokenized'     => false,
-                'multi'         => false,
-            ),
-            'presets'                   => array(
-            ),
         ),
-        'security_manager'  => array(
-            //Options for Vivo\CMS\Security\Simple\Manager
-            'options'           => array(
-                //Security domain - if not set, the security domain of the active site will be used
+        'default_indexing_options'  => array(
+            'type'          => \Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
+            'indexed'       => true,
+            'stored'        => true,
+            'tokenized'     => false,
+            'multi'         => false,
+        ),
+        'presets'                   => array(
+        ),
+    ),
+    'security_manager'  => array(
+        //Options for Vivo\CMS\Security\Simple\Manager
+        'options'           => array(
+            //Security domain - if not set, the security domain of the active site will be used
 //                'security_domain'   => 'my.security.domain',
-                'username'          => 'vivo.user',
-                'password'          => 'password',
-            ),
+            'username'          => 'vivo.user',
+            'password'          => 'password',
         ),
-        'cms'       => array(
-            'repository'    => array(
-            ),
+    ),
+    //Vivo Modules configuration
+    'modules'  => array(
+        //Name of stream (protocol) which will be registered for Vivo Module source file access in Storage
+        'stream_name'   => 'vivo.module',
+        //Vivo Module paths in Vivo Module Storage
+        'module_paths'              => array(
+            '/',
         ),
+        'descriptor_name'       => 'vivo_module.json',
+        //Default path where new modules will be added (in the module storage)
+        'default_install_path'  => '/',
+        //List of core modules loaded for all sites
+        'core_modules'          => array(
+        ),
+        //Module resource manager configuration options
+        'resource_manager'      => array(
+            //Mapping of resource types to folders within modules
+            'type_map'      => array(
+                'view'      => 'view',
+                'layout'    => 'view/layout',
+                'resource'  => 'resource',
+                'metadata'  => 'config/metadata',
+            ),
+            //Default resource type
+            'default_type'  => 'resource',
+        ),
+        //Default db source used when site config defines no specific db source for the given site
+        //Configure in local config
+        //'default_db_source'     => '',
+    ),
+
+    'vivo'      => array(
         'templates' => array (
             'template_map' => array(
                 'Vivo\UI\Page'                      => __DIR__.'/../view/Vivo/UI/Page.phtml',

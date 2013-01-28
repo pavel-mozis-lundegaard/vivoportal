@@ -37,7 +37,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
 
         //Register Vmodule stream
         $moduleStorage  = $sm->get('module_storage');
-        $streamName     = $config['vivo']['modules']['stream_name'];
+        $streamName     = $config['modules']['stream_name'];
         \Vivo\Module\StreamWrapper::register($streamName, $moduleStorage);
 
         $eventManager->attach(MvcEvent::EVENT_ROUTE, array ($this, 'registerTemplateResolver'));

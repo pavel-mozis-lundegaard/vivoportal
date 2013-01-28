@@ -46,7 +46,9 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
 
     public function getConfig()
     {
-        return include __DIR__ . '/config/module.config.php';
+        $config = include __DIR__ . '/config/module.config.php'; //main vivo config
+        $config['cms'] = include __DIR__ . '/config/cms.config.php'; //CMS config
+        return $config;
     }
 
     public function getAutoloaderConfig()

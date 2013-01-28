@@ -12,4 +12,40 @@
  */
 
 return array(
+    'db_service'    => array(
+        'abstract_factory'  => array(
+            'pdo'       => array(
+                'config'        => array(
+                    //Configure (multiple) PDO connections used by Vivo
+                    //The keys are used as db connection identifiers
+                    'vivo_db'    => array(
+                        'dsn'       => 'mysql:host=localhost:3306;dbname=vivo_db',
+                        'username'  => 'vivo',
+                        'password'  => 'vivo',
+                        'options'   => array(
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    ),
+    'indexer'   => array(
+        'adapter'   => array(
+            'type'      => 'solr',
+            //Solr options
+            'options'   => array(
+                'id_field'      => 'uuid',
+                'solr_service'  => array(
+                    'host'          => 'localhost',
+                    'port'          => 8983,
+                    'path'          => '/solr/',
+                ),
+            ),
+        ),
+    ),
+    'modules'    => array(
+        //Default db source used for modules
+        'default_db_source'     => 'local_vivo_dev',
+    ),
+
 );

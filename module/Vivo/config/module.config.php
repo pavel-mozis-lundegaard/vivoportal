@@ -123,6 +123,7 @@ return array(
             'default_log'               => 'Vivo\Service\LogFileWriterFactory',
             'template_resolver'         => 'Vivo\Service\TemplateResolverFactory',
             'di_proxy'                  => 'Vivo\Service\DiProxyFactory',
+            'module_db_provider'        => 'Vivo\Service\ModuleDbProviderFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -242,11 +243,6 @@ return array(
             ),
         ),
     ),
-    //TODO - obsolete
-//    'module_install_manager'    => array(
-        //Default db source is configured in a local config
-        //'default_db_source'     => '',
-//    ),
     'indexer'   => array(
         'adapter'   => array(
             'type'      => 'dummy',
@@ -305,7 +301,7 @@ return array(
             //Default resource type
             'default_type'  => 'resource',
         ),
-        //Default db source used when site config defines no specific db source for the given site
+        //Default db source used for modules
         //Configure in local config
         //'default_db_source'     => '',
     ),

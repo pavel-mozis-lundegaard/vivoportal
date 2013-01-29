@@ -31,7 +31,7 @@ class Editor extends AbstractForm
 
     protected function doGetForm()
     {
-        $metadata = $this->metadataManager->getMetadata($this->entity);
+        $metadata = $this->metadataManager->getMetadata(get_class($this->entity));
 
         $form = new EntityEditorForm('entity-editor', $metadata);
 

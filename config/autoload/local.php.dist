@@ -29,6 +29,11 @@ return array(
             ),
         ),
     ),
+    //Core setup
+    'setup'         => array(
+        //Name of db connection used by core
+        'db_source'     => 'local_vivo_dev',
+    ),
     'indexer'   => array(
         'adapter'   => array(
             'type'      => 'solr',
@@ -45,7 +50,7 @@ return array(
     ),
     'modules'    => array(
         //Default db source used for modules
-        'default_db_source'     => 'local_vivo_dev',
+        'default_db_source'     => 'vivo_db',
     ),
 
 );

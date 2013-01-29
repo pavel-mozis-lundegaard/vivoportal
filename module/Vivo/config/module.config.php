@@ -107,6 +107,7 @@ return array(
             'cms_api_module'            => 'Vivo\Service\CmsApiModuleFactory',
             'cms_api_repository'        => 'Vivo\Service\CmsApiRepositoryFactory',
             'db_provider_factory'       => 'Vivo\Service\DbProviderFactoryFactory',
+            'db_provider_core'          => 'Vivo\Service\DbProviderCoreFactory',
             'pdo_abstract_factory'      => 'Vivo\Service\PdoAbstractFactoryFactory',
             'zdb_abstract_factory'      => 'Vivo\Service\ZdbAbstractFactoryFactory',
             'path_builder'              => 'Vivo\Service\PathBuilderFactory',
@@ -165,6 +166,7 @@ return array(
             'cli_repository'            => 'Vivo\Service\Controller\CLI\CLIRepositoryControllerFactory',
             'cli_cms'                   => 'Vivo\Service\Controller\CLI\CLICmsControllerFactory',
             'cli_indexer'               => 'Vivo\Service\Controller\CLI\CLIIndexerControllerFactory',
+            'cli_setup'                 => 'Vivo\Service\Controller\CLI\CLISetupControllerFactory',
         ),
     ),
     'view_manager' => array(
@@ -471,6 +473,25 @@ return array(
                         ),
                     ),
                 ),
+                'setup' => array(
+                    'options' => array(
+                        'route'    => 'setup [<action>]',
+                        'defaults' => array(
+                            'controller' => 'cli_setup',
+                            'action'     => 'default',
+                        ),
+                    ),
+                ),
+                'setup_db' => array(
+                    'options' => array(
+                        'route'    => 'setup db',
+                        'defaults' => array(
+                            'controller' => 'cli_setup',
+                            'action'     => 'db',
+                        ),
+                    ),
+                ),
+
             ),
         ),
     ),

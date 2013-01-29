@@ -40,7 +40,7 @@ abstract class AbstractManager
     /**
      * Returns roles in security domain.
      * @param string $domain Domain name.
-     * @return array
+     * @return string[]
      */
     abstract public function getRoles($domain);
 
@@ -59,7 +59,7 @@ abstract class AbstractManager
     /**
      * @param string $domain
      * @param string $rolename
-     * @return array
+     * @return string[]
      */
     abstract public function getRoleAccessRights($domain, $rolename);
 
@@ -80,7 +80,7 @@ abstract class AbstractManager
     /**
      * @param string $domain Domain name.
      * @param string|bool $pattern
-     * @return array
+     * @return Principal\UserInterface[]
      */
     abstract public function getUsers($domain, $pattern = false);
 
@@ -110,15 +110,15 @@ abstract class AbstractManager
 
     /**
      * @param string $domain
-     * @return array
+     * @return Principal\GroupInterface[]
      */
     abstract public function getGroups($domain);
 
     /**
-     * @param string $domain
-     * @param string $groupname
+     * Adds a security group
+     * @param \Vivo\Security\Principal\GroupInterface $group
      */
-    abstract public function addGroup($domain, $groupname);
+    abstract public function addGroup(Principal\GroupInterface $group);
 
     /**
      * @param string $domain
@@ -264,51 +264,54 @@ abstract class AbstractManager
     }
 
     /**
-     * @param array $names
+     * Returns true if the current principal is a member of at least one of the groups
+     * @param array $groupNames
      * @return bool
      */
-    protected function isPrincipalMemberOf($names)
+    protected function isPrincipalMemberOf($groupNames)
     {
-        return $this
-                ->isMemberOf($this->getPrincipalDomain(),
-                        $this->getPrincipalUsername(), $names);
+        return $this->isMemberOf($this->getPrincipalDomain(), $this->getPrincipalUsername(), $groupNames);
     }
 
     /**
-     * @param string $domain Security domain name.
-     * @param string $name User login.
-     * @param array $names
+     * Returns true if the specified user is a member of at least one of the groups
+     * @param string $domain Security domain name
+     * @param string $username User login
+     * @param array $groupNames
      * @return bool
      */
-    protected function isMemberOf($domain, $name, $names)
+    protected function isMemberOf($domain, $username, $groupNames)
     {
-        if (!empty($names)) {
-            if (in_array($name, $names) || in_array(self::GROUP_ANYONE, $names))
+        if (!empty($groupNames)) {
+            if (in_array($username, $groupNames) || in_array(self::GROUP_ANYONE, $groupNames)) {
                 return true;
+            }
+            /** @var $group Principal\GroupInterface */
             foreach ($this->getGroups($domain) as $group) {
-                foreach ($names as $groupname) {
-                    if (($groupname == $group->groupname)
-                            && $this->isUserInGroup($domain, $name, $groupname))
+                foreach ($groupNames as $groupName) {
+                    if (($groupName == $group->getGroupName())
+                            && $this->isUserInGroup($domain, $username, $groupName)) {
                         return true;
+                    }
                 }
             }
         }
         return false;
     }
 
-    /**
-     * @param string $domain Security domain name.
-     * @param string $username User login.
-     * @return stdClass
-     */
-    abstract public function getUserProfile($domain, $username);
+//    /**
+//     * @param string $domain Security domain name.
+//     * @param string $username User login.
+//     * @return stdClass
+//     */
+//    abstract public function getUserProfile($domain, $username);
 
-    /**
-     * @param string $domain Security domain name.
-     * @param string $username User login.
-     * @param stdClass $profile
-     */
-    abstract public function setUserProfile($domain, $username, $profile);
+//    /**
+//     * @param string $domain Security domain name.
+//     * @param string $username User login.
+//     * @param stdClass $profile
+//     */
+//    abstract public function setUserProfile($domain, $username, $profile);
 
     /**
      * Authenticates a user
@@ -316,29 +319,33 @@ abstract class AbstractManager
      * @param string $domain
      * @param string $username
      * @param string $password
-     * @return stdClass|null
+     * @return Principal\UserInterface|null
      */
     abstract public function authenticate($domain, $username, $password);
 
     /**
-     * @return bool
+     * Authenticates as system
+     * Returns the principal representing the system
+     * @return Principal\UserInterface
      */
     public function authenticateAsSystem()
     {
-        $principal = new \stdClass;
-        $principal->domain = self::DOMAIN_VIVO;
-        $principal->username = self::USER_SYSTEM;
-        return $this->setUserPrincipal($principal);
+        $principal = new Principal\User();
+        $principal->setDomain(self::DOMAIN_VIVO);
+        $principal->setUsername(self::USER_SYSTEM);
+        $this->setUserPrincipal($principal);
+        return $principal;
     }
 
+    //TODO - refactor to standard cache implementation
     /* L1 cache functions */
 
     /**
      * @var array L1 cache.
      */
-    public $cache = array();
+    protected $cache = array();
 
-    public function &cache(/*$keys...*/)
+    protected function &cache(/*$keys...*/)
     {
         $array = &$this->cache;
         $args = func_get_args();
@@ -352,7 +359,7 @@ abstract class AbstractManager
         return $array;
     }
 
-    public function flush(/*$keys...*/)
+    protected function flush(/*$keys...*/)
     {
         $array = &$this->cache(func_get_args());
         $array = array();

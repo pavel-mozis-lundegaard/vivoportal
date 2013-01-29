@@ -42,113 +42,114 @@ abstract class AbstractManager
      * @param string $domain Domain name.
      * @return array
      */
-    abstract function getRoles($domain);
+    abstract public function getRoles($domain);
 
     /**
      * @param string $domain
      * @param string $rolename
      */
-    abstract function addRole($domain, $rolename);
+    abstract public function addRole($domain, $rolename);
 
     /**
      * @param string $domain
      * @param string $rolename
      */
-    abstract function removeRole($domain, $rolename);
+    abstract public function removeRole($domain, $rolename);
 
     /**
      * @param string $domain
      * @param string $rolename
      * @return array
      */
-    abstract function getRoleAccessRights($domain, $rolename);
+    abstract public function getRoleAccessRights($domain, $rolename);
 
     /**
      * @param string $domain
      * @param string $rolename
      * @param string $access_right
      */
-    abstract function grantRoleAccessRight($domain, $rolename, $access_right);
+    abstract public function grantRoleAccessRight($domain, $rolename, $access_right);
 
     /**
      * @param string $domain
      * @param string $rolename
      * @param string $access_right
      */
-    abstract function revokeRoleAccessRight($domain, $rolename, $access_right);
+    abstract public function revokeRoleAccessRight($domain, $rolename, $access_right);
 
     /**
      * @param string $domain Domain name.
      * @param string|bool $pattern
      * @return array
      */
-    abstract function getUsers($domain, $pattern = false);
+    abstract public function getUsers($domain, $pattern = false);
 
     /**
      * @param string $domain
      * @param string $username
-     * @return Principal\PrincipalInterface
+     * @return Principal\UserInterface
      */
-    abstract function getUser($domain, $username);
+    abstract public function getUser($domain, $username);
 
     /**
-     * @param string $domain
-     * @param Principal\PrincipalInterface $user
+     * @param Principal\UserInterface $user
      */
-    abstract function addUser($domain, Principal\PrincipalInterface $user);
+    abstract public function addUser(Principal\UserInterface $user);
 
     /**
-     * @param string $domain
-     * @param Principal\PrincipalInterface $user
+     * @param Principal\UserInterface $user
      */
-    abstract function updateUser($domain, Principal\PrincipalInterface $user);
+    abstract public function updateUser(Principal\UserInterface $user);
 
     /**
+     * Removes user
      * @param string $domain
-     * @param Principal\PrincipalInterface $user
+     * @param string $username
      */
-    abstract function removeUser($domain, Principal\PrincipalInterface $user);
+    abstract public function removeUser($domain, $username);
 
     /**
      * @param string $domain
      * @return array
      */
-    abstract function getGroups($domain);
+    abstract public function getGroups($domain);
 
     /**
      * @param string $domain
      * @param string $groupname
      */
-    abstract function addGroup($domain, $groupname);
+    abstract public function addGroup($domain, $groupname);
 
     /**
      * @param string $domain
      * @param string $groupname
      */
-    abstract function removeGroup($domain, $groupname);
-
-    /**
-     * @param string $domain
-     * @param Principal\PrincipalInterface $user
-     * @param string $groupname
-     */
-    abstract function addUserToGroup($domain, Principal\PrincipalInterface $user, $groupname);
-
-    /**
-     * @param string $domain
-     * @param Principal\PrincipalInterface $user
-     * @param string $groupname
-     */
-    abstract function removeUserFromGroup($domain, Principal\PrincipalInterface $user, $groupname);
+    abstract public function removeGroup($domain, $groupname);
 
     /**
      * @param string $domain
      * @param string $username
-     * @return array Array of stdClasses.
+     * @param string $groupname
      */
-    abstract function getUserGroups($domain, $username);
+    abstract public function addUserToGroup($domain, $username, $groupname);
 
     /**
+     * Removes user from group
+     * @param string $domain
+     * @param string $username
+     * @param string $groupname
+     */
+    abstract public function removeUserFromGroup($domain, $username, $groupname);
+
+    /**
+     * @param string $domain
+     * @param string $username
+     * @return Principal\GroupInterface[]
+     */
+    abstract public function getUserGroups($domain, $username);
+
+    /**
+     * Returns if the user is a member of a group including default memberships (anyone, system, etc.)
      * @param string $domain Security domain name.
      * @param string $username User login.
      * @param string $groupName
@@ -156,20 +157,33 @@ abstract class AbstractManager
      */
     public function isUserInGroup($domain, $username, $groupName)
     {
-        return ($groupName == self::GROUP_ANYONE)
-                || ($username == self::USER_SYSTEM);
+        if (($groupName == self::GROUP_ANYONE) || ($username == self::USER_SYSTEM)) {
+            $isInGroup  = true;
+        } else {
+            $isInGroup  = $this->isUserInGroupReal($domain, $username, $groupName);
+        }
+        return $isInGroup;
     }
+
+    /**
+     * Returns if the user is actually defined as a member of the specified group
+     * @param string $domain
+     * @param string $username
+     * @param string $groupName
+     * @return bool
+     */
+    abstract protected function isUserInGroupReal($domain, $username, $groupName);
 
     /**
      * Returns user principal of the currently logged-on client (backend) or site visitor
      * Returns null if no user is logged on
-     * @return Principal\PrincipalInterface|null
+     * @return Principal\UserInterface|null
      */
     public function getUserPrincipal()
     {
         $principal = null;
         if (isset($this->session['security.principal'])
-                && $this->session['security.principal'] instanceof Principal\PrincipalInterface) {
+                && $this->session['security.principal'] instanceof Principal\UserInterface) {
             $principal = $this->session['security.principal'];
         }
         //TODO - refactor not to use $_SERVER
@@ -192,29 +206,17 @@ abstract class AbstractManager
                     $principal->setUsername(strtolower(substr($remoteUser, $pos + 1)));
                 }
             }
-            $fullName   = $this->getUserFullname($principal->getDomain(), $principal->getUsername());
-            $principal->setFullName($fullName);
             $this->setUserPrincipal($principal);
         }
         return $principal;
     }
 
     /**
-     * @param string $domain
-     * @param string $username
-     * @return string
-     */
-    public function getUserFullname($domain, $username)
-    {
-        return $username;
-    }
-
-    /**
      * Sets user principal and returns it
-     * @param Principal\PrincipalInterface|null $principal
-     * @return Principal\PrincipalInterface|null
+     * @param Principal\UserInterface|null $principal
+     * @return Principal\UserInterface|null
      */
-    public function setUserPrincipal(Principal\PrincipalInterface $principal = null)
+    public function setUserPrincipal(Principal\UserInterface $principal = null)
     {
         if ($principal) {
             $this->session->getManager()->regenerateId();
@@ -232,23 +234,33 @@ abstract class AbstractManager
     }
 
     /**
+     * Returns security domain of the currently logged on user or the default security domain if no user is logged on
      * @return string
      */
     public function getPrincipalDomain()
     {
         $principal = $this->getUserPrincipal();
-
-        return ($principal = $this->getUserPrincipal()) ? $principal->domain
-                : self::DOMAIN_VIVO;
+        if ($principal) {
+            $domain = $principal->getDomain();
+        } else {
+            $domain = self::DOMAIN_VIVO;
+        }
+        return $domain;
     }
 
     /**
+     * Returns username of the currently logged on user or username for anonymous user if no user is logged on
      * @return string
      */
     public function getPrincipalUsername()
     {
-        return ($principal = $this->getUserPrincipal()) ? $principal->username
-                : self::USER_ANONYMOUS;
+        $principal = $this->getUserPrincipal();
+        if ($principal) {
+            $username   = $principal->getUsername();
+        } else {
+            $username   = self::USER_ANONYMOUS;
+        }
+        return $username;
     }
 
     /**
@@ -289,14 +301,14 @@ abstract class AbstractManager
      * @param string $username User login.
      * @return stdClass
      */
-    abstract function getUserProfile($domain, $username);
+    abstract public function getUserProfile($domain, $username);
 
     /**
      * @param string $domain Security domain name.
      * @param string $username User login.
      * @param stdClass $profile
      */
-    abstract function setUserProfile($domain, $username, $profile);
+    abstract public function setUserProfile($domain, $username, $profile);
 
     /**
      * Authenticates a user
@@ -306,7 +318,7 @@ abstract class AbstractManager
      * @param string $password
      * @return stdClass|null
      */
-    abstract function authenticate($domain, $username, $password);
+    abstract public function authenticate($domain, $username, $password);
 
     /**
      * @return bool

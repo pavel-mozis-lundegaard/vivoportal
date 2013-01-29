@@ -1,13 +1,13 @@
 <?php
 namespace Vivo\Security\Principal;
 
+use DateTime;
+
 /**
  * UserInterface
  */
 interface UserInterface extends PrincipalInterface
 {
-    //password, email, active, expires
-
     /**
      * Returns user's security domain
      * @return string
@@ -44,5 +44,9 @@ interface UserInterface extends PrincipalInterface
      */
     public function isActive();
 
-    public function get
+    /**
+     * Returns expiration of the user account or null if the account does not expire
+     * @return DateTime
+     */
+    public function getExpiration();
 }

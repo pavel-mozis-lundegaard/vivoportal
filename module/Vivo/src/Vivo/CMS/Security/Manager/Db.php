@@ -330,22 +330,20 @@ class Db extends AbstractManager
     }
 
     /**
-     * @param string $domain Security domain name.
-     * @param string $username User login.
+     * Returns if the user is actually defined as a member of the specified group
+     * @param string $domain
+     * @param string $username
      * @param string $groupName
      * @return bool
      */
-    function isUserInGroup($domain, $username, $groupName)
+    protected function isUserInGroupReal($domain, $username, $groupName)
     {
-        if ($isUserInGroup = parent::isUserInGroup($domain, $username,
-                $groupName))
-            return $isUserInGroup;
         $cache = &$this->cache('isUserInGroup', $domain, $username);
         if (!array_key_exists($groupName, $cache)) {
             $isUserInGroup = $cache[$groupName] = $this->db
-                    ->getOne(
-                            'SELECT COUNT(username) FROM user_groups WHERE domain = ? AND username = ? AND groupname = ?',
-                            array($domain, $username, $groupName)) > 0;
+                ->getOne(
+                'SELECT COUNT(username) FROM user_groups WHERE domain = ? AND username = ? AND groupname = ?',
+                array($domain, $username, $groupName)) > 0;
         } else {
             $isUserInGroup = $cache[$groupName];
         }

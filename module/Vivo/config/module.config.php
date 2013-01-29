@@ -1,6 +1,6 @@
 <?php
 /**
- * Main CMS config, can be split into topic related files in future
+ * Main Vivo config, this config can not be overwritten by sites, and modules.
  */
 return array(
     'router' => array(
@@ -46,7 +46,7 @@ return array(
                     'resource_entity' => array(
                             'type' => 'Zend\Mvc\Router\Http\Regex',
                             'options' => array(
-                                    'regex'    => '/\.entity/(?<entity>.+?)((\.path(?<path>.+)))',
+                                    'regex'    => '/\.entity(?<entity>.+?)((\.path(?<path>.+)))',
                                     'spec'    => '/.entity/%entity%/.path/%path%',
                                     'defaults' => array(
                                             'controller' => 'resource_front_controller',
@@ -56,19 +56,18 @@ return array(
                             ),
                     ),
 
-                    'backend' => array(
-                    //TODO config routing for backend
-                        'type' => 'Zend\Mvc\Router\Http\Regex',
-                        'options' => array(
-                            'regex'    => '/system/manager/(?<path>.*)',
-                            'spec'    => '/system/manager/%path%',
-                            'defaults' => array(
-                                'controller' => 'cms_front_controller',
-                                'path' => '',
-                                'module' => '',
-                            ),
-                        ),
-                    ),
+//                     'backend' => array(
+//                         'type' => 'Zend\Mvc\Router\Http\Regex',
+//                         'options' => array(
+//                             'regex'    => '/system/manager/(?<path>.*)',
+//                             'spec'    => '/system/manager/%path%',
+//                             'defaults' => array(
+//                                 'controller' => 'cms_front_controller',
+//                                 'path' => '',
+//                                 'module' => '',
+//                             ),
+//                         ),
+//                     ),
                 ),
             ),
         ),
@@ -79,14 +78,15 @@ return array(
             'uuid_generator'            => 'Vivo\Uuid\Generator',
             'storage_factory'           => 'Vivo\Storage\Factory',
             'site_event'                => 'Vivo\SiteManager\Event\SiteEvent',
-            'indexer_helper'            => 'Vivo\Repository\IndexerHelper',
             'io_util'                   => 'Vivo\IO\IOUtil',
             'indexer_query_builder'     => 'Vivo\Indexer\QueryBuilder',
+            'indexer_document_builder'  => 'Vivo\Indexer\DocumentBuilder',
+            'view_model'                => 'Zend\View\Model\ViewModel',
+            'session_manager'           => 'Zend\Session\SessionManager',
         ),
         'factories' => array(
             'translator'                => 'Zend\I18n\Translator\TranslatorServiceFactory',
             'response'                  => 'Vivo\Service\ResponseFactory',
-            'dependencyinjector'        => 'Vivo\Service\DiFactory',
             'db_service_manager'        => 'Vivo\Service\DbServiceManagerFactory',
             'uuid_convertor'            => 'Vivo\Service\UuidConvertorFactory',
             'module_storage'            => 'Vivo\Service\ModuleStorageFactory',
@@ -100,10 +100,12 @@ return array(
             'indexer_adapter_lucene'    => 'Vivo\Service\IndexerAdapterLuceneFactory',
             'indexer'                   => 'Vivo\Service\IndexerFactory',
             'repository'                => 'Vivo\Service\RepositoryFactory',
+            'indexer_helper'            => 'Vivo\Service\IndexerHelperFactory',
             'cms'                       => 'Vivo\Service\CmsFactory',
             'module_resource_manager'   => 'Vivo\Service\ModuleResourceManagerFactory',
             'module_install_manager'    => 'Vivo\Service\ModuleInstallManagerFactory',
             'cms_api_module'            => 'Vivo\Service\CmsApiModuleFactory',
+            'cms_api_repository'        => 'Vivo\Service\CmsApiRepositoryFactory',
             'db_provider_factory'       => 'Vivo\Service\DbProviderFactoryFactory',
             'pdo_abstract_factory'      => 'Vivo\Service\PdoAbstractFactoryFactory',
             'zdb_abstract_factory'      => 'Vivo\Service\ZdbAbstractFactoryFactory',
@@ -112,18 +114,35 @@ return array(
             'phtml_rendering_strategy'  => 'Vivo\Service\PhtmlRenderingStrategyFactory',
             'solr_service'              => 'Vivo\Service\SolrServiceFactory',
             'indexer_adapter'           => 'Vivo\Service\IndexerAdapterFactory',
+            'indexer_field_helper'      => 'Vivo\Service\IndexerFieldHelperFactory',
             'indexer_query_parser'      => 'Vivo\Service\IndexerQueryParserFactory',
             'module_name_resolver'      => 'Vivo\Service\ModuleNameResolverFactory',
             'metadata_manager'          => 'Vivo\Service\MetadataManagerFactory',
+            'redirector'                => 'Vivo\Service\RedirectorFactory',
+            'logger'                    => 'Vivo\Service\LoggerFactory',
+            'default_log'               => 'Vivo\Service\LogFileWriterFactory',
+            'template_resolver'         => 'Vivo\Service\TemplateResolverFactory',
+            'di_proxy'                  => 'Vivo\Service\DiProxyFactory',
+            'module_db_provider'        => 'Vivo\Service\ModuleDbProviderFactory',
         ),
         'aliases' => array(
-                'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
-                'Vivo\Repository\Repository'        => 'repository',
-                'Zend\Http\Response'                => 'response',
-                'Zend\View\HelperPluginManager'     => 'view_helper_manager',
+            'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
+            'Vivo\Repository\Repository'        => 'repository',
+            'Zend\Http\Response'                => 'response',
+            'Zend\Http\Request'                 => 'request',
+            'Zend\View\HelperPluginManager'     => 'view_helper_manager',
+            'Vivo\Util\Redirector'              => 'redirector',
+            'Vivo\CMS\Api\CMS'                  => 'cms',
+            'Zend\View\Model\ViewModel'         => 'view_model',
+            'Zend\Session\SessionManager'       => 'session_manager',
         ),
         'shared' => array(
+            'view_model' => false,
             'Vivo\CMS\UI\Manager\SiteSelector' => true,
+        ),
+        'initializers' => array(
+            'component' => 'Vivo\Service\Initializer\ComponentInitializer',
+            'default'   => 'Vivo\Service\Initializer\DefaultInitializer',
         ),
     ),
     'translator' => array(
@@ -138,13 +157,15 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-            'cli_indexer' => 'Vivo\Controller\CLI\IndexerController',
-            'cli_info' => 'Vivo\Controller\CLI\InfoController',
+            'cli_info'      => 'Vivo\Controller\CLI\InfoController',
         ),
         'factories' => array(
-            'cms_front_controller' => 'Vivo\Service\Controller\CMSFrontControllerFactory',
+            'cms_front_controller'      => 'Vivo\Service\Controller\CMSFrontControllerFactory',
             'resource_front_controller' => 'Vivo\Service\Controller\ResourceFrontControllerFactory',
-            'cli_module' => 'Vivo\Service\Controller\CLI\CLIModuleControllerFactory',
+            'cli_module'                => 'Vivo\Service\Controller\CLI\CLIModuleControllerFactory',
+            'cli_repository'            => 'Vivo\Service\Controller\CLI\CLIRepositoryControllerFactory',
+            'cli_cms'                   => 'Vivo\Service\Controller\CLI\CLICmsControllerFactory',
+            'cli_indexer'               => 'Vivo\Service\Controller\CLI\CLIIndexerControllerFactory',
         ),
     ),
     'view_manager' => array(
@@ -168,213 +189,124 @@ return array(
     ),
     'view_helpers' => array(
         'invokables' => array(
+            'action'            => 'Vivo\View\Helper\Action',
+            'action_link'       => 'Vivo\View\Helper\ActionLink',
+            'action_url'        => 'Vivo\View\Helper\ActionUrl',
+            'vivoform'          => 'Vivo\View\Helper\VivoForm',
+            'vivoformfieldset'  => 'Vivo\View\Helper\VivoFormFieldset',
         ),
     ),
+
     'di' => array(
     ),
     'metadata_manager' => array(
         'config_path' => __DIR__ . '/../config/metadata',
     ),
-    'vivo'      => array(
-        //Vivo Modules configuration
-        'modules'  => array(
-            //Name of stream (protocol) which will be registered for Vivo Module source file access in Storage
-            'stream_name'   => 'vmodule',
-            //Vivo Module paths in Vivo Module Storage
-            'module_paths'              => array(
-                '/',
-            ),
-            'descriptor_name'       => 'vivo_module.json',
-            //Default path where new modules will be added (in the module storage)
-            'default_install_path'  => '/',
-            //List of core modules loaded for all sites
-            'core_modules'          => array(
-            ),
-            //Module resource manager configuration options
-            'resource_manager'      => array(
-                //Mapping of resource types to folders within modules
-                'type_map'      => array(
-                    'view'      => 'view',
-                    'layout'    => 'view/layout',
-                    'resource'  => 'resource',
-                    'metadata'  => 'config/metadata',
-                ),
-                //Default resource type
-                'default_type'  => 'resource',
+
+    'logger' => array(
+        'listener' => array (
+            'attach' => array (
+                //array('*', 'log'), //log 'log' events
+                //array('*', '*'), //log all events
             ),
         ),
-        'db_service'    => array(
-            'abstract_factory'  => array(
-                //PDO
-                'pdo'       => array(
-                    'service_identifier'    => 'pdo',
-                    //The PDO connections are defined in a local config
-                    /*
-                    'config'                => array(
-                        'config_name'    => array(
-                            'dsn'       => '',
-                            'username'  => '',
-                            'password'  => '',
-                            'options'   => array(
-                            ),
+        'writers' => array (
+            //writers from writer plugin manager or main service manager
+            'default_log',
+            //'firephp',
+        ),
+    ),
+    'db_service'    => array(
+        'abstract_factory'  => array(
+            //PDO
+            'pdo'       => array(
+                'service_identifier'    => 'pdo',
+                //The PDO connections are defined in a local config
+                /*
+                'config'                => array(
+                    'config_name'    => array(
+                        'dsn'       => '',
+                        'username'  => '',
+                        'password'  => '',
+                        'options'   => array(
                         ),
                     ),
-                    */
                 ),
-                //Doctrine
-                'dem'  => array(
-                    'service_identifier'    => 'dem',
-                ),
-                //Zend DB Adapter
-                'zdb'  => array(
-                    'service_identifier'    => 'zdb',
-                ),
+                */
+            ),
+            //Doctrine
+            'dem'  => array(
+                'service_identifier'    => 'dem',
+            ),
+            //Zend DB Adapter
+            'zdb'  => array(
+                'service_identifier'    => 'zdb',
             ),
         ),
-        'module_install_manager'    => array(
-            //Default db source is configured in a local config
-            //'default_db_source'     => '',
-        ),
-        'indexer'   => array(
-            'adapter'   => array(
-                'type'      => 'dummy',
-                //Solr options
+    ),
+    'indexer'   => array(
+        'adapter'   => array(
+            'type'      => 'dummy',
+            //Solr options
 //                'options'   => array(
-//                    'id_field'      => 'vivo_cms_model_entity_path',
+//                    'id_field'      => 'uuid',
 //                    'solr_service'  => array(
 //                        'host'          => 'localhost',
 //                        'port'          => 8983,
 //                        'path'          => '/solr/',
 //                    ),
 //                ),
-            ),
         ),
-        'cms'       => array(
-            'repository'    => array(
-            ),
+        'default_indexing_options'  => array(
+            'type'          => \Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
+            'indexed'       => true,
+            'stored'        => true,
+            'tokenized'     => false,
+            'multi'         => false,
         ),
-        'templates' => array (
-            'template_map' => array(
-                // UI components
-                'Vivo\UI\ComponentContainer'        => __DIR__.'/../view/Vivo/UI/ComponentContainer.phtml',
-                'Vivo\UI\Page'                      => __DIR__.'/../view/Vivo/UI/Page.phtml',
-                // generic contents
-                'Vivo\CMS\UI\Content\Layout'        => __DIR__.'/../view/Vivo/CMS/UI/Content/Layout.phtml',
-                'Vivo\CMS\UI\Content\File:html'     => __DIR__.'/../view/Vivo/CMS/UI/Content/File.html.phtml',
-                'Vivo\CMS\UI\Content\File:plain'    => __DIR__.'/../view/Vivo/CMS/UI/Content/File.plain.phtml',
-                'Vivo\CMS\UI\Content\File:flash'    => __DIR__.'/../view/Vivo/CMS/UI/Content/File.flash.phtml',
-                'Vivo\CMS\UI\Content\File:image'    => __DIR__.'/../view/Vivo/CMS/UI/Content/File.image.phtml',
-                'Vivo\CMS\UI\Content\File'          => __DIR__.'/../view/Vivo/CMS/UI/Content/File.phtml',
-                'Vivo\CMS\UI\Content\Overview'      => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.phtml',
-                'Vivo\CMS\UI\Content\Overview:Description' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.Description.phtml',
-                'Vivo\CMS\UI\Content\Logon'         => __DIR__.'/../view/Vivo/CMS/UI/Content/Logon.phtml',
-                //backend
-                'Vivo\CMS\UI\Manager\HeaderBar'     => __DIR__ . '/../view/Vivo/CMS/UI/Manager/HeaderBar.phtml',
-                'Vivo\CMS\UI\Manager\FooterBar'     => __DIR__ . '/../view/Vivo/CMS/UI/Manager/FooterBar.phtml',
-                'Vivo\CMS\UI\Manager\ModulesPanel'  => __DIR__ . '/../view/Vivo/CMS/UI/Manager/ModulesPanel.phtml',
-                'Vivo\CMS\UI\Manager\Explorer\Explorer' => __DIR__ .  '/../view/Vivo/CMS/UI/Manager/Explorer/Explorer.phtml',
-                'Vivo\CMS\UI\Manager\Explorer\DocumentTree' => __DIR__ .  '/../view/Vivo/CMS/UI/Manager/Explorer/DocumentTree.phtml',
-                'Vivo\CMS\UI\Manager\Explorer\Browser' => __DIR__ .  '/../view/Vivo/CMS/UI/Manager/Explorer/Browser.phtml',
-                'Vivo\CMS\UI\Manager\Explorer\Editor' => __DIR__ .  '/../view/Vivo/CMS/UI/Manager/Explorer/Editor.phtml',
-                'Vivo\CMS\UI\Manager\Explorer\Tree' => __DIR__ .  '/../view/Vivo/CMS/UI/Manager/Explorer/Tree.phtml',
-                'Vivo\CMS\UI\Manager\Explorer\Viewer' => __DIR__ .  '/../view/Vivo/CMS/UI/Manager/Explorer/Viewer.phtml',
-                'Vivo\CMS\UI\Manager\Explorer\Ribbon' => __DIR__ .  '/../view/Vivo/CMS/UI/Manager/Explorer/Ribbon.phtml',
-                'Vivo\CMS\UI\Manager\Explorer\Finder' => __DIR__ .  '/../view/Vivo/CMS/UI/Manager/Explorer/Finder.phtml',
-                'Vivo\CMS\UI\Manager\SiteSelector' => __DIR__ .  '/../view/Vivo/CMS/UI/Manager/SiteSelector.phtml',
-            ),
-
-            'custom_templates' => array (
-             // custom selectable templates
-                'Vivo\CMS\Model\Content\Overview' => array (
-                    'Vivo\CMS\UI\Content\Overview:Description',
-                    'Vivo\CMS\UI\Content\Overview',
-                ),
-            ),
+        'presets'                   => array(
         ),
-        'component_mapping' => array (
-            'front_component' => array (
-                'Vivo\CMS\Model\Content\Layout'     => 'Vivo\CMS\UI\Content\Layout',
-                'Vivo\CMS\Model\Content\File'       => 'Vivo\CMS\UI\Content\File',
-                'Vivo\CMS\Model\Content\Overview'   => 'Vivo\CMS\UI\Content\Overview',
-            ),
-            'editor_component' => array (
-
-            ),
-        ),
-        'service_manager' => array (
-        //configuration of modules service manager
-        ),
-        'di' => array (
-            'definition' => array (
-                'class' => array (
-                    'Vivo\CMS\UI\Manager\HeaderBar' => array (
-                        'addComponent' => array (
-                            'component' => array ('type' => 'Vivo\UI\Component'),
-                            'name' => array ('type' => 'scalar'),
-                        )
-                    ),
-//                     'Vivo\CMS\UI\Manager\Explorer\Explorer' => array (
-//                         'addComponent' => array (
-//                             'component' => array ('type' => 'Vivo\UI\Component'),
-//                             'name' => array ('type' => 'scalar'),
-//                         )
-//                     ),
-                ),
-            ),
-            'instance' => array (
-                'alias' => array (
-                    'viewModel' =>  'Vivo\View\Model\UIViewModel',
-                ),
-                'Vivo\CMS\UI\Manager\HeaderBar' => array (
-                    'injections' => array (
-                        'addComponent' => array (
-                            'component' => 'Vivo\CMS\UI\Manager\SiteSelector',
-                            'name' => 'siteSelector'
-                        ),
-                    ),
-                ),
-                'viewModel' => array (
-                    'shared' => false, //new viewModel for each UI/component
-                ),
-                'Vivo\UI\Component' => array (
-                    'parameters' => array (
-                        'view' => 'viewModel',
-                    ),
-                ),
-                'Vivo\UI\Page' => array (
-                    'parameters' => array (
-                        'doctype' => 'HTML5',
-                        //globaly defined links and scripts
-                        'links' => array (
-//                             array(
-//                                 'rel'  => 'stylesheet',
-//                                 'href' => '/.ModuleName.resource/css/definedInVivoConfig.css',
-//                                 'type' => 'text/css',
-//                                 'media' => 'screen'
-//                             ),
-                        ),
-                        'scripts' => array (
-//                             array(
-//                                 'src' => '/.ModuleName.resource/js/front.js',
-//                                 'type' => 'text/javascript',
-//                             ),
-                        ),
-                        'metas' => array (
-                            array (
-                                'name' => 'Robots',
-                                'content' => 'INDEX,FOLLOW',
-                            ),
-                            array (
-                                'charset' => 'UTF-8',
-                            ),
-                        ),
-                        'viewHelpers' => 'Zend\View\HelperPluginManager',
-                    ),
-                ),
-            ),
-        ),
-
     ),
+    'security_manager'  => array(
+        //Options for Vivo\CMS\Security\Simple\Manager
+        'options'           => array(
+            //Security domain - if not set, the security domain of the active site will be used
+//                'security_domain'   => 'my.security.domain',
+            'username'          => 'vivo.user',
+            'password'          => 'password',
+        ),
+    ),
+    //Vivo Modules configuration
+    'modules'  => array(
+        //Name of stream (protocol) which will be registered for Vivo Module source file access in Storage
+        'stream_name'   => 'vivo.module',
+        //Vivo Module paths in Vivo Module Storage
+        'module_paths'              => array(
+            '/',
+        ),
+        'descriptor_name'       => 'vivo_module.json',
+        //Default path where new modules will be added (in the module storage)
+        'default_install_path'  => '/',
+        //List of core modules loaded for all sites
+        'core_modules'          => array(
+        ),
+        //Module resource manager configuration options
+        'resource_manager'      => array(
+            //Mapping of resource types to folders within modules
+            'type_map'      => array(
+                'view'      => 'view',
+                'layout'    => 'view/layout',
+                'resource'  => 'resource',
+                'metadata'  => 'config/metadata',
+            ),
+            //Default resource type
+            'default_type'  => 'resource',
+        ),
+        //Default db source used for modules
+        //Configure in local config
+        //'default_db_source'     => '',
+    ),
+
     'console' => array(
         'router' => array(
             'routes' => array(
@@ -486,7 +418,65 @@ return array(
                         ),
                     ),
                 ),
+                'indexer_clear' => array(
+                    'options' => array(
+                        'route'    => 'indexer clear',
+                        'defaults' => array(
+                            'controller' => 'cli_indexer',
+                            'action'     => 'clear',
+                        ),
+                    ),
+                ),
+                'cms' => array(
+                    'options' => array(
+                        'route'    => 'cms [<action>]',
+                        'defaults' => array(
+                            'controller' => 'cli_cms',
+                            'action'     => 'default',
+                        ),
+                    ),
+                ),
+                'cms_reindex' => array(
+                    'options' => array(
+                        'route'    => 'cms reindex <host>',
+                        'defaults' => array(
+                            'controller' => 'cli_cms',
+                            'action'     => 'reindex',
+                        ),
+                    ),
+                ),
+                'repository' => array(
+                    'options' => array(
+                        'route'    => 'repository [<action>]',
+                        'defaults' => array(
+                            'controller' => 'cli_repository',
+                            'action'     => 'default',
+                        ),
+                    ),
+                ),
+                'repository_host_action' => array(
+                    'options' => array(
+                        'route'    => 'repository <action> <host>',
+                        'defaults' => array(
+                            'controller' => 'cli_repository',
+                            'action'     => 'default',
+                        ),
+                    ),
+                ),
+                'repository_unique_uuids' => array(
+                    'options' => array(
+                        'route'    => 'repository uniqueuuids <host> [--force|-f]',
+                        'defaults' => array(
+                            'controller' => 'cli_repository',
+                            'action'     => 'unique-uuids',
+                        ),
+                    ),
+                ),
             ),
         ),
+    ),
+    'cms'      => array(
+        //this config key is reserved for merged cms configuration
+        //default values and structure are in cms.config.php
     ),
 );

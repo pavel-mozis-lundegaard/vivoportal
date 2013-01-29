@@ -3,6 +3,8 @@ namespace Vivo\CMS\UI\Content;
 
 use Vivo\CMS\UI\AbstractForm;
 use Vivo\Form\Logon as ZfFormLogon;
+use Vivo\CMS\Security\AbstractManager as AbstractSecurityManager;
+use Vivo\Util\Redirector;
 
 use Zend\Form\Form as ZfForm;
 
@@ -12,25 +14,89 @@ use Zend\Form\Form as ZfForm;
  */
 class Logon extends AbstractForm
 {
+    /**
+     * Security Manager
+     * @var AbstractSecurityManager
+     */
+    protected $securityManager;
+
+    /**
+     * Security domain
+     * @var string
+     */
+    protected $securityDomain;
+
+    /**
+     * Redirector
+     * @var Redirector
+     */
+    protected $redirector;
+
+    /**
+     * Constructor
+     * @param AbstractSecurityManager $securityManager
+     * @param $securityDomain
+     * @param \Vivo\Util\Redirector $redirector
+     */
+    public function __construct(AbstractSecurityManager $securityManager, $securityDomain, Redirector $redirector)
+    {
+        $this->securityManager  = $securityManager;
+        $this->securityDomain   = $securityDomain;
+        $this->redirector       = $redirector;
+    }
+
     public function init()
     {
-        //Prepare the form
-        $this->form->prepare();
-        $this->view->form   = $this->form;
+        $form   = $this->getForm();
+        $this->view->form   = $form;
+        $this->view->user   = $this->securityManager->getUserPrincipal();
     }
 
     /**
-     * Submit action
+     * Logon action
      */
-    public function submit() {
+    public function logon()
+    {
         $this->loadFromRequest();
-        if ($this->form->isValid()) {
+        $form   = $this->getForm();
+        if ($form->isValid()) {
             //Form is valid
-            $validatedData  = $this->form->getData();
-            //TODO - Log the user in and redirect
-            die (sprintf("Login not implemented. (Username = '%s', Password = '%s')",
-                         $validatedData['logon']['username'], $validatedData['logon']['password']));
+            $validatedData  = $form->getData();
+            $result = $this->securityManager->authenticate($this->securityDomain,
+                                                           $validatedData['logon']['username'],
+                                                           $validatedData['logon']['password']);
+            /** @var $model \Vivo\CMS\Model\Content\Logon */
+            $model      = $this->content;
+            $redirUrl   = null;
+            if ($result) {
+                //Authentication successful
+                if ($model->getLogonUrl()) {
+                    $redirUrl   = $model->getLogonUrl();
+                }
+            } else {
+                //Authentication failed
+                if ($model->getErrorUrl()) {
+                    $redirUrl   = $model->getErrorUrl();
+                }
+            }
+            $this->redirector->redirect($redirUrl);
         }
+    }
+
+    /**
+     * Logoff action
+     */
+    public function logoff()
+    {
+        $this->securityManager->removeUserPrincipal();
+        //TODO - Destroy session?
+        /** @var $model \Vivo\CMS\Model\Content\Logon */
+        $model      = $this->content;
+        $redirUrl   = null;
+        if ($model->getLogoffUrl()) {
+            $redirUrl   = $model->getLogoffUrl();
+        }
+        $this->redirector->redirect($redirUrl);
     }
 
     /**
@@ -38,7 +104,7 @@ class Logon extends AbstractForm
      * Factory method
      * @return ZfForm
      */
-    protected function createForm()
+    protected function doGetForm()
     {
         $form   = new ZfFormLogon();
         //Set form name if needed

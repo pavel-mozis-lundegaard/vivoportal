@@ -80,6 +80,7 @@ class TemplateResolver implements ResolverInterface
         if (isset($this->templateMap[$name])) {
             $path = $this->templateMap[$name];
         } else {
+            return false;
             throw new TemplateNotFoundException(
                     sprintf("%s: Template for '%s' can't be resolved.",
                             __METHOD__, $name));

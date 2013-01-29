@@ -9,6 +9,12 @@ use Vivo\Indexer\Query\Wildcard as WildcardQuery;
 use Vivo\Indexer\Query\BooleanOr;
 use Vivo\Indexer\Query\Term as TermQuery;
 use Vivo\Repository\Exception;
+use Vivo\Indexer\FieldHelperInterface as IndexerFieldHelper;
+use Vivo\CMS\Model\Document as DocumentModel;
+use Vivo\CMS\Model\Content;
+use Vivo\CMS\Api\CMS;
+
+use \DateTime;
 
 /**
  * IndexerHelper
@@ -17,30 +23,57 @@ use Vivo\Repository\Exception;
 class IndexerHelper
 {
     /**
+     * Indexer field helper
+     * @var IndexerFieldHelper
+     */
+    protected $indexerFieldHelper;
+
+
+    /**
+     * Constructor
+     * @param \Vivo\Indexer\FieldHelperInterface $indexerFieldHelper
+     */
+    public function __construct(IndexerFieldHelper $indexerFieldHelper)
+    {
+        $this->indexerFieldHelper   = $indexerFieldHelper;
+    }
+
+    /**
      * Creates an indexer document for the submitted entity
      * @param \Vivo\CMS\Model\Entity $entity
+     * @param mixed|null $options Various options required to index the entity
+     * @throws Exception\MethodNotFoundException
      * @return \Vivo\Indexer\Document
      */
-    public function createDocument(Entity $entity)
+    public function createDocument(Entity $entity, array $options = array())
     {
-        $doc    = new Document();
-        //UUID
-        $doc->addField(new Field('uuid', $entity->getUuid()));
-        //Path
-        $doc->addField(new Field('path', $entity->getPath()));
+        $doc            = new Document();
         $entityClass    = get_class($entity);
-        //Entity type
-        $doc->addField(new Field('type', $entityClass));
-        //TODO - a temporary solution - when entity descriptions are implemented as annotations or whatever, refactor!
-        switch ($entityClass) {
-            case 'Vivo\CMS\Model\Site':
-                 /** @var $entity \Vivo\CMS\Model\Site  */
-                //Hosts
-                $doc->addField(new Field('hosts', $entity->getHosts()));
-                break;
-            default:
-                //No other fields will be indexed for other entity types
-                break;
+        //Fields added by default
+        //Published content types
+        if ($entity instanceof DocumentModel) {
+            if (array_key_exists('published_content_types', $options)
+                && is_array($options['published_content_types'])) {
+                //There are some published contents
+                $field  = new Field('\publishedContents', $options['published_content_types']);
+                $doc->addField($field);
+            }
+        }
+        //Class field
+        $field  = new Field('\class', $entityClass);
+        $doc->addField($field);
+
+        //Fields added by metadata config
+        $indexerConfigs  = $this->indexerFieldHelper->getIndexerConfig($entityClass);
+        foreach ($indexerConfigs as $property => $indexerConfig) {
+            $getter = 'get' . ucfirst($property);
+            if (!method_exists($entity, $getter)) {
+                throw new Exception\MethodNotFoundException(
+                    sprintf("%s: Method '%s' not found in '%s'", __METHOD__, $getter, get_class($entity)));
+            }
+            $value  = $entity->$getter();
+            $field  = new Field($indexerConfig['name'], $value);
+            $doc->addField($field);
         }
         return $doc;
     }
@@ -61,9 +94,9 @@ class IndexerHelper
         } else {
             throw new Exception\InvalidArgumentException(sprintf('%s: Unsupported specification type', __METHOD__));
         }
-        $entityTerm          = new IndexerTerm($path, 'path');
+        $entityTerm          = new IndexerTerm($path, '\path');
         $entityQuery         = new TermQuery($entityTerm);
-        $descendantPattern   = new IndexerTerm($path . '/*', 'path');
+        $descendantPattern   = new IndexerTerm($path . '/*', '\path');
         $descendantQuery     = new WildcardQuery($descendantPattern);
         $boolQuery           = new BooleanOr($entityQuery, $descendantQuery);
         return $boolQuery;
@@ -76,7 +109,7 @@ class IndexerHelper
      */
     public function buildEntityTerm(Entity $entity)
     {
-        $term   = new IndexerTerm($entity->getUuid(), 'uuid');
+        $term   = new IndexerTerm($entity->getUuid(), '\uuid');
         return $term;
     }
 }

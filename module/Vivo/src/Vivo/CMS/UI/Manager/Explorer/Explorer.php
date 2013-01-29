@@ -53,7 +53,6 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
 
     public function __construct(Request $request, CMS $cms, SessionManager $sessionManager, SiteSelector $siteSelector)
     {
-        parent::__construct();
         $this->request = $request;
         $this->cms = $cms;
         $this->session = new Container(__CLASS__, $sessionManager);

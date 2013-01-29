@@ -1,8 +1,6 @@
 <?php
 namespace Vivo\CMS;
 
-use Vivo\CMS\Model\Content\ProvideTemplateInterface;
-
 use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Exception\Exception;
 use Vivo\CMS\Exception\LogicException;
@@ -16,11 +14,14 @@ use Vivo\UI\ComponentContainer;
 use Vivo\UI\ComponentInterface;
 
 use Zend\Di\Di;
+use Zend\EventManager\EventManagerInterface;
+use Zend\EventManager\EventManagerAwareInterface;
+use Zend\ServiceManager\ServiceManager;
 
 /**
  * ComponentFactory is responsible for instantiating UI components for CMS documents and resolving it's dependencies.
  */
-class ComponentFactory
+class ComponentFactory implements EventManagerAwareInterface
 {
 
     /**
@@ -39,12 +40,25 @@ class ComponentFactory
     private $resolver;
 
     /**
+     *
+     * @var Site
+     */
+    private $site;
+
+    /**
+     * @var \Zend\EventManager\EventManagerInterface
+     */
+    private $eventManager;
+
+    /**
      * @param CMS $cms
      * @param Di $di
      */
-    public function __construct(Di $di, CMS $cms, Site $site)
+    public function __construct(ServiceManager $sm, Di $di, CMS $cms,
+            Site $site)
     {
         $this->cms = $cms;
+        $this->sm = $sm;
         $this->di = $di;
         $this->site = $site;
     }
@@ -57,12 +71,12 @@ class ComponentFactory
      */
     public function getRootComponent(Document $document)
     {
-        $root = $this->di->get('Vivo\CMS\UI\Root');
+        $root = $this->createComponent('Vivo\CMS\UI\Root');
         $component = $this->getFrontComponent($document);
         if ($component instanceof RawComponentInterface) {
             $root->setMain($component);
         } else {
-            $page = $this->di->get('Vivo\UI\Page');
+            $page = $this->createComponent('Vivo\UI\Page');
             $page->setMain($component);
             $root->setMain($page);
         }
@@ -73,15 +87,16 @@ class ComponentFactory
      * Returns front component for the given document.
      *
      * @param Document $document
-     * @param array $options (Disable Layout)
+     * @param array $parameters (Disable Layout)
      * @return \Vivo\UI\Component
      */
-    public function getFrontComponent(Document $document, $options = array())
+    public function getFrontComponent(Document $document, $parameters = array())
     {
         $contents = $this->cms->getPublishedContents($document);
 
         if (count($contents) > 1) {
-            $frontComponent = $this->di->get('Vivo\UI\ComponentContainer');
+            $frontComponent = $this
+                    ->createComponent('Vivo\UI\ComponentContainer');
             $i = 1;
             foreach ($contents as $content) {
                 $cc = $this->getContentFrontComponent($content, $document);
@@ -92,17 +107,22 @@ class ComponentFactory
             $frontComponent = $this
                     ->getContentFrontComponent(reset($contents), $document);
         } else {
-            throw new Exception(sprintf("%s: Document '%s' hasn't any published content.", __METHOD__, $document->getPath()));
+            throw new Exception(
+                    sprintf("%s: Document '%s' hasn't any published content.",
+                            __METHOD__, $document->getPath()));
         }
 
         if ($frontComponent instanceof RawComponentInterface) {
             return $frontComponent;
         }
 
-        if ($layoutPath = $document->getLayout()) {
-            $layout = $this->cms->getSiteDocument($layoutPath, $this->site);
-            $panels = $this->getDocumentLayoutPanels($document);
-            $frontComponent = $this->applyLayout($layout, $frontComponent, $panels);
+        if (!isset($parameters['noLayout']) || !$parameters['noLayout'] == true) {
+            if ($layoutPath = $document->getLayout()) {
+                $layout = $this->cms->getSiteDocument($layoutPath, $this->site);
+                $panels = $this->getDocumentLayoutPanels($document);
+                $frontComponent = $this
+                        ->applyLayout($layout, $frontComponent, $panels);
+            }
         }
 
         return $frontComponent;
@@ -115,7 +135,8 @@ class ComponentFactory
      * @param Component $component
      * @return \Vivo\UI\Component
      */
-    public function applyLayout(Document $layout, ComponentInterface $component, $panels = array())
+    public function applyLayout(Document $layout, ComponentInterface $component,
+            $panels = array())
     {
         $layoutComponent = $this->getFrontComponent($layout);
 
@@ -135,18 +156,22 @@ class ComponentFactory
         $mergedPanels = array();
         foreach ($layoutPanels as $name => $panel) {
             $parts = explode('#', $name);
-            if (count($parts) == 2 && $this->cms->getEntityUrl($layout) == $parts[0]) {
+            if (count($parts) == 2
+                    && $this->cms->getEntityUrl($layout) == $parts[0]) {
                 $name = $parts[1];
             }
 
             if (isset($layoutPanels[$name])) {
-                $mergedPanels[$name] = isset($panels[$name]) ? $panels[$name] : $layoutPanels[$name];
+                $mergedPanels[$name] = isset($panels[$name]) ? $panels[$name]
+                        : $layoutPanels[$name];
             }
         }
 
         foreach ($mergedPanels as $name => $path) {
             $panelDocument = $this->cms->getSiteDocument($path, $this->site);
-            $layoutComponent->addComponent($this->getFrontComponent($panelDocument), $name);
+            $layoutComponent
+                    ->addComponent($this->getFrontComponent($panelDocument),
+                            $name);
         }
 
         $layoutDocumentPanels = $layout->getLayoutPanels();
@@ -169,9 +194,10 @@ class ComponentFactory
      * @param Document $document
      * @todo this should be cached
      */
-    public function getDocumentLayoutPanels(Document $document) {
+    public function getDocumentLayoutPanels(Document $document)
+    {
         $panels = array();
-        while($document instanceof Document) {
+        while ($document instanceof Document) {
             $panels = array_merge($document->getLayoutPanels(), $panels);
             $document = $this->cms->getParent($document);
         }
@@ -188,17 +214,48 @@ class ComponentFactory
     public function getContentFrontComponent(Content $content,
             Document $document)
     {
+        if ($content instanceof \Vivo\CMS\Model\Content\Link) {
+            $linkedDocument = $this->cms
+                    ->getSiteDocument($content->getRelPath(), $this->site);
+            return $this
+                    ->getFrontComponent($linkedDocument,
+                            array('noLayout' => true));
+        }
+
         $className = $this->resolver->resolve($content);
-        $component = $this->di->get($className);
         /* @var $component \Vivo\UI\Component */
+        $component = $this->createComponent($className);
         if ($component instanceof InjectModelInterface) {
             //TODO how to properly inject document and content
             $component->setContent($content);
             $component->setDocument($document);
         }
-        if ($content instanceof ProvideTemplateInterface) {
+        if ($content instanceof Content\ProvideTemplateInterface) {
             $component->getView()->setTemplate($content->getTemplate());
         }
+        return $component;
+    }
+
+    /**
+     * Create new instance of component.
+     *
+     * If service manager can create the component, SM is used. Otherwise DI is used.
+     * @param string $name
+     * @return \Vivo\UI\Component
+     */
+    public function createComponent($name)
+    {
+        if ($this->sm->has($name, false)) {
+            $component = $this->sm->create($name);
+            $type = 'ServiceManager';
+        } else {
+            $component = $this->di->newInstance($name, array(), false);
+            $type = 'DI';
+        }
+
+        $message = "Created component '" . get_class($component) . "' using $type.";
+        $this->eventManager->trigger('log', $this, array ('message' => $message));
+
         return $component;
     }
 
@@ -222,4 +279,22 @@ class ComponentFactory
         $this->resolver = $resolver;
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see \Zend\EventManager\EventManagerAwareInterface::setEventManager()
+     */
+    public function setEventManager(EventManagerInterface $eventManager)
+    {
+        $this->eventManager = $eventManager;
+        $this->eventManager->addIdentifiers(__CLASS__);
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \Zend\EventManager\EventsCapableInterface::getEventManager()
+     */
+    public function getEventManager()
+    {
+        return $this->eventManager;
+    }
 }

@@ -75,6 +75,7 @@ class Entity
      */
     public function setUuid($uuid)
     {
+        $uuid       = strtoupper($uuid);
         $this->uuid = $uuid;
     }
 

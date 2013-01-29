@@ -1,15 +1,18 @@
 <?php
 namespace Vivo\UI;
 
+use Vivo\Service\Initializer\RequestAwareInterface;
+
 use Zend\Form\FormInterface;
 use Zend\Form\Form as ZfForm;
 use Zend\Http\PhpEnvironment\Request;
+use Zend\Stdlib\RequestInterface;
 
 /**
  * Form
  * Base abstract Vivo Form
  */
-abstract class AbstractForm extends Component
+abstract class AbstractForm extends Component implements RequestAwareInterface
 {
     /**
      * @var ZfForm
@@ -47,6 +50,12 @@ abstract class AbstractForm extends Component
      */
     abstract protected function doGetForm();
 
+    public function setRequest(RequestInterface $request)
+    {
+        $this->request  = $request;
+    }
+
+
     /**
      * Loads data into the form from the HTTP request
      * Loads GET as well as POST data (POST wins)
@@ -66,15 +75,17 @@ abstract class AbstractForm extends Component
      * Validates a single form field
      * Facilitates single field AJAX validations
      * @param string $fieldName in array notation (eg 'fieldset1[fieldset2][fieldname]')
+     * @param string $fieldValue Value being tested
      * @param array $messages Validation messages are returned in this array
      * @return boolean
      */
-    public function isFieldValid($fieldName, array &$messages)
+    public function isFieldValid($fieldName, $fieldValue, array &$messages)
     {
-        $form = $this->getForm();
-        $fieldSpec  = $this->getFieldSpecFromArrayNotation($fieldName);
+        $form       = $this->getForm();
+        $fieldSpec  = $this->getFormDataFromArrayNotation($fieldName);
+        $data       = $this->getFormDataFromArrayNotation($fieldName, $fieldValue);
         $form->setValidationGroup($fieldSpec);
-        $this->loadFromRequest();
+        $form->setData($data);
         //Store the current bind on validate flag setting and set it to manual
         $bindOnValidateFlag = $form->bindOnValidate();
         $form->setBindOnValidate(FormInterface::BIND_MANUAL);
@@ -93,22 +104,33 @@ abstract class AbstractForm extends Component
     }
 
     /**
-     * Returns field specification from an array notation of a field
-     * For 'fieldset1[fieldset2][fieldname]' returns
+     * Returns field specification or field data from an array notation of a field
+     * getFormDataFromArrayNotation('fieldset1[fieldset2][fieldname]', 'valueX') returns
+     * array(
+     *      'fieldset1' => array(
+     *          'fieldset2' => array('fieldname' => 'valueX')
+     *      )
+     * )
+     * getFormDataFromArrayNotation('fieldset1[fieldset2][fieldname]') returns
      * array(
      *      'fieldset1' => array(
      *          'fieldset2' => array('fieldname')
      *      )
      * )
      * For 'fieldname' returns array('fieldname')
-     * @param string $arrayNotation
+     * @param string $arrayNotation Field name in array notation
+     * @param string $value Field value
      * @return array
      */
-    protected function getFieldSpecFromArrayNotation($arrayNotation)
+    protected function getFormDataFromArrayNotation($arrayNotation, $value = null)
     {
         $parts          = $this->getPartsFromArrayNotation($arrayNotation);
         $fieldName      = array_pop($parts);
-        $fieldSpec      = array($fieldName);
+        if (is_null($value)) {
+            $fieldSpec      = array($fieldName);
+        } else {
+            $fieldSpec      = array($fieldName => $value);
+        }
         $reversed   = array_reverse($parts);
         foreach ($reversed as $fieldset) {
             $fieldSpec  = array($fieldset => $fieldSpec);

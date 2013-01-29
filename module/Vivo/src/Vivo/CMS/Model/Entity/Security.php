@@ -1,7 +1,7 @@
 <?php
 namespace Vivo\CMS\Model\Entity;
 
-use Vivo\CMS\Security\Manager;
+use Vivo\CMS\Security\AbstractManager;
 
 /**
  * Represenst security model for document.
@@ -46,9 +46,9 @@ class Security
             $deny = array())
     {
         $this->roles = $roles ?
-                : array(Manager::ROLE_VISITOR => array(Manager::GROUP_ANYONE),
-                        Manager::ROLE_ADMINISTRATOR => array(
-                                Manager::GROUP_ADMINISTRATORS));
+                : array(AbstractManager::ROLE_VISITOR => array(AbstractManager::GROUP_ANYONE),
+                        AbstractManager::ROLE_ADMINISTRATOR => array(
+                                AbstractManager::GROUP_ADMINISTRATORS));
         $this->allow = $allow;
         $this->deny = $deny;
     }

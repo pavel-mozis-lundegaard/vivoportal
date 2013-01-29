@@ -8,13 +8,20 @@ use Vivo\TransactionalInterface;
  */
 interface IndexerInterface extends  TransactionalInterface
 {
+    const FIELD_TYPE_STRING     = 'string';
+    const FIELD_TYPE_DATETIME   = 'datetime';
+    const FIELD_TYPE_INT        = 'int';
+    const FIELD_TYPE_FLOAT      = 'float';
+
+
     /**
      * Returns a search result
      * @param Query\QueryInterface $query
-     * @param QueryParams|null $queryParams
+     * @param QueryParams|array|null $queryParams Either a QueryParams object or an array specifying the params
+     * @see Vivo\Indexer\QueryParams for supported $queryParams keys
      * @return Result
      */
-    public function find(Query\QueryInterface $query, QueryParams $queryParams = null);
+    public function find(Query\QueryInterface $query, $queryParams = null);
 
     /**
      * Finds and returns a document by its ID

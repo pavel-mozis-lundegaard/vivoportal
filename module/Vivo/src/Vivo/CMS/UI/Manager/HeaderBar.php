@@ -8,7 +8,6 @@ class HeaderBar extends Component
 
     public function __construct()
     {
-        parent::__construct();
     }
 
 //     public function setSiteSelector(SiteSelector $siteSelector)

@@ -56,15 +56,6 @@ interface RepositoryInterface extends TransactionalInterface {
 	public function getChildren(Model\Entity $entity, $className = false, $deep = false);
 
     /**
-     * Reindex all entities (contents and children) saved under entity
-     * Returns number of reindexed items
-     * @param string $path Path to entity
-     * @param bool $deep If true reindexes whole subtree
-     * @return int
-     */
-    public function reindex($path, $deep = false);
-
-    /**
      * Schedules resource for deletion from storage
      * @param \Vivo\CMS\Model\Entity $entity
      * @param string $name
@@ -121,4 +112,21 @@ interface RepositoryInterface extends TransactionalInterface {
      * @return bool
      */
 	public function hasChildren(Model\Folder $folder);
+
+    /**
+     * Returns an array of duplicate uuids
+     * array(
+     *  'uuid1' => array(
+     *      'path1',
+     *      'path2',
+     *  ),
+     *  'uuid2' => array(
+     *      'path3',
+     *      'path4',
+     *  ),
+     * )
+     * @param string $path
+     * @return array
+     */
+    public function getDuplicateUuids($path);
 }

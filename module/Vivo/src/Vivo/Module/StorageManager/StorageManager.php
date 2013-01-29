@@ -382,16 +382,15 @@ class StorageManager
      * @param string $moduleName
      * @param string $pathInModule Path to a file relative to the module root
      * @return string
-     * @throws \Vivo\Module\Exception\InvalidArgumentException
      */
     public function getFullPathToFile($moduleName, $pathInModule)
     {
         $components = array($this->getPathToModule($moduleName), $pathInModule);
         $fullPath   = $this->pathBuilder->buildStoragePath($components, true);
-        if (!$this->storage->isObject($fullPath)) {
-            throw new Exception\InvalidArgumentException(
-                sprintf("%s: Path '%s' not found in module '%s'", __METHOD__, $pathInModule, $moduleName));
-        }
+//        if (!$this->storage->isObject($fullPath)) {
+//            throw new Exception\InvalidArgumentException(
+//                sprintf("%s: Path '%s' not found in module '%s'", __METHOD__, $pathInModule, $moduleName));
+//        }
         return $fullPath;
     }
 

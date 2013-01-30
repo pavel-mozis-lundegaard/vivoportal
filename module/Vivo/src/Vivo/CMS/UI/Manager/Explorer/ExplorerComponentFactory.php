@@ -1,26 +1,33 @@
 <?php
 namespace Vivo\CMS\UI\Manager\Explorer;
 
-use Zend\Mvc\Service\ServiceManagerConfig;
-
-use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-class ExplorerComponentFactory extends ServiceManager implements
-        ServiceLocatorAwareInterface
+/**
+ * Factory for creating ui component used in Explorer (editor, viewer, browser etc.)
+ */
+class ExplorerComponentFactory extends ServiceManager
 {
 
-    protected $serviceLocator;
-
+    /**
+     * Constructor.
+     * @param ServiceLocatorInterface $serviceLocator
+     */
     public function __construct(ServiceLocatorInterface $serviceLocator)
     {
-        $this->serviceLocator = $serviceLocator;
-        $this->addPeeringServiceManager($serviceLocator);
-        $smconfig = new ServiceManagerConfig($this->getServiceConfig());
-        $smconfig->configureServiceManager($this);
+         $this->setService('service_locator', $serviceLocator);
+         $config = $this->getServiceConfig();
+         foreach ($config['factories'] as $name => $factory)
+         {
+             $this->setFactory($name, $factory);
+         }
     }
 
+    /**
+     * Returns service manager configuration for explorer components
+     * @return array
+     */
     protected function getServiceConfig()
     {
         return array(
@@ -28,7 +35,7 @@ class ExplorerComponentFactory extends ServiceManager implements
             ),
             'factories' => array(
                 'editor' => function (ServiceManager $sm) {
-                    return new Editor($sm->get('metadata_manager'));
+                    return new Editor($sm->get('service_locator')->get('metadata_manager'));
                 },
                 'viewer' => function (ServiceManager $sm) {
                     $viewer = new Viewer();
@@ -42,15 +49,4 @@ class ExplorerComponentFactory extends ServiceManager implements
             ),
         );
     }
-
-    public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
-    {
-        $this->serviceLocator = $serviceLocator;
-
-    }
-    public function getServiceLocator()
-    {
-        return $this->serviceLocator;
-    }
-
 }

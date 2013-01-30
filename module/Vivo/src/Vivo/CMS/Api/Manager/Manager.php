@@ -3,10 +3,24 @@ namespace Vivo\CMS\Api\Manager;
 
 use Vivo\CMS\Model\Site;
 
+/**
+ * Bussiness claas for backend Manager.
+ */
+
 class Manager
 {
+
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+
+    }
+
     /**
      * Returns sites that can be managed by current user.
+     * @return Site[]
      */
     public function getManageableSites()
     {

@@ -1,8 +1,6 @@
 <?php
 namespace Vivo\CMS\UI\Manager\Explorer;
 
-use Vivo\CMS\UI\Manager\SiteSelector;
-
 use Vivo\UI\Component;
 
 /**
@@ -11,6 +9,7 @@ use Vivo\UI\Component;
 class Tree extends Component
 {
     protected $entityManager;
+
 
     public function setEntityManager(EntityManagerInterface $entityManager)
     {
@@ -23,6 +22,10 @@ class Tree extends Component
         //todo
     }
 
+    /**
+     *
+     * @param string $relPath
+     */
     public function set($relPath)
     {
         $this->entityManager->setEntityByRelPath($relPath);

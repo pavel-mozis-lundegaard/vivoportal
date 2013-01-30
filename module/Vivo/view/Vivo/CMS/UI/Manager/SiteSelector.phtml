@@ -1,6 +1,6 @@
 Select site:
 <?foreach($availableSites as $site):?>
-<?if ($selectedSite == $site->getName()):?>
+<?if ($selectedSite->getName() == $site->getName()):?>
 <?=$site->getName()?>
 <?else:?>
 <?=$this->actionLink('set', $site->getName(), array ($site->getName()))?>

@@ -1,2 +1,9 @@
-<h1>SELECT</h1>
-<a href="<?=$this->action('set', array ($selectedSite))?>">select</a>
+Select site:
+<?foreach($availableSites as $site):?>
+<?if ($selectedSite == $site->getName()):?>
+<?=$site->getName()?>
+<?else:?>
+<?=$this->actionLink('set', $site->getName(), array ($site->getName()))?>
+<?endif;?>
+&nbsp;|&nbsp;
+<?endforeach;?>

@@ -14,7 +14,7 @@ class Manager
         $site1 = new Site();
         $site2 = new Site();
         $site1->setPath('/sandbox');
-        $site2->setPath('/sanbox2');
+        $site2->setPath('/sandbox2');
         return array ('sandbox' => $site1, 'sandbox2'=> $site2);
     }
 }

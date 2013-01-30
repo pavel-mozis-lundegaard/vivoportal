@@ -129,9 +129,15 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $ribbon = new \Vivo\CMS\UI\Manager\Explorer\Ribbon();
                     return $ribbon;
                 },
-
+                'Vivo\CMS\UI\Manager\HeaderBar' => function (ServiceManager $sm) {
+                    $headerBar = new \Vivo\CMS\UI\Manager\HeaderBar();
+                    $headerBar->addComponent($sm->get('Vivo\CMS\UI\Manager\SiteSelector'), 'siteSelector');
+                    return  $headerBar;
+                },
                 'Vivo\CMS\UI\Manager\SiteSelector' => function (ServiceManager $sm) {
-                    $siteSelector = new \Vivo\CMS\UI\Manager\SiteSelector(new \Vivo\CMS\Api\Manager\Manager(), $sm->get('session_manager'));
+                    $siteSelector = new \Vivo\CMS\UI\Manager\SiteSelector(
+                            new \Vivo\CMS\Api\Manager\Manager(),
+                            $sm->get('session_manager'));
                     return $siteSelector;
                 },
             ),

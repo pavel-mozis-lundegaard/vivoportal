@@ -1,11 +1,11 @@
 <?php
 namespace Vivo\CMS\UI\Manager\Explorer;
 
+use Zend\Session\ManagerInterface;
+
 use Vivo\CMS\UI\Manager\SiteSelector;
 
-use Zend\Session\Container;
-
-use Zend\Session\SessionManager;
+use Zend\Session;
 
 use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Model;
@@ -51,11 +51,11 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
 
     private $serviceManager;
 
-    public function __construct(Request $request, CMS $cms, SessionManager $sessionManager, SiteSelector $siteSelector)
+    public function __construct(Request $request, CMS $cms, Session\ManagerInterface $sessionManager, SiteSelector $siteSelector)
     {
         $this->request = $request;
         $this->cms = $cms;
-        $this->session = new Container(__CLASS__, $sessionManager);
+        $this->session = new Session\Container(__CLASS__, $sessionManager);
         $this->siteSelector = $siteSelector;
     }
 
@@ -212,9 +212,6 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     {
         $this->eventManager = $eventManager;
         $this->eventManager->addIdentifiers(__CLASS__);
-        $eventManager->getSharedManager()
-                ->attach('Vivo\CMS\UI\Manager\SiteSelector', 'setSite',
-                        array($this, 'onSiteChange'));
     }
 
     public function getEventManager()

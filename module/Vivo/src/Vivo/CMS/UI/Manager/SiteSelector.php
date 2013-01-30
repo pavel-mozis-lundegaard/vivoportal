@@ -60,6 +60,10 @@ class SiteSelector extends Component implements EventManagerAwareInterface
     public function init()
     {
         $this->sites = $this->manager->getManageableSites();
+        if ($siteName = $this->session->siteName) {
+            $this->set($siteName);
+        }
+
         $site = $this->getSite() ? : reset($this->sites);
         $this->setSite($site);
         parent::init();
@@ -80,12 +84,14 @@ class SiteSelector extends Component implements EventManagerAwareInterface
     public function setSite(Site $site)
     {
         $this->site = $site;
+        $this->session->siteName = $site->getName();
         $this->eventManager->trigger(__FUNCTION__, $this, array ('site' => $this->site));
     }
 
     public function view()
     {
-        $this->getView()->selectedSite = $this->site->getName();
+        $this->view->selectedSite = $this->site->getName();
+        $this->view->availableSites = $this->sites;
         return parent::view();
     }
 

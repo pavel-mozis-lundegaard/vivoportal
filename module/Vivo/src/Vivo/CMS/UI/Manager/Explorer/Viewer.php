@@ -5,5 +5,10 @@ use Vivo\UI\Component;
 
 class Viewer extends  Component
 {
+    protected $explorer;
 
+    public function setExplorer(EntityManagerInterface $explorer)
+    {
+        $this->explorer = $explorer;
+    }
 }

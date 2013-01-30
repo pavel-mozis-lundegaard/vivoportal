@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\Controller\CLI;
 
+use Vivo\Service\DbTableNameProvider;
+
 use Zend\Db\Adapter\Adapter as ZendDbAdapter;
 
 /**
@@ -17,18 +19,26 @@ class SetupController extends AbstractCliController
     protected $zdba;
 
     /**
+     * DB Table name provider
+     * @var DbTableNameProvider
+     */
+    protected $dbTableNameProvider;
+
+    /**
      * Constructor
      * @param \Zend\Db\Adapter\Adapter $zdba
+     * @param \Vivo\Service\DbTableNameProvider $dbTableNameProvider
      */
-    public function __construct(ZendDbAdapter $zdba)
+    public function __construct(ZendDbAdapter $zdba, DbTableNameProvider $dbTableNameProvider)
     {
-        $this->zdba = $zdba;
+        $this->zdba                 = $zdba;
+        $this->dbTableNameProvider  = $dbTableNameProvider;
     }
 
     public function getConsoleUsage()
     {
         $output = "\nSetup usage:";
-        $output .= "\n\nsetup db";
+        $output .= "\n\nsetup db [--force|-f]";
         return $output;
     }
 
@@ -38,7 +48,21 @@ class SetupController extends AbstractCliController
      */
     public function dbAction()
     {
-        $ddl        = "CREATE TABLE IF NOT EXISTS `users` (
+        //Prepare params
+        $request    = $this->getRequest();
+        /* @var $request \Zend\Console\Request */
+        // Check force flag
+        $force      = $request->getParam('force') || $request->getParam('f');
+        $output     = 'Db tables setup...';
+        $tableNameUsers = $this->dbTableNameProvider->getTableName('vivo_users');
+        if ($force) {
+            //Remove tables if they exist
+            $ddl    = sprintf("DROP TABLE IF EXISTS `%s`;", $tableNameUsers);
+            $this->zdba->query($ddl, ZendDbAdapter::QUERY_MODE_EXECUTE);
+            $output .= sprintf("\nTable '%s' dropped", $tableNameUsers);
+        }
+        //Create tables
+        $ddl        = sprintf("CREATE TABLE IF NOT EXISTS `%s` (
                       `domain` varchar(60) NOT NULL DEFAULT 'GLOBAL',
                       `username` varchar(30) NOT NULL,
                       `password` varchar(100),
@@ -46,21 +70,9 @@ class SetupController extends AbstractCliController
                       `email` varchar(60),
                       `active` tinyint(1) NOT NULL DEFAULT 1,
                       `expires` datetime,
-                      PRIMARY KEY (`domain`, `username`));";
+                      PRIMARY KEY (`domain`, `username`));", $tableNameUsers);
         $this->zdba->query($ddl, ZendDbAdapter::QUERY_MODE_EXECUTE);
-        $output = 'Table users created';
-
-//        $sql    = new \Zend\Db\Sql\Sql($dba, $tableName);
-//        $insert = $sql->insert();
-//        $insert->columns(array('site', 'first_name', 'last_name'));
-//        $insert->values(array($siteName, 'Jiří', 'Šťastný'));
-//        $statement  = $sql->prepareStatementForSqlObject($insert);
-//        $result     = $statement->execute();
-//        $insert->values(array($siteName, 'Bohuslav', 'Smělý'));
-//        $statement  = $sql->prepareStatementForSqlObject($insert);
-//        $result     = $statement->execute();
-
-//        $output = "Attempted deletion of all documents from index";
+        $output .= sprintf("\nTable '%s' created", $tableNameUsers);
         return $output;
     }
 }

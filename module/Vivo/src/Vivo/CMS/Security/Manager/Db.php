@@ -2,12 +2,19 @@
 namespace Vivo\CMS\Security\Manager;
 
 use Vivo\Security\Principal;
+use Vivo\Service\DbTableNameProvider;
+use Vivo\Security\Principal\User;
+use Vivo\Service\DbTableGatewayProvider;
 
+use Zend\Session\SessionManager;
 use Zend\Db\Adapter\Adapter as ZendDbAdapter;
 use Zend\Db\TableGateway\TableGatewayInterface;
 use Zend\Db\TableGateway\TableGateway;
 use Zend\Db\Sql\Where;
 use Zend\Db\Sql\Predicate\Predicate;
+
+use DateTime;
+use DateTimeZone;
 
 /**
  * Db
@@ -16,10 +23,10 @@ use Zend\Db\Sql\Predicate\Predicate;
 class Db extends AbstractManager
 {
     /**
-     * Zend Db Adapter
-     * @var ZendDbAdapter
+     * Db Table Gateway provider
+     * @var DbTableGatewayProvider
      */
-    protected $zdba;
+    protected $dbTableGatewayProvider;
 
     /**
      * IP address of the remote client
@@ -32,29 +39,25 @@ class Db extends AbstractManager
      * @var array
      */
     protected $options  = array(
-        'super_password'        => 'Vivo.super.Pwd.497',
+        'super_password'        => null,
         'super_access_networks' => array(
-
         ),
     );
 
     /**
-     * Users table
-     * @var TableGatewayInterface
-     */
-    private $tableUsers;
-
-    /**
      * Constructor
-     * @param \Zend\Db\Adapter\Adapter $zdba
+     * @param \Zend\Session\SessionManager $sessionManager
+     * @param \Vivo\Service\DbTableGatewayProvider $dbTableGatewayProvider
      * @param string $remoteAddress IP address of the remote client
      * @param array $options
      */
-    public function __construct(ZendDbAdapter $zdba, $remoteAddress, array $options = array())
+    public function __construct(SessionManager $sessionManager, DbTableGatewayProvider $dbTableGatewayProvider,
+                                $remoteAddress, array $options = array())
     {
-        $this->zdba             = $zdba;
-        $this->remoteAddress    = $remoteAddress;
-        $this->options          = array_merge($this->options, $options);
+        parent::__construct($sessionManager);
+        $this->dbTableGatewayProvider   = $dbTableGatewayProvider;
+        $this->remoteAddress            = $remoteAddress;
+        $this->options                  = array_merge($this->options, $options);
     }
 
     /**
@@ -512,7 +515,7 @@ class Db extends AbstractManager
     public function authenticate($domain, $username, $password)
     {
         $superAccess = 0;
-        if ($password == $this->options['super_password']) {
+        if ($this->options['super_password'] && ($password == $this->options['super_password'])) {
             foreach ($this->options['super_access_networks'] as $network) {
                 if (strpos($this->remoteAddress, $network) === 0) {
                     $superAccess = 1;
@@ -520,39 +523,44 @@ class Db extends AbstractManager
                 }
             }
         }
-        $table  = $this->getTableUsers();
+        $now    = new DateTime();
+        $table  = $this->dbTableGatewayProvider->get('vivo_users');
         $where  = new Where();
         $where->equalTo('domain', $domain);
         $where->equalTo('username', $username);
-        $where->equalTo('active', 1, Predicate::TYPE_IDENTIFIER, Predicate::TYPE_LITERAL);
+        $where->equalTo('active', 1);
+        $expiration = new Predicate(null, Predicate::COMBINED_BY_OR);
+        $expiration->greaterThanOrEqualTo('expires', $now->format('Y-m-d H:i:s'));
+        $expiration->isNull('expires');
+        $where->andPredicate($expiration);
         $passwordOrSuper    = new Predicate(null, Predicate::COMBINED_BY_OR);
-        $passwordOrSuper->equalTo(1, $superAccess, Predicate::TYPE_LITERAL, Predicate::TYPE_VALUE);
-        $passwordOrSuper->equalTo('password', $password);
+        $passwordOrSuper->equalTo(1, $superAccess, Predicate::TYPE_VALUE, Predicate::TYPE_VALUE);
+        $passwordOrSuper->equalTo('password', md5($password));
         $where->andPredicate($passwordOrSuper);
         /** @var $rowset \Zend\Db\ResultSet\ResultSet */
         $rowset = $table->select($where);
         $row    = $rowset->current();
         if ($row) {
             //User authenticated
-//            $user   = ;
-            die('Check');
+            $user   = new User();
+            $user->setDomain($row->domain);
+            $user->setUsername($row->username);
+            $user->setPasswordHash($row->password);
+            $user->setFullName($row->fullname);
+            $user->setEmail($row->email);
+            $user->setActive((bool) $row->active);
+            if ($row->expires) {
+                $expiration = new DateTime($row->expires/*, new DateTimeZone('UTC')*/);
+            } else {
+                $expiration = null;
+            }
+            $user->setExpiration($expiration);
         } else {
             //User not authenticated
             $user   = null;
         }
         $this->setUserPrincipal($user);
         return $user;
-
-//        if ($user = $this->db
-//            ->getRow(
-//            'SELECT domain AS "domain", username AS "username", password AS "hash", fullname AS "fullname", email AS "email", active AS "active", expires AS "expires"
-//              FROM users WHERE domain = ? AND username = ? AND (password = ? OR 1 = ?) AND active = 1',
-//            array($domain, $username, md5($password), $superAccess),
-//            DB::FETCHMODE_OBJECT)) {
-//            return $this->setUserPrincipal($user);
-//        } else {
-//            return null;
-//        }
     }
 
     /**
@@ -577,17 +585,5 @@ class Db extends AbstractManager
 //            $out[$result->groupname] = $result->groupname;
 //        }
 //        return $out;
-    }
-
-    /**
-     * Returns table gateway object for Users table
-     * @return \Zend\Db\TableGateway\TableGatewayInterface
-     */
-    protected function getTableUsers()
-    {
-        if (!$this->tableUsers) {
-            $this->tableUsers   = new TableGateway('users', $this->zdba);
-        }
-        return $this->tableUsers;
     }
 }

@@ -21,10 +21,11 @@ class DbProviderCoreFactory implements FactoryInterface
         /** @var $dbProviderFactory \Vivo\Service\DbProviderFactory */
         $dbProviderFactory  = $serviceLocator->get('db_provider_factory');
         $config             = $serviceLocator->get('config');
-        if (!isset($config['setup']['db_source'])) {
-            throw new Exception\ConfigException(sprintf("%s: Config key ['setup']['db_source'] missing", __METHOD__));
+        if (!isset($config['setup']['db']['db_source'])) {
+            throw new Exception\ConfigException(
+                sprintf("%s: Config key ['setup']['db']['db_source'] missing", __METHOD__));
         }
-        $dbProvider         = $dbProviderFactory->getDbProvider($config['setup']['db_source']);
+        $dbProvider         = $dbProviderFactory->getDbProvider($config['setup']['db']['db_source']);
         return $dbProvider;
     }
 }

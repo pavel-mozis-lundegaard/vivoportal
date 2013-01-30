@@ -20,7 +20,8 @@ class CLISetupControllerFactory implements FactoryInterface
         /** @var $dbProviderCore \Vivo\Service\DbProviderInterface */
         $dbProviderCore = $sm->get('db_provider_core');
         $zdba           = $dbProviderCore->getZendDbAdapter();
-        $controller     = new \Vivo\Controller\CLI\SetupController($zdba);
+        $dbTableNameProvider    = $sm->get('db_table_name_provider');
+        $controller     = new \Vivo\Controller\CLI\SetupController($zdba, $dbTableNameProvider);
         return $controller;
     }
 }

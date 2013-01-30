@@ -35,12 +35,19 @@ class SiteSelector extends Component implements EventManagerAwareInterface
     protected $site;
 
     /**
+     * @var Container
+     */
+    protected $session;
+
+    /**
      * @param Manager $manager
      */
     public function __construct(Manager $manager, SessionManager $sessionManager)
     {
         $this->manager = $manager;
         $this->session = new Container(__CLASS__, $sessionManager);
+        $this->sites = $this->manager->getManageableSites();
+        $this->site = $this->session->site? : reset($this->sites);
     }
 
     public function setEventManager(EventManagerInterface $eventManager)
@@ -52,17 +59,6 @@ class SiteSelector extends Component implements EventManagerAwareInterface
     public function getEventManager()
     {
         return $this->eventManager;
-    }
-
-    /**
-     * Initializes component.
-     */
-    public function init()
-    {
-        $this->sites = $this->manager->getManageableSites();
-        $site = $this->getSite() ? : reset($this->sites);
-        $this->setSite($site);
-        parent::init();
     }
 
     public function set($siteName)
@@ -80,12 +76,14 @@ class SiteSelector extends Component implements EventManagerAwareInterface
     public function setSite(Site $site)
     {
         $this->site = $site;
-        $this->eventManager->trigger(__FUNCTION__, $this, array ('site' => $this->site));
+        $this->session->site = $site;
+        $this->eventManager->trigger(__FUNCTION__, $this, array ('site' => $site));
     }
 
     public function view()
     {
-        $this->getView()->selectedSite = $this->site->getName();
+        $this->view->selectedSite = $this->site;
+        $this->view->availableSites = $this->sites;
         return parent::view();
     }
 

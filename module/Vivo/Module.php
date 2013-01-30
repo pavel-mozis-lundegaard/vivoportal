@@ -2,7 +2,6 @@
 namespace Vivo;
 
 use Zend\View\Model\ViewModel;
-
 use Vivo\View\Helper as ViewHelper;
 use Vivo\Service\Exception;
 
@@ -98,10 +97,17 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
             'factories' => array(
                 'Vivo\CMS\UI\Manager\Explorer\Explorer' => function (ServiceManager $sm) {
                     $siteSelector = $sm->get('Vivo\CMS\UI\Manager\SiteSelector');
-                    $explorer = new \Vivo\CMS\UI\Manager\Explorer\Explorer($sm->get('request'), $sm->get('cms'), $sm->get('session_manager'), $siteSelector);
+
+                    $explorer = new \Vivo\CMS\UI\Manager\Explorer\Explorer(
+                            $sm->get('request'),
+                            $sm->get('cms'),
+                            $sm->get('session_manager'),
+                            $siteSelector,
+                            new \Vivo\CMS\UI\Manager\Explorer\ExplorerComponentFactory($sm)
+                            );
+
                     $explorer->setEventManager($sm->get('event_manager'));
                     $explorer->addComponent($sm->get('Vivo\CMS\UI\Manager\Explorer\Ribbon'), 'ribbon');
-                    $explorer->setServiceManager($sm);
 
                     $tree = new \Vivo\CMS\UI\Manager\Explorer\Tree();
                     $tree->setView($sm->get('view_model'));
@@ -129,9 +135,15 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $ribbon = new \Vivo\CMS\UI\Manager\Explorer\Ribbon();
                     return $ribbon;
                 },
-
+                'Vivo\CMS\UI\Manager\HeaderBar' => function (ServiceManager $sm) {
+                    $headerBar = new \Vivo\CMS\UI\Manager\HeaderBar();
+                    $headerBar->addComponent($sm->get('Vivo\CMS\UI\Manager\SiteSelector'), 'siteSelector');
+                    return  $headerBar;
+                },
                 'Vivo\CMS\UI\Manager\SiteSelector' => function (ServiceManager $sm) {
-                    $siteSelector = new \Vivo\CMS\UI\Manager\SiteSelector(new \Vivo\CMS\Api\Manager\Manager(), $sm->get('session_manager'));
+                    $siteSelector = new \Vivo\CMS\UI\Manager\SiteSelector(
+                            new \Vivo\CMS\Api\Manager\Manager(),
+                            $sm->get('session_manager'));
                     return $siteSelector;
                 },
             ),

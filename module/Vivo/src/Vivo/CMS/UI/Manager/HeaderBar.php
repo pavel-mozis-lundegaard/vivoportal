@@ -10,12 +10,6 @@ class HeaderBar extends Component
     {
     }
 
-//     public function setSiteSelector(SiteSelector $siteSelector)
-//     {
-//         $this->addComponent($siteSelector, 'siteSelector');
-//         die('ss');
-//     }
-
     public function init()
     {
         parent::init();

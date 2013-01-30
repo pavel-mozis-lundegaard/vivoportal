@@ -1,14 +1,9 @@
 <?php
 namespace Vivo\CMS\UI\Manager\Explorer;
 
-use Vivo\CMS\UI\Manager\SiteSelector;
-
-use Zend\Session\Container;
-
-use Zend\Session\SessionManager;
-
 use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Model;
+use Vivo\CMS\UI\Manager\SiteSelector;
 use Vivo\UI\ComponentContainer;
 
 use Zend\EventManager\Event;
@@ -16,10 +11,10 @@ use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\SharedEventManager;
 use Zend\Http\Request;
+use Zend\Session;
 
 /**
- *
- * @todo save entity/site to session
+ * Explorer component.
  */
 class Explorer extends ComponentContainer implements EventManagerAwareInterface,
         EntityManagerInterface
@@ -28,57 +23,76 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
      * Entity beeing explored.
      * @var \Vivo\CMS\Model\Entity
      */
-    private $entity;
+    protected $entity;
 
     /**
-     *  Site beeing explored
-     * @var \Vivo\CMS\Model\Site
-     */
-    private $site;
-
-    /**
-     * Current component
+     * Current component name.
      * @var string
      */
-    private $currentName = 'browser';
+    protected $currentName = 'browser';
 
     /**
      * @var EventManagerInterface
      */
-    private $eventManager;
+    protected $eventManager;
 
-    private $siteSelector;
+    /**
+     * @var SiteSelector
+     */
+    protected $siteSelector;
 
-    private $serviceManager;
+    protected $explorerComponentFactory;
 
-    public function __construct(Request $request, CMS $cms, SessionManager $sessionManager, SiteSelector $siteSelector)
+    /**
+     * Constructor.
+     * @param Request $request
+     * @param CMS $cms
+     * @param Session\ManagerInterface $sessionManager
+     * @param SiteSelector $siteSelector
+     * @param ExplorerComponentFactory $explorerComponentFactory
+     */
+    public function __construct(Request $request, CMS $cms,
+            Session\ManagerInterface $sessionManager,
+            SiteSelector $siteSelector,
+            ExplorerComponentFactory $explorerComponentFactory
+            )
     {
         $this->request = $request;
         $this->cms = $cms;
-        $this->session = new Container(__CLASS__, $sessionManager);
+        $this->session = new Session\Container(__CLASS__, $sessionManager);
         $this->siteSelector = $siteSelector;
+        $this->explorerComponentFactory = $explorerComponentFactory;
+        $this->loadState();
     }
 
-    public function setServiceManager($manager)
-    {
-        $this->serviceManager = $manager;
-    }
-
-    public function loadState()
-    {
-        $this->entity = $this->session->entity;
-        $this->currentName = $this->session->currentName;
-    }
-
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\UI\ComponentContainer::init()
+     */
     public function init()
     {
-        $this->loadState();
+        parent::init();
+        $this->loadEntity();
         $this->setCurrent($this->currentName);
+
+        //attach events
         $this->siteSelector->getEventManager()->attach('setSite', array($this, 'onSiteChange'));
         $this->ribbon->getEventManager()->attach('itemClick', array ($this, 'onRibbonClick'));
-        parent::init();
     }
 
+    /**
+     * Load state from session.
+     */
+    protected function loadState()
+    {
+        $this->entity = $this->session->entity;
+        $this->currentName = $this->session->currentName ? : $this->currentName;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\UI\ComponentContainer::done()
+     */
     public function done() {
         $this->session->entity = $this->entity;
         $this->session->currentName = $this->currentName;
@@ -86,144 +100,121 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     }
 
     /**
-     * @todo move to factory class
+     * Creates and attach component to explorer(brovser, viewer, editor).
+     * @param string $name
      */
-    public function createComponent($name)
+    protected function setCurrent($name)
     {
-        switch($name) {
-            case 'browser':
-                $component = new Browser($this);
-                break;
-            case 'viewer':
-                $component = new Viewer($this);
-                break;
-            case 'editor':
-                $component = $this->serviceManager->get('Vivo\CMS\UI\Manager\Explorer\Editor');
-                break;
-            default:
-                $component = null;
-        }
-        return $component;
-    }
-
-    public function setCurrent($name)
-    {
-        $component = $this->createComponent($name);
+        $component = $this->explorerComponentFactory->create($name);
         if ($component) {
-            $this->currentName = $name;
+            $component->init();
+            if ($this->hasComponent($name)) {
+//                $this->removeComponent($name);
 
-            if ($this->hasComponent('current')) {
-//                $this->removeComponent('current');
             }
-            $this->addComponent($component, 'current');
+            $this->currentName = $name;
+            $this->addComponent($component, $name);
         }
     }
 
-    public function loadEntity()
+    /**
+     * Loads entity from url
+     */
+    protected function loadEntity()
     {
-        $site = $this->siteSelector->getSite();
-        if ($this->site) {
+        if ($site = $this->getSite()) {
             if ($relPath = $this->request->getQuery('url', false)) {
                 $entity = $this->cms->getSiteEntity($relPath, $site);
                 $this->setEntity($entity);
             } elseif ($this->entity === null) {
-                $entity = $this->cms->getSiteEntity('', $site);
+                $entity = $this->cms->getSiteEntity('/', $site);
                 $this->setEntity($entity);
             }
         }
     }
 
+    /**
+     * Callback for site change event.
+     *
+     * When site is changed, load root document.
+     * @param Event $event
+     */
     public function onSiteChange(Event $event)
     {
-        $this->site = $event->getParam('site');
         $this->setEntityByRelPath('/');
     }
 
+    /**
+     * Callback for ribbon click event.
+     * @param Event $event
+     */
     public function onRibbonClick(Event $event)
     {
         $this->setCurrent($event->getParam('itemName'));
     }
 
     /**
-     * This method handles selection of any ribbon item
-     * @param Vivo\RibbonItem $item
-     */
-    function invoke($item)
-    {
-        if ($item->name) {
-            $this->current = $this->{$item->name};
-            if ($item->name == 'security')
-                $this->current->selected();
-            // fix #21928
-            if ($item->name == 'creator')
-                $this->current->create();
-            if ($this->last_item)
-                $this->last_item->setActive(false);
-            $this->last_item = $item;
-            $item->setActive(true);
-        }
-    }
-
-    /**
+     * Returns entity beeing explored.
      * @return \Vivo\CMS\Model\Entity
      */
     public function getEntity()
     {
-        if ($this->entity === null) {
-            $this->loadEntity();
-        }
         return $this->entity;
     }
 
     /**
-     * @param Vivo\CMS\Model\Entity $entity
+     * @param \Vivo\CMS\Model\Entity $entity
      */
-    public function setEntity(\Vivo\CMS\Model\Entity $entity)
+    public function setEntity(Model\Entity $entity)
     {
         $this->eventManager->trigger(__FUNCTION__, $this, array('entity'=>$entity));
+        $this->entity = $entity;
     }
 
-    //     function setItem($name)
-    //     {
-    //         if ($name == 'viewer') {
-    //             if ($this->entity instanceof Model\Document) {
-    //                 $this->ribbon->select('tab1');
-    //                 $this->invoke($this->ribbon->tab1->group1->viewer);
-    //             } else {
-    //                 $name = 'browser';
-    //             }
-    //         }
-    //         if ($name == 'editor') {
-    //             $this->ribbon->select('tab1');
-    //             $this->invoke($this->ribbon->tab1->group2->editor);
-    //         }
-    //         if ($name == 'browser') {
-    //             $this->ribbon->select('tab1');
-    //             $this->invoke($this->ribbon->tab1->group1->browser);
-    //         }
-    //     }
-
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\CMS\UI\Manager\Explorer\EntityManagerInterface::setEntityByRelPath()
+     */
     public function setEntityByRelPath($relPath)
     {
-        $this->cms->getSiteEntity($relPath, $this->site);
+        $this->setEntity($this->cms->getSiteEntity($relPath, $this->getSite()));
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\UI\ComponentContainer::view()
+     */
+    public function view()
+    {
+        $this->view->currentName = $this->currentName;
+        return parent::view();
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \Zend\EventManager\EventManagerAwareInterface::setEventManager()
+     */
     public function setEventManager(EventManagerInterface $eventManager)
     {
         $this->eventManager = $eventManager;
         $this->eventManager->addIdentifiers(__CLASS__);
-        $eventManager->getSharedManager()
-                ->attach('Vivo\CMS\UI\Manager\SiteSelector', 'setSite',
-                        array($this, 'onSiteChange'));
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see \Zend\EventManager\EventsCapableInterface::getEventManager()
+     */
     public function getEventManager()
     {
         return $this->eventManager;
     }
 
+    /**
+     * Returns site beeing explored.
+     * @return \Vivo\CMS\Model\Site
+     */
     public function getSite()
     {
-        return $this->site;
+        return $this->siteSelector->getSite();
     }
 }

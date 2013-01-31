@@ -42,6 +42,7 @@ class ResourceManager
             'view'      => 'view',
             'layout'    => 'view/layout',
             'resource'  => 'resource',
+            'metadata'  => 'config/metadata',
         ),
         'default_type'  => 'resource',
     );

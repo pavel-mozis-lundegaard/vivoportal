@@ -9,6 +9,17 @@ use Vivo\CMS\Model\Document;
   */
 interface InjectModelInterface
 {
+    /**
+     * Sets content
+     * @param Content $content
+     * @return void
+     */
     public function setContent(Content $content);
+
+    /**
+     * Sets document
+     * @param Document $document
+     * @return void
+     */
     public function setDocument(Document $document);
 }

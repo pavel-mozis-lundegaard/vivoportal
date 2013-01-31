@@ -24,43 +24,29 @@ class Indexer implements IndexerInterface
     }
 
     /**
-     * Returns an array of hits
+     * Returns a search result
      * @param Query\QueryInterface $query
-     * @return QueryHit[]
+     * @param QueryParams|array|null $queryParams Either a QueryParams object or an array specifying the params
+     * @see Vivo\Indexer\QueryParams for supported $queryParams keys
+     * @return Result
      */
-    public function find(Query\QueryInterface $query)
+    public function find(Query\QueryInterface $query, $queryParams = null)
 	{
-        return $this->adapter->find($query);
+        if (is_array($queryParams)) {
+            $queryParams    = new QueryParams($queryParams);
+        }
+        return $this->adapter->find($query, $queryParams);
 	}
 
     /**
-     * Finds documents based on a term (returns docIds)
-     * This is usually faster than find()
-     * Returns an array of document ids, if no documents are found, returns an empty array
-     * @param Term $term
-     * @return array
+     * Finds and returns a document by its ID
+     * If the document is not found, returns null
+     * @param string $docId
+     * @return Document|null
      */
-    public function termDocs(Term $term)
+    public function findById($docId)
     {
-        return $this->adapter->termDocs($term);
-    }
-
-    /**
-     * Finds documents based on a term (returns document objects)
-     * This is usually faster than find()
-     * Returns an array of document objects, if no documents are found, returns an empty array
-     * @param Term $term
-     * @return Document[]
-     */
-    public function termDocsObj(Term $term)
-    {
-        $docIds = $this->termDocs($term);
-        $docs   = array();
-        foreach ($docIds as $docId) {
-            $doc    = $this->getDocument($docId);
-            $docs[] = $doc;
-        }
-        return $docs;
+        return $this->adapter->findById($docId);
     }
 
     /**
@@ -69,42 +55,25 @@ class Indexer implements IndexerInterface
      */
     public function delete(Query\QueryInterface $query)
     {
-        $hits   = $this->find($query);
-        foreach ($hits as $hit) {
-            $this->removeDocument($hit->getDocId());
-        }
+        $this->adapter->delete($query);
     }
 
     /**
-     * Deletes documents identified by a term from the index (faster than delete())
-     * @param Term $term
-     */
-    public function deleteByTerm(Term $term)
-    {
-        $docIds = $this->termDocs($term);
-        foreach ($docIds as $docId) {
-            $this->removeDocument(($docId));
-        }
-    }
-
-    /**
-     * Returns a document by its ID
-     * If the document with this ID does not exist, returns null
-     * @param string $docId
-     * @return null|Document
-     */
-    public function getDocument($docId)
-    {
-        return $this->adapter->getDocument($docId);
-    }
-
-    /**
-     * Deletes a document from the index
+     * Deletes document by its unique ID
      * @param string $docId
      */
-    public function removeDocument($docId)
+    public function deleteById($docId)
     {
-        $this->adapter->deleteDocument($docId);
+        $this->adapter->deleteById($docId);
+    }
+
+    /**
+     * Adds a document into index
+     * @param Document $document
+     */
+    public function addDocument(Document $document)
+    {
+        $this->adapter->addDocument($document);
     }
 
     /**
@@ -150,39 +119,16 @@ class Indexer implements IndexerInterface
     }
 
     /**
-     * Returns number of all (undeleted + deleted) documents in the index
-     * @return integer
-     */
-    public function getDocumentCountAll()
-    {
-        return $this->adapter->getDocumentCountAll();
-    }
-
-    /**
-     * Returns number of undeleted document in the index
-     * @return int
-     */
-    public function getDocumentCountUndeleted()
-    {
-        return $this->adapter->getDocumentCountUndeleted();
-    }
-
-    /**
-     * Returns number of deleted documents in the index
-     * @return int
-     */
-    public function getDocumentCountDeleted()
-    {
-        $deletedCount   = $this->getDocumentCountAll() - $this->getDocumentCountUndeleted();
-        return $deletedCount;
-    }
-
-    /**
-     * Adds a document into index
+     * Updates document in index
      * @param Document $document
+     * @throws Exception\InvalidArgumentException
+     * @return void
      */
-    public function addDocument(Document $document)
+    public function update(Document $document)
     {
-        $this->adapter->addDocument($document);
+        if (!$document->getDocId()) {
+            throw new Exception\InvalidArgumentException(
+                sprintf('%s: Cannot update document; Document has no ID', __METHOD__));
+        }
     }
 }

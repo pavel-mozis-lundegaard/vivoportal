@@ -339,7 +339,7 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
         $this->cache->expects($this->once())
             ->method('removeItem')
             ->with($this->equalTo($uuid));
-        $delQuery   = $this->getMock('Vivo\Indexer\Query\Boolean', array(), array(), '', false);
+        $delQuery   = $this->getMock('Vivo\Indexer\Query\BooleanInterface', array(), array(), '', false);
         $this->indexerHelper->expects($this->once())
             ->method('buildTreeQuery')
             ->with($this->equalTo($this->entity))
@@ -416,8 +416,7 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
         $term   = $this->getMock('Vivo\Indexer\Term', array(), array(), '', false);
         $doc    = $this->getMock('Vivo\Indexer\Document', array(), array(), '', false);
         $this->indexer->expects($this->once())
-            ->method('deleteByTerm')
-            ->with($term);
+            ->method('delete');
         $this->indexer->expects($this->once())
             ->method('addDocument')
             ->with($doc);

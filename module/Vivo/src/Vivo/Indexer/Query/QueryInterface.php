@@ -6,5 +6,4 @@ namespace Vivo\Indexer\Query;
  */
 interface QueryInterface
 {
-
 }

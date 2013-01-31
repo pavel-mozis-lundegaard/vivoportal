@@ -1,12 +1,16 @@
 <?php
 namespace Vivo\CMS\Api;
 
+use Vivo\CMS\Exception\InvalidArgumentException;
 use Vivo\CMS\Model;
 use Vivo\CMS\Workflow;
 use Vivo\CMS\Exception;
 use Vivo\Repository\Repository;
-use Vivo\Indexer\Term as IndexerTerm;
-use Vivo\Indexer\Query\MultiTerm as MultiTermQuery;
+use Vivo\Indexer\Query\QueryInterface;
+use Vivo\Indexer\QueryBuilder;
+use Vivo\Indexer\IndexerInterface;
+use Vivo\Indexer\QueryParams;
+use Vivo\Repository\IndexerHelper;
 
 use Zend\Config;
 
@@ -16,13 +20,43 @@ use Zend\Config;
 class CMS
 {
     /**
+     * Repository
      * @var \Vivo\Repository\Repository
      */
     private $repository;
 
-    public function __construct(Repository $repository)
+    /**
+     * Indexer
+     * @var IndexerInterface
+     */
+    protected $indexer;
+
+    /**
+     * Indexer Helper
+     * @var IndexerHelper
+     */
+    protected $indexerHelper;
+
+    /**
+     * Query Builder
+     * @var QueryBuilder
+     */
+    protected $qb;
+
+    /**
+     * Constructor
+     * @param \Vivo\Repository\Repository $repository
+     * @param \Vivo\Indexer\IndexerInterface $indexer
+     * @param \Vivo\Repository\IndexerHelper $indexerHelper
+     * @param \Vivo\Indexer\QueryBuilder $qb
+     */
+    public function __construct(Repository $repository, IndexerInterface $indexer, IndexerHelper $indexerHelper,
+                                QueryBuilder $qb)
     {
-        $this->repository = $repository;
+        $this->repository       = $repository;
+        $this->indexer          = $indexer;
+        $this->indexerHelper    = $indexerHelper;
+        $this->qb               = $qb;
     }
 
     /**
@@ -33,14 +67,24 @@ class CMS
      */
     public function getSiteByHost($host)
     {
-        $sites  = $this->getChildren(new Model\Folder(''));
-        foreach ($sites as $site) {
-            /** @var $site \Vivo\CMS\Model\Site */
-            if (in_array($host, $site->getHosts())) {
-                return $site;
+        $query      = $this->qb->cond($host, '\\hosts');
+        $entities   = $this->getEntitiesByQuery($query, array('page_size' => 1));
+        if (count($entities) == 1) {
+            //Site found
+            $site   = reset($entities);
+        } else {
+            //Site not found - fallback to traversing the repo (necessary for reindexing)
+            $sites  = $this->getChildren(new Model\Folder(''));
+            $site   = null;
+            foreach ($sites as $siteIter) {
+                /** @var $siteIter \Vivo\CMS\Model\Site */
+                if (in_array($host, $siteIter->getHosts())) {
+                    $site   = $siteIter;
+                    break;
+                }
             }
         }
-        return null;
+        return $site;
 
 //        $termHost   = new IndexerTerm('###host###/' . $host);
 //        $termType   = new IndexerTerm('Vivo\CMS\Model\Site', 'type');
@@ -173,7 +217,10 @@ class CMS
                     );
                 }
          */
-        $this->repository->saveEntity($document);
+        $options    = array(
+            'published_content_types'   => $this->getPublishedContentTypes($document),
+        );
+        $this->repository->saveEntity($document, $options);
         $this->repository->commit();
     }
 
@@ -379,8 +426,8 @@ class CMS
 
     /**
      * Returns array of published contents of given document.
-     * @param Document $document
-     * @return Content[]
+     * @param Model\Document $document
+     * @return Model\Content[]
      */
     public function getPublishedContents(Model\Document $document)
     {
@@ -460,11 +507,64 @@ class CMS
         return $parts[1];
     }
 
-    public function getSiteEntity($entityPath, $site)
+    /**
+     * Returns entity ralative path within site.
+     *
+     * Relative path starts and ends with slash.
+     * @param Model\Entity $entity
+     * @example '/path/to/some-document-within-site/'
+     * @return string
+     */
+    public function getEntityRelPath(Model\Entity $entity)
     {
-        $path = $site->getPath(). '/ROOT/'. $entityPath;
+        $parts = explode('/ROOT', $entity->getPath());
+        return $parts[1];
+    }
+
+    /**
+     * Returns site path of given entity.
+     * @param Model\Entity $entity
+     * @return string
+     */
+    public function getEntitySitePath(Model\Entity $entity) {
+        $parts = explode('/ROOT/', $entity->getPath());
+        return $parts[0];
+    }
+
+    /**
+     * Returns entity within site by rel path.
+     * @param string $relPath
+     * @param Model\Site $site
+     * @return Model\Entity
+     */
+    public function getSiteEntity($relPath, Model\Site $site)
+    {
+        $path = $this->getEntityAbsolutePath($relPath, $site);
         return $this->getEntity($path);
     }
+
+    /**
+     * Returns
+     * @param unknown $path
+     * @param Model\Site $site
+     * @throws InvalidArgumentException
+     * @return string|unknown
+     */
+    public function getEntityAbsolutePath($path, Model\Site $site = null)
+    {
+        if (substr($path, 0, 1) == '/' && substr($path, -1) == '/') {
+            //it's relative path
+            if (!$site instanceof Model\Site) {
+                throw new InvalidArgumentException('Can\'t create entity absolute path');
+            }
+            return $site->getPath() .'/ROOT/' .trim($path, '/');
+        } else {
+            //it's absolute path
+            return $path;
+        }
+
+    }
+
 
     /**
      * Returns child documents.
@@ -513,5 +613,96 @@ class CMS
             $siteExists = false;
         }
         return $siteExists;
+    }
+
+    /**
+     * Returns entities specified by the indexer query
+     * @param QueryInterface|string $spec Either QueryInterface or a string query
+     * @param QueryParams|array|null $queryParams Either a QueryParams object or an array specifying the params
+     * @return \Vivo\CMS\Model\Entity[]
+     */
+    public function getEntitiesByQuery($spec, $queryParams = null)
+    {
+        return $this->repository->getEntities($spec, $queryParams);
+    }
+
+    /**
+     * Reindex all entities (contents and children) saved under entity
+     * First commits any uncommitted changes in the repository
+     * Returns number of reindexed items
+     * @param string $path Path to entity
+     * @param bool $deep If true reindexes whole subtree
+     * @throws \Exception
+     * @return int
+     */
+    public function reindex($path, $deep = false)
+    {
+        //The reindexing may not rely on the indexer in any way! Presume the indexer data is corrupt.
+        $this->repository->commit();
+        $this->indexer->begin();
+        try {
+            if ($deep) {
+                $delQuery   = $this->indexerHelper->buildTreeQuery($path);
+            } else {
+                $delQuery   = $this->qb->cond(sprintf('\path:%s', $path));
+            }
+            $this->indexer->delete($delQuery);
+            $count      = 0;
+            $entity     = $this->repository->getEntityFromStorage($path);
+            if ($entity) {
+                if ($entity instanceof Model\Document) {
+                    $publishedContentTypes  = $this->getPublishedContentTypes($entity);
+                } else {
+                    $publishedContentTypes    = array();
+                }
+                $options    = array('published_content_types' => $publishedContentTypes);
+                $idxDoc     = $this->indexerHelper->createDocument($entity, $options);
+                $this->indexer->addDocument($idxDoc);
+                $count      = 1;
+                //TODO - reindex entity Contents
+                //		if ($entity instanceof Vivo\CMS\Model\Document) {
+                //            /* @var $entity \Vivo\CMS\Model\Document */
+                //			for ($index = 1; $index <= $entity->getContentCount(); $index++)
+                //				foreach ($entity->getContents($index) as $content)
+                //					$count += $this->reindex($content, true);
+                //		}
+                if ($deep) {
+                    $descendants    = $this->repository->getDescendantsFromStorage($path);
+                    foreach ($descendants as $descendant) {
+                        if ($descendant instanceof Model\Document) {
+                            $publishedContentTypes  = $this->getPublishedContentTypes($descendant);
+                        } else {
+                            $publishedContentTypes  = array();
+                        }
+                        $options    = array('published_content_types' => $publishedContentTypes);
+                        $idxDoc     = $this->indexerHelper->createDocument($descendant, $options);
+                        $this->indexer->addDocument($idxDoc);
+                        $count++;
+                    }
+                }
+            }
+            $this->indexer->commit();
+        } catch (\Exception $e) {
+            $this->indexer->rollback();
+            throw $e;
+        }
+        return $count;
+    }
+
+    /**
+     * Returns array of published content types (class names of published contents)
+     * If there are no published contents, returns an empty array
+     * @param \Vivo\CMS\Model\Document $document
+     * @return string[]
+     */
+    protected function getPublishedContentTypes(Model\Document $document)
+    {
+        $publishedContents      = $this->getPublishedContents($document);
+        $publishedContentTypes  = array();
+        /** @var $publishedContent Model\Content */
+        foreach ($publishedContents as $publishedContent) {
+            $publishedContentTypes[]    = get_class($publishedContent);
+        }
+        return $publishedContentTypes;
     }
 }

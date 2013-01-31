@@ -1,0 +1,32 @@
+<?
+// example how to add css and js from template
+//$this->headLink()->appendStylesheet('/.VivoSandboxModule.resource/css/Sample.css');
+//$this->headScript()->appendFile('/.VivoSandboxModule.resource/js/DefinedInTemplate.js');
+?>
+<div class="samplediv">
+<h4>LOGON UI COMPONENT</h4>
+<?php
+    /** @var $form \Vivo\Form\Logon */
+    //Display error notice
+    if ($form->getMessages()) {
+        echo '<p>' . $this->escapeHtml($this->translate('Invalid input provided')) . '</p>';
+    }
+    if ($user) {
+        //A user is already logged in - display logoff
+        echo $this->escapeHtml($this->translate('User: ')) . $user->username;
+        echo '<br>' . $this->actionLink('logoff', 'Logout');
+    } else {
+        //User not logged in - display logon
+        //Add hidden field containing the required action
+        //TODO - will be moved to the component
+        $form->add(array(
+            'name'          => 'act',
+            'attributes'    => array(
+                'type'          => 'hidden',
+                'value'         => $this->action('logon'),
+            ),
+        ));
+        echo $this->vivoForm($form);
+    }
+?>
+</div>

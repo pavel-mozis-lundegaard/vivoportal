@@ -70,9 +70,11 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
         $this->components[$name] = $component;
     }
 
-    public function addComponents()
+    public function addComponents(array $components)
     {
-        //TODO
+        foreach ($components as $name => $component) {
+            $this->addComponent($component, $name);
+        }
     }
 
     /* (non-PHPdoc)
@@ -91,6 +93,10 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
         unset($this->components[$name]);
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\UI\ComponentContainerInterface::getComponent()
+     */
     public function getComponent($name)
     {
         if (!$this->hasComponent($name)) {
@@ -102,28 +108,21 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
     }
 
     /**
+     * Returns components.
+     * @return array
+     */
+    public function getComponents()
+    {
+        return $this->components;
+    }
+
+    /**
      * @param string $name
+     * @return bool
      */
     public function hasComponent($name)
     {
         return isset($this->components[$name]);
-    }
-
-    /**
-     * Retruns UI components tree for debuging.
-     * @return array
-     */
-    public function getTree()
-    {
-        $tree = array('class' => get_class($this));
-        foreach ($this->components as $name => $subComponent) {
-            if ($subComponent instanceof self) {
-                $tree['sub'][$name] = $subComponent->getTree();
-            } else {
-                $tree['sub'][$name] = get_class($subComponent);
-            }
-        }
-        return $tree;
     }
 
     public function view()
@@ -138,7 +137,11 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
                 $viewModel->setVariable($name, $model);
             }
         }
-        $viewModel->setVariable('componentNames', array_keys($this->components));
+
+        $container = array (
+            'components' => array_keys($this->components),
+        );
+        $viewModel->setVariable('container', $container);
         return $viewModel;
     }
 }

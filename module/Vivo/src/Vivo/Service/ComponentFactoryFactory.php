@@ -19,9 +19,11 @@ class ComponentFactoryFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $di = $serviceLocator->get('vivo_service_manager')->get('di_proxy');
-        $cf = new ComponentFactory($di, $serviceLocator->get('cms'), $serviceLocator->get('site_event')->getSite());
-        $resolver = new ComponentResolver($serviceLocator->get('config'));
+        $cf = new ComponentFactory($serviceLocator,
+                $serviceLocator->get('di_proxy'), $serviceLocator->get('cms'),
+                $serviceLocator->get('site_event')->getSite());
+
+        $resolver = new ComponentResolver($serviceLocator->get('cms_config'));
         $cf->setResolver($resolver);
         return $cf;
     }

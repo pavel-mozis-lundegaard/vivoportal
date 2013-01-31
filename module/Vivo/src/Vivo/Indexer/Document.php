@@ -1,26 +1,40 @@
 <?php
 namespace Vivo\Indexer;
 
+use \ArrayObject;
+
 /**
  * Document
  * Document stored into index / retrieved from index
  */
-class Document
+class Document implements DocumentInterface
 {
+    /**
+     * Document ID
+     * @var string
+     */
+    protected $docId;
+
     /**
      * Array of document fields
      * @var Field[]
      */
-    protected $fields   = array();
+    protected $fields           = array();
 
     /**
      * Constructor
-     * @param Field[]|null $fields
+     * @param string|null $docId
+     * @param Field[]|array|null $fields Either array of Fields or array of mappings fieldName => fieldValue
      */
-    public function __construct(array $fields = null)
+    public function __construct($docId = null, array $fields = null)
     {
+        $this->setDocId($docId);
         if ($fields) {
-            foreach ($fields as $field) {
+            foreach ($fields as $key => $field) {
+                if (!($field instanceof Field)) {
+                    //fieldName => fieldValue mapping
+                    $field = new Field($key, $field);
+                }
                 $this->addField($field);
             }
         }
@@ -32,7 +46,7 @@ class Document
      */
     public function addField(Field $field)
     {
-        $this->fields[$field->getName()]    = $field;
+        $this->fields[$field->getName()]            = $field;
     }
 
     /**
@@ -69,5 +83,47 @@ class Document
     {
         $field  = $this->getField($filedName);
         return $field->getValue();
+    }
+
+    /**
+     * IteratorAggregate implementation function. Allows usage:
+     * <code>
+     * foreach ($document as $key => $value)
+     * {
+     * 	...
+     * }
+     * </code>
+     */
+    public function getIterator()
+    {
+        $arrayObject = new ArrayObject($this->fields);
+        return $arrayObject->getIterator();
+    }
+
+    /**
+     * Sets unique document ID
+     * @param string|null $docId
+     */
+    public function setDocId($docId = null)
+    {
+        $this->docId    = $docId;
+    }
+
+    /**
+     * Returns unique document ID
+     * @return string
+     */
+    public function getDocId()
+    {
+        return $this->docId;
+    }
+
+    /**
+     * Returns if the document has an ID set
+     * @return bool
+     */
+    public function hasDocId()
+    {
+        return !is_null($this->docId);
     }
 }

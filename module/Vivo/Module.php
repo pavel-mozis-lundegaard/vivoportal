@@ -1,7 +1,6 @@
 <?php
 namespace Vivo;
 
-use Vivo\Util\Path\PathParser;
 use Vivo\View\Helper as ViewHelper;
 use Vivo\Service\Exception;
 
@@ -20,6 +19,9 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
      */
     public function onBootstrap(MvcEvent $e)
     {
+        //initialize logger
+        $logger = $e->getApplication()->getServiceManager()->get('logger');
+
         $e->getApplication()->getServiceManager()->get('translator');
         $eventManager        = $e->getApplication()->getEventManager();
         $moduleRouteListener = new ModuleRouteListener();
@@ -35,16 +37,18 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
 
         //Register Vmodule stream
         $moduleStorage  = $sm->get('module_storage');
-        $streamName     = $config['vivo']['modules']['stream_name'];
+        $streamName     = $config['modules']['stream_name'];
         \Vivo\Module\StreamWrapper::register($streamName, $moduleStorage);
 
-        $eventManager->attach('render', array ($this, 'registerUIRenderingStrategies'), 100);
-        $eventManager->attach('render', array ($this, 'registerViewHelpers'), 100);
+        $eventManager->attach(MvcEvent::EVENT_ROUTE, array ($this, 'registerTemplateResolver'));
+        $eventManager->attach(MvcEvent::EVENT_ROUTE, array ($this, 'registerViewHelpers'));
     }
 
     public function getConfig()
     {
-        return include __DIR__ . '/config/module.config.php';
+        $config = include __DIR__ . '/config/module.config.php'; //main vivo config
+        $config['cms'] = include __DIR__ . '/config/cms.config.php'; //CMS config
+        return $config;
     }
 
     public function getAutoloaderConfig()
@@ -59,16 +63,13 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
     }
 
     /**
-     * Register rendering strategy fo Vivo UI.
+     * Register template resolver.
      * @param MvcEvent $e
      */
-    public function registerUIRenderingStrategies(MvcEvent $e)
+    public function registerTemplateResolver(MvcEvent $e)
     {
-        $app          = $e->getTarget();
-        $locator      = $app->getServiceManager();
-        $view         = $locator->get('Zend\View\View');
-        $phtmlRenderingStrategy = $locator->get('phtml_rendering_strategy');
-        $view->getEventManager()->attach($phtmlRenderingStrategy, 100);
+        $sm = $e->getTarget()->getServiceManager();
+        $sm->get('viewresolver')->attach($sm->get('template_resolver'));
     }
 
     /**
@@ -78,34 +79,21 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
     public function registerViewHelpers($e) {
         $app          = $e->getTarget();
         $serviceLocator      = $app->getServiceManager();
+        /* @var $plugins \Zend\View\HelperPluginManager */
         $plugins      = $serviceLocator->get('view_helper_manager');
-        $plugins->setFactory('action', function($sm) use($serviceLocator) {
-            $helper = new ViewHelper\Action($sm->get('url'));
-            return $helper;
-        });
         $plugins->setFactory('resource', function($sm) use($serviceLocator) {
-            $helper = new ViewHelper\Resource($sm->get('url'), $serviceLocator->get('cms'));
-            $helper->setParser(new PathParser());
+            $helper = new ViewHelper\Resource($serviceLocator->get('cms'));
             return $helper;
         });
         $plugins->setFactory('document', function($sm) use($serviceLocator) {
-                $helper = new ViewHelper\Document($sm->get('url'), $serviceLocator->get('cms'));
-                return $helper;
+            $helper = new ViewHelper\Document($serviceLocator->get('cms'));
+            return $helper;
         });
     }
 
     public function getServiceConfig()
     {
-        return array(
-            'factories' => array(
-                'vivo_service_manager' => function (ServiceManager $sm) {
-                    //TODO - this exception is caught!
-                    throw new Exception\ServiceNotAvailableException(
-                        sprintf('%s: Vivo service manager is not available until site and modules are loaded.',
-                        __METHOD__));
-                },
-            ),
-        );
+        return array();
     }
 
     public function getConsoleBanner(Console $console)
@@ -119,6 +107,8 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                 array ('indexer', 'Perform operations on indexer..'),
                 array ('info','Show information about CMS instance.'),
                 array ('module', 'Manage modules.'),
+                array ('repository', 'Administer the repository.'),
+                array ('cms', 'CMS functions.'),
         );
     }
 }

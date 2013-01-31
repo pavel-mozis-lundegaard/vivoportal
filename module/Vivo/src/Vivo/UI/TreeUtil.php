@@ -63,7 +63,7 @@ class TreeUtil
     public function invokeAction($path, $action, $params)
     {
         if (substr($action, 0, 2) == '__' || $action == 'init') // Init and php magic methods are not accessible.
-            throw new RuntimeException("Method $method is not accessible");
+            throw new RuntimeException("Method $action is not accessible");
         $component = $this->getComponent($path);
 
         if (!method_exists($component, $action)) {
@@ -73,7 +73,7 @@ class TreeUtil
         }
 
         try {
-            call_user_func_array(array($component, $action), $params);
+            return call_user_func_array(array($component, $action), $params);
         } catch (UIException $e) {
             throw new RuntimeException(
                 sprintf("%s: Can not call action on component.", __METHOD__),

@@ -4,11 +4,10 @@ namespace Vivo\UI;
 use Vivo\UI\ComponentInterface;
 
 use Zend\Http\Response;
-use Zend\View\HelperPluginManager;
 use Zend\View\Helper\Doctype;
 
 /**
- *
+ * UI component that represents HTML page.
  */
 class Page extends ComponentContainer
 {
@@ -18,28 +17,28 @@ class Page extends ComponentContainer
     /**
      * @var string
      */
-    private $doctype = Doctype::HTML5;
+    protected $doctype = Doctype::HTML5;
 
     /**
      * @var string Page title.
      */
-    public $title;
+    protected $title;
 
     /**
      * @var array
      * @todo
      */
-    public $html_attributes = array();
+    protected $html_attributes = array();
 
     /**
      * @var array HTML metas.
      */
-    public $metas = array();
+    protected $metas = array();
 
     /**
      * @var array HTML Links.
      */
-    public $links = array();
+    protected $links = array();
 
     /**
      * @var array HTML Links with conditions.
@@ -47,12 +46,12 @@ class Page extends ComponentContainer
      * <!--[if IE 6]><link rel="stylesheet" href="/Styles/ie6.css" type="text/css" media="screen, projection"/><![endif]-->
      * @todo
      */
-    public $conditional_links = array();
+    protected $conditional_links = array();
 
     /**
      * @var array
      */
-    public $scripts = array();
+    protected $scripts = array();
 
     /**
      * @var HelperPluginManager
@@ -63,10 +62,29 @@ class Page extends ComponentContainer
      * @param ComponentInterface $component
      * @param array $options
      */
-    public function __construct(Response $response)
+    public function __construct(Response $response, $options = array())
     {
-        parent::__construct();
         $this->response = $response;
+        $this->configure($options);
+    }
+
+    /**
+     * Configures doctype, links, scripts, metas from options.
+     * @param $options
+     */
+    public function configure(array $options) {
+        if (isset($options['links'])) {
+            $this->setLinks($options['links']);
+        }
+        if (isset($options['metas'])) {
+            $this->setMetas($options['metas']);
+        }
+        if (isset($options['scripts'])) {
+            $this->setScripts($options['scripts']);
+        }
+        if (isset($options['doctype'])) {
+            $this->setDoctype($options['doctype']);
+        }
     }
 
     public function init() {
@@ -100,12 +118,39 @@ class Page extends ComponentContainer
     }
 
     /**
+     * Sets title.
+     * @param unknown $title
+     */
+    public function setTitle($title)
+    {
+        $this->title = $title;
+    }
+
+    /**
+     * Returns title.
+     * @return string
+     */
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    /**
      * Sets head metas.
      * @param array $metas
      */
     public function setMetas(array $metas)
     {
         $this->metas = $metas;
+    }
+
+    /**
+     * Add meta to page.
+     * @param array $meta
+     */
+    public function addMeta(array $meta)
+    {
+        $this->metas[] = $meta;
     }
 
     /**
@@ -118,6 +163,15 @@ class Page extends ComponentContainer
     }
 
     /**
+     * Add link to page.
+     * @param array $link
+     */
+    public function addLink(array $link)
+    {
+        $this->links[] = $link;
+    }
+
+    /**
      * Sets head scripts.
      * @param array $scripts
      */
@@ -127,53 +181,57 @@ class Page extends ComponentContainer
     }
 
     /**
-     * Injects HelperPluginManager.
-     * @param HelperPluginManager $viewHelpers
+     * Add script to page.
+     * @param array
      */
-    public function setViewHelpers(HelperPluginManager $viewHelpers)
+    public function addScript(array $script)
     {
-        $this->viewHelpers = $viewHelpers;
+        $this->scripts[] = $script;
     }
 
     /**
-     * Preonfigure view helpers.
+     * Prepare data for view
      */
-    protected function configureViewHelpers()
+    protected function prepareView()
     {
-        /* @var $headLink \Vivo\View\Helper\HeadLink */
-        $headLink = $this->viewHelpers->get('headLink');
+        //prepare links into HeadLink helper format
+        $links = array();
         foreach ($this->links as $link) {
-            $headLink->append($headLink->createData($link));
+            $links[] = (object) $link;
         }
+        $this->view->links = $links;
 
-        /* @var $headScript \Vivo\View\Helper\HeadScript */
-        $headScript = $this->viewHelpers->get('headScript');
+        //prepare scripts into HeadScript helper format
+        $scripts = array();
         foreach ($this->scripts as $script) {
-            $headScript->append($headScript->createData($script['type'], $script));
+            $data             = new \stdClass();
+            $data->type       = $script['type'];
+            unset($script['type']);
+            $data->attributes = $script;
+            $scripts[] = $data;
         }
+        $this->view->scripts = $scripts;
 
-        /* @var $headMeta \Zend\View\Helper\HeadMeta */
-        $headMeta = $this->viewHelpers->get('headMeta');
-        foreach ($this->metas as $meta) {
-            if (isset($meta['name'])) {
-                $headMeta->appendName($meta['name'], $meta['content']);
-            } elseif (isset($meta['http-equiv'])){
-                $headMeta->appendHttpEquiv($meta['http-equiv'], $meta['content']);
-            } elseif (isset($meta['charset']) && $this->doctype == Doctype::HTML5) {
-                $headMeta->setCharset($meta['charset']);
-            }
-        }
-        /* @var $docType \Zend\View\Helper\DocType */
-        $docType = $this->viewHelpers->get('docType');
-        $docType->setDoctype($this->doctype);
+        $this->view->metas = $this->metas;
+        $this->view->doctype = $this->doctype;
+        $this->view->title = $this->title;
+
+//TODO: should we validate metas?
+//        /* @var $headMeta \Zend\View\Helper\HeadMeta */
+//         foreach ($this->metas as $meta) {
+//             if (isset($meta['name'])) {
+//                 $headMeta->appendName($meta['name'], $meta['content']);
+//             } elseif (isset($meta['http-equiv'])){
+//                 $headMeta->appendHttpEquiv($meta['http-equiv'], $meta['content']);
+//             } elseif (isset($meta['charset']) && $this->doctype == Doctype::HTML5) {
+//                 $headMeta->setCharset($meta['charset']);
+//             }
+//         }
     }
 
     public function view()
     {
-        $this->configureViewHelpers();
-        $this->view->setVariable('doctype', $this->doctype);
-        $this->view->links = $this->links;
-        $this->view->scripts = $this->scripts;
+        $this->prepareView();
         return parent::view();
     }
 }

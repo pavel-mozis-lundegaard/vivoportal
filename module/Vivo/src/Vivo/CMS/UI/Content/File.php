@@ -46,20 +46,18 @@ class File extends Component
         $this->view->resourceFile = $resourceFile;
         if ($mimeType == 'text/html') {
             $this->view->fileContent = $this->cms->getResource($this->content, $resourceFile);
-            $this->templateVariant = 'html';
+            $templateVariant = 'html';
         } elseif ($mimeType == 'text/plain') {
             $this->view->fileContent = $this->cms->getResource($this->content, $resourceFile);
-            $this->templateVariant = 'plain';
+            $templateVariant = 'plain';
         } elseif ($mimeType == 'application/x-shockwave-flash') {
-            $this->templateVariant = 'flash';
+            $templateVariant = 'flash';
         } elseif (substr($mimeType, 0, 6) == 'image/') {
-            $this->templateVariant = 'image';
+            $templateVariant = 'image';
         } else {
-            $this->templateVariant = null;
+            $templateVariant = null;
         }
-    }
-
-    public function getDefaultTemplate() {
-        return parent::getDefaultTemplate() . ($this->templateVariant ? ':'. $this->templateVariant :'');
+        $this->view->setTemplate($this->getDefaultTemplate() .
+                ($templateVariant ? ':' . $templateVariant : ''));
     }
 }

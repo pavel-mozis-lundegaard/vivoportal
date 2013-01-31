@@ -2,8 +2,9 @@
 namespace Vivo\Repository\UuidConvertor;
 
 use Vivo\Indexer\IndexerInterface;
-use Vivo\Indexer\Query as IndexerQuery;
 use Vivo\Indexer\Term as IndexerTerm;
+use Vivo\Indexer\Query\Term as TermQuery;
+use Vivo\Indexer\Document;
 
 /**
  * UuidConvertor
@@ -13,8 +14,7 @@ use Vivo\Indexer\Term as IndexerTerm;
 class UuidConvertor implements UuidConvertorInterface
 {
     /**
-     * Indexer instance\
-     *
+     * Indexer instance
      * @var IndexerInterface
      */
     protected $indexer;
@@ -22,14 +22,12 @@ class UuidConvertor implements UuidConvertorInterface
     /**
      * Maps UUID => path
      * Result cache
-     *
      * @var string[]
      */
     protected $uuidToPath   = array();
 
     /**
      * Maps path => UUID
-     *
      * Result cache
      * @var string[]
      */
@@ -48,7 +46,6 @@ class UuidConvertor implements UuidConvertorInterface
     /**
      * Returns entity UUID based on its path
      * If the entity does not exist returns null instead
-     *
      * @param string $path
      * @return null|string
      */
@@ -57,12 +54,14 @@ class UuidConvertor implements UuidConvertorInterface
         if (isset($this->pathToUuid[$path])) {
             $uuid   = $this->pathToUuid[$path];
         } else {
-            $term   = new IndexerTerm($path, 'path');
-            $termDocsIds    = $this->indexer->termDocs($term);
-            if (count($termDocsIds) > 0) {
-                $docId  = $termDocsIds[0];
-                $doc    = $this->indexer->getDocument($docId);
-                $uuid   = $doc->getFieldValue('uuid');
+            $query  = new TermQuery(new IndexerTerm($path, '\path'));
+            $result = $this->indexer->find($query, array('page_size' => 1));
+            if ($result->getTotalHitCount() > 0) {
+                $hits   = $result->getHits();
+                /** @var $hit \Vivo\Indexer\QueryHit */
+                $hit    = reset($hits);
+                $doc    = $hit->getDocument();
+                $uuid   = $doc->getFieldValue('\uuid');
                 $this->set($uuid, $path);
             } else {
                 $uuid   = null;
@@ -74,7 +73,6 @@ class UuidConvertor implements UuidConvertorInterface
     /**
      * Returns entity path based on its UUID
      * If the UUID does not exist returns null instead
-     *
      * @param string $uuid
      * @return null|string
      */
@@ -83,12 +81,14 @@ class UuidConvertor implements UuidConvertorInterface
         if (isset($this->uuidToPath[$uuid])) {
             $path   = $this->uuidToPath[$uuid];
         } else {
-            $term   = new IndexerTerm($uuid, 'uuid');
-            $termDocsIds    = $this->indexer->termDocs($term);
-            if (count($termDocsIds) > 0) {
-                $docId  = $termDocsIds[0];
-                $doc    = $this->indexer->getDocument($docId);
-                $path   = $doc->getFieldValue('path');
+            $query  = new TermQuery(new IndexerTerm($uuid, '\uuid'));
+            $result = $this->indexer->find($query, array('page_size' => 1));
+            if ($result->getTotalHitCount() > 0) {
+                $hits   = $result->getHits();
+                /** @var $hit \Vivo\Indexer\QueryHit */
+                $hit    = reset($hits);
+                $doc    = $hit->getDocument();
+                $path   = $doc->getFieldValue('\path');
                 $this->set($uuid, $path);
             } else {
                 $path   = null;

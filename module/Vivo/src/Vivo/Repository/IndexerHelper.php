@@ -6,9 +6,15 @@ use Vivo\Indexer\Document;
 use Vivo\Indexer\Field;
 use Vivo\Indexer\Term as IndexerTerm;
 use Vivo\Indexer\Query\Wildcard as WildcardQuery;
-use Vivo\Indexer\Query\Boolean as BooleanQuery;
+use Vivo\Indexer\Query\BooleanOr;
 use Vivo\Indexer\Query\Term as TermQuery;
 use Vivo\Repository\Exception;
+use Vivo\Indexer\FieldHelperInterface as IndexerFieldHelper;
+use Vivo\CMS\Model\Document as DocumentModel;
+use Vivo\CMS\Model\Content;
+use Vivo\CMS\Api\CMS;
+
+use \DateTime;
 
 /**
  * IndexerHelper
@@ -17,35 +23,57 @@ use Vivo\Repository\Exception;
 class IndexerHelper
 {
     /**
+     * Indexer field helper
+     * @var IndexerFieldHelper
+     */
+    protected $indexerFieldHelper;
+
+
+    /**
+     * Constructor
+     * @param \Vivo\Indexer\FieldHelperInterface $indexerFieldHelper
+     */
+    public function __construct(IndexerFieldHelper $indexerFieldHelper)
+    {
+        $this->indexerFieldHelper   = $indexerFieldHelper;
+    }
+
+    /**
      * Creates an indexer document for the submitted entity
      * @param \Vivo\CMS\Model\Entity $entity
+     * @param mixed|null $options Various options required to index the entity
+     * @throws Exception\MethodNotFoundException
      * @return \Vivo\Indexer\Document
      */
-    public function createDocument(Entity $entity)
+    public function createDocument(Entity $entity, array $options = array())
     {
-        $doc    = new Document();
-        //UUID (field type 'keyword')
-        $doc->addField(new Field('uuid', $entity->getUuid(), true, true, false, false));
-        //Path (field type 'keyword')
-        $doc->addField(new Field('path', $entity->getPath(), true, true, false, false));
+        $doc            = new Document();
         $entityClass    = get_class($entity);
-        //Entity type (field type 'keyword')
-        $doc->addField(new Field('type', $entityClass, true, true, false, false));
-        //TODO - a temporary solution - when entity descriptions are implemented as annotations or whatever, refactor!
-        switch ($entityClass) {
-            case 'Vivo\CMS\Model\Site':
-                 /** @var $entity \Vivo\CMS\Model\Site  */
-                //Hosts
-                $hostsFlat  = implode(' ', $entity->getHosts());
-                $doc->addField(new Field('hosts', $hostsFlat, true, true, true, false));
-//                $fields = $this->getFieldsForArrayData($entity->getHosts(), 'host', true, true, false, false);
-//                foreach ($fields as $field) {
-//                    $doc->addField($field);
-//                }
-                break;
-            default:
-                //No other fields will be indexed for other entity types
-                break;
+        //Fields added by default
+        //Published content types
+        if ($entity instanceof DocumentModel) {
+            if (array_key_exists('published_content_types', $options)
+                && is_array($options['published_content_types'])) {
+                //There are some published contents
+                $field  = new Field('\publishedContents', $options['published_content_types']);
+                $doc->addField($field);
+            }
+        }
+        //Class field
+        $field  = new Field('\class', $entityClass);
+        $doc->addField($field);
+
+        //Fields added by metadata config
+        $indexerConfigs  = $this->indexerFieldHelper->getIndexerConfig($entityClass);
+        foreach ($indexerConfigs as $property => $indexerConfig) {
+            $getter = 'get' . ucfirst($property);
+            if (!method_exists($entity, $getter)) {
+                throw new Exception\MethodNotFoundException(
+                    sprintf("%s: Method '%s' not found in '%s'", __METHOD__, $getter, get_class($entity)));
+            }
+            $value  = $entity->$getter();
+            $field  = new Field($indexerConfig['name'], $value);
+            $doc->addField($field);
         }
         return $doc;
     }
@@ -54,7 +82,7 @@ class IndexerHelper
      * Builds and returns a query returning a whole subtree of documents beginning at the $entity
      * @param Entity|string $spec Either an Entity object or a path to an entity
      * @throws Exception\InvalidArgumentException
-     * @return \Vivo\Indexer\Query\Boolean
+     * @return \Vivo\Indexer\Query\BooleanInterface
      */
     public function buildTreeQuery($spec)
     {
@@ -66,13 +94,11 @@ class IndexerHelper
         } else {
             throw new Exception\InvalidArgumentException(sprintf('%s: Unsupported specification type', __METHOD__));
         }
-        $entityTerm          = new IndexerTerm($path, 'path');
+        $entityTerm          = new IndexerTerm($path, '\path');
         $entityQuery         = new TermQuery($entityTerm);
-        $descendantPattern   = new IndexerTerm($path . '/*', 'path');
+        $descendantPattern   = new IndexerTerm($path . '/*', '\path');
         $descendantQuery     = new WildcardQuery($descendantPattern);
-        $boolQuery           = new BooleanQuery();
-        $boolQuery->addSubquery($entityQuery, null);
-        $boolQuery->addSubquery($descendantQuery, null);
+        $boolQuery           = new BooleanOr($entityQuery, $descendantQuery);
         return $boolQuery;
     }
 
@@ -83,32 +109,7 @@ class IndexerHelper
      */
     public function buildEntityTerm(Entity $entity)
     {
-        $term   = new IndexerTerm($entity->getUuid(), 'uuid');
+        $term   = new IndexerTerm($entity->getUuid(), '\uuid');
         return $term;
     }
-
-//    /**
-//     * Returns an array of Fields which contain array data augmented with prefix
-//     * Each data element is returned in its own Field
-//     * @param array $data
-//     * @param string $fieldName
-//     * @param bool $isStored
-//     * @param bool $isIndexed
-//     * @param bool $isTokenized
-//     * @param bool $isBinary
-//     * @return Field[]
-//     */
-//    protected function getFieldsForArrayData(array $data, $fieldName,
-//                                             $isStored, $isIndexed, $isTokenized, $isBinary = false)
-//    {
-//        $i      = 0;
-//        $fields = array();
-//        foreach ($data as $value) {
-//            $fieldNameMod   = $fieldName . '/' . $i;
-//            $fieldValue     = '###' . $fieldName .'###/' . $value;
-//            $fields[]       = new Field($fieldNameMod, $fieldValue, $isStored, $isIndexed, $isTokenized, $isBinary);
-//            $i++;
-//        }
-//        return $fields;
-//    }
 }

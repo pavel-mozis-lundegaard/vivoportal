@@ -101,19 +101,20 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
 
     /**
      * Creates and attach component to explorer(brovser, viewer, editor).
+     *
+     * Uses ExplorerComponentFactory for lazy creation of components.
      * @param string $name
      */
     protected function setCurrent($name)
     {
-        $component = $this->explorerComponentFactory->create($name);
+        $component = $this->explorerComponentFactory->create($name, false);
         if ($component) {
-            $component->init();
             if ($this->hasComponent($name)) {
 //                $this->removeComponent($name);
-
             }
             $this->currentName = $name;
             $this->addComponent($component, $name);
+            $component->init();
         }
     }
 

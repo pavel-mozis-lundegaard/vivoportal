@@ -14,9 +14,12 @@ class ExplorerComponentFactory extends ServiceManager
      * Constructor.
      * @param ServiceLocatorInterface $serviceLocator
      */
-    public function __construct(ServiceLocatorInterface $serviceLocator)
+    public function __construct(ServiceManager $sm)
     {
-         $this->setService('service_locator', $serviceLocator);
+         $this->addPeeringServiceManager($sm);
+
+         //we use same initializers as main service manager
+         $this->initializers = $sm->initializers;
          $config = $this->getServiceConfig();
          foreach ($config['factories'] as $name => $factory)
          {
@@ -35,7 +38,7 @@ class ExplorerComponentFactory extends ServiceManager
             ),
             'factories' => array(
                 'editor' => function (ServiceManager $sm) {
-                    return new Editor($sm->get('service_locator')->get('metadata_manager'));
+                    return new Editor($sm->get('metadata_manager'));
                 },
                 'viewer' => function (ServiceManager $sm) {
                     $viewer = new Viewer();

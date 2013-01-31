@@ -20,6 +20,16 @@ class Delete extends AbstractForm
         return parent::view();
     }
 
+    public function submit()
+    {
+        $form   = $this->getForm();
+        if ($form->isValid()) {
+            $validData  = $form->getData();
+            \Zend\Debug\Debug::dump($validData);
+            $this->redirector->redirect();
+        }
+    }
+
     /**
      * Creates ZF form and returns it
      * Factory method
@@ -32,22 +42,23 @@ class Delete extends AbstractForm
             'name'  => 'act',
             'attributes'    => array(
                 'type'  => 'hidden',
-                'value' => $this->getPath(),
+                'value' => $this->getPath(''),
             ),
         ));
         $form->add(array(
             'name'  => 'yes',
             'type'  => 'Zend\Form\Element\Submit',
-            'options'   => array(
-                'label'     => 'No',
+            'attributes'   => array(
+                'value'     => 'Yes',
             ),
         ));
         $form->add(array(
             'name'  => 'no',
             'type'  => 'Zend\Form\Element\Submit',
-            'options'   => array(
-                'label'     => 'No',
+            'attributes'   => array(
+                'value'     => 'No',
             ),
         ));
+        return $form;
     }
 }

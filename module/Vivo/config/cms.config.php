@@ -57,6 +57,7 @@ return array(
             'Vivo\UI\Page'                  => 'Vivo\Service\UI\PageFactory',
 
             'security_manager'              => 'Vivo\Service\SimpleSecurityManagerFactory',
+//            'security_manager'              => 'Vivo\Service\DbSecurityManagerFactory',
         ),
         'aliases' => array(
         ),

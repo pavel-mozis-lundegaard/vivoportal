@@ -2,6 +2,8 @@
 namespace Vivo\UI;
 
 use Vivo\Service\Initializer\RequestAwareInterface;
+use Vivo\Service\Initializer\RedirectorAwareInterface;
+use Vivo\Util\Redirector;
 
 use Zend\Form\FormInterface;
 use Zend\Form\Form as ZfForm;
@@ -12,7 +14,7 @@ use Zend\Stdlib\RequestInterface;
  * Form
  * Base abstract Vivo Form
  */
-abstract class AbstractForm extends Component implements RequestAwareInterface
+abstract class AbstractForm extends Component implements RequestAwareInterface, RedirectorAwareInterface
 {
     /**
      * @var ZfForm
@@ -23,6 +25,12 @@ abstract class AbstractForm extends Component implements RequestAwareInterface
      * @var Request
      */
     protected $request;
+
+    /**
+     * Redirector instance
+     * @var Redirector
+     */
+    protected $redirector;
 
     /**
      * Has the data been loaded from request?
@@ -117,6 +125,16 @@ abstract class AbstractForm extends Component implements RequestAwareInterface
     public function setRequest(RequestInterface $request)
     {
         $this->request  = $request;
+    }
+
+    /**
+     * Injects redirector
+     * @param \Vivo\Util\Redirector $redirector
+     * @return void
+     */
+    public function setRedirector(Redirector $redirector)
+    {
+        $this->redirector   = $redirector;
     }
 
     /**

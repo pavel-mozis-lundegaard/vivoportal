@@ -44,6 +44,10 @@ class ExplorerComponentFactory extends ServiceManager
                 'browser' => function (ServiceManager $sm) {
                     return new Browser();
                 },
+                'delete'    => function (ServiceManager $sm) {
+                    $delete = new Delete();
+                    return $delete;
+                }
             ),
             'aliases' => array(
             ),

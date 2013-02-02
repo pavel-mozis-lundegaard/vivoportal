@@ -1,10 +1,19 @@
 <?php
 namespace Vivo\Http\Filter;
 
-use Zend\Http\Response;
-
+use Vivo\Http\StreamResponse;
 use Zend\Http\Request;
 
 interface OutputFilterInterface {
-    public function doFilter(Request $request, Response $response);
+
+    /**
+     * Attach output filter.
+     *
+     * Method returns whether filter was attached or not.
+     *
+     * @param Request $request
+     * @param StreamResponse $response
+     * @return boolean whether filter was atached.
+     */
+    public function attachFilter(Request $request, StreamResponse $response);
 }

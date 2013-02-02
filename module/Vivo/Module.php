@@ -44,9 +44,8 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         $eventManager->attach(MvcEvent::EVENT_ROUTE, array ($this, 'registerTemplateResolver'));
         $eventManager->attach(MvcEvent::EVENT_ROUTE, array ($this, 'registerViewHelpers'));
 
-        $filterListener = new OutputFilterListener();
+        $filterListener = $sm->get('Vivo\Http\Filter\OutputFilterListener');
         $filterListener->attach($eventManager);
-
     }
 
     public function getConfig()

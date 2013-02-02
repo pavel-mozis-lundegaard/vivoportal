@@ -115,7 +115,7 @@ return array(
         ),
     ),
     'output_filters' => array (
-                'Vivo\Http\Filter\UpperCase'
+        //register output filters
+        //'Vivo\Http\Filter\UpperCase',
     )
-
 );

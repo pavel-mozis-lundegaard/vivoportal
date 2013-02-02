@@ -3,28 +3,63 @@ namespace Vivo\IO\Filter;
 
 use Vivo\IO\InputStreamInterface;
 
+/**
+ * IO filter for transforming images.
+ * @todo implement
+ *
+ */
 class ImageTransforation implements InputStreamInterface
 {
 
-    private $inputStream;
+    /**
+     * @var InputStreamInterface
+     */
+    protected $inputStream;
 
-    private $options = array();
+    /**
+     * @var InputStreamInterface
+     */
+    protected $transformedStream;
 
-    private $transformed = false;
+    /**
+     * Filter options.
+     * @var array
+     */
+    protected $options = array();
 
-    public function __construct(InputStreamInterface $inputStream, $options = array()) {
+    /**
+     * @var boolean
+     */
+    protected $transformed = false;
+
+    /**
+     * Constructor.
+     * @param InputStreamInterface $inputStream
+     * @param array $options
+     */
+    public function __construct(InputStreamInterface $inputStream, $options = array())
+    {
         $this->inputStream = $inputStream;
         $this->options = $options;
     }
+
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\IO\InputStreamInterface::read()
+     */
     public function read($bytes = 1)
     {
         if (!$this->transformed) $this->transformImage();
-        return $this->inputStream->read($bytes);
+        return $this->transformedStream->read($bytes);
     }
 
+    /**
+     * Transforms image.
+     */
     protected function transformImage() {
-        //TODO
+        throw \Exception('Not implemented');
+        //TODO transform
+        $this->transformedStream = $this->inputStream;
         $this->transformed = true;
     }
-
 }

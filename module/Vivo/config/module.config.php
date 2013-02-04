@@ -83,6 +83,7 @@ return array(
             'indexer_document_builder'  => 'Vivo\Indexer\DocumentBuilder',
             'view_model'                => 'Zend\View\Model\ViewModel',
             'session_manager'           => 'Zend\Session\SessionManager',
+            'Vivo\Http\Filter\OutputFilterListener' => 'Vivo\Http\Filter\OutputFilterListener',
         ),
         'factories' => array(
             'translator'                => 'Zend\I18n\Translator\TranslatorServiceFactory',

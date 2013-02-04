@@ -1,7 +1,6 @@
 <?php
 namespace Vivo;
 
-use Zend\View\Model\ViewModel;
 use Vivo\Http\Filter\OutputFilterListener;
 use Vivo\View\Helper as ViewHelper;
 use Vivo\Service\Exception;

@@ -1,6 +1,10 @@
 <?php
 namespace Vivo\CMS\Api\Manager;
 
+use Vivo\Repository\Repository;
+
+use Vivo\CMS\Api\CMS;
+
 use Vivo\CMS\Model\Site;
 
 /**
@@ -10,12 +14,21 @@ use Vivo\CMS\Model\Site;
 class Manager
 {
 
+    protected $cms;
+
+    /**
+     *
+     * @var Repository
+     */
+    protected $repository;
+
     /**
      * Constructor.
      */
-    public function __construct()
+    public function __construct(CMS $cms, Repository $repository)
     {
-
+        $this->cms = $cms;
+        $this->repository = $repository;
     }
 
     /**
@@ -24,11 +37,13 @@ class Manager
      */
     public function getManageableSites()
     {
-        //TODO find real sites
-        $site1 = new Site();
-        $site2 = new Site();
-        $site1->setPath('/sandbox');
-        $site2->setPath('/sandbox2');
-        return array ('sandbox' => $site1, 'sandbox2'=> $site2);
+        //TODO security
+        $query = '\path:"/*" AND \class:"Vivo\CMS\Model\Site"';
+        $sites = $this->repository->getEntities($query);
+        $result = array();
+        foreach ($sites as $site) {
+            $result[$site->getName()] = $site;
+        }
+        return $result;
     }
 }

@@ -6,35 +6,58 @@ use Vivo\CMS\UI\Manager\Form\EntityEditor as EntityEditorForm;
 
 class Editor extends AbstractForm
 {
-    private $explorer;
-
+    /**
+     * @var \Vivo\Metadata\MetadataManager
+     */
     private $metadataManager;
-
+    /**
+     * @var \Vivo\CMS\Model\Entity
+     */
     private $entity;
 
-    public function __construct($explorer, $metadataManager)
+    /**
+     * @param \Vivo\Metadata\MetadataManager $metadataManager
+     */
+    public function __construct($metadataManager)
     {
-        $this->explorer = $explorer;
         $this->metadataManager = $metadataManager;
     }
 
     public function init()
     {
-        $this->entity = $this->explorer->getEntity();
+        $this->entity = $this->getParent()->getEntity();
 
-        $form = $this->getForm();
-        $form->bind($this->entity);
-        $form->prepare();
+        $this->getForm()->bind($this->entity);
 
-        $this->getView()->form = $form;
+        parent::init();
     }
 
     protected function doGetForm()
     {
         $metadata = $this->metadataManager->getMetadata(get_class($this->entity));
+        $action = $this->request->getUri()->getPath();
 
         $form = new EntityEditorForm('entity-editor', $metadata);
+        $form->setAttribute('action', $action);
+        $form->add(array(
+            'name' => 'act',
+            'attributes' => array(
+                'type' => 'hidden',
+                'value' => $this->getPath('save'),
+            ),
+        ));
 
         return $form;
+    }
+
+    public function save()
+    {
+        $form = $this->getForm();
+
+        if ($form->isValid()) {
+//             print_r($this->entity);
+
+//             $this->redirector->redirect();
+        }
     }
 }

@@ -35,7 +35,11 @@ class ExplorerComponentFactory extends ServiceManager
             ),
             'factories' => array(
                 'editor' => function (ServiceManager $sm) {
-                    return new Editor($sm->get('service_locator')->get('metadata_manager'));
+                    $editor = new Editor($sm->get('service_locator')->get('metadata_manager'));
+                    $editor->setView($sm->get('service_locator')->get('view_model'));
+                    $editor->setRequest($sm->get('service_locator')->get('request'));
+
+                    return $editor;
                 },
                 'viewer' => function (ServiceManager $sm) {
                     $viewer = new Viewer();

@@ -2,7 +2,7 @@
 namespace Vivo\CMS\UI\Manager\Form;
 
 use Vivo\CMS\UI\Manager\Form\Fieldset\EntityEditor as EntityEditorFieldset;
-use Zend\Form\Form;
+use Vivo\Form\Form;
 use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
 
 /**
@@ -34,7 +34,7 @@ class EntityEditor extends Form
             'name' => 'submit',
             'attributes' => array(
                 'type'  => 'submit',
-                'value' => 'Login',
+                'value' => 'Save',
             ),
         ));
     }

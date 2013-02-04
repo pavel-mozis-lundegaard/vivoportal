@@ -11,13 +11,18 @@ class ExplorerComponentFactory extends ServiceManager
 {
 
     /**
+     * Set to false, because we don't want share services from peering SM.
+     * @var boolean
+     */
+    protected $shareByDefault = false;
+
+    /**
      * Constructor.
      * @param ServiceLocatorInterface $serviceLocator
      */
     public function __construct(ServiceManager $sm)
     {
          $this->addPeeringServiceManager($sm);
-
          //we use same initializers as main service manager
          $this->initializers = $sm->initializers;
          $config = $this->getServiceConfig();

@@ -51,6 +51,7 @@ return array(
         'invokables' => array (
             'Vivo\CMS\UI\Root'              => 'Vivo\CMS\UI\Root',
             'Vivo\UI\ComponentContainer'    => 'Vivo\UI\ComponentContainer',
+            'Vivo\UI\TabContainer'          => 'Vivo\UI\TabContainer',
             'layout_empty_panel'            => 'Vivo\UI\Text',
         ),
         'factories' => array (

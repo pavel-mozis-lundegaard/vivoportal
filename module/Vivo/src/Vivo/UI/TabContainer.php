@@ -10,7 +10,11 @@ class TabContainer extends ComponentContainer
      * @var string Component / tab name.
      */
     public $selected = false;
-    
+
+    /**
+     * whether render all tabs
+     * @var boolean
+     */
     private $viewAll = false;
 
     /**
@@ -27,16 +31,23 @@ class TabContainer extends ComponentContainer
 
         return $this->selected = $name;
     }
-    
+
+    /**
+     * @param boolean $value
+     */
     public function setViewAll($value)
     {
-        $this->viewAll = $value;
+        $this->viewAll = (boolean) $value;
     }
 
+    /**
+     * Prepare data for view.
+     * @return array
+     */
     public function prepareTabs()
     {
         $tabs = array();
-        
+
         foreach($this->components as $name => $component) {
             if ($component instanceOf \Vivo\UI\TabContainerItemInterface) {
                 if(!$component->isDisabled()) {
@@ -53,10 +64,13 @@ class TabContainer extends ComponentContainer
             }
             $tabs[] = $tab;
         }
-        
         return $tabs;
     }
-    
+
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\UI\ComponentContainer::view()
+     */
     public function view()
     {
         $this->view->tabs = $this->prepareTabs();

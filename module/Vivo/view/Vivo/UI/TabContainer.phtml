@@ -11,7 +11,7 @@ $param = $viewAll ? '-all' : '';
                     $position++;
                 ?>
                 <li<?if (!$viewAll && $tab['name'] == $selected):?> class="selected"<?endif?> rel="tab<?=$position?>">
-                    <a href="<?=$this->action('select', array($tab['name']))?>"><?=htmlspecialchars($tab['label'])?></a>
+                    <a href="<?=$this->actionUrl('select', array($tab['name']))?>"><?=htmlspecialchars($tab['label'])?></a>
                 </li>
                <?endforeach?>
             </ul>
@@ -21,6 +21,7 @@ $param = $viewAll ? '-all' : '';
     <div class="clear"></div>
     <div class="tabContent">
         <?
+        if (!empty($components))
         if ($viewAll) {
             foreach ($components as $name)
                 echo ${$name};

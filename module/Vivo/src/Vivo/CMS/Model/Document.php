@@ -161,6 +161,38 @@ class Document extends Folder
         return $this->overviewTitle ? $this->overviewTitle : $this->title;
     }
 
+    /**
+     * @param string $keywords
+     */
+    public function setKeywords($keywords)
+    {
+        $this->keywords = $keywords;
+    }
+
+    /**
+     * @return string
+     */
+    public function getKeywords()
+    {
+        return $this->keywords;
+    }
+
+    /**
+     * @param string $author
+     */
+    public function setAuthor($author)
+    {
+        $this->author = $author;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAuthor()
+    {
+        return $this->author;
+    }
+
     public function setWorkflow($workflow)
     {
         $this->workflow = $workflow;

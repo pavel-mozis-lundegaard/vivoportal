@@ -234,15 +234,14 @@ class CMS
         $this->repository->commit();
     }
 
-    private function removeEntity(Model\Entity $entity)
-    {
-        $this->repository->deleteEntity($entity);
-        $this->repository->commit();
-    }
-
     public function removeDocument(Model\Document $document)
     {
-        $this->removeEntity($document);
+        $toRemove   = $this->repository->getChildren($document, false, true);
+        $toRemove[] = $document;
+        foreach ($toRemove as $entity) {
+            $this->repository->deleteEntity($entity);
+        }
+        $this->repository->commit();
     }
 
     /**
@@ -565,6 +564,17 @@ class CMS
 
     }
 
+    /**
+     * Returns if the document has any child documents
+     * @param \Vivo\CMS\Model\Document $document
+     * @return bool
+     */
+    public function hasChildDocuments(Model\Document $document)
+    {
+        $childDocs      = $this->getChildDocuments($document);
+        $hasChildDocs   = count($childDocs) > 0;
+        return $hasChildDocs;
+    }
 
     /**
      * Returns child documents.

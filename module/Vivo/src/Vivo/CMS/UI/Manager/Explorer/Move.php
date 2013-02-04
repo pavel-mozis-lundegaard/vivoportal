@@ -53,7 +53,7 @@ class Move extends AbstractForm
 //                $explorer->setEntity($docParent);
 //            }
             //TODO - set Explorer current to viewer
-//            $explorer->setCurrentPublic('viewer');
+//            $explorer->setCurrent('viewer');
 //            $explorer->saveState();
 //            $this->redirector->redirect();
 

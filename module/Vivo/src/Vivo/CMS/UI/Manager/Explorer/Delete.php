@@ -1,10 +1,11 @@
 <?php
 namespace Vivo\CMS\UI\Manager\Explorer;
 
+use Vivo\CMS\Model\Document;
 use Vivo\CMS\UI\AbstractForm;
 use Vivo\CMS\Api\CMS;
-
-use Zend\Form\Form as ZfForm;
+use Vivo\CMS\UI\Manager\Form\Delete as DeleteForm;
+use Vivo\Form\Form;
 
 /**
  * Delete
@@ -23,69 +24,67 @@ class Delete extends AbstractForm
      */
     public function __construct(CMS $cms)
     {
-        $this->cms  = $cms;
+        $this->cms      = $cms;
     }
 
     public function view()
     {
         /** @var $explorer Explorer */
-        $explorer   = $this->getParent();
+        $explorer                   = $this->getParent();
         $this->getView()->entity = $explorer->getEntity();
         return parent::view();
     }
 
     /**
-     * Submit action
+     * Delete action
      */
-    public function submit()
+    public function delete()
     {
         $form   = $this->getForm();
         if ($form->isValid()) {
-            $validData  = $form->getData();
             /** @var $explorer Explorer */
             $explorer   = $this->getParent();
-            if ($validData['yes']) {
-                //Delete - and redirect
-                $docParent  = $this->cms->getParent($explorer->getEntity());
-//                $this->cms->removeDocument($this->document);
-//                $explorer->setEntityByRelPath($docParent->getPath());
-                $explorer->setEntity($docParent);
-            }
-            //TODO - set Explorer current to viewer
-            $explorer->setCurrentPublic('viewer');
+            //Delete - and redirect
+            $doc        = $explorer->getEntity();
+            $docParent  = $this->cms->getParent($doc);
+            $this->cms->removeDocument($doc);
+            $explorer->setEntity($docParent);
+            $explorer->setCurrent('viewer');
             $explorer->saveState();
             $this->redirector->redirect();
         }
     }
 
     /**
+     * Cancel action
+     * Redirects to viewer
+     */
+    public function cancel()
+    {
+        /** @var $explorer Explorer */
+        $explorer   = $this->getParent();
+        $explorer->setCurrent('viewer');
+        $explorer->saveState();
+        $this->redirector->redirect();
+    }
+
+    /**
      * Creates ZF form and returns it
      * Factory method
-     * @return ZfForm
+     * @return Form
      */
     protected function doGetForm()
     {
-        $form   = new ZfForm();
+        /** @var $explorer Explorer */
+        $explorer   = $this->getParent();
+        $hasSubdocs = $this->cms->hasChildDocuments($explorer->getEntity());
+        $form       = new DeleteForm($hasSubdocs);
         $form->setAttribute('action', $this->request->getUri()->getPath());
         $form->add(array(
             'name'  => 'act',
             'attributes'    => array(
                 'type'  => 'hidden',
-                'value' => $this->getPath('submit'),
-            ),
-        ));
-        $form->add(array(
-            'name'  => 'yes',
-            'type'  => 'Zend\Form\Element\Submit',
-            'attributes'   => array(
-                'value'     => 'Yes',
-            ),
-        ));
-        $form->add(array(
-            'name'  => 'no',
-            'type'  => 'Zend\Form\Element\Submit',
-            'attributes'   => array(
-                'value'     => 'No',
+                'value' => $this->getPath('delete'),
             ),
         ));
         return $form;

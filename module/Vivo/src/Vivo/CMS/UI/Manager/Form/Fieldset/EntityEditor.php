@@ -1,7 +1,7 @@
 <?php
 namespace Vivo\CMS\UI\Manager\Form\Fieldset;
 
-use Zend\Form\Fieldset;
+use Vivo\Form\Fieldset;
 
 /**
  * EntityEditor fieldset.
@@ -61,7 +61,7 @@ class EntityEditor extends Fieldset
             return $type;
         }
 
-        $elementClass = 'Zend\Form\Element\\'.ucfirst($type);
+        $elementClass = 'Vivo\Form\Element\\'.ucfirst($type);
 
         return $elementClass;
     }

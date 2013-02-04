@@ -194,8 +194,7 @@ class Entity
      */
     public function __toString()
     {
-        return get_class($this) . '{uuid: ' . $this->uuid . ', path: '
-                . $this->path . '}';
+        return get_class($this) . '{uuid: ' . $this->uuid . ', path: ' . $this->path . '}';
     }
 
     /**
@@ -217,34 +216,7 @@ class Entity
      */
     public function getTextContent($field_names = array())
     {
-        $text = "[self:{$this->uuid}]";
-        $field_names = array_unique($field_names);
-        foreach ($field_names as $name) {
-            $value = $this->$name;
-            $type = is_object($value) ? get_class($value) : gettype($value);
-            if ($value && ($converter = Converter\Factory::get($type, false)))
-                $text .= ' ' . $converter->convert('string', $value, 'en_US');
-        }
-        return $text;
-    }
 
-    /**
-     * Compares if this content is logically equivalent to another content.
-     * This implementation compares only properties defined via $FIELDS.
-     * @param Vivo\CMS\Model\Entity $entity
-     * @return bool
-     * @todo refactor
-     */
-    // 	public function equals($entity) {
-    // 		$this_class = get_class($this);
-    // 		$content_class = get_class($entity);
-    // 		if ($this_class != $content_class)
-    // 			return false;
-    //@todo: musim mit pristup k field descriptorum :/
-    // 		foreach (Entity::$FIELDS[$this_class] as $name => $descriptor)
-    // 			if ($descriptor['comparable'] && ($this->$name != $entity->$name))
-    // 				return false;
-    // 		return true;
-    // 	}
+    }
 
 }

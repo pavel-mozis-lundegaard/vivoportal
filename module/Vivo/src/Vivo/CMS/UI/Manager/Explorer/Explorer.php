@@ -90,22 +90,32 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     }
 
     /**
+     * Saves the current state
+     */
+    public function saveState()
+    {
+        $this->session->entity = $this->entity;
+        $this->session->currentName = $this->currentName;
+    }
+
+    /**
      * (non-PHPdoc)
      * @see \Vivo\UI\ComponentContainer::done()
      */
     public function done() {
-        $this->session->entity = $this->entity;
-        $this->session->currentName = $this->currentName;
+        $this->saveState();
         parent::done();
     }
 
     /**
      * Creates and attach component to explorer(brovser, viewer, editor).
+     *
+     * Uses ExplorerComponentFactory for lazy creation of components.
      * @param string $name
      */
-    protected function setCurrent($name)
+    public function setCurrent($name)
     {
-        $component = $this->explorerComponentFactory->create($name);
+        $component = $this->explorerComponentFactory->create($name, false);
         if ($component) {
             if ($this->hasComponent($name)) {
 //                $this->removeComponent($name);

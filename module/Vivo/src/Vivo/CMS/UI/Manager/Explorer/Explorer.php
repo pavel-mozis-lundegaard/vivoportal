@@ -1,6 +1,10 @@
 <?php
 namespace Vivo\CMS\UI\Manager\Explorer;
 
+use Zend\Stdlib\RequestInterface;
+
+use Vivo\Service\Initializer\RequestAwareInterface;
+
 use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Model;
 use Vivo\CMS\UI\Manager\SiteSelector;
@@ -17,7 +21,7 @@ use Zend\Session;
  * Explorer component.
  */
 class Explorer extends ComponentContainer implements EventManagerAwareInterface,
-        EntityManagerInterface
+        EntityManagerInterface, RequestAwareInterface
 {
     /**
      * Entity beeing explored.
@@ -37,10 +41,18 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     protected $eventManager;
 
     /**
+     * @var RequestInterface
+     */
+    protected $request;
+
+    /**
      * @var SiteSelector
      */
     protected $siteSelector;
 
+    /**
+     * @var ExplorerComponentFactory
+     */
     protected $explorerComponentFactory;
 
     /**
@@ -51,13 +63,12 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
      * @param SiteSelector $siteSelector
      * @param ExplorerComponentFactory $explorerComponentFactory
      */
-    public function __construct(Request $request, CMS $cms,
+    public function __construct(CMS $cms,
             Session\ManagerInterface $sessionManager,
             SiteSelector $siteSelector,
             ExplorerComponentFactory $explorerComponentFactory
             )
     {
-        $this->request = $request;
         $this->cms = $cms;
         $this->session = new Session\Container(__CLASS__, $sessionManager);
         $this->siteSelector = $siteSelector;
@@ -76,8 +87,10 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
         $this->setCurrent($this->currentName);
 
         //attach events
-        $this->siteSelector->getEventManager()->attach('setSite', array($this, 'onSiteChange'));
-        $this->ribbon->getEventManager()->attach('itemClick', array ($this, 'onRibbonClick'));
+        $this->siteSelector->getEventManager()
+                ->attach('setSite', array($this, 'onSiteChange'));
+        $this->ribbon->getEventManager()
+                ->attach('itemClick', array($this, 'onRibbonClick'));
     }
 
     /**
@@ -116,13 +129,14 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     public function setCurrent($name)
     {
         $component = $this->explorerComponentFactory->create($name, false);
+        $component->init();
         if ($component) {
+
             if ($this->hasComponent($name)) {
-//                $this->removeComponent($name);
+                //                $this->removeComponent($name);
             }
             $this->currentName = $name;
             $this->addComponent($component, $name);
-            $component->init();
         }
     }
 
@@ -176,7 +190,8 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
      */
     public function setEntity(Model\Entity $entity)
     {
-        $this->eventManager->trigger(__FUNCTION__, $this, array('entity'=>$entity));
+        $this->eventManager
+                ->trigger(__FUNCTION__, $this, array('entity' => $entity));
         $this->entity = $entity;
     }
 
@@ -225,5 +240,13 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     public function getSite()
     {
         return $this->siteSelector->getSite();
+    }
+
+    /**
+     * @param RequestInterface $request
+     */
+    public function setRequest(RequestInterface $request)
+    {
+        $this->request = $request;
     }
 }

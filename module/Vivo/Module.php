@@ -99,7 +99,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                     $siteSelector = $sm->get('Vivo\CMS\UI\Manager\SiteSelector');
 
                     $explorer = new \Vivo\CMS\UI\Manager\Explorer\Explorer(
-                            $sm->get('request'),
+//                            $sm->get('request'),
                             $sm->get('cms'),
                             $sm->get('session_manager'),
                             $siteSelector,
@@ -142,7 +142,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                 },
                 'Vivo\CMS\UI\Manager\SiteSelector' => function (ServiceManager $sm) {
                     $siteSelector = new \Vivo\CMS\UI\Manager\SiteSelector(
-                            new \Vivo\CMS\Api\Manager\Manager(),
+                            $sm->get('Vivo\CMS\Api\Manager\Manager'),
                             $sm->get('session_manager'));
                     return $siteSelector;
                 },

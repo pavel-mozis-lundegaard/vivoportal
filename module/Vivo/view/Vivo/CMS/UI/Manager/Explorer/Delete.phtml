@@ -1,4 +1,14 @@
-Delete
 <?php
-echo $this->vivoForm($form);
+    /** @var $entity \Vivo\CMS\Model\Entity */
+    echo $this->escapeHtml($this->translate('Delete')) . ' ' . $this->escapeHtml($entity->getPath()) . '?';
+    echo $this->form()->openTag($form);
 ?>
+<div class="form_element"><?php echo $this->formRow($form->get('act')); ?></div>
+<div class="form_element"><?php echo $this->formRow($form->get('csrf')); ?></div>
+<div class="form_element">
+<?php
+    echo $this->formElement($form->get('yes'));
+    echo $this->formElement($form->get('no'));
+?>
+</div>
+<?php echo $this->form()->closeTag($form); ?>

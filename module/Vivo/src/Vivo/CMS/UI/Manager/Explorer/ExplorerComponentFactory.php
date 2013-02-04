@@ -48,9 +48,20 @@ class ExplorerComponentFactory extends ServiceManager
                     return new Browser();
                 },
                 'delete'    => function (ServiceManager $sm) {
-                    $delete = new Delete();
+                    $cms    = $sm->get('cms');
+                    $delete = new Delete($cms);
                     return $delete;
-                }
+                },
+                'copy'      => function (ServiceManager $sm) {
+                    $cms    = $sm->get('cms');
+                    $copy   = new Copy($cms);
+                    return $copy;
+                },
+                'move'      => function (ServiceManager $sm) {
+                    $cms    = $sm->get('cms');
+                    $move   = new Move($cms);
+                    return $move;
+                },
             ),
             'aliases' => array(
             ),

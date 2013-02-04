@@ -7,9 +7,9 @@ use Vivo\CMS\Api\CMS;
 use Zend\Form\Form as ZfForm;
 
 /**
- * Delete
+ * Move
  */
-class Delete extends AbstractForm
+class Move extends AbstractForm
 {
     /**
      * CMS Api
@@ -42,20 +42,23 @@ class Delete extends AbstractForm
         $form   = $this->getForm();
         if ($form->isValid()) {
             $validData  = $form->getData();
+            \Zend\Debug\Debug::dump($validData);
             /** @var $explorer Explorer */
             $explorer   = $this->getParent();
-            if ($validData['yes']) {
+//            if ($validData['yes']) {
                 //Delete - and redirect
-                $docParent  = $this->cms->getParent($explorer->getEntity());
+//                $docParent  = $this->cms->getParent($explorer->getEntity());
 //                $this->cms->removeDocument($this->document);
 //                $explorer->setEntityByRelPath($docParent->getPath());
-                $explorer->setEntity($docParent);
-            }
+//                $explorer->setEntity($docParent);
+//            }
             //TODO - set Explorer current to viewer
-            $explorer->setCurrentPublic('viewer');
-            $explorer->saveState();
-            $this->redirector->redirect();
+//            $explorer->setCurrentPublic('viewer');
+//            $explorer->saveState();
+//            $this->redirector->redirect();
+
         }
+
     }
 
     /**
@@ -75,17 +78,44 @@ class Delete extends AbstractForm
             ),
         ));
         $form->add(array(
-            'name'  => 'yes',
-            'type'  => 'Zend\Form\Element\Submit',
-            'attributes'   => array(
-                'value'     => 'Yes',
+            'name'          => 'path',
+            'attributes'    => array(
+                'type'          => 'text',
+            ),
+            'options'       => array(
+                'label'         => 'Path',
             ),
         ));
         $form->add(array(
-            'name'  => 'no',
+            'name'          => 'name',
+            'attributes'    => array(
+                'type'          => 'text',
+            ),
+            'options'       => array(
+                'label'         => 'Name',
+            ),
+        ));
+        $form->add(array(
+            'name'          => 'name_in_path',
+            'attributes'    => array(
+                'type'          => 'text',
+            ),
+            'options'       => array(
+                'label'         => 'Name in path',
+            ),
+        ));
+        $form->add(array(
+            'name'          => 'create_hyperlink',
+            'type'          => 'Zend\Form\Element\Checkbox',
+            'options'       => array(
+                'label'         => 'Create hyperlink',
+            ),
+        ));
+        $form->add(array(
+            'name'  => 'submit',
             'type'  => 'Zend\Form\Element\Submit',
             'attributes'   => array(
-                'value'     => 'No',
+                'value'     => 'Submit',
             ),
         ));
         return $form;

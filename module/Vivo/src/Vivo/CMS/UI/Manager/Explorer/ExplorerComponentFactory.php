@@ -58,8 +58,8 @@ class ExplorerComponentFactory extends ServiceManager
                     return $delete;
                 },
                 'copy'      => function (ServiceManager $sm) {
-                    $cms    = $sm->get('cms');
-                    $copy   = new Copy($cms);
+                    $cms        = $sm->get('cms');
+                    $copy       = new Copy($cms);
                     return $copy;
                 },
                 'move'      => function (ServiceManager $sm) {

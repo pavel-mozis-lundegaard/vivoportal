@@ -1,8 +1,10 @@
 <?php
 namespace Vivo\CMS\UI\Manager\Explorer;
 
+use Vivo\CMS\Model\Site;
 use Vivo\CMS\UI\AbstractForm;
 use Vivo\CMS\Api\CMS;
+use Vivo\CMS\UI\Manager\Form\Copy as CopyForm;
 
 use Zend\Form\Form as ZfForm;
 
@@ -35,30 +37,24 @@ class Copy extends AbstractForm
     }
 
     /**
-     * Submit action
+     * Copy action
      */
-    public function submit()
+    public function copy()
     {
         $form   = $this->getForm();
         if ($form->isValid()) {
             $validData  = $form->getData();
-            \Zend\Debug\Debug::dump($validData);
             /** @var $explorer Explorer */
             $explorer   = $this->getParent();
-//            if ($validData['yes']) {
-                //Delete - and redirect
-//                $docParent  = $this->cms->getParent($explorer->getEntity());
-//                $this->cms->removeDocument($this->document);
-//                $explorer->setEntityByRelPath($docParent->getPath());
-//                $explorer->setEntity($docParent);
-//            }
-            //TODO - set Explorer current to viewer
-//            $explorer->setCurrent('viewer');
-//            $explorer->saveState();
-//            $this->redirector->redirect();
-
+            //Copy - and redirect
+            $doc        = $explorer->getEntity();
+            $copiedDoc  = $this->cms->copyDocument($doc, $explorer->getSite(), $validData['path'],
+                                                   $validData['name_in_path'], $validData['name']);
+//            $explorer->setEntity($copiedDoc);
+            $explorer->setCurrent('viewer');
+            $explorer->saveState();
+            $this->redirector->redirect();
         }
-
     }
 
     /**
@@ -68,47 +64,13 @@ class Copy extends AbstractForm
      */
     protected function doGetForm()
     {
-        $form   = new ZfForm();
+        $form   = new CopyForm();
         $form->setAttribute('action', $this->request->getUri()->getPath());
         $form->add(array(
             'name'  => 'act',
             'attributes'    => array(
                 'type'  => 'hidden',
-                'value' => $this->getPath('submit'),
-            ),
-        ));
-        $form->add(array(
-            'name'          => 'path',
-            'attributes'    => array(
-                'type'          => 'text',
-            ),
-            'options'       => array(
-                'label'         => 'Path',
-            ),
-        ));
-        $form->add(array(
-            'name'          => 'name',
-            'attributes'    => array(
-                'type'          => 'text',
-            ),
-            'options'       => array(
-                'label'         => 'Name',
-            ),
-        ));
-        $form->add(array(
-            'name'          => 'name_in_path',
-            'attributes'    => array(
-                'type'          => 'text',
-            ),
-            'options'       => array(
-                'label'         => 'Name in path',
-            ),
-        ));
-        $form->add(array(
-            'name'  => 'submit',
-            'type'  => 'Zend\Form\Element\Submit',
-            'attributes'   => array(
-                'value'     => 'Submit',
+                'value' => $this->getPath('copy'),
             ),
         ));
         return $form;

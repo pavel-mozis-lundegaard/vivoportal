@@ -31,7 +31,7 @@ class Delete extends AbstractForm
     {
         /** @var $explorer Explorer */
         $explorer                   = $this->getParent();
-        $this->getView()->entity = $explorer->getEntity();
+        $this->getView()->entity    = $explorer->getEntity();
         return parent::view();
     }
 

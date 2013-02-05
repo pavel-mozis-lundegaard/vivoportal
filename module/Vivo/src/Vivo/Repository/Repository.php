@@ -266,6 +266,22 @@ class Repository implements RepositoryInterface
     }
 
     /**
+     * Returns true when the specified entity exists in repository otherwise returns false
+     * @param string $ident
+     * @return boolean
+     */
+    public function hasEntity($ident)
+    {
+        try {
+            $this->getEntity($ident);
+            $hasEntity  = true;
+        } catch (Exception\EntityNotFoundException $e) {
+            $hasEntity  = false;
+        }
+        return $hasEntity;
+    }
+
+    /**
      * Returns array of entities returned by the specified indexer query
      * @param QueryInterface|string $spec
      * @param QueryParams|array|null $queryParams Either a QueryParams object or an array specifying the params
@@ -552,15 +568,53 @@ class Repository implements RepositoryInterface
 	 * @param Vivo\CMS\Model\Entity $entity
 	 * @param string $target Target path.
 	 */
-	public function moveEntity(Model\Entity $entity, $target) { }
+	public function moveEntity(Model\Entity $entity, $target) {
+        //TODO - Implement this method
+        throw new \Exception(sprintf('%s not implemented!', __METHOD__));
+    }
 
-	/**
-	 * @todo
-	 *
-	 * @param Vivo\CMS\Model\Entity $entity
-	 * @param string $target Target path.
-	 */
-	public function copyEntity(Model\Entity $entity, $target) { }
+    /**
+     * Schedules entity for copying in storage
+     * Returns the newly copied entity
+     * @param \Vivo\CMS\Model\Entity $entity
+     * @param string $target
+     * @return \Vivo\CMS\Model\Entity
+     */
+	public function copyEntity(Model\Entity $entity, $target) {
+        if (strpos($target, $entity->getPath() . '/') === 0) {
+            throw new Exception\RecursiveOperationException(
+                sprintf("%s: Recursive operation from '%s' to '%s'", __METHOD__, $entity->getPath(), $target));
+        }
+
+
+        //TODO - Implement this method
+        throw new \Exception(sprintf('%s not implemented!', __METHOD__));
+                
+
+
+
+
+
+
+
+        $entity = $this->getEntity($path);
+        CMS::$securityManager->authorize($entity, 'Copy');
+        if (method_exists($entity, 'beforeCopy')) {
+            $entity->beforeCopy($target);
+            CMS::$logger->warn('Method '.get_class($entity).'::geforeCopy() is deprecated. Use Vivo\CMS\Event methods instead.');
+        }
+        $this->callEventOn($entity, CMS\Event::ENTITY_BEFORE_COPY);
+        $this->storage->copy($path, $target);
+        if ($entity = $this->getEntity($target, false)) {
+            if ($entity->title)
+                $entity->title .= ' COPY';
+            $this->copy_entity($entity);
+            $this->commit();
+            $this->reindex($entity);
+        }
+        return $entity;
+
+    }
 
 	/**
 	 * @param string $path Source path.
@@ -739,7 +793,10 @@ class Repository implements RepositoryInterface
                 $output                 = $this->storage->write($tmpPath);
                 $this->ioUtil->copy($stream, $output, 1024);
             }
-            //Delete - Phase 2 (delete the temp files) - this is done in removeTempFiles
+
+            //Delete - Phase 2 (delete the temp files) - this is done in removeTempFiles(), which is called
+            //as a part of reset() at the end of this method
+
             //Save Phase 2 (rename temp files to real ones)
             foreach ($this->tmpFiles as $path => $tmpPath) {
                 if (!$this->storage->move($tmpPath, $path)) {
@@ -752,8 +809,11 @@ class Repository implements RepositoryInterface
 
             //Delete entities from Watcher, Cache and Indexer, remove cached results from UuidConverter
  			foreach ($this->deleteEntities as $entity) {
-                $uuid   = $entity->getUuid();
-                if ($uuid) {
+                $tmpPath    = $this->tmpDelFiles[$entity->getPath()];
+                $tmpEntity  = $this->getEntity($tmpPath);
+                $uuids      = $this->getSubtreeUuids($tmpEntity);
+                $uuids[]    = $entity->getUuid();
+                foreach ($uuids as $uuid) {
                     //Watcher
                     $this->watcher->removeByUuid($uuid);
                     //Cache
@@ -767,6 +827,7 @@ class Repository implements RepositoryInterface
                 $delQuery   = $this->indexerHelper->buildTreeQuery($entity);
                 $this->indexer->delete($delQuery);
  			}
+
             //Save entities to Watcher, Cache and Indexer, update cached results in UuidConverter
  			foreach ($this->saveEntities as $entitySpec) {
                  /** @var $entity Model\Entity */
@@ -919,6 +980,22 @@ class Repository implements RepositoryInterface
             if (count($paths) == 1) {
                 unset($uuids[$uuid]);
             }
+        }
+        return $uuids;
+    }
+
+    /**
+     * Returns array of all UUIDs contained in an entity subtree
+     * The UUID of the root entity is not included
+     * @param \Vivo\CMS\Model\Entity $entity
+     * @return array
+     */
+    protected function getSubtreeUuids(Model\Entity $entity)
+    {
+        $children   = $this->getChildren($entity, false, true);
+        $uuids      = array();
+        foreach ($children as $child) {
+            $uuids[]    = $child->getUuid();
         }
         return $uuids;
     }

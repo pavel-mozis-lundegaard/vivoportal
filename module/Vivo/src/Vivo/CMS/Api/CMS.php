@@ -12,6 +12,7 @@ use Vivo\Indexer\QueryBuilder;
 use Vivo\Indexer\IndexerInterface;
 use Vivo\Indexer\QueryParams;
 use Vivo\Repository\IndexerHelper;
+use Vivo\CMS\Workflow\AbstractWorkflow;
 
 use Zend\Config;
 
@@ -226,6 +227,69 @@ class CMS
     }
 
     /**
+     * Copies document to a new location
+     * @param \Vivo\CMS\Model\Document $document
+     * @param \Vivo\CMS\Model\Site $site
+     * @param string $targetUrl
+     * @param string $targetName
+     * @param string $title
+     * @return \Vivo\CMS\Model\Document
+     * @throws \Exception
+     */
+    public function copyDocument(Model\Document $document, Model\Site $site, $targetUrl, $targetName, $title)
+    {
+        //Add trailing slash
+        $targetUrl  = $targetUrl . ((substr($targetUrl, -1) == '/') ? '' : '/');
+        if (!$this->getSiteEntity($targetUrl, $site)) {
+            //The location to copy to does not exist
+            //TODO - refactor to exception from this namespace
+            throw new \Exception(sprintf("%s: Target location '%s' does not exist", __METHOD__, $targetUrl));
+        }
+        $targetUrl  .= $targetName . '/';
+        $targetPath = $this->getEntityAbsolutePath($targetUrl, $site);
+        if ($this->repository->hasEntity($targetPath)) {
+            //There is an entity at the target path already
+            //TODO - refactor to exception from this namespace
+            throw new \Exception(sprintf("%s: There is an entity at the target path '%s'", __METHOD__, $targetPath));
+        }
+        /** @var $copied \Vivo\CMS\Model\Document */
+        $copied = $this->repository->copyEntity($document, $targetPath);
+        $copied->setTitle($title);
+        $contentCount   = $this->getContentCount($copied);
+        for($index = 1; $index <= $contentCount; $index++) {
+            //Get the old versions
+            $oldVersions    = $this->getDocumentContents($document, $index);
+            //Get copied versions
+            $newVersions    = $this->getDocumentContents($copied, $index);
+            $versionCount   = count($newVersions);
+            for ($i = 0; $i < $versionCount; $i++) {
+                /** @var $newVersion \Vivo\CMS\Model\Content */
+                $newVersion = $newVersions[$i];
+                // Change workflow state to NEW
+                $this->setState($newVersion, AbstractWorkflow::STATE_NEW);
+                // Replace references
+                if($newVersion instanceof Model\Content\File && $newVersion->getMimeType() == 'text/html') {
+                    /** @var $newVersion Model\Content\File */
+                    /** @var $oldVersion \Vivo\CMS\Model\Content */
+                    $oldVersion = $oldVersions[$i];
+                    $oldUuid    = $oldVersion->getUuid();
+                    $newUuid    = $newVersion->getUuid();
+                    $filename   = $newVersion->getFilename();
+                    $html       = $this->getResource($newVersion, $filename);
+                    $html       = str_replace("[ref:$oldUuid]", "[ref:$newUuid]", $html);
+                    $this->saveResource($newVersion, $filename, $html);
+                    //TODO - review: is this save redundant?
+//                    $this->saveEntity($newVersion);
+                }
+            }
+        }
+        //TODO - review: is this call redundant?
+//        $this->copyChangeState($copied);
+        $this->repository->commit();
+        return $copied;
+    }
+
+    /**
      * @param Model\Document $document
      * @param string $target Path.
      */
@@ -235,13 +299,13 @@ class CMS
         $this->repository->commit();
     }
 
+    /**
+     * Removes document from repository
+     * @param \Vivo\CMS\Model\Document $document
+     */
     public function removeDocument(Model\Document $document)
     {
-        $toRemove   = $this->repository->getChildren($document, false, true);
-        $toRemove[] = $document;
-        foreach ($toRemove as $entity) {
-            $this->repository->deleteEntity($entity);
-        }
+        $this->repository->deleteEntity($document);
         $this->repository->commit();
     }
 
@@ -286,8 +350,7 @@ class CMS
      * @throws \Vivo\CMS\Exception\InvalidArgumentException
      * @return Model\Content
      */
-    public function getDocumentContent(Model\Document $document, $index,
-            $version/*, $state {PUBLISHED}*/)
+    public function getDocumentContent(Model\Document $document, $index, $version/*, $state {PUBLISHED}*/)
     {
         if (!is_integer($version)) {
             throw new Exception\InvalidArgumentException(
@@ -318,13 +381,28 @@ class CMS
         if (!is_integer($index)) {
             throw new Exception\InvalidArgumentException(
                     sprintf(
-                            'Argument %d passed to %s must be an type of integer, %s given',
+                            'Argument %d passed to %s must be of type integer, %s given',
                             2, __METHOD__, gettype($index)));
         }
 
         $path = $document->getPath() . '/Contents.' . $index;
 
         return $this->repository->getChildren(new Model\Entity($path));
+    }
+
+    /**
+     * Returns number of contents the document has
+     * @param \Vivo\CMS\Model\Document $document
+     * @return integer
+     */
+    public function getContentCount(Model\Document $document)
+    {
+        //TODO - Implement this method - Mirek?
+//        throw new \Exception(sprintf('%s not implemented!', __METHOD__));
+
+        $containers = $this->repository->getChildren($document, 'Vivo\CMS\Model\ContentContainer');
+        $contentCount   = count($containers);
+        return $contentCount;
     }
 
     /**
@@ -545,7 +623,7 @@ class CMS
 
     /**
      * Returns
-     * @param unknown $path
+     * @param string $path
      * @param Model\Site $site
      * @throws InvalidArgumentException
      * @return string|unknown

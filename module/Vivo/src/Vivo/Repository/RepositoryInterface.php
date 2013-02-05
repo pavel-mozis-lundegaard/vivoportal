@@ -18,6 +18,13 @@ interface RepositoryInterface extends TransactionalInterface {
 	public function getEntity($ident);
 
     /**
+     * Returns true when the specified entity exists in repository otherwise returns false
+     * @param string $ident
+     * @return boolean
+     */
+    public function hasEntity($ident);
+
+    /**
      * Schedules entity for saving into storage
      * @param \Vivo\CMS\Model\Entity $entity
      * @return mixed
@@ -40,8 +47,10 @@ interface RepositoryInterface extends TransactionalInterface {
 
     /**
      * Schedules entity for copying in storage
+     * Returns the newly copied entity
 	 * @param \Vivo\CMS\Model\Entity $entity
 	 * @param string $target
+     * @return \Vivo\CMS\Model\Entity
 	 */
 	public function copyEntity(Model\Entity $entity, $target);
 

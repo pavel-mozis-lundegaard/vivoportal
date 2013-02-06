@@ -11,13 +11,18 @@ class EntityEditor extends Fieldset
     /**
      * Constructor.
      *
+     * @param string $name Fieldset name.
      * @param array $metadata
      */
-    public function __construct(array $metadata)
+    public function __construct($name, array $metadata)
     {
-        parent::__construct('entity-editor');
+        parent::__construct($name);
 
         foreach ($metadata as $name => $attrs) {
+            if(!isset($attrs['field_type'])) {
+                continue;
+            }
+
             // Options
             $options = array(
                  //@TODO: human name

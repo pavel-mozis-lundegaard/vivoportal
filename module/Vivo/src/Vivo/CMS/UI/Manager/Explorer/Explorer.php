@@ -129,14 +129,14 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     public function setCurrent($name)
     {
         $component = $this->explorerComponentFactory->create($name, false);
-        $component->init();
         if ($component) {
-
             if ($this->hasComponent($name)) {
                 //                $this->removeComponent($name);
             }
+
             $this->currentName = $name;
             $this->addComponent($component, $name);
+            $component->init();
         }
     }
 

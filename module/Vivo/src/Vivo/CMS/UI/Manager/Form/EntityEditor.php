@@ -13,7 +13,7 @@ class EntityEditor extends Form
     /**
      * Constructor.
      *
-     * @param string $name
+     * @param string $name Form and fieldset name.
      * @param array $metadata
      */
     public function __construct($name, array $metadata)
@@ -23,20 +23,20 @@ class EntityEditor extends Form
         $this->setAttribute('method', 'post');
 
         // Fieldset
-        $fieldset = new EntityEditorFieldset($metadata);
+        $fieldset = new EntityEditorFieldset($name, $metadata);
         $fieldset->setHydrator(new ClassMethodsHydrator(false));
         $fieldset->setOptions(array('use_as_base_fieldset' => true));
 
         $this->add($fieldset);
 
         // Submit
-        $this->add(array(
-            'name' => 'submit',
-            'attributes' => array(
-                'type'  => 'submit',
-                'value' => 'Save',
-            ),
-        ));
+//         $this->add(array(
+//             'name' => 'submit',
+//             'attributes' => array(
+//                 'type'  => 'submit',
+//                 'value' => 'Save',
+//             ),
+//         ));
     }
 
 }

@@ -14,7 +14,7 @@ use Zend\Stdlib\RequestInterface;
  * Form
  * Base abstract Vivo Form
  */
-abstract class AbstractForm extends Component implements RequestAwareInterface, RedirectorAwareInterface
+abstract class AbstractForm extends ComponentContainer implements RequestAwareInterface, RedirectorAwareInterface
 {
     /**
      * @var ZfForm
@@ -102,7 +102,7 @@ abstract class AbstractForm extends Component implements RequestAwareInterface, 
             if ($this->autoAddCsrf) {
                 //Add CSRF field
                 $this->form->add(array(
-                    'type'      => 'Zend\Form\Element\Csrf',
+                    'type'      => 'Vivo\Form\Element\Csrf',
                     'name'      => 'csrf',
                     'options'   => array(
                         'csrf_options'  => array(

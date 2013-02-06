@@ -440,6 +440,15 @@ return array(
                         ),
                     ),
                 ),
+                'cms_host_action' => array(
+                    'options' => array(
+                        'route'    => 'cms <action> <host>',
+                        'defaults' => array(
+                            'controller' => 'cli_cms',
+                            'action'     => 'default',
+                        ),
+                    ),
+                ),
                 'cms_reindex' => array(
                     'options' => array(
                         'route'    => 'cms reindex <host>',
@@ -449,29 +458,11 @@ return array(
                         ),
                     ),
                 ),
-                'repository' => array(
+                'cms_unique_uuids' => array(
                     'options' => array(
-                        'route'    => 'repository [<action>]',
+                        'route'    => 'cms uniqueuuids <host> [--force|-f]',
                         'defaults' => array(
-                            'controller' => 'cli_repository',
-                            'action'     => 'default',
-                        ),
-                    ),
-                ),
-                'repository_host_action' => array(
-                    'options' => array(
-                        'route'    => 'repository <action> <host>',
-                        'defaults' => array(
-                            'controller' => 'cli_repository',
-                            'action'     => 'default',
-                        ),
-                    ),
-                ),
-                'repository_unique_uuids' => array(
-                    'options' => array(
-                        'route'    => 'repository uniqueuuids <host> [--force|-f]',
-                        'defaults' => array(
-                            'controller' => 'cli_repository',
+                            'controller' => 'cli_cms',
                             'action'     => 'unique-uuids',
                         ),
                     ),

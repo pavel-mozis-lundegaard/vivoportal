@@ -20,7 +20,9 @@ class CLICmsControllerFactory implements FactoryInterface
         $sm             = $serviceLocator->getServiceLocator();
         $cms            = $sm->get('cms');
         $siteEvent      = $sm->get('site_event');
-        $controller     = new \Vivo\Controller\CLI\CmsController($cms, $siteEvent);
+        $repository     = $sm->get('repository');
+        $uuidGenerator  = $sm->get('uuid_generator');
+        $controller     = new \Vivo\Controller\CLI\CmsController($cms, $siteEvent, $repository, $uuidGenerator);
         return $controller;
     }
 }

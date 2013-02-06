@@ -6,12 +6,14 @@ use Vivo\CMS\Exception\InvalidArgumentException;
 use Vivo\CMS\Model;
 use Vivo\CMS\Workflow;
 use Vivo\CMS\Exception;
-use Vivo\Repository\Repository;
+use Vivo\Repository\RepositoryInterface;
+use Vivo\Indexer\Query\Parser\ParserInterface;
 use Vivo\Indexer\Query\QueryInterface;
 use Vivo\Indexer\QueryBuilder;
 use Vivo\Indexer\IndexerInterface;
 use Vivo\Indexer\QueryParams;
 use Vivo\Repository\IndexerHelper;
+use Vivo\Repository\Exception\EntityNotFoundException;
 
 use Zend\Config;
 
@@ -21,8 +23,13 @@ use Zend\Config;
 class CMS
 {
     /**
+     * RegEx for UUID
+     */
+    const UUID_PATTERN = '[\d\w]{32}';
+
+    /**
      * Repository
-     * @var \Vivo\Repository\Repository
+     * @var RepositoryInterface
      */
     private $repository;
 
@@ -39,6 +46,12 @@ class CMS
     protected $indexerHelper;
 
     /**
+     * Query Parsers
+     * @var ParserInterface
+     */
+    protected $queryParser;
+
+    /**
      * Query Builder
      * @var QueryBuilder
      */
@@ -46,18 +59,20 @@ class CMS
 
     /**
      * Constructor
-     * @param \Vivo\Repository\Repository $repository
+     * @param RepositoryInterface $repository
      * @param \Vivo\Indexer\IndexerInterface $indexer
      * @param \Vivo\Repository\IndexerHelper $indexerHelper
      * @param \Vivo\Indexer\QueryBuilder $qb
+     * @param \Vivo\Indexer\Query\Parser\ParserInterface $queryParser
      */
-    public function __construct(Repository $repository, IndexerInterface $indexer, IndexerHelper $indexerHelper,
-                                QueryBuilder $qb)
+    public function __construct(RepositoryInterface $repository, IndexerInterface $indexer,
+                                IndexerHelper $indexerHelper, QueryBuilder $qb, ParserInterface $queryParser)
     {
         $this->repository       = $repository;
         $this->indexer          = $indexer;
         $this->indexerHelper    = $indexerHelper;
         $this->qb               = $qb;
+        $this->queryParser      = $queryParser;
     }
 
     /**
@@ -86,19 +101,6 @@ class CMS
             }
         }
         return $site;
-
-//        $termHost   = new IndexerTerm('###host###/' . $host);
-//        $termType   = new IndexerTerm('Vivo\CMS\Model\Site', 'type');
-//        $query      = new MultiTermQuery();
-//        $query->addTerm($termHost, true);
-//        $query->addTerm($termType,  true);
-//        $entities   = $this->repository->getEntities($query);
-//        if (count($entities) > 0) {
-//            $site   = $entities[0];
-//        } else {
-//            $site   = null;
-//        }
-//        return $site;
     }
 
     /**
@@ -179,7 +181,9 @@ class CMS
      */
     public function getEntity($ident)
     {
-        return $this->repository->getEntity($ident);
+        //TODO - refactor to support UUIDs
+        $path   = $ident;
+        return $this->repository->getEntity($path);
     }
 
     /**
@@ -646,7 +650,25 @@ class CMS
      */
     public function getEntitiesByQuery($spec, $queryParams = null)
     {
-        return $this->repository->getEntities($spec, $queryParams);
+        if (is_string($spec)) {
+            //Parse string query to Query object
+            $spec   = $this->queryParser->stringToQuery($spec);
+        }
+        $result     = $this->indexer->find($spec, $queryParams);
+        $hits       = $result->getHits();
+        $entities   = array();
+        /** @var $hit \Vivo\Indexer\QueryHit */
+        foreach ($hits as $hit) {
+            $doc    = $hit->getDocument();
+            $path   = $doc->getFieldValue('\\path');
+            try {
+                $entity = $this->repository->getEntity($path);
+                $entities[] = $entity;
+            } catch (EntityNotFoundException $e) {
+                //Entity not found
+            }
+        }
+        return $entities;
     }
 
     /**
@@ -727,5 +749,66 @@ class CMS
             $publishedContentTypes[]    = get_class($publishedContent);
         }
         return $publishedContentTypes;
+    }
+
+    /**
+     * If $ident represents UUID or a symbolic reference, returns corresponding UUID, otherwise null
+     * @param string $ident
+     * @return null|string
+     */
+    protected function getUuidFromEntityIdent($ident)
+    {
+        if (preg_match('/^'.self::UUID_PATTERN.'$/i', $ident)) {
+            //UUID
+            $uuid   = $ident;
+            $uuid   = strtoupper($uuid);
+        } elseif (preg_match('/^\[ref:('.self::UUID_PATTERN.')\]$/i', $ident, $matches)) {
+            //Symbolic reference in [ref:uuid] format
+            $uuid   = $matches[1];
+            $uuid = strtoupper($uuid);
+        } else {
+            //The ident is not a UUID
+            $uuid   = null;
+        }
+        return $uuid;
+    }
+
+    /**
+     * Returns an array of duplicate uuids under specified path, works directly on storage
+     * array(
+     *  'uuid1' => array(
+     *      'path1',
+     *      'path2',
+     *  ),
+     *  'uuid2' => array(
+     *      'path3',
+     *      'path4',
+     *  ),
+     * )
+     * @param string $path
+     * @return array
+     */
+    public function getDuplicateUuidsInStorage($path)
+    {
+        $uuids          = array();
+        $descendants    = $this->repository->getDescendantsFromStorage($path);
+        $me             = $this->repository->getEntityFromStorage($path);
+        if ($me) {
+            $descendants[]  = $me;
+        }
+        /** @var $descendant Model\Entity */
+        foreach ($descendants as $descendant) {
+            $uuid   = $descendant->getUuid();
+            if (!array_key_exists($uuid, $uuids)) {
+                $uuids[$uuid]   = array();
+            }
+            $uuids[$uuid][]  = $descendant->getPath();
+        }
+        foreach ($uuids as $uuid => $paths) {
+            if (count($paths) == 1) {
+                unset($uuids[$uuid]);
+            }
+        }
+        return $uuids;
     }
 }

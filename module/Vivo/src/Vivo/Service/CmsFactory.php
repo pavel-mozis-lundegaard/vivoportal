@@ -20,7 +20,8 @@ class CmsFactory implements FactoryInterface
         $indexer                = $serviceLocator->get('indexer');
         $indexerHelper          = $serviceLocator->get('indexer_helper');
         $qb                     = $serviceLocator->get('indexer_query_builder');
-        $cms                    = new \Vivo\CMS\Api\CMS($repository, $indexer, $indexerHelper, $qb);
+        $queryParser            = $serviceLocator->get('indexer_query_parser');
+        $cms                    = new \Vivo\CMS\Api\CMS($repository, $indexer, $indexerHelper, $qb, $queryParser);
         return $cms;
     }
 }

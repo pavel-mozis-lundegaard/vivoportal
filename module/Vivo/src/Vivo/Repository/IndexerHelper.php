@@ -12,9 +12,6 @@ use Vivo\Repository\Exception;
 use Vivo\Indexer\FieldHelperInterface as IndexerFieldHelper;
 use Vivo\CMS\Model\Document as DocumentModel;
 use Vivo\CMS\Model\Content;
-use Vivo\CMS\Api\CMS;
-
-use \DateTime;
 
 /**
  * IndexerHelper

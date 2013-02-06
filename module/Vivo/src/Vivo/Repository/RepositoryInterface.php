@@ -9,13 +9,21 @@ use Vivo\CMS\Model;
  */
 interface RepositoryInterface extends TransactionalInterface {
 	/**
-     * Returns entity identified by $ident
+     * Returns entity identified by path
      * When the entity is not found, throws an exception
-	 * @param string $ident Entity identification (path, UUID or symbolic reference)
+	 * @param string $path Entity path
 	 * @return \Vivo\CMS\Model\Entity|null
      * @throws Exception\EntityNotFoundException
 	 */
-	public function getEntity($ident);
+	public function getEntity($path);
+
+    /**
+     * Looks up an entity in storage and returns it
+     * If the entity is not found returns null
+     * @param string $path
+     * @return \Vivo\CMS\Model\Entity|null
+     */
+    public function getEntityFromStorage($path);
 
     /**
      * Schedules entity for saving into storage
@@ -114,19 +122,10 @@ interface RepositoryInterface extends TransactionalInterface {
 	public function hasChildren(Model\Folder $folder);
 
     /**
-     * Returns an array of duplicate uuids
-     * array(
-     *  'uuid1' => array(
-     *      'path1',
-     *      'path2',
-     *  ),
-     *  'uuid2' => array(
-     *      'path3',
-     *      'path4',
-     *  ),
-     * )
+     * Returns descendants of a specific path from storage
      * @param string $path
-     * @return array
+     * @return Model\Entity[]
      */
-    public function getDuplicateUuids($path);
+    public function getDescendantsFromStorage($path);
+
 }

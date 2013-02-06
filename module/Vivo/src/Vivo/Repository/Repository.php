@@ -579,9 +579,6 @@ class Repository implements RepositoryInterface
     public function commit()
     {
         try {
-            //Open indexer transaction
-            $this->indexer->begin();
-
             //Delete - Phase 1 (move to temp files)
             //a) Entities
             foreach ($this->deleteEntities as $entity) {
@@ -646,12 +643,12 @@ class Repository implements RepositoryInterface
                 }
             }
 
-            //The actual commit is successfully done, now process references to entities in Watcher, Cache, Indexer, etc
+            //The actual commit is successfully done, now process references to entities in Watcher, Cache, etc
 
-            //Delete entities from Watcher, Cache and Indexer, remove cached results from UuidConverter
+            //Delete entities from Watcher and Cache
  			foreach ($this->deleteEntities as $entity) {
-                $uuid   = $entity->getUuid();
-                if ($uuid) {
+                $path   = $entity->getPath();
+                if ($uuid) { 
                     //Watcher
                     $this->watcher->removeByUuid($uuid);
                     //Cache

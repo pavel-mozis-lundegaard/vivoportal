@@ -588,31 +588,41 @@ class Repository implements RepositoryInterface
 
 
         //TODO - Implement this method
-        throw new \Exception(sprintf('%s not implemented!', __METHOD__));
+//        throw new \Exception(sprintf('%s not implemented!', __METHOD__));
 
+        $this->storage->copy($entity->getPath(), $target);
+        if ($this->hasEntity($target)) {
+            $copy   = $this->getEntity($target);
 
+            //TODO - proces copied entity
 
-
-
-
-
-
-        $entity = $this->getEntity($path);
-        CMS::$securityManager->authorize($entity, 'Copy');
-        if (method_exists($entity, 'beforeCopy')) {
-            $entity->beforeCopy($target);
-            CMS::$logger->warn('Method '.get_class($entity).'::geforeCopy() is deprecated. Use Vivo\CMS\Event methods instead.');
-        }
-        $this->callEventOn($entity, CMS\Event::ENTITY_BEFORE_COPY);
-        $this->storage->copy($path, $target);
-        if ($entity = $this->getEntity($target, false)) {
-            if ($entity->title)
-                $entity->title .= ' COPY';
-            $this->copy_entity($entity);
             $this->commit();
-            $this->reindex($entity);
+            //TODO - reindex $copy
+        } else {
+            $copy   = null;
         }
-        return $entity;
+        return $copy;
+
+
+
+
+
+//        $entity = $this->getEntity($path);
+//        CMS::$securityManager->authorize($entity, 'Copy');
+//        if (method_exists($entity, 'beforeCopy')) {
+//            $entity->beforeCopy($target);
+//            CMS::$logger->warn('Method '.get_class($entity).'::geforeCopy() is deprecated. Use Vivo\CMS\Event methods instead.');
+//        }
+//        $this->callEventOn($entity, CMS\Event::ENTITY_BEFORE_COPY);
+//        $this->storage->copy($path, $target);
+//        if ($entity = $this->getEntity($target, false)) {
+//            if ($entity->title)
+//                $entity->title .= ' COPY';
+//            $this->copy_entity($entity);
+//            $this->commit();
+//            $this->reindex($entity);
+//        }
+//        return $entity;
 
     }
 

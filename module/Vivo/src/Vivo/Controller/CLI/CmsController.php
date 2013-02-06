@@ -54,7 +54,7 @@ class CmsController extends AbstractCliController
         $site   = $this->siteEvent->getSite();
         $path   = $site->getPath();
         $numIndexed = $this->cms->reindex($path, true);
-        $output = sprintf("%s items reindexed", $numIndexed);
+        $output = sprintf("%s items reindexed in path '%s'", $numIndexed, $path);
         return $output;
     }
 

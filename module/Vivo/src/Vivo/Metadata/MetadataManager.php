@@ -107,11 +107,15 @@ class MetadataManager
             }
         }
 
-        $config = $config->toArray();
+        $descriptors = $config->toArray();
 
-        $this->cache['rawmeta'][$entityClass] = $config;
+        uasort($descriptors, function($a, $b) {
+            return (isset($a['order']) ? intval($a['order']) : 0) > (isset($b['order']) ? intval($b['order']) : 0);
+        });
 
-        return $config;
+        $this->cache['rawmeta'][$entityClass] = $descriptors;
+
+        return $descriptors;
     }
 
     /**

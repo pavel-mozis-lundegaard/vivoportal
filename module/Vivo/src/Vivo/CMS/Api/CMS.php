@@ -450,6 +450,28 @@ class CMS
     }
 
     /**
+     * @param Model\Document $document
+     * @return array <\Vivo\CMS\Model\ContentContainer>
+     */
+    public function getContentContainers(Model\Document $document)
+    {
+        $containers = $this->repository->getChildren($document, 'Vivo\CMS\Model\ContentContainer');
+
+        return $containers;
+    }
+
+    /**
+     * @param Model\ContentContainer $container
+     * @return array <\Vivo\CMS\Model\Content>
+     */
+    public function getContents(Model\ContentContainer $container)
+    {
+        $contents = $this->repository->getChildren($container, 'Vivo\CMS\Model\Content');
+
+        return $contents;
+    }
+
+    /**
      * Finds published content in ContentContainer,
      * @param Model\ContentContainer $container
      * @return Model\Content|false

@@ -24,6 +24,7 @@ return array(
             'Vivo\UI\Ribbon\Tab'                => __DIR__.'/../view/Vivo/UI/Ribbon/Tab.phtml',
             'Vivo\UI\Ribbon\Group'              => __DIR__.'/../view/Vivo/UI/Ribbon/Group.phtml',
             'Vivo\UI\Ribbon\Item'               => __DIR__.'/../view/Vivo/UI/Ribbon/Item.phtml',
+
         ),
         'custom_templates' => array (
             // custom selectable templates
@@ -61,8 +62,9 @@ return array(
             'Vivo\CMS\UI\Content\Layout'    => 'Vivo\CMS\Service\UI\Content\LayoutFactory',
             'Vivo\CMS\UI\Content\Overview'  => 'Vivo\CMS\Service\UI\Content\OverviewFactory',
             'Vivo\CMS\UI\Content\Logon'     => 'Vivo\CMS\Service\UI\Content\LogonFactory',
+            'Vivo\CMS\UI\Manager\Explorer\Explorer'  => 'Vivo\CMS\UI\Manager\Explorer\ExplorerFactory',
+            'Vivo\CMS\UI\Manager\Explorer\Editor'  => 'Vivo\CMS\UI\Manager\Explorer\EditorFactory',
             'Vivo\UI\Page'                  => 'Vivo\Service\UI\PageFactory',
-
             'security_manager'              => 'Vivo\Service\SimpleSecurityManagerFactory',
 //            'security_manager'              => 'Vivo\Service\DbSecurityManagerFactory',
         ),

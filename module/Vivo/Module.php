@@ -98,42 +98,6 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
     {
         return array(
             'factories' => array(
-                'Vivo\CMS\UI\Manager\Explorer\Explorer' => function (ServiceManager $sm) {
-                    $siteSelector = $sm->get('Vivo\CMS\UI\Manager\SiteSelector');
-
-                    $explorer = new \Vivo\CMS\UI\Manager\Explorer\Explorer(
-//                            $sm->get('request'),
-                            $sm->get('cms'),
-                            $sm->get('session_manager'),
-                            $siteSelector,
-                            new \Vivo\CMS\UI\Manager\Explorer\ExplorerComponentFactory($sm)
-                            );
-
-                    $explorer->setEventManager($sm->get('event_manager'));
-                    $explorer->addComponent($sm->get('Vivo\CMS\UI\Manager\Explorer\Ribbon'), 'ribbon');
-
-                    $tree = new \Vivo\CMS\UI\Manager\Explorer\Tree();
-                    $tree->setView($sm->get('view_model'));
-                    $tree->setEntityManager($explorer);
-                    $explorer->addComponent($tree, 'tree');
-
-                    $finder = new \Vivo\CMS\UI\Manager\Explorer\Finder();
-                    $finder->setEntityManager($explorer);
-                    $finder->setView($sm->get('view_model'));
-                    $explorer->addComponent($finder, 'finder');
-
-                    return $explorer;
-                },
-
-                'Vivo\CMS\UI\Manager\Explorer\Editor' => function (ServiceManager $sm) {
-                    $ex = $sm->get('Vivo\CMS\UI\Manager\Explorer\Explorer');
-                    $mm = $sm->get('metadata_manager');
-
-                    $editor = new \Vivo\CMS\UI\Manager\Explorer\Editor($ex, $mm);
-
-                    return $editor;
-                },
-
                 'Vivo\CMS\UI\Manager\Explorer\Ribbon' => function (ServiceManager $sm) {
                     $ribbon = new \Vivo\CMS\UI\Manager\Explorer\Ribbon();
                     return $ribbon;
@@ -145,8 +109,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                 },
                 'Vivo\CMS\UI\Manager\SiteSelector' => function (ServiceManager $sm) {
                     $siteSelector = new \Vivo\CMS\UI\Manager\SiteSelector(
-                            $sm->get('Vivo\CMS\Api\Manager\Manager'),
-                            $sm->get('session_manager'));
+                            $sm->get('Vivo\CMS\Api\Manager\Manager'));
                     return $siteSelector;
                 },
             ),

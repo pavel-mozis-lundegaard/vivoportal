@@ -3,6 +3,7 @@ namespace Vivo\Http\Filter;
 
 use Vivo\Http\Filter\Exception\CanNotAttachFilterException;
 
+use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\EventManager\EventManagerAwareInterface;
@@ -28,6 +29,11 @@ class OutputFilterListener implements ListenerAggregateInterface,
      * @var ServiceLocatorInterface
      */
     protected $serviceLocator;
+
+    /**
+     * @var EventManager
+     */
+    protected $events;
 
     /**
      * (non-PHPdoc)
@@ -112,7 +118,7 @@ class OutputFilterListener implements ListenerAggregateInterface,
     }
 
     /**
-     *
+     * @return EventManager
      */
     public function getEventManager()
     {

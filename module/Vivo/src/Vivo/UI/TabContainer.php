@@ -4,7 +4,7 @@ namespace Vivo\UI;
 /**
  * TabContainer
  */
-class TabContainer extends ComponentContainer
+class TabContainer extends ComponentContainer implements PersistableInterface
 {
     /**
      * @var string Component / tab name.
@@ -48,19 +48,14 @@ class TabContainer extends ComponentContainer
     {
         $tabs = array();
 
-        foreach($this->components as $name => $component) {
+        foreach ($this->components as $name => $component) {
             if ($component instanceOf \Vivo\UI\TabContainerItemInterface) {
-                if(!$component->isDisabled()) {
-                    $tab = array(
-                        'name' => $name,
-                        'label' => $component->getLabel()
-                    );
+                if (!$component->isDisabled()) {
+                    $tab = array('name' => $name,
+                            'label' => $component->getLabel());
                 }
             } else {
-                $tab = array(
-                    'name' => $name,
-                    'label' => "($name)"
-                );
+                $tab = array('name' => $name, 'label' => "($name)");
             }
             $tabs[] = $tab;
         }
@@ -75,9 +70,26 @@ class TabContainer extends ComponentContainer
     {
         $this->view->tabs = $this->prepareTabs();
         $this->view->components = $keys = array_keys($this->components);
-        $this->view->selected = $this->selected ?  : reset($keys);
+        $this->view->selected = $this->selected ? : reset($keys);
         $this->view->viewAll = $this->viewAll;
         return parent::view();
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\UI\PersistableInterface::saveState()
+     */
+    public function saveState()
+    {
+        return $this->selected;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\UI\PersistableInterface::loadState()
+     */
+    public function loadState($state)
+    {
+        $this->selected = $state;
+    }
 }

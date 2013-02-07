@@ -11,13 +11,22 @@ use Vivo\CMS\Model\Content\ProvideFrontComponentInterface;
  */
 class ComponentResolver
 {
+    /**
+     * Component types - also keys in map.
+     * @var string
+     */
     const FRONT_COMPONENT = 'front_component';
     const EDITOR_COMPONENT = 'editor_component';
 
-    private $mappings = array();
+    /**
+     * Model-component map.
+     * @var array
+     */
+    protected $mappings = array();
 
     /**
-     * @param array $options
+     * Constructor.
+     * @param array $config
      */
     public function __construct($config = array())
     {
@@ -28,10 +37,10 @@ class ComponentResolver
 
     /**
      * @param Content|string $modelOrClassname
-     * @param unknown_type $type
+     * @param string $type
      * @throws InvalidArgumentException
      * @throws Exception
-     * @return unknown
+     * @return string
      */
     public function resolve($modelOrClassname, $type = self::FRONT_COMPONENT)
     {

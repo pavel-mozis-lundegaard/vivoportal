@@ -7,7 +7,7 @@ namespace Vivo\IO;
  */
 class InputStreamWrapper {
 
-	const STREAM_NAME = 'io.stream';
+	const STREAM_NAME = 'vivo.iostream';
 
 	private static $registeredInputStreams = array();
 
@@ -17,7 +17,6 @@ class InputStreamWrapper {
 
     protected $pos = 0;
 
-
     /**
      * Stream stats.
      *
@@ -25,19 +24,11 @@ class InputStreamWrapper {
      */
     protected $stat;
 
-    /**
-     * Opens the script file and converts markup.
-     */
     public function stream_open($path, $mode, $options, &$opened_path)
     {
-        // get the view script source
         $path        = str_replace(self::STREAM_NAME.'://', '', $path);
         $this->is = self::$registeredInputStreams[$path];
 
-        /**
-         * If reading the file failed, update our local stat store
-         * to reflect the real stat of the file, then return on failure
-         */
         return true;
     }
 

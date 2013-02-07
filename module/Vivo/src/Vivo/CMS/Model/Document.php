@@ -210,4 +210,22 @@ class Document extends Folder
     {
         return $this->layoutPanels;
     }
+
+    /**
+     * Returns document description.
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * Sets document description.
+     * @param string $description
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+    }
 }

@@ -2,7 +2,8 @@
 namespace Vivo\Repository;
 
 use Vivo\TransactionalInterface;
-use Vivo\CMS\Model;
+use Vivo\CMS\Model\PathInterface;
+use Vivo\CMS\Model\Entity;
 
 /**
  * RepositoryInterface
@@ -26,106 +27,109 @@ interface RepositoryInterface extends TransactionalInterface {
     public function getEntityFromStorage($path);
 
     /**
-     * Schedules entity for saving into storage
-     * @param \Vivo\CMS\Model\Entity $entity
-     * @return mixed
+     * Saves entity to repository
+     * Changes become persistent when commit method is called within request
+     * @param \Vivo\CMS\Model\PathInterface $entity
+     * @return mixed|\Vivo\CMS\Model\PathInterface
+     * @throws Exception\InvalidPathException
      */
-    public function saveEntity(Model\Entity $entity);
+    public function saveEntity(PathInterface $entity);
 
     /**
      * Schedules entity for deletion form storage
-     * @param \Vivo\CMS\Model\Entity $entity
-     * @return void
+     * @param PathInterface $entity
      */
-    public function deleteEntity(Model\Entity $entity);
+    public function deleteEntity(PathInterface $entity);
+
+    /**
+     * Deletes entity by path
+     * @param string $path
+     */
+    public function deleteEntityByPath($path);
 
     /**
      * Schedules entity for moving in the storage
-	 * @param \Vivo\CMS\Model\Entity $entity
+	 * @param PathInterface $entity
 	 * @param string $target
 	 */
-	public function moveEntity(Model\Entity $entity, $target);
+	public function moveEntity(PathInterface $entity, $target);
 
     /**
      * Schedules entity for copying in storage
-	 * @param \Vivo\CMS\Model\Entity $entity
+	 * @param PathInterface $entity
 	 * @param string $target
 	 */
-	public function copyEntity(Model\Entity $entity, $target);
+	public function copyEntity(PathInterface $entity, $target);
 
     /**
-     * Return subdocuments
+     * Returns children of an entity
      * When $deep == true, returns descendants rather than children
-     * @param \Vivo\CMS\Model\Entity $entity
+     * @param PathInterface $entity
      * @param bool|string $className
      * @param bool $deep
-     * @return array
+     * @return \Vivo\CMS\Model\Entity[]
      */
-	public function getChildren(Model\Entity $entity, $className = false, $deep = false);
+    public function getChildren(PathInterface $entity, $className = false, $deep = false);
 
     /**
      * Schedules resource for deletion from storage
-     * @param \Vivo\CMS\Model\Entity $entity
-     * @param string $name
-     * @return void
+     * @param PathInterface $entity
+     * @param string $name Name of the resource
      */
-    public function deleteResource(Model\Entity $entity, $name);
+    public function deleteResource(PathInterface $entity, $name);
 
     /**
      * Returns resource from storage
-     * @param \Vivo\CMS\Model\Entity $entity
+     * @param PathInterface $entity
      * @param string $name
      * @return string
      */
-	public function getResource(Model\Entity $entity, $name);
+	public function getResource(PathInterface $entity, $name);
 
     /**
      * Returns an input stream for reading from the resource
-     * @param \Vivo\CMS\Model\Entity $entity
+     * @param PathInterface $entity
      * @param string $name Resource file name.
      * @return \Vivo\IO\InputStreamInterface
      */
-	public function readResource(Model\Entity $entity, $name);
+	public function readResource(PathInterface $entity, $name);
 
     /**
-     * Schedules resource for saving into storage
-     * @param \Vivo\CMS\Model\Entity $entity
-     * @param string $name
+     * Adds an entity resource (data) to the list of resources to be saved
+     * @param PathInterface $entity
+     * @param string $name Name of resource
      * @param string $data
-     * @return void
      */
-    public function saveResource(Model\Entity $entity, $name, $data);
+    public function saveResource(PathInterface $entity, $name, $data);
 
     /**
-     *
-     * Schedules writing to a resource from a stream
-     * @param \Vivo\CMS\Model\Entity $entity
+     * Adds a stream to the list of streams to be saved
+     * @param PathInterface $entity
      * @param string $name
      * @param \Vivo\IO\InputStreamInterface $stream
      * @return void
      */
-    public function writeResource(Model\Entity $entity, $name, \Vivo\IO\InputStreamInterface $stream);
+    public function writeResource(PathInterface $entity, $name, \Vivo\IO\InputStreamInterface $stream);
 
     /**
      * Returns parent folder
      * If there is no parent folder (ie this is a root), returns null
-     * @param \Vivo\CMS\Model\Folder $folder
-     * @return \Vivo\CMS\Model\Folder
+     * @param PathInterface $folder
+     * @return \Vivo\CMS\Model\Entity
      */
-	public function getParent(Model\Folder $folder);
+	public function getParent(PathInterface $folder);
 
     /**
      * Returns true when the folder has children
-     * @param Model\Folder $folder
+     * @param PathInterface $folder
      * @return bool
      */
-	public function hasChildren(Model\Folder $folder);
+	public function hasChildren(PathInterface $folder);
 
     /**
      * Returns descendants of a specific path from storage
      * @param string $path
-     * @return Model\Entity[]
+     * @return Entity[]
      */
     public function getDescendantsFromStorage($path);
-
 }

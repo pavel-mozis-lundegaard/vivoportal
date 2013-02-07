@@ -16,6 +16,7 @@ use Vivo\Indexer\QueryParams;
 use Vivo\CMS\Indexer\IndexerHelperInterface;
 use Vivo\Repository\Exception\EntityNotFoundException;
 use Vivo\Uuid\GeneratorInterface as UuidGeneratorInterface;
+use Vivo\Storage\PathBuilder\PathBuilderInterface;
 
 use Zend\Config;
 
@@ -73,6 +74,12 @@ class CMS
     protected $uuidGenerator;
 
     /**
+     * Path builder
+     * @var PathBuilderInterface
+     */
+    protected $pathBuilder;
+
+    /**
      * Constructor
      * @param RepositoryInterface $repository
      * @param \Vivo\Indexer\IndexerInterface $indexer
@@ -81,11 +88,16 @@ class CMS
      * @param \Vivo\Indexer\Query\Parser\ParserInterface $queryParser
      * @param \Vivo\CMS\UuidConvertor\UuidConvertorInterface $uuidConvertor
      * @param \Vivo\Uuid\GeneratorInterface $uuidGenerator
+     * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
      */
-    public function __construct(RepositoryInterface $repository, IndexerInterface $indexer,
-                                IndexerHelperInterface $indexerHelper, QueryBuilder $qb, ParserInterface $queryParser,
+    public function __construct(RepositoryInterface $repository,
+                                IndexerInterface $indexer,
+                                IndexerHelperInterface $indexerHelper,
+                                QueryBuilder $qb,
+                                ParserInterface $queryParser,
                                 UuidConvertorInterface $uuidConvertor,
-                                UuidGeneratorInterface $uuidGenerator)
+                                UuidGeneratorInterface $uuidGenerator,
+                                PathBuilderInterface $pathBuilder)
     {
         $this->repository       = $repository;
         $this->indexer          = $indexer;
@@ -94,6 +106,7 @@ class CMS
         $this->queryParser      = $queryParser;
         $this->uuidConvertor    = $uuidConvertor;
         $this->uuidGenerator    = $uuidGenerator;
+        $this->pathBuilder      = $pathBuilder;
     }
 
     /**
@@ -132,10 +145,12 @@ class CMS
      */
     public function createSite($name, $domain, array $hosts)
     {
-        $site = new Model\Site("/$name");
+        $sitePath   = $this->pathBuilder->buildStoragePath(array($name), true);
+        $site       = new Model\Site($sitePath);
         $site->setDomain($domain);
         $site->setHosts($hosts);
-        $root = new Model\Document("/$name/ROOT");
+        $rootPath   = $this->pathBuilder->buildStoragePath(array($name, 'ROOT'), true);
+        $root = new Model\Document($rootPath);
         $root->setTitle('Home');
         $root->setWorkflow('Vivo\CMS\Workflow\Basic');
         $this->saveEntity($site, false);
@@ -184,7 +199,9 @@ class CMS
      */
     public function getSiteDocument($path, Model\Site $site)
     {
-        return $this->repository->getEntity($site->getPath() . '/ROOT/' . $path);
+        $fullPath   = $this->pathBuilder->buildStoragePath(array($site->getPath(), 'ROOT', $path));
+        $entity     = $this->repository->getEntity($fullPath);
+        return $entity;
     }
 
     /**
@@ -260,7 +277,9 @@ class CMS
      */
     protected function prepareEntityForSaving(Model\Entity $entity)
     {
-        $now = new DateTime();
+        $now            = new DateTime();
+        $sanitizedPath  = $this->pathBuilder->sanitize($entity->getPath());
+        $entity->setPath($sanitizedPath);
         if (!$entity->getCreated() instanceof \DateTime) {
             $entity->setCreated($now);
         }
@@ -314,22 +333,21 @@ class CMS
     }
 
     /**
+     * Returns document for the given content
      * @param Model\Content $content
      * @return Model\Document
      */
     public function getContentDocument(Model\Content $content)
     {
         $path = $content->getPath();
-        $path = substr($path, 0, strrpos($path, '/') - 1);
-        $path = substr($path, 0, strrpos($path, '/'));
-
-        $document = $this->repository->getEntity($path);
-
+        $components = $this->pathBuilder->getStoragePathComponents($path);
+        array_pop($components);
+        array_pop($components);
+        $docPath    = $this->pathBuilder->buildStoragePath($components, true);
+        $document = $this->repository->getEntity($docPath);
         if ($document instanceof Model\Document) {
             return $document;
         }
-
-        //@todo: nebo exception
         return null;
     }
 
@@ -337,7 +355,8 @@ class CMS
     {
         $path           = $document->getPath();
         $version        = count($this->getDocumentContents($document, $index));
-        $contentPath    = $path . "/Contents.$index/$version";
+        $components     = array($path, 'Contents' . $index, $version);
+        $contentPath    = $this->pathBuilder->buildStoragePath($components, true);
         $content->setPath($contentPath);
         $content->setState(Workflow\AbstractWorkflow::STATE_NEW);
         $this->saveEntity($content);
@@ -350,8 +369,7 @@ class CMS
      * @throws \Vivo\CMS\Exception\InvalidArgumentException
      * @return Model\Content
      */
-    public function getDocumentContent(Model\Document $document, $index,
-            $version/*, $state {PUBLISHED}*/)
+    public function getDocumentContent(Model\Document $document, $index, $version/*, $state {PUBLISHED}*/)
     {
         if (!is_integer($version)) {
             throw new Exception\InvalidArgumentException(
@@ -365,10 +383,15 @@ class CMS
                             'Argument %d passed to %s must be an type of %s, %s given',
                             3, __METHOD__, 'integer', gettype($index)));
         }
-
-        $path = $document->getPath() . '/Contents.' . $index . '/' . $version;
-
-        return $this->repository->getEntity($path);
+        $components = array(
+            $document->getPath(),
+            'Contents.',
+            $index,
+            $version,
+        );
+        $path   = $this->pathBuilder->buildStoragePath($components, true);
+        $entity = $this->repository->getEntity($path);
+        return $entity;
     }
 
     /**
@@ -385,9 +408,8 @@ class CMS
                             'Argument %d passed to %s must be an type of integer, %s given',
                             2, __METHOD__, gettype($index)));
         }
-
-        $path = $document->getPath() . '/Contents.' . $index;
-
+        $pathElements   = array($document->getPath(), 'Contents.', $index);
+        $path           = $this->pathBuilder->buildStoragePath($pathElements, true);
         return $this->repository->getChildren(new Model\Entity($path));
     }
 
@@ -488,10 +510,8 @@ class CMS
      */
     public function getPublishedContents(Model\Document $document)
     {
-        $containers = $this->repository
-                ->getChildren($document, 'Vivo\CMS\Model\ContentContainer');
+        $containers = $this->repository->getChildren($document, 'Vivo\CMS\Model\ContentContainer');
         $contents = array();
-
         usort($containers,
                 function (Model\ContentContainer $a, Model\ContentContainer $b)
                 {
@@ -512,7 +532,6 @@ class CMS
     public function getContentContainers(Model\Document $document)
     {
         $containers = $this->repository->getChildren($document, 'Vivo\CMS\Model\ContentContainer');
-
         return $containers;
     }
 
@@ -523,7 +542,6 @@ class CMS
     public function getContents(Model\ContentContainer $container)
     {
         $contents = $this->repository->getChildren($container, 'Vivo\CMS\Model\Content');
-
         return $contents;
     }
 
@@ -536,23 +554,20 @@ class CMS
     public function getPublishedContent(Model\ContentContainer $container)
     {
         $result = array();
-        $contents = $this->repository
-                ->getChildren($container, 'Vivo\CMS\Model\Content');
+        $contents = $this->repository->getChildren($container, 'Vivo\CMS\Model\Content');
         foreach ($contents as $content) {
             /* @var $content Model\Content */
             if ($content->getState() == Workflow\Basic::STATE_PUBLISHED) {
                 $result[] = $content;
             }
         }
-
         if (count($result) == 1) {
             return $result[0];
         } elseif (count($result) == 0) {
             return false;
         } else {
             throw new Exception\LogicException(
-                    sprintf(
-                            "%s: The ContentContainer '%s' contains more than one published content.",
+                    sprintf("%s: The ContentContainer '%s' contains more than one published content.",
                             __METHOD__, $container->getPath()));
         }
     }
@@ -581,14 +596,13 @@ class CMS
 
     public function getEntityUrl(Model\Entity $entity)
     {
-        //TODO
+        //TODO - implement using PathBuilder
         $parts = explode('/ROOT/', $entity->getPath());
         return $parts[1];
     }
 
     /**
-     * Returns entity ralative path within site.
-     *
+     * Returns entity relative path within site
      * Relative path starts and ends with slash.
      * @param Model\Entity $entity
      * @example '/path/to/some-document-within-site/'
@@ -596,6 +610,7 @@ class CMS
      */
     public function getEntityRelPath(Model\Entity $entity)
     {
+        //TODO - implement using PathBuilder
         $parts = explode('/ROOT', $entity->getPath());
         return $parts[1];
     }
@@ -606,6 +621,7 @@ class CMS
      * @return string
      */
     public function getEntitySitePath(Model\Entity $entity) {
+        //TODO - implement using PathBuilder
         $parts = explode('/ROOT/', $entity->getPath());
         return $parts[0];
     }
@@ -624,30 +640,28 @@ class CMS
 
     /**
      * Returns
-     * @param unknown $path
+     * @param string $path
      * @param Model\Site $site
      * @throws InvalidArgumentException
-     * @return string|unknown
+     * @return string
      */
-    public function getEntityAbsolutePath($path, Model\Site $site = null)
+    public function getEntityAbsolutePath($path, Model\Site $site)
     {
         if (substr($path, 0, 1) == '/' && substr($path, -1) == '/') {
             //it's relative path
-            if (!$site instanceof Model\Site) {
-                throw new InvalidArgumentException('Can\'t create entity absolute path');
-            }
-            return $site->getPath() .'/ROOT/' .trim($path, '/');
+            $components     = array($site->getPath(), 'ROOT', $path);
+            $absolutePath   = $this->pathBuilder->buildStoragePath($components, true);
         } else {
             //it's absolute path
-            return $path;
+            $absolutePath   = $path;
         }
-
+        return $absolutePath;
     }
-
 
     /**
      * Returns child documents.
      * @param Model\Document $document
+     * @return array
      */
     public function getChildDocuments(Model\Document $document)
     {
@@ -669,7 +683,7 @@ class CMS
      */
     public function getSite($siteName)
     {
-        $path   = '/' . $siteName;
+        $path   = $this->pathBuilder->buildStoragePath(array($siteName), true);
         $site   = $this->getEntity($path);
         if (!$site instanceof \Vivo\CMS\Model\Site) {
             throw new Exception\DomainException(

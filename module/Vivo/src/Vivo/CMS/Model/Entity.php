@@ -1,12 +1,13 @@
 <?php
 namespace Vivo\CMS\Model;
 
+use DateTime;
+
 /**
  * Base class for all CMS entities.
  */
-class Entity
+class Entity implements PathInterface
 {
-
     /**
      * Universally Unique Identifier (UUID) of the entity instance.
      * Value is set when entity is being instantiated. Never set or change value of this property.
@@ -98,13 +99,11 @@ class Entity
 
     /**
      * Gets entity path.
-     * @param string $subpath Subpath will be added to the end.
      * @return string
-     * @todo what to do with subpath param?
      */
-    public function getPath(/*$subpath = ''*/)
+    public function getPath()
     {
-        return $this->path/*.($subpath ? "/$subpath" : '')*/;
+        return $this->path;
     }
 
     /**

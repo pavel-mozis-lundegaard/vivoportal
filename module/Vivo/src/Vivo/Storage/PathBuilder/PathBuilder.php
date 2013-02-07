@@ -16,6 +16,12 @@ class PathBuilder implements PathBuilderInterface
     protected $separator;
 
     /**
+     * Character used to replace illegal path characters
+     * @var string
+     */
+    protected $replacementChar    = '-';
+
+    /**
      * Constructor
      * @param string $separator Path components separator
      * @throws \Vivo\Storage\Exception\InvalidArgumentException
@@ -57,6 +63,7 @@ class PathBuilder implements PathBuilderInterface
         if ($absolute) {
             $path    = $separator . $path;
         }
+        $path   = $this->removeIllegalCharacters($path);
         return $path;
     }
 
@@ -94,6 +101,7 @@ class PathBuilder implements PathBuilderInterface
         if ($absolute) {
             $sanitized  = $separator . $sanitized;
         }
+        $sanitized  = $this->removeIllegalCharacters($sanitized);
         return  $sanitized;
     }
 
@@ -126,5 +134,21 @@ class PathBuilder implements PathBuilderInterface
         $path       = trim($path);
         $firstChar  = substr($path, 0, 1);
         return $firstChar == $this->getStoragePathSeparator();
+    }
+
+    /**
+     * Returns $path with all illegal characters removed and replaced with replacement character
+     * @param string $path
+     * @return string
+     */
+    protected function removeIllegalCharacters($path)
+    {
+        $cleaned            = '';
+        $len                = strlen($path);
+        for ($i = 0; $i < $len; $i++) {
+            $cleaned    .= (stripos('abcdefghijklmnopqrstuvwxyz0123456789-_/.', $path{$i}) !== false)
+                            ? $path[$i] : $this->replacementChar;
+        }
+        return $cleaned;
     }
 }

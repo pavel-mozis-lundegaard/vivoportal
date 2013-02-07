@@ -28,15 +28,13 @@ class RepositoryFactory implements FactoryInterface
         $storage                = $storageFactory->create($storageConfig);
         $serializer             = new \Vivo\Serializer\Adapter\Entity();
         $watcher                = new \Vivo\Repository\Watcher();
-        $uuidGenerator          = $serviceLocator->get('uuid_generator');
         $ioUtil                 = $serviceLocator->get('io_util');
         //TODO - supply a real cache
         $repository             = new \Vivo\Repository\Repository($storage,
-            null,
-            $serializer,
-            $watcher,
-            $uuidGenerator,
-            $ioUtil);
+                                                                  null,
+                                                                  $serializer,
+                                                                  $watcher,
+                                                                  $ioUtil);
         return $repository;
     }
 }

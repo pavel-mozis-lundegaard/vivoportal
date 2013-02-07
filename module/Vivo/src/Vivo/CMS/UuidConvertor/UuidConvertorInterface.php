@@ -1,9 +1,9 @@
 <?php
-namespace Vivo\Repository\UuidConvertor;
+namespace Vivo\CMS\UuidConvertor;
 
 /**
  * UuidConvertorInterface
- * Converts to/from UUID
+ * Converts to/from UUID/path
  */
 interface UuidConvertorInterface
 {

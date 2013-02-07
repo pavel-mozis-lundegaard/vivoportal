@@ -17,7 +17,7 @@ class UuidConvertorFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $indexer        = $serviceLocator->get('indexer');
-        $uuidConvertor  =  new \Vivo\Repository\UuidConvertor\UuidConvertor($indexer);
+        $uuidConvertor  = new \Vivo\CMS\UuidConvertor\UuidConvertor($indexer);
         return $uuidConvertor;
     }
 }

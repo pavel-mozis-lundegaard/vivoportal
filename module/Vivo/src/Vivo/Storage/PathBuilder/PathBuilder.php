@@ -47,14 +47,15 @@ class PathBuilder implements PathBuilderInterface
     public function buildStoragePath(array $elements, $absolute = true)
     {
         $components = array();
+        $separator  = $this->getStoragePathSeparator();
         //Get atomic components
-        foreach ($elements as $key => $element) {
+        foreach ($elements as $element) {
             $elementComponents  = $this->getStoragePathComponents($element);
             $components         = array_merge($components, $elementComponents);
         }
-        $path   = implode($this->getStoragePathSeparator(), $components);
+        $path   = implode($separator, $components);
         if ($absolute) {
-            $path    = $this->getStoragePathSeparator() . $path;
+            $path    = $separator . $path;
         }
         return $path;
     }
@@ -77,6 +78,23 @@ class PathBuilder implements PathBuilderInterface
         //Reset array indices
         $components = array_values($components);
         return $components;
+    }
+
+    /**
+     * Returns sanitized path (trimmed, no double separators, etc.)
+     * @param string $path
+     * @return string
+     */
+    public function sanitize($path)
+    {
+        $absolute   = $this->isAbsolute($path);
+        $components = $this->getStoragePathComponents($path);
+        $separator  = $this->getStoragePathSeparator();
+        $sanitized  = implode($separator, $components);
+        if ($absolute) {
+            $sanitized  = $separator . $sanitized;
+        }
+        return  $sanitized;
     }
 
     /**
@@ -105,6 +123,7 @@ class PathBuilder implements PathBuilderInterface
      */
     public function isAbsolute($path)
     {
+        $path       = trim($path);
         $firstChar  = substr($path, 0, 1);
         return $firstChar == $this->getStoragePathSeparator();
     }

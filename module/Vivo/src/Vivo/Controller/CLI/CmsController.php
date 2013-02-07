@@ -146,7 +146,7 @@ class CmsController extends AbstractCliController
             foreach ($entities as $entity) {
                 $newUuid    = $this->uuidGenerator->create();
                 $entity->setUuid($newUuid);
-                $this->repository->saveEntity($entity);
+                $this->cms->saveEntity($entity, false);
                 $count++;
             }
             $this->repository->commit();
@@ -166,7 +166,7 @@ class CmsController extends AbstractCliController
                         $entity = $this->repository->getEntity($pathOfDup);
                         $newUuid    = $this->uuidGenerator->create();
                         $entity->setUuid($newUuid);
-                        $this->repository->saveEntity($entity);
+                        $this->cms->saveEntity($entity, false);
                         $output .= sprintf("\n    %s -> %s", $pathOfDup, $newUuid);
                     }
                 }

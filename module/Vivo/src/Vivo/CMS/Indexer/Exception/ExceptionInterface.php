@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\CMS\Workflow\Exception;
+namespace Vivo\CMS\Indexer\Exception;
 
 /**
  * ExceptionInterface

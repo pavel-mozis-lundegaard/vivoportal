@@ -6,16 +6,20 @@ use Vivo\CMS\Exception\InvalidArgumentException;
 use Vivo\CMS\Model;
 use Vivo\CMS\Workflow;
 use Vivo\CMS\Exception;
+use Vivo\CMS\UuidConvertor\UuidConvertorInterface;
 use Vivo\Repository\RepositoryInterface;
 use Vivo\Indexer\Query\Parser\ParserInterface;
 use Vivo\Indexer\Query\QueryInterface;
 use Vivo\Indexer\QueryBuilder;
 use Vivo\Indexer\IndexerInterface;
 use Vivo\Indexer\QueryParams;
-use Vivo\Repository\IndexerHelper;
+use Vivo\CMS\Indexer\IndexerHelperInterface;
 use Vivo\Repository\Exception\EntityNotFoundException;
+use Vivo\Uuid\GeneratorInterface as UuidGeneratorInterface;
 
 use Zend\Config;
+
+use DateTime;
 
 /**
  * Main business class for interact with CMS.
@@ -41,7 +45,7 @@ class CMS
 
     /**
      * Indexer Helper
-     * @var IndexerHelper
+     * @var IndexerHelperInterface
      */
     protected $indexerHelper;
 
@@ -58,21 +62,38 @@ class CMS
     protected $qb;
 
     /**
+     * UUID Convertor
+     * @var UuidConvertorInterface
+     */
+    protected $uuidConvertor;
+
+    /**
+     * @var UuidGeneratorInterface
+     */
+    protected $uuidGenerator;
+
+    /**
      * Constructor
      * @param RepositoryInterface $repository
      * @param \Vivo\Indexer\IndexerInterface $indexer
-     * @param \Vivo\Repository\IndexerHelper $indexerHelper
+     * @param IndexerHelperInterface $indexerHelper
      * @param \Vivo\Indexer\QueryBuilder $qb
      * @param \Vivo\Indexer\Query\Parser\ParserInterface $queryParser
+     * @param \Vivo\CMS\UuidConvertor\UuidConvertorInterface $uuidConvertor
+     * @param \Vivo\Uuid\GeneratorInterface $uuidGenerator
      */
     public function __construct(RepositoryInterface $repository, IndexerInterface $indexer,
-                                IndexerHelper $indexerHelper, QueryBuilder $qb, ParserInterface $queryParser)
+                                IndexerHelperInterface $indexerHelper, QueryBuilder $qb, ParserInterface $queryParser,
+                                UuidConvertorInterface $uuidConvertor,
+                                UuidGeneratorInterface $uuidGenerator)
     {
         $this->repository       = $repository;
         $this->indexer          = $indexer;
         $this->indexerHelper    = $indexerHelper;
         $this->qb               = $qb;
         $this->queryParser      = $queryParser;
+        $this->uuidConvertor    = $uuidConvertor;
+        $this->uuidGenerator    = $uuidGenerator;
     }
 
     /**
@@ -117,9 +138,9 @@ class CMS
         $root = new Model\Document("/$name/ROOT");
         $root->setTitle('Home');
         $root->setWorkflow('Vivo\CMS\Workflow\Basic');
-        $this->repository->saveEntity($site);
+        $this->saveEntity($site, false);
         $this->setSiteConfig(array(), $site);
-        $this->repository->saveEntity($root);
+        $this->saveEntity($root,  false);
         $this->repository->commit();
         return $site;
     }
@@ -176,13 +197,26 @@ class CMS
     }
 
     /**
-     * @param string $ident
+     * Returns entity specified by path, UUID or symbolic reference
+     * @param string $ident Path, UUID or symbolic reference
+     * @throws \Vivo\CMS\Exception\InvalidArgumentException
      * @return Model\Entity
      */
     public function getEntity($ident)
     {
-        //TODO - refactor to support UUIDs
-        $path   = $ident;
+        $uuid   = $this->getUuidFromEntityIdent($ident);
+        if ($uuid) {
+            //$ident is UUID or symbolic reference
+            $path   = $this->uuidConvertor->getPath($uuid);
+            if (!$path) {
+                throw new Exception\InvalidArgumentException(
+                    sprintf("%s: Cannot convert entity identifier '%s' (UUID = '%s') to path",
+                            __METHOD__, $ident, $uuid));
+            }
+        } else {
+            //Assume $ident is a path
+            $path   = $ident;
+        }
         return $this->repository->getEntity($path);
     }
 
@@ -205,12 +239,42 @@ class CMS
     }
 
     /**
+     * Saves entity
+     * The entity is prepared before saving into repository
      * @param Model\Entity $entity
+     * @param bool $commit
      */
-    protected function saveEntity(Model\Entity $entity)
+    public function saveEntity(Model\Entity $entity, $commit = true)
     {
+        $entity = $this->prepareEntityForSaving($entity);
         $this->repository->saveEntity($entity);
-        $this->repository->commit();
+        if ($commit) {
+            $this->repository->commit();
+        }
+    }
+
+    /**
+     * Prepares entity to be saved
+     * @param \Vivo\CMS\Model\Entity $entity
+     * @return \Vivo\CMS\Model\Entity
+     */
+    protected function prepareEntityForSaving(Model\Entity $entity)
+    {
+        $now = new DateTime();
+        if (!$entity->getCreated() instanceof \DateTime) {
+            $entity->setCreated($now);
+        }
+        if (!$entity->getCreatedBy()) {
+            //TODO - what to do when an entity does not have its creator set?
+            //$entity->setCreatedBy($username);
+        }
+        if(!$entity->getUuid()) {
+            $entity->setUuid($this->uuidGenerator->create());
+        }
+        $entity->setModified($now);
+        //TODO - set entity modifier
+//        $entity->setModifiedBy($username);
+        return $entity;
     }
 
     public function saveDocument(Model\Document $document/*, $parent = null*/)
@@ -225,8 +289,7 @@ class CMS
         $options    = array(
             'published_content_types'   => $this->getPublishedContentTypes($document),
         );
-        $this->repository->saveEntity($document, $options);
-        $this->repository->commit();
+        $this->saveEntity($document, $options);
     }
 
     /**
@@ -270,18 +333,14 @@ class CMS
         return null;
     }
 
-    public function addDocumentContent(Model\Document $document,
-            Model\Content $content, $index = 0)
+    public function addDocumentContent(Model\Document $document, Model\Content $content, $index = 0)
     {
-        $path = $document->getPath();
-
-        $version = count($this->getDocumentContents($document, $index));
-        $contentPath = $path . "/Contents.$index/$version";
+        $path           = $document->getPath();
+        $version        = count($this->getDocumentContents($document, $index));
+        $contentPath    = $path . "/Contents.$index/$version";
         $content->setPath($contentPath);
         $content->setState(Workflow\AbstractWorkflow::STATE_NEW);
-
-        $this->repository->saveEntity($content);
-        $this->repository->commit();
+        $this->saveEntity($content);
     }
 
     /**
@@ -337,18 +396,14 @@ class CMS
      */
     public function publishContent(Model\Content $content)
     {
-        $document = $this->getContentDocument($content);
-        $oldConent = $this
-                ->getPublishedContent($document, $content->getIndex());
-
-        if ($oldConent) {
-            $oldConent->setState(Workflow\AbstractWorkflow::STATE_ARCHIVED);
-            $this->repository->saveEntity($oldConent);
+        $document   = $this->getContentDocument($content);
+        $oldContent = $this->getPublishedContent($document, $content->getIndex());
+        if ($oldContent) {
+            $oldContent->setState(Workflow\AbstractWorkflow::STATE_ARCHIVED);
+            $this->saveEntity($oldContent, false);
         }
-
         $content->setState(Workflow\AbstractWorkflow::STATE_PUBLISHED);
-        $this->repository->saveEntity($content);
-        $this->repository->commit();
+        $this->saveEntity($content, true);
     }
 
     public function getAllStates(Model\Document $document)
@@ -362,32 +417,29 @@ class CMS
     }
 
     /**
-     * Nasetuje "libovolny" workflow stav obsahu.
+     * Sets a workflow state to the content
      * @param Model\Content $content
      * @param string $state
      * @throws \Vivo\CMS\Exception\InvalidArgumentException
      */
     public function setState(Model\Content $content, $state)
     {
-        $document = $this->getContentDocument($content);
-        $workflow = $this->getWorkflow($document);
-        $states = $workflow->getAllStates();
-
+        $document   = $this->getContentDocument($content);
+        $workflow   = $this->getWorkflow($document);
+        $states     = $workflow->getAllStates();
         if (!in_array($state, $states)) {
             throw new Exception\InvalidArgumentException(
-                    'Unknow state value. Available: ' . implode(', ', $states));
+                sprintf('%s: Unknown state value; Available: %s', __METHOD__, implode(', ', $states)));
         }
-
+        //TODO - authorization
         if (true /* uzivatel ma pravo na change*/) {
 
         }
-
         if ($state == Workflow\AbstractWorkflow::STATE_PUBLISHED) {
             $this->publishContent($content);
         } else {
             $content->setState($state);
-            $this->repository->saveEntity($content);
-            $this->repository->commit();
+            $this->saveEntity($content);
         }
     }
 

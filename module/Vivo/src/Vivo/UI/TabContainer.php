@@ -4,7 +4,7 @@ namespace Vivo\UI;
 /**
  * TabContainer
  */
-class TabContainer extends ComponentContainer
+class TabContainer extends ComponentContainer implements PersistableInterface
 {
     /**
      * @var string Component / tab name.
@@ -71,10 +71,7 @@ class TabContainer extends ComponentContainer
                     );
                 }
             } else {
-                $tab = array(
-                    'name' => $name,
-                    'label' => "($name)"
-                );
+                $tab = array('name' => $name, 'label' => "($name)");
             }
             $tabs[] = $tab;
         }
@@ -94,4 +91,21 @@ class TabContainer extends ComponentContainer
         return parent::view();
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\UI\PersistableInterface::saveState()
+     */
+    public function saveState()
+    {
+        return $this->selected;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\UI\PersistableInterface::loadState()
+     */
+    public function loadState($state)
+    {
+        $this->selected = $state;
+    }
 }

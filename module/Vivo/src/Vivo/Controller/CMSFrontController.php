@@ -93,7 +93,7 @@ class CMSFrontController implements DispatchableInterface,
         //TODO: redirects based on document properties(https, $document->url etc.)
 
         $documentPath = $this->event->getRouteMatch()->getParam('path');
-        $document = $this->cms->getSiteDocument($documentPath, $this->siteEvent->getSite());
+        $document = $this->cms->getSiteEntity($documentPath, $this->siteEvent->getSite());
         $root = $this->componentFactory->getRootComponent($document);
 
         $this->treeUtil->setRoot($root);

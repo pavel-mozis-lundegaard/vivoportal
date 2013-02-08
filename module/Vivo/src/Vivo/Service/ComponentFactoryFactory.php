@@ -19,11 +19,12 @@ class ComponentFactoryFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $cf = new ComponentFactory($serviceLocator,
-                $serviceLocator->get('di_proxy'), $serviceLocator->get('cms'),
-                $serviceLocator->get('site_event')->getSite());
-
-        $resolver = new ComponentResolver($serviceLocator->get('cms_config'));
+        $diProxy        = $serviceLocator->get('di_proxy');
+        $cms            = $serviceLocator->get('cms');
+        $documentApi    = $serviceLocator->get('document_api');
+        $site           = $serviceLocator->get('site_event')->getSite();
+        $cf             = new ComponentFactory($serviceLocator, $diProxy, $cms, $documentApi, $site);
+        $resolver       = new ComponentResolver($serviceLocator->get('cms_config'));
         $cf->setResolver($resolver);
         return $cf;
     }

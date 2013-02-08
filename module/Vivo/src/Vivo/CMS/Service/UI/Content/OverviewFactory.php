@@ -9,13 +9,17 @@ use Zend\ServiceManager\FactoryInterface;
 class OverviewFactory implements FactoryInterface
 {
     /**
-     * Create UI Page object.
+     * Create UI Overview object.
      *
      * @param  ServiceLocatorInterface $serviceLocator
      * @return \Zend\Stdlib\Message
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        return new Overview($serviceLocator->get('Vivo\CMS\Api\CMS'), $serviceLocator->get('site_event'));
+        $cms        = $serviceLocator->get('Vivo\CMS\Api\CMS');
+        $indexerApi = $serviceLocator->get('indexer_api');
+        $siteEvent  = $serviceLocator->get('site_event');
+        $service    = new Overview($cms, $indexerApi, $siteEvent);
+        return $service;
     }
 }

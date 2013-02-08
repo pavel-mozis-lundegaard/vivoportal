@@ -8,15 +8,11 @@ use Vivo\CMS\Workflow;
 use Vivo\CMS\Exception;
 use Vivo\CMS\UuidConvertor\UuidConvertorInterface;
 use Vivo\Repository\RepositoryInterface;
-use Vivo\Indexer\Query\Parser\ParserInterface;
-use Vivo\Indexer\Query\QueryInterface;
 use Vivo\Indexer\QueryBuilder;
-use Vivo\Indexer\IndexerInterface;
-use Vivo\Indexer\QueryParams;
-use Vivo\CMS\Indexer\IndexerHelperInterface;
 use Vivo\Repository\Exception\EntityNotFoundException;
 use Vivo\Uuid\GeneratorInterface as UuidGeneratorInterface;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
+use Vivo\CMS\Api\IndexerInterface as IndexerApiInterface;
 
 use Zend\Config;
 
@@ -37,24 +33,6 @@ class CMS
      * @var RepositoryInterface
      */
     private $repository;
-
-    /**
-     * Indexer
-     * @var IndexerInterface
-     */
-    protected $indexer;
-
-    /**
-     * Indexer Helper
-     * @var IndexerHelperInterface
-     */
-    protected $indexerHelper;
-
-    /**
-     * Query Parsers
-     * @var ParserInterface
-     */
-    protected $queryParser;
 
     /**
      * Query Builder
@@ -80,33 +58,33 @@ class CMS
     protected $pathBuilder;
 
     /**
-     * Constructor
-     * @param RepositoryInterface $repository
-     * @param \Vivo\Indexer\IndexerInterface $indexer
-     * @param IndexerHelperInterface $indexerHelper
+     * Indexer API
+     * @var IndexerApiInterface
+     */
+    protected $indexerApi;
+
+    /**
+     * Construct
+     * @param \Vivo\Repository\RepositoryInterface $repository
      * @param \Vivo\Indexer\QueryBuilder $qb
-     * @param \Vivo\Indexer\Query\Parser\ParserInterface $queryParser
      * @param \Vivo\CMS\UuidConvertor\UuidConvertorInterface $uuidConvertor
      * @param \Vivo\Uuid\GeneratorInterface $uuidGenerator
      * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
+     * @param IndexerInterface $indexerApi
      */
     public function __construct(RepositoryInterface $repository,
-                                IndexerInterface $indexer,
-                                IndexerHelperInterface $indexerHelper,
                                 QueryBuilder $qb,
-                                ParserInterface $queryParser,
                                 UuidConvertorInterface $uuidConvertor,
                                 UuidGeneratorInterface $uuidGenerator,
-                                PathBuilderInterface $pathBuilder)
+                                PathBuilderInterface $pathBuilder,
+                                IndexerApiInterface $indexerApi)
     {
         $this->repository       = $repository;
-        $this->indexer          = $indexer;
-        $this->indexerHelper    = $indexerHelper;
         $this->qb               = $qb;
-        $this->queryParser      = $queryParser;
         $this->uuidConvertor    = $uuidConvertor;
         $this->uuidGenerator    = $uuidGenerator;
         $this->pathBuilder      = $pathBuilder;
+        $this->indexerApi       = $indexerApi;
     }
 
     /**
@@ -118,7 +96,7 @@ class CMS
     public function getSiteByHost($host)
     {
         $query      = $this->qb->cond($host, '\\hosts');
-        $entities   = $this->getEntitiesByQuery($query, array('page_size' => 1));
+        $entities   = $this->indexerApi->getEntitiesByQuery($query, array('page_size' => 1));
         if (count($entities) == 1) {
             //Site found
             $site   = reset($entities);
@@ -193,24 +171,16 @@ class CMS
     }
 
     /**
-     * @param string $path Relative document path in site.
+     * Returns entity within site by rel path.
+     * @param string $relPath
      * @param Model\Site $site
-     * @return Model\Document
+     * @return Model\Entity
      */
-    public function getSiteDocument($path, Model\Site $site)
+    public function getSiteEntity($relPath, Model\Site $site)
     {
-        $fullPath   = $this->pathBuilder->buildStoragePath(array($site->getPath(), 'ROOT', $path));
-        $entity     = $this->repository->getEntity($fullPath);
+        $path   = $this->getEntityAbsolutePath($relPath, $site);
+        $entity = $this->repository->getEntity($path);
         return $entity;
-    }
-
-    /**
-     * @param Model\Document $document
-     * @return \Vivo\CMS\Workflow\AbstractWorkflow
-     */
-    public function getWorkflow(Model\Document $document)
-    {
-        return Workflow\Factory::get($document->getWorkflow());
     }
 
     /**
@@ -296,173 +266,10 @@ class CMS
         return $entity;
     }
 
-    public function saveDocument(Model\Document $document/*, $parent = null*/)
-    {
-        /*
-                if($parent != null && !$parent instanceof Model\Document && !$parent instanceof Model\Site) {
-                    throw new \InvalidArgumentException(sprintf('Argument %d passed to %s must be an instance of %s',
-                        2, __METHOD__, implode(', ', array('Vivo\Model\Document', 'Vivo\Model\Site')))
-                    );
-                }
-         */
-        $options    = array(
-            'published_content_types'   => $this->getPublishedContentTypes($document),
-        );
-        $this->saveEntity($document, $options);
-    }
-
-    /**
-     * @param Model\Document $document
-     * @param string $target Path.
-     */
-    public function moveDocument(Model\Document $document, $target)
-    {
-        $this->repository->moveEntity($document, $target);
-        $this->repository->commit();
-    }
-
     private function removeEntity(Model\Entity $entity)
     {
         $this->repository->deleteEntity($entity);
         $this->repository->commit();
-    }
-
-    public function removeDocument(Model\Document $document)
-    {
-        $this->removeEntity($document);
-    }
-
-    /**
-     * Returns document for the given content
-     * @param Model\Content $content
-     * @return Model\Document
-     */
-    public function getContentDocument(Model\Content $content)
-    {
-        $path = $content->getPath();
-        $components = $this->pathBuilder->getStoragePathComponents($path);
-        array_pop($components);
-        array_pop($components);
-        $docPath    = $this->pathBuilder->buildStoragePath($components, true);
-        $document = $this->repository->getEntity($docPath);
-        if ($document instanceof Model\Document) {
-            return $document;
-        }
-        return null;
-    }
-
-    public function addDocumentContent(Model\Document $document, Model\Content $content, $index = 0)
-    {
-        $path           = $document->getPath();
-        $version        = count($this->getDocumentContents($document, $index));
-        $components     = array($path, 'Contents' . $index, $version);
-        $contentPath    = $this->pathBuilder->buildStoragePath($components, true);
-        $content->setPath($contentPath);
-        $content->setState(Workflow\AbstractWorkflow::STATE_NEW);
-        $this->saveEntity($content);
-    }
-
-    /**
-     * @param Model\Document $document
-     * @param int $index
-     * @param int $version
-     * @throws \Vivo\CMS\Exception\InvalidArgumentException
-     * @return Model\Content
-     */
-    public function getDocumentContent(Model\Document $document, $index, $version/*, $state {PUBLISHED}*/)
-    {
-        if (!is_integer($version)) {
-            throw new Exception\InvalidArgumentException(
-                    sprintf(
-                            'Argument %d passed to %s must be an type of %s, %s given',
-                            2, __METHOD__, 'integer', gettype($version)));
-        }
-        if (!is_integer($index)) {
-            throw new Exception\InvalidArgumentException(
-                    sprintf(
-                            'Argument %d passed to %s must be an type of %s, %s given',
-                            3, __METHOD__, 'integer', gettype($index)));
-        }
-        $components = array(
-            $document->getPath(),
-            'Contents.',
-            $index,
-            $version,
-        );
-        $path   = $this->pathBuilder->buildStoragePath($components, true);
-        $entity = $this->repository->getEntity($path);
-        return $entity;
-    }
-
-    /**
-     * @param Model\Document $document
-     * @param int $index
-     * @throws \Vivo\CMS\Exception\InvalidArgumentException
-     * @return array
-     */
-    public function getDocumentContents(Model\Document $document, $index/*, $state {PUBLISHED}*/)
-    {
-        if (!is_integer($index)) {
-            throw new Exception\InvalidArgumentException(
-                    sprintf(
-                            'Argument %d passed to %s must be an type of integer, %s given',
-                            2, __METHOD__, gettype($index)));
-        }
-        $pathElements   = array($document->getPath(), 'Contents.', $index);
-        $path           = $this->pathBuilder->buildStoragePath($pathElements, true);
-        return $this->repository->getChildren(new Model\Entity($path));
-    }
-
-    /**
-     * @param Model\Content $content
-     */
-    public function publishContent(Model\Content $content)
-    {
-        $document   = $this->getContentDocument($content);
-        $oldContent = $this->getPublishedContent($document, $content->getIndex());
-        if ($oldContent) {
-            $oldContent->setState(Workflow\AbstractWorkflow::STATE_ARCHIVED);
-            $this->saveEntity($oldContent, false);
-        }
-        $content->setState(Workflow\AbstractWorkflow::STATE_PUBLISHED);
-        $this->saveEntity($content, true);
-    }
-
-    public function getAllStates(Model\Document $document)
-    {
-
-    }
-
-    public function getAvailableStates(Model\Document $document)
-    {
-
-    }
-
-    /**
-     * Sets a workflow state to the content
-     * @param Model\Content $content
-     * @param string $state
-     * @throws \Vivo\CMS\Exception\InvalidArgumentException
-     */
-    public function setState(Model\Content $content, $state)
-    {
-        $document   = $this->getContentDocument($content);
-        $workflow   = $this->getWorkflow($document);
-        $states     = $workflow->getAllStates();
-        if (!in_array($state, $states)) {
-            throw new Exception\InvalidArgumentException(
-                sprintf('%s: Unknown state value; Available: %s', __METHOD__, implode(', ', $states)));
-        }
-        //TODO - authorization
-        if (true /* uzivatel ma pravo na change*/) {
-
-        }
-        if ($state == Workflow\AbstractWorkflow::STATE_PUBLISHED) {
-            $this->publishContent($content);
-        } else {
-            $content->setState($state);
-            $this->saveEntity($content);
-        }
     }
 
 //     /**
@@ -501,75 +308,6 @@ class CMS
     {
         $this->repository->saveResource($entity, $name, $data);
         $this->repository->commit();
-    }
-
-    /**
-     * Returns array of published contents of given document.
-     * @param Model\Document $document
-     * @return Model\Content[]
-     */
-    public function getPublishedContents(Model\Document $document)
-    {
-        $containers = $this->repository->getChildren($document, 'Vivo\CMS\Model\ContentContainer');
-        $contents = array();
-        usort($containers,
-                function (Model\ContentContainer $a, Model\ContentContainer $b)
-                {
-                    return $a->getOrder() < $b->getOrder();
-                });
-        foreach ($containers as $container) {
-            if ($content = $this->getPublishedContent($container)) {
-                $contents[] = $content;
-            }
-        }
-        return $contents;
-    }
-
-    /**
-     * @param Model\Document $document
-     * @return array <\Vivo\CMS\Model\ContentContainer>
-     */
-    public function getContentContainers(Model\Document $document)
-    {
-        $containers = $this->repository->getChildren($document, 'Vivo\CMS\Model\ContentContainer');
-        return $containers;
-    }
-
-    /**
-     * @param Model\ContentContainer $container
-     * @return array <\Vivo\CMS\Model\Content>
-     */
-    public function getContents(Model\ContentContainer $container)
-    {
-        $contents = $this->repository->getChildren($container, 'Vivo\CMS\Model\Content');
-        return $contents;
-    }
-
-    /**
-     * Finds published content in ContentContainer,
-     * @param Model\ContentContainer $container
-     * @return Model\Content|false
-     * @throws Exception\LogicException when there are more than one published content
-     */
-    public function getPublishedContent(Model\ContentContainer $container)
-    {
-        $result = array();
-        $contents = $this->repository->getChildren($container, 'Vivo\CMS\Model\Content');
-        foreach ($contents as $content) {
-            /* @var $content Model\Content */
-            if ($content->getState() == Workflow\Basic::STATE_PUBLISHED) {
-                $result[] = $content;
-            }
-        }
-        if (count($result) == 1) {
-            return $result[0];
-        } elseif (count($result) == 0) {
-            return false;
-        } else {
-            throw new Exception\LogicException(
-                    sprintf("%s: The ContentContainer '%s' contains more than one published content.",
-                            __METHOD__, $container->getPath()));
-        }
     }
 
     /**
@@ -627,18 +365,6 @@ class CMS
     }
 
     /**
-     * Returns entity within site by rel path.
-     * @param string $relPath
-     * @param Model\Site $site
-     * @return Model\Entity
-     */
-    public function getSiteEntity($relPath, Model\Site $site)
-    {
-        $path = $this->getEntityAbsolutePath($relPath, $site);
-        return $this->getEntity($path);
-    }
-
-    /**
      * Returns
      * @param string $path
      * @param Model\Site $site
@@ -656,23 +382,6 @@ class CMS
             $absolutePath   = $path;
         }
         return $absolutePath;
-    }
-
-    /**
-     * Returns child documents.
-     * @param Model\Document $document
-     * @return array
-     */
-    public function getChildDocuments(Model\Document $document)
-    {
-        $children = $this->getChildren($document);
-        $result = array();
-        foreach ($children as $child) {
-            if ($child instanceof Model\Document) {
-                $result[] = $child;
-            }
-        }
-        return $result;
     }
 
     /**
@@ -706,115 +415,6 @@ class CMS
             $siteExists = false;
         }
         return $siteExists;
-    }
-
-    /**
-     * Returns entities specified by the indexer query
-     * @param QueryInterface|string $spec Either QueryInterface or a string query
-     * @param QueryParams|array|null $queryParams Either a QueryParams object or an array specifying the params
-     * @return \Vivo\CMS\Model\Entity[]
-     */
-    public function getEntitiesByQuery($spec, $queryParams = null)
-    {
-        if (is_string($spec)) {
-            //Parse string query to Query object
-            $spec   = $this->queryParser->stringToQuery($spec);
-        }
-        $result     = $this->indexer->find($spec, $queryParams);
-        $hits       = $result->getHits();
-        $entities   = array();
-        /** @var $hit \Vivo\Indexer\QueryHit */
-        foreach ($hits as $hit) {
-            $doc    = $hit->getDocument();
-            $path   = $doc->getFieldValue('\\path');
-            try {
-                $entity = $this->repository->getEntity($path);
-                $entities[] = $entity;
-            } catch (EntityNotFoundException $e) {
-                //Entity not found
-            }
-        }
-        return $entities;
-    }
-
-    /**
-     * Reindex all entities (contents and children) saved under entity
-     * First commits any uncommitted changes in the repository
-     * Returns number of reindexed items
-     * @param string $path Path to entity
-     * @param bool $deep If true reindexes whole subtree
-     * @throws \Exception
-     * @return int
-     */
-    public function reindex($path, $deep = false)
-    {
-        //The reindexing may not rely on the indexer in any way! Presume the indexer data is corrupt.
-        $this->repository->commit();
-        $this->indexer->begin();
-        try {
-            if ($deep) {
-                $delQuery   = $this->indexerHelper->buildTreeQuery($path);
-            } else {
-                $delQuery   = $this->qb->cond(sprintf('\path:%s', $path));
-            }
-            $this->indexer->delete($delQuery);
-            $count      = 0;
-            $entity     = $this->repository->getEntityFromStorage($path);
-            if ($entity) {
-                if ($entity instanceof Model\Document) {
-                    $publishedContentTypes  = $this->getPublishedContentTypes($entity);
-                } else {
-                    $publishedContentTypes    = array();
-                }
-                $options    = array('published_content_types' => $publishedContentTypes);
-                $idxDoc     = $this->indexerHelper->createDocument($entity, $options);
-                $this->indexer->addDocument($idxDoc);
-                $count      = 1;
-                //TODO - reindex entity Contents
-                //		if ($entity instanceof Vivo\CMS\Model\Document) {
-                //            /* @var $entity \Vivo\CMS\Model\Document */
-                //			for ($index = 1; $index <= $entity->getContentCount(); $index++)
-                //				foreach ($entity->getContents($index) as $content)
-                //					$count += $this->reindex($content, true);
-                //		}
-                if ($deep) {
-                    $descendants    = $this->repository->getDescendantsFromStorage($path);
-                    foreach ($descendants as $descendant) {
-                        if ($descendant instanceof Model\Document) {
-                            $publishedContentTypes  = $this->getPublishedContentTypes($descendant);
-                        } else {
-                            $publishedContentTypes  = array();
-                        }
-                        $options    = array('published_content_types' => $publishedContentTypes);
-                        $idxDoc     = $this->indexerHelper->createDocument($descendant, $options);
-                        $this->indexer->addDocument($idxDoc);
-                        $count++;
-                    }
-                }
-            }
-            $this->indexer->commit();
-        } catch (\Exception $e) {
-            $this->indexer->rollback();
-            throw $e;
-        }
-        return $count;
-    }
-
-    /**
-     * Returns array of published content types (class names of published contents)
-     * If there are no published contents, returns an empty array
-     * @param \Vivo\CMS\Model\Document $document
-     * @return string[]
-     */
-    protected function getPublishedContentTypes(Model\Document $document)
-    {
-        $publishedContents      = $this->getPublishedContents($document);
-        $publishedContentTypes  = array();
-        /** @var $publishedContent Model\Content */
-        foreach ($publishedContents as $publishedContent) {
-            $publishedContentTypes[]    = get_class($publishedContent);
-        }
-        return $publishedContentTypes;
     }
 
     /**

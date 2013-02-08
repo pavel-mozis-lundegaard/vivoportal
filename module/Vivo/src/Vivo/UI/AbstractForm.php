@@ -153,6 +153,20 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
         unset($data['act']);
 
         $form   = $this->getForm();
+
+        //If form elements are wrapped with the form name, extract only this part of the GET/POST data
+        if ($form->wrapElements()) {
+            $formName   = $form->getName();
+            if (!$formName) {
+                throw new Exception\LogicException(sprintf("%s: Form name not set", __METHOD__));
+            }
+            if (isset($data[$formName])) {
+                $data   = $data[$formName];
+            } else {
+                $data   = array();
+            }
+        }
+
         $form->setData($data);
         $this->dataLoaded   = true;
     }

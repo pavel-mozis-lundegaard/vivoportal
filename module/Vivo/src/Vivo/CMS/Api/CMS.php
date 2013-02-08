@@ -12,7 +12,6 @@ use Vivo\Indexer\QueryBuilder;
 use Vivo\Repository\Exception\EntityNotFoundException;
 use Vivo\Uuid\GeneratorInterface as UuidGeneratorInterface;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
-use Vivo\CMS\Api\IndexerInterface as IndexerApiInterface;
 
 use Zend\Config;
 
@@ -58,61 +57,24 @@ class CMS
     protected $pathBuilder;
 
     /**
-     * Indexer API
-     * @var IndexerApiInterface
-     */
-    protected $indexerApi;
-
-    /**
      * Construct
      * @param \Vivo\Repository\RepositoryInterface $repository
      * @param \Vivo\Indexer\QueryBuilder $qb
      * @param \Vivo\CMS\UuidConvertor\UuidConvertorInterface $uuidConvertor
      * @param \Vivo\Uuid\GeneratorInterface $uuidGenerator
      * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
-     * @param IndexerInterface $indexerApi
      */
     public function __construct(RepositoryInterface $repository,
                                 QueryBuilder $qb,
                                 UuidConvertorInterface $uuidConvertor,
                                 UuidGeneratorInterface $uuidGenerator,
-                                PathBuilderInterface $pathBuilder,
-                                IndexerApiInterface $indexerApi)
+                                PathBuilderInterface $pathBuilder)
     {
         $this->repository       = $repository;
         $this->qb               = $qb;
         $this->uuidConvertor    = $uuidConvertor;
         $this->uuidGenerator    = $uuidGenerator;
         $this->pathBuilder      = $pathBuilder;
-        $this->indexerApi       = $indexerApi;
-    }
-
-    /**
-     * Returns Site matching given hostname.
-     * If no site matches the hostname, returns null
-     * @param string $host
-     * @return Model\Site|null
-     */
-    public function getSiteByHost($host)
-    {
-        $query      = $this->qb->cond($host, '\\hosts');
-        $entities   = $this->indexerApi->getEntitiesByQuery($query, array('page_size' => 1));
-        if (count($entities) == 1) {
-            //Site found
-            $site   = reset($entities);
-        } else {
-            //Site not found - fallback to traversing the repo (necessary for reindexing)
-            $sites  = $this->getChildren(new Model\Folder('/'));
-            $site   = null;
-            foreach ($sites as $siteIter) {
-                /** @var $siteIter \Vivo\CMS\Model\Site */
-                if (($siteIter instanceof Site) and (in_array($host, $siteIter->getHosts()))) {
-                    $site   = $siteIter;
-                    break;
-                }
-            }
-        }
-        return $site;
     }
 
     /**
@@ -377,14 +339,21 @@ class CMS
      */
     public function getEntityAbsolutePath($path, Model\Site $site)
     {
-        if (substr($path, 0, 1) == '/' && substr($path, -1) == '/') {
-            //it's relative path
-            $components     = array($site->getPath(), 'ROOT', $path);
-            $absolutePath   = $this->pathBuilder->buildStoragePath($components, true);
-        } else {
-            //it's absolute path
-            $absolutePath   = $path;
+        $components = $this->pathBuilder->getStoragePathComponents($path);
+        if ((count($components) < 2) || ($components[0] != $site->getName()) || ($components[1] != 'ROOT')) {
+            //Relative path
+            array_unshift($components, $site->getName(), 'ROOT');
         }
+        $absolutePath   = $this->pathBuilder->buildStoragePath($components, true);
+
+//        if (substr($path, 0, 1) == '/' && substr($path, -1) == '/') {
+//            //it's relative path
+//            $components     = array($site->getPath(), 'ROOT', $path);
+//            $absolutePath   = $this->pathBuilder->buildStoragePath($components, true);
+//        } else {
+//            //it's absolute path
+//            $absolutePath   = $path;
+//        }
         return $absolutePath;
     }
 

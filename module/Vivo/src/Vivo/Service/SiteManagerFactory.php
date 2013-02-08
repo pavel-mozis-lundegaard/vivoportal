@@ -24,6 +24,7 @@ class SiteManagerFactory implements FactoryInterface
         $moduleManagerFactory   = $serviceLocator->get('module_manager_factory');
         $moduleStorageManager   = $serviceLocator->get('module_storage_manager');
         $cms                    = $serviceLocator->get('Vivo\CMS\Api\CMS');
+        $siteApi                = $serviceLocator->get('Vivo\CMS\Api\Site');
         $moduleResourceManager  = $serviceLocator->get('module_resource_manager');
         $siteManager            = new \Vivo\SiteManager\SiteManager($siteEvents,
             $siteEvent,
@@ -32,6 +33,7 @@ class SiteManagerFactory implements FactoryInterface
             $coreModules,
             $moduleStorageManager,
             $cms,
+            $siteApi,
             $serviceLocator,
             $moduleResourceManager);
         return $siteManager;

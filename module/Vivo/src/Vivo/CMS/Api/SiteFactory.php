@@ -16,7 +16,11 @@ class SiteFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        return new Site($serviceLocator->get('Vivo\CMS\Api\CMS'),
-                $serviceLocator->get('repository'));
+        $cms            = $serviceLocator->get('Vivo\CMS\Api\CMS');
+        $repository     = $serviceLocator->get('repository');
+        $indexerApi     = $serviceLocator->get('Vivo\CMS\Api\Indexer');
+        $queryBuilder   = $serviceLocator->get('indexer_query_builder');
+        $siteApi        = new Site($cms, $repository, $indexerApi, $queryBuilder);
+        return $siteApi;
     }
 }

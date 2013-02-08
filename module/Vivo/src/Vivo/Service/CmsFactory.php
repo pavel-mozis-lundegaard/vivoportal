@@ -21,9 +21,7 @@ class CmsFactory implements FactoryInterface
         $uuidConvertor          = $serviceLocator->get('uuid_convertor');
         $uuidGenerator          = $serviceLocator->get('uuid_generator');
         $pathBuilder            = $serviceLocator->get('path_builder');
-        $indexerApi             = $serviceLocator->get('Vivo\CMS\Api\Document');
-        $cms                    = new \Vivo\CMS\Api\CMS($repository, $qb, $uuidConvertor, $uuidGenerator, $pathBuilder,
-                                                        $indexerApi);
+        $cms                    = new \Vivo\CMS\Api\CMS($repository, $qb, $uuidConvertor, $uuidGenerator, $pathBuilder);
         return $cms;
     }
 }

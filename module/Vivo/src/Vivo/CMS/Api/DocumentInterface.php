@@ -1,6 +1,9 @@
 <?php
 namespace Vivo\CMS\Api;
 
+use Vivo\CMS\Model;
+use Vivo\CMS\Exception;
+
 /**
  * DocumentInterface
  * Document API interface

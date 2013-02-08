@@ -49,6 +49,7 @@ return array(
         //configuration of service manager, services defined here should not override
         //services defined in Vivo config
         'invokables' => array (
+            'Vivo\CMS\UI\Blank'             => 'Vivo\CMS\UI\Blank',
             'Vivo\CMS\UI\Root'              => 'Vivo\CMS\UI\Root',
             'Vivo\UI\ComponentContainer'    => 'Vivo\UI\ComponentContainer',
             'Vivo\UI\TabContainer'          => 'Vivo\UI\TabContainer',

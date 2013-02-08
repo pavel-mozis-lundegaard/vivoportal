@@ -106,6 +106,7 @@ return array(
             'Vivo\CMS\Api\Module'       => 'Vivo\Service\CmsApiModuleFactory',
             'Vivo\CMS\Api\Document'     => 'Vivo\CMS\Api\DocumentFactory',
             'Vivo\CMS\Api\Indexer'      => 'Vivo\CMS\Api\IndexerFactory',
+            'Vivo\CMS\Api\Site'         => 'Vivo\CMS\Api\SiteFactory',
             'module_resource_manager'   => 'Vivo\Service\ModuleResourceManagerFactory',
             'module_install_manager'    => 'Vivo\Service\ModuleInstallManagerFactory',
             'db_provider_factory'       => 'Vivo\Service\DbProviderFactoryFactory',

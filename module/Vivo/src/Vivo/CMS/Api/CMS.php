@@ -203,7 +203,7 @@ class CMS
     /**
      * @param Model\Entity $entity
      */
-    protected function saveEntity(Model\Entity $entity)
+    public function saveEntity(Model\Entity $entity) // TODO: back to private
     {
         $this->repository->saveEntity($entity);
         $this->repository->commit();

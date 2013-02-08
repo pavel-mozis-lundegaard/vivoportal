@@ -21,12 +21,14 @@ class Editor extends AbstractForm
     private $entity;
 
     /**
+     * @param \Vivo\CMS\Api\CMS $cms
      * @param \Vivo\Metadata\MetadataManager $metadataManager
      */
-    public function __construct($cms, $metadataManager)
+    public function __construct(\Vivo\CMS\Api\CMS $cms, \Vivo\Metadata\MetadataManager $metadataManager)
     {
         $this->cms = $cms;
         $this->metadataManager = $metadataManager;
+        $this->csrfTimeout = 3600;
     }
 
     public function init()
@@ -35,16 +37,23 @@ class Editor extends AbstractForm
 
         $this->entity = $this->getParent()->getEntity();
 
-        $this->getForm()->bind($this->entity);
-
-        /* @var $contentContainer \Vivo\CMS\Model\ContentContainer */
-        foreach ($this->cms->getContentContainers($this->entity) as $index => $contentContainer) {
-//             echo 'content'.$index."\n";
-            $this->contentTab->addComponent($this->getContentForm($contentContainer), "content_$index");
-        }
+        $this->initEdior();
 
         parent::init();
     }
+
+    protected function initEdior()
+    {
+        $this->getForm()->bind($this->entity);
+
+        $this->contentTab->removeAllComponents();
+
+        /* @var $contentContainer \Vivo\CMS\Model\ContentContainer */
+        foreach ($this->cms->getContentContainers($this->entity) as $index => $contentContainer) {
+            $this->contentTab->addComponent($this->getContentForm($contentContainer), "content_$index");
+        }
+    }
+
     /**
      * Callback for entity change event.
      * @param Event $e
@@ -52,6 +61,7 @@ class Editor extends AbstractForm
     public function onEntityChange(Event $e)
     {
         $this->entity = $e->getParam('entity');
+        $this->initEdior();
     }
 
     public function setTabContainer(\Vivo\UI\TabContainer $tab)
@@ -64,7 +74,7 @@ class Editor extends AbstractForm
         $metadata = $this->metadataManager->getMetadata(get_class($this->entity));
         $action = $this->request->getUri()->getPath();
 
-        $form = new EntityEditorForm('document', $metadata);
+        $form = new EntityEditorForm('document-'.$this->entity->getUuid(), $metadata);
         $form->setAttribute('action', $action);
         $form->add(array(
             'name' => 'act',
@@ -84,36 +94,47 @@ class Editor extends AbstractForm
         return $form;
     }
 
-    protected function getContentForm($contentContainer)
+    /**
+     * @param \Vivo\CMS\Model\ContentContainer $contentContainer
+     * @return \Vivo\CMS\UI\Manager\Explorer\Editor\ContentEditor
+     */
+    protected function getContentForm(\Vivo\CMS\Model\ContentContainer $contentContainer)
     {
-        $contents = $this->cms->getContents($contentContainer);
-
-        $e = new Editor\ContentEditor($contents, $this->metadataManager);
+        $e = new Editor\ContentEditor($this->cms, $this->metadataManager, $contentContainer);
         $e->setRequest($this->request);
         $e->setView(new \Zend\View\Model\ViewModel());
-        $e->init();
 
         return $e;
     }
 
+    /**
+     * Save action.
+     * @throws \Exception
+     */
     public function save()
     {
+        $result = true;
         $form = $this->getForm();
 
         if ($form->isValid()) {
-//             print_r($this->entity);
-
-//             $this->redirector->redirect();
+            $this->cms->saveDocument($this->entity);
+        }
+        else {
+            $result = false;
         }
 
         /* @var $tab \Vivo\CMS\UI\Manager\Explorer\Editor\ContentEditor */
         $component = $this->getComponent('contentTab')->getSelectedComponent();
 
-        if(!$component instanceof Editor\ContentEditor)
-        {
+        if(!$component instanceof Editor\ContentEditor) {
             throw new \Exception('Selected tab is not instance of Vivo\CMS\UI\Manager\Explorer\Editor\ContentEditor');
         }
 
-        $component->save();
+        $result &= $component->save();
+
+        if($result) {
+//             echo 'ok';
+            $this->redirector->redirect();
+        }
     }
 }

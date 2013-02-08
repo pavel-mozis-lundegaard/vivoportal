@@ -49,7 +49,7 @@ class EntityEditor extends Fieldset
             // Field init
             $this->add(array(
                 'name' => $name,
-                'type' => $this->getFieldType($attrs['field_type']),
+                'type' => $this->getFieldFqcnByType($attrs['field_type']),
                 'options' => $options,
                 'attributes' => $attributes,
             ));
@@ -60,7 +60,7 @@ class EntityEditor extends Fieldset
      * @param string $type
      * @return string
      */
-    protected function getFieldType($type)
+    protected function getFieldFqcnByType($type)
     {
         if(strpos($type, '\\') && class_exists($type)) {
             return $type;

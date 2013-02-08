@@ -7,39 +7,54 @@ use Vivo\CMS\UI\Manager\Form\ContentEditor as ContentEditorForm;
 class ContentEditor extends AbstractForm
 {
     /**
+     * @var \Vivo\CMS\Model\ContentContainer
+     */
+    private $contentContainer;
+    /**
      * @var array
      */
-    private $contents;
+    private $contents = array();
     /**
      * @var \Vivo\CMS\Model\Entity
      */
     private $entity;
+    /**
+     * @var \Vivo\CMS\Api\CMS
+     */
+    private $cms;
     /**
      * @var \Vivo\Metadata\MetadataManager
      */
     private $metadataManager;
 
     /**
+     * @param \Vivo\CMS\Api\CMS $cms
      * @param \Vivo\Metadata\MetadataManager $metadataManager
+     * @param \Vivo\CMS\Model\ContentContainer $contentContainer
      */
-    public function __construct(array $contents, $metadataManager)
+    public function __construct(
+        \Vivo\CMS\Api\CMS $cms,
+        \Vivo\Metadata\MetadataManager $metadataManager,
+        \Vivo\CMS\Model\ContentContainer $contentContainer)
     {
-        $this->contents = $contents;
+        $this->cms = $cms;
         $this->metadataManager = $metadataManager;
+        $this->contentContainer = $contentContainer;
         $this->autoAddCsrf = false;
     }
 
     public function init()
     {
+        $this->contents = $this->cms->getContents($this->contentContainer);
+
         foreach ($this->contents as $content) {
+//             echo $content->getUuid()." - " .$content->getPath()."\n";
+
             if($content->getState() == 'PUBLISHED') {
                 $this->entity = $content;
                 break;
             }
         }
-
-        $this->entity->setCreated(new \DateTime);
-        $this->entity->setModified(new \DateTime);
 
         $this->getForm()->bind($this->entity);
 
@@ -60,14 +75,17 @@ class ContentEditor extends AbstractForm
 
     }
 
+    /**
+     * @return boolean
+     */
     public function save()
     {
-        echo __METHOD__."<br>\n";
-        $form = $this->getForm();
+        if ($this->getForm()->isValid()) {
+            $this->cms->saveEntity($this->entity);
 
-        if ($form->isValid()) {
-            echo $this->entity->getOverviewType()."<br>\n";
+            return true;
         }
-        echo "<hr>";
+
+        return false;
     }
 }

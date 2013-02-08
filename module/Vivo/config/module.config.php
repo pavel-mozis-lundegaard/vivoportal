@@ -128,6 +128,7 @@ return array(
             'module_db_provider'        => 'Vivo\Service\ModuleDbProviderFactory',
             'db_table_name_provider'    => 'Vivo\Service\DbTableNameProviderFactory',
             'db_table_gateway_provider' => 'Vivo\Service\DbTableGatewayProviderFactory',
+            'Vivo\CMS\Api\Site'         => 'Vivo\CMS\Api\SiteFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',

@@ -18,7 +18,7 @@ class CLIIndexerControllerFactory implements FactoryInterface
     {
         $sm             = $serviceLocator->getServiceLocator();
         $indexer        = $sm->get('indexer');
-        $indexerApi     = $sm->get('indexer_api');
+        $indexerApi     = $sm->get('Vivo\CMS\Api\Document');
         $siteEvent      = $sm->get('site_event');
         $controller     = new \Vivo\Controller\CLI\IndexerController($indexer, $indexerApi, $siteEvent);
         return $controller;

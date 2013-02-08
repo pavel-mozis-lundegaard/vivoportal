@@ -266,7 +266,11 @@ class CMS
         return $entity;
     }
 
-    private function removeEntity(Model\Entity $entity)
+    /**
+     * Removes entity from storage
+     * @param \Vivo\CMS\Model\Entity $entity
+     */
+    public function removeEntity(Model\Entity $entity)
     {
         $this->repository->deleteEntity($entity);
         $this->repository->commit();

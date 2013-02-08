@@ -20,8 +20,8 @@ class ComponentFactoryFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $diProxy        = $serviceLocator->get('di_proxy');
-        $cms            = $serviceLocator->get('cms');
-        $documentApi    = $serviceLocator->get('document_api');
+        $cms            = $serviceLocator->get('Vivo\CMS\Api\CMS');
+        $documentApi    = $serviceLocator->get('Vivo\CMS\Api\Document');
         $site           = $serviceLocator->get('site_event')->getSite();
         $cf             = new ComponentFactory($serviceLocator, $diProxy, $cms, $documentApi, $site);
         $resolver       = new ComponentResolver($serviceLocator->get('cms_config'));

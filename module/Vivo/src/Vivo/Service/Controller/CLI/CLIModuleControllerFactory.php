@@ -21,7 +21,7 @@ class CLIModuleControllerFactory implements FactoryInterface
         $moduleStorageManager   = $sm->get('module_storage_manager');
         $remoteModule           = $sm->get('remote_module');
         $repository             = $sm->get('repository');
-        $moduleApi              = $sm->get('module_api');
+        $moduleApi              = $sm->get('Vivo\CMS\Api\Module');
         $controller             = new \Vivo\Controller\CLI\ModuleController($moduleStorageManager, $remoteModule,
                                                                             $repository, $moduleApi);
         return $controller;

@@ -16,10 +16,11 @@ class DocumentFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
+        $cms                = $serviceLocator->get('Vivo\CMS\Api\CMS');
         $repository         = $serviceLocator->get('repository');
         $pathBuilder        = $serviceLocator->get('path_builder');
         $workflowFactory    = $serviceLocator->get('workflow_factory');
-        $api                = new Document($repository, $pathBuilder, $workflowFactory);
+        $api                = new Document($cms, $repository, $pathBuilder, $workflowFactory);
         return $api;
     }
 }

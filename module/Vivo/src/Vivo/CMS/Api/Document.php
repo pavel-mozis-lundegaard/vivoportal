@@ -1,6 +1,7 @@
 <?php
 namespace Vivo\CMS\Api;
 
+use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Model;
 use Vivo\Repository\RepositoryInterface;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
@@ -32,9 +33,25 @@ class Document implements DocumentInterface
      */
     protected $workflowFactory;
 
-    public function __construct(RepositoryInterface $repository, PathBuilderInterface $pathBuilder,
+    /**
+     * CMS API
+     * @var CMS
+     */
+    protected $cms;
+
+    /**
+     * Constructor
+     * @param CMS $cms
+     * @param \Vivo\Repository\RepositoryInterface $repository
+     * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
+     * @param \Vivo\CMS\Workflow\Factory $workflowFactory
+     */
+    public function __construct(CMS $cms,
+                                RepositoryInterface $repository,
+                                PathBuilderInterface $pathBuilder,
                                 WorkflowFactory $workflowFactory)
     {
+        $this->cms              = $cms;
         $this->repository       = $repository;
         $this->pathBuilder      = $pathBuilder;
         $this->workflowFactory  = $workflowFactory;
@@ -115,10 +132,10 @@ class Document implements DocumentInterface
         $oldContent = $this->getPublishedContent($document, $content->getIndex());
         if ($oldContent) {
             $oldContent->setState(WorkflowInterface::STATE_ARCHIVED);
-            $this->saveEntity($oldContent, false);
+            $this->cms->saveEntity($oldContent, false);
         }
         $content->setState(WorkflowInterface::STATE_PUBLISHED);
-        $this->saveEntity($content, true);
+        $this->cms->saveEntity($content, true);
     }
 
     /**
@@ -144,7 +161,7 @@ class Document implements DocumentInterface
             $this->publishContent($content);
         } else {
             $content->setState($state);
-            $this->saveEntity($content);
+            $this->cms->saveEntity($content);
         }
     }
 
@@ -175,7 +192,7 @@ class Document implements DocumentInterface
         $contentPath    = $this->pathBuilder->buildStoragePath($components, true);
         $content->setPath($contentPath);
         $content->setState(WorkflowInterface::STATE_NEW);
-        $this->saveEntity($content);
+        $this->cms->saveEntity($content);
     }
 
     /**
@@ -249,11 +266,6 @@ class Document implements DocumentInterface
         $this->repository->commit();
     }
 
-    public function removeDocument(Model\Document $document)
-    {
-        $this->removeEntity($document);
-    }
-
     public function saveDocument(Model\Document $document/*, $parent = null*/)
     {
         /*
@@ -266,7 +278,7 @@ class Document implements DocumentInterface
         $options    = array(
             'published_content_types'   => $this->getPublishedContentTypes($document),
         );
-        $this->saveEntity($document, $options);
+        $this->cms->saveEntity($document, $options);
     }
 
     /**

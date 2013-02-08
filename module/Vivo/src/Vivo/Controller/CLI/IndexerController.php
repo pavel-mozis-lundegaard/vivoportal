@@ -78,8 +78,7 @@ class IndexerController extends AbstractCliController
             $output = sprintf("No site object created; host = '%s'", $host);
             return $output;
         }
-        $path       = $site->getPath();
-        $numIndexed = $this->indexerApi->reindex($path, true);
+        $numIndexed = $this->indexerApi->reindex($site, '/', true);
         $output     = sprintf("%s items reindexed", $numIndexed);
         return $output;
     }

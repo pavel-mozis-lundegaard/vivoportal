@@ -19,7 +19,7 @@ class ExplorerFactory implements FactoryInterface
         $sm = $serviceLocator->get('service_manager');
         $siteSelector = $sm->get('Vivo\CMS\UI\Manager\SiteSelector');
 
-        $explorer = new \Vivo\CMS\UI\Manager\Explorer\Explorer($sm->get('cms'),
+        $explorer = new \Vivo\CMS\UI\Manager\Explorer\Explorer($sm->get('Vivo\CMS\Api\CMS'),
                 $siteSelector);
 
         $explorer->setEventManager($sm->get('event_manager'));

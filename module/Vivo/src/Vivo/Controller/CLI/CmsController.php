@@ -5,6 +5,7 @@ use Vivo\CMS\Api\CMS;
 use Vivo\SiteManager\Event\SiteEvent;
 use Vivo\Repository\RepositoryInterface;
 use Vivo\Uuid\GeneratorInterface as UuidGeneratorInterface;
+use Vivo\CMS\Api\IndexerInterface as IndexerApiInterface;
 
 /**
  * CmsController
@@ -39,19 +40,30 @@ class CmsController extends AbstractCliController
     protected $uuidGenerator;
 
     /**
+     * Indexer API
+     * @var IndexerApiInterface
+     */
+    protected $indexerApi;
+
+    /**
      * Constructor
      * @param \Vivo\CMS\Api\CMS $cms
      * @param \Vivo\SiteManager\Event\SiteEvent $siteEvent
      * @param \Vivo\Repository\RepositoryInterface $repository
      * @param \Vivo\Uuid\GeneratorInterface $uuidGenerator
+     * @param \Vivo\CMS\Api\IndexerInterface $indexerApi
      */
-    public function __construct(CMS $cms, SiteEvent $siteEvent, RepositoryInterface $repository,
-                                UuidGeneratorInterface $uuidGenerator)
+    public function __construct(CMS $cms,
+                                SiteEvent $siteEvent,
+                                RepositoryInterface $repository,
+                                UuidGeneratorInterface $uuidGenerator,
+                                IndexerApiInterface $indexerApi)
     {
         $this->cms              = $cms;
         $this->siteEvent        = $siteEvent;
         $this->repository       = $repository;
         $this->uuidGenerator    = $uuidGenerator;
+        $this->indexerApi       = $indexerApi;
     }
 
     public function getConsoleUsage()
@@ -156,7 +168,7 @@ class CmsController extends AbstractCliController
             }
         }
         //Reindex
-        $reindexedNum   = $this->cms->reindex($path, true);
+        $reindexedNum   = $this->indexerApi->reindex($site, '/', true);
         $output         .= sprintf("\n\nReindexed %s", $reindexedNum);
         return $output;
     }

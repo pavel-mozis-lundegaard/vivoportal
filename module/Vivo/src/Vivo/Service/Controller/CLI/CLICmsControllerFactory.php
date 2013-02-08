@@ -18,11 +18,13 @@ class CLICmsControllerFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $sm             = $serviceLocator->getServiceLocator();
-        $cms            = $sm->get('cms');
+        $cms            = $sm->get('Vivo\CMS\Api\CMS');
         $siteEvent      = $sm->get('site_event');
         $repository     = $sm->get('repository');
         $uuidGenerator  = $sm->get('uuid_generator');
-        $controller     = new \Vivo\Controller\CLI\CmsController($cms, $siteEvent, $repository, $uuidGenerator);
+        $indexerApi     = $sm->get('Vivo\CMS\Api\Document');
+        $controller     = new \Vivo\Controller\CLI\CmsController($cms, $siteEvent, $repository, $uuidGenerator,
+                                                                 $indexerApi);
         return $controller;
     }
 }

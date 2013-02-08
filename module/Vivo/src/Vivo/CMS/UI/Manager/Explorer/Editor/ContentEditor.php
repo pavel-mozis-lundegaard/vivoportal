@@ -2,7 +2,7 @@
 namespace Vivo\CMS\UI\Manager\Explorer\Editor;
 
 use Vivo\CMS\UI\AbstractForm;
-use Vivo\CMS\UI\Manager\Form\EntityEditor as EntityEditorForm;
+use Vivo\CMS\UI\Manager\Form\ContentEditor as ContentEditorForm;
 
 class ContentEditor extends AbstractForm
 {
@@ -10,7 +10,9 @@ class ContentEditor extends AbstractForm
      * @var array
      */
     private $contents;
-
+    /**
+     * @var \Vivo\CMS\Model\Entity
+     */
     private $entity;
     /**
      * @var \Vivo\Metadata\MetadataManager
@@ -24,6 +26,7 @@ class ContentEditor extends AbstractForm
     {
         $this->contents = $contents;
         $this->metadataManager = $metadataManager;
+        $this->autoAddCsrf = false;
     }
 
     public function init()
@@ -35,6 +38,9 @@ class ContentEditor extends AbstractForm
             }
         }
 
+        $this->entity->setCreated(new \DateTime);
+        $this->entity->setModified(new \DateTime);
+
         $this->getForm()->bind($this->entity);
 
         parent::init();
@@ -44,18 +50,24 @@ class ContentEditor extends AbstractForm
     {
         $metadata = $this->metadataManager->getMetadata(get_class($this->entity));
 
-        $form = new EntityEditorForm('content', $metadata);
+        $form = new ContentEditorForm('content-'.$this->entity->getUuid(), $this->contents, $metadata);
 
         return $form;
+    }
+
+    public function changeVersion()
+    {
+
     }
 
     public function save()
     {
         echo __METHOD__."<br>\n";
-//         $form = $this->getForm();
+        $form = $this->getForm();
 
-//         if ($form->isValid()) {
-
-//         }
+        if ($form->isValid()) {
+            echo $this->entity->getOverviewType()."<br>\n";
+        }
+        echo "<hr>";
     }
 }

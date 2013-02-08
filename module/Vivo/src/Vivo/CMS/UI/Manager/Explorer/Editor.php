@@ -3,6 +3,7 @@ namespace Vivo\CMS\UI\Manager\Explorer;
 
 use Vivo\CMS\UI\AbstractForm;
 use Vivo\CMS\UI\Manager\Form\EntityEditor as EntityEditorForm;
+use Zend\EventManager\Event;
 
 class Editor extends AbstractForm
 {
@@ -30,6 +31,8 @@ class Editor extends AbstractForm
 
     public function init()
     {
+        $this->getParent()->getEventManager()->attach('setEntity', array ($this, 'onEntityChange'));
+
         $this->entity = $this->getParent()->getEntity();
 
         $this->getForm()->bind($this->entity);
@@ -41,6 +44,14 @@ class Editor extends AbstractForm
         }
 
         parent::init();
+    }
+    /**
+     * Callback for entity change event.
+     * @param Event $e
+     */
+    public function onEntityChange(Event $e)
+    {
+        $this->entity = $e->getParam('entity');
     }
 
     public function setTabContainer(\Vivo\UI\TabContainer $tab)
@@ -89,15 +100,20 @@ class Editor extends AbstractForm
     {
         $form = $this->getForm();
 
-        foreach ($this->getComponent('contentTab')->getComponents() as $name => $component) {
-            echo 'save: '.$name."<br>\n";
-            $component->save();
-        }
-
         if ($form->isValid()) {
 //             print_r($this->entity);
 
 //             $this->redirector->redirect();
         }
+
+        /* @var $tab \Vivo\CMS\UI\Manager\Explorer\Editor\ContentEditor */
+        $component = $this->getComponent('contentTab')->getSelectedComponent();
+
+        if(!$component instanceof Editor\ContentEditor)
+        {
+            throw new \Exception('Selected tab is not instance of Vivo\CMS\UI\Manager\Explorer\Editor\ContentEditor');
+        }
+
+        $component->save();
     }
 }

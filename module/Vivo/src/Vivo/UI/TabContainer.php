@@ -47,6 +47,14 @@ class TabContainer extends ComponentContainer implements PersistableInterface
     }
 
     /**
+     * @return \Vivo\UI\Component
+     */
+    public function getSelectedComponent()
+    {
+        return parent::getComponent($this->selected);
+    }
+
+    /**
      * @param boolean $value
      */
     public function setViewAll($value)

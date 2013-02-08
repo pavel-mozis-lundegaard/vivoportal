@@ -23,7 +23,9 @@ class IndexerFactory implements FactoryInterface
         $queryBuilder   = $serviceLocator->get('indexer_query_builder');
         $repository     = $serviceLocator->get('repository');
         $documentApi    = $serviceLocator->get('document_api');
-        $service        = new Indexer($indexer, $indexerHelper, $queryParser, $queryBuilder, $repository, $documentApi);
+        $pathBuilder    = $serviceLocator->get('path_builder');
+        $service        = new Indexer($indexer, $indexerHelper, $queryParser, $queryBuilder, $repository, $documentApi,
+                                      $pathBuilder);
         return $service;
     }
 }

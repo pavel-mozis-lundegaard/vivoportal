@@ -4,6 +4,7 @@ namespace Vivo\CMS\Api;
 use Vivo\CMS\Model;
 use Vivo\Indexer\Query\QueryInterface;
 use Vivo\Indexer\QueryParams;
+use Vivo\CMS\Model\Site;
 
 /**
  * IndexerInterface
@@ -22,10 +23,11 @@ interface IndexerInterface
     /**
      * Reindex all entities (contents and children) saved under the given path
      * Returns number of reindexed items
-     * @param string $path Path to entity
+     * @param \Vivo\CMS\Model\Site $site
+     * @param string $path Path to entity within the site
      * @param bool $deep If true reindexes whole subtree
      * @return int
      */
-    public function reindex($path, $deep = false);
+    public function reindex(Site $site, $path = '/', $deep = false);
 
 }

@@ -10,7 +10,9 @@ use Vivo\Indexer\QueryBuilder;
 use Vivo\Repository\RepositoryInterface;
 use Vivo\Repository\Exception\EntityNotFoundException;
 use Vivo\CMS\Model;
+use Vivo\CMS\Model\Site;
 use Vivo\CMS\Api\DocumentInterface as DocumentApi;
+use Vivo\Storage\PathBuilder\PathBuilderInterface;
 
 /**
  * Indexer
@@ -55,6 +57,12 @@ class Indexer implements IndexerInterface
     protected $documentApi;
 
     /**
+     * Path Builder
+     * @var PathBuilderInterface
+     */
+    protected $pathBuilder;
+
+    /**
      * Constructor
      * @param \Vivo\Indexer\IndexerInterface $indexer
      * @param \Vivo\CMS\Indexer\IndexerHelperInterface $indexerHelper
@@ -62,11 +70,15 @@ class Indexer implements IndexerInterface
      * @param \Vivo\Indexer\QueryBuilder $queryBuilder
      * @param \Vivo\Repository\RepositoryInterface $repository
      * @param DocumentApi $documentApi
+     * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
      */
-    public function __construct(VivoIndexerInterface $indexer, IndexerHelperInterface $indexerHelper,
-                                ParserInterface $queryParser, QueryBuilder $queryBuilder,
+    public function __construct(VivoIndexerInterface $indexer,
+                                IndexerHelperInterface $indexerHelper,
+                                ParserInterface $queryParser,
+                                QueryBuilder $queryBuilder,
                                 RepositoryInterface $repository,
-                                DocumentApi $documentApi)
+                                DocumentApi $documentApi,
+                                PathBuilderInterface $pathBuilder)
     {
         $this->indexer          = $indexer;
         $this->indexerHelper    = $indexerHelper;
@@ -74,6 +86,7 @@ class Indexer implements IndexerInterface
         $this->qb               = $queryBuilder;
         $this->repository       = $repository;
         $this->documentApi      = $documentApi;
+        $this->pathBuilder      = $pathBuilder;
     }
 
     /**
@@ -107,14 +120,17 @@ class Indexer implements IndexerInterface
     /**
      * Reindex all entities (contents and children) saved under the given path
      * Returns number of reindexed items
-     * @param string $path Path to entity
+     * @param \Vivo\CMS\Model\Site $site
+     * @param string $path Path to entity within the site
      * @param bool $deep If true reindexes whole subtree
      * @throws \Exception
      * @return int
      */
-    public function reindex($path, $deep = false)
+    public function reindex(Site $site, $path = '/', $deep = false)
     {
         //The reindexing may not rely on the indexer in any way! Presume the indexer data is corrupt.
+        $pathComponents = array($site->getPath(), $path);
+        $path           = $this->pathBuilder->buildStoragePath($pathComponents, true);
         $this->repository->commit();
         $this->indexer->begin();
         try {

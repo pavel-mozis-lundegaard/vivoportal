@@ -102,7 +102,7 @@ class CMS
             $site   = reset($entities);
         } else {
             //Site not found - fallback to traversing the repo (necessary for reindexing)
-            $sites  = $this->getChildren(new Model\Folder(''));
+            $sites  = $this->getChildren(new Model\Folder('/'));
             $site   = null;
             foreach ($sites as $siteIter) {
                 /** @var $siteIter \Vivo\CMS\Model\Site */

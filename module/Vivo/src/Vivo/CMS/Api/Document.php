@@ -6,6 +6,7 @@ use Vivo\Repository\RepositoryInterface;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
 use Vivo\CMS\Workflow\Factory as WorkflowFactory;
 use Vivo\CMS\Workflow\WorkflowInterface;
+use Vivo\CMS\Exception;
 
 /**
  * Document
@@ -47,7 +48,7 @@ class Document implements DocumentInterface
     public function getPublishedContents(Model\Document $document)
     {
         $containers = $this->repository->getChildren($document, 'Vivo\CMS\Model\ContentContainer');
-        $contents = array();
+        $contents   = array();
         usort($containers,
             function (Model\ContentContainer $a, Model\ContentContainer $b)
             {
@@ -81,8 +82,8 @@ class Document implements DocumentInterface
     /**
      * Finds published content in ContentContainer,
      * @param Model\ContentContainer $container
-     * @return Model\Content|false
-     * @throws Exception\LogicException when there are more than one published content
+     * @return Model\Content|boolean
+     * @throws Exception\LogicException when there is more than one published content
      */
     public function getPublishedContent(Model\ContentContainer $container)
     {
@@ -90,7 +91,7 @@ class Document implements DocumentInterface
         $contents = $this->repository->getChildren($container, 'Vivo\CMS\Model\Content');
         foreach ($contents as $content) {
             /* @var $content Model\Content */
-            if ($content->getState() == Workflow\Basic::STATE_PUBLISHED) {
+            if ($content->getState() == WorkflowInterface::STATE_PUBLISHED) {
                 $result[] = $content;
             }
         }
@@ -113,10 +114,10 @@ class Document implements DocumentInterface
         $document   = $this->getContentDocument($content);
         $oldContent = $this->getPublishedContent($document, $content->getIndex());
         if ($oldContent) {
-            $oldContent->setState(Workflow\AbstractWorkflow::STATE_ARCHIVED);
+            $oldContent->setState(WorkflowInterface::STATE_ARCHIVED);
             $this->saveEntity($oldContent, false);
         }
-        $content->setState(Workflow\AbstractWorkflow::STATE_PUBLISHED);
+        $content->setState(WorkflowInterface::STATE_PUBLISHED);
         $this->saveEntity($content, true);
     }
 
@@ -139,7 +140,7 @@ class Document implements DocumentInterface
         if (true /* uzivatel ma pravo na change*/) {
 
         }
-        if ($state == Workflow\AbstractWorkflow::STATE_PUBLISHED) {
+        if ($state == WorkflowInterface::STATE_PUBLISHED) {
             $this->publishContent($content);
         } else {
             $content->setState($state);
@@ -173,7 +174,7 @@ class Document implements DocumentInterface
         $components     = array($path, 'Contents' . $index, $version);
         $contentPath    = $this->pathBuilder->buildStoragePath($components, true);
         $content->setPath($contentPath);
-        $content->setState(Workflow\AbstractWorkflow::STATE_NEW);
+        $content->setState(WorkflowInterface::STATE_NEW);
         $this->saveEntity($content);
     }
 
@@ -311,9 +312,7 @@ class Document implements DocumentInterface
      */
     public function getWorkflow(Model\Document $document)
     {
-        return Workflow\Factory::get($document->getWorkflow());
+        $workflow   = $this->workflowFactory->get($document->getWorkflow());
+        return $workflow;
     }
-
-
-
 }

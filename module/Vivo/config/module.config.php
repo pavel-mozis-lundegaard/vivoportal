@@ -424,6 +424,15 @@ return array(
                         ),
                     ),
                 ),
+                'indexer_host_action' => array(
+                    'options' => array(
+                        'route'    => 'indexer <action> <host>',
+                        'defaults' => array(
+                            'controller' => 'cli_indexer',
+                            'action'     => 'default',
+                        ),
+                    ),
+                ),
                 'indexer_clear' => array(
                     'options' => array(
                         'route'    => 'indexer clear',
@@ -448,15 +457,6 @@ return array(
                         'defaults' => array(
                             'controller' => 'cli_cms',
                             'action'     => 'default',
-                        ),
-                    ),
-                ),
-                'cms_reindex' => array(
-                    'options' => array(
-                        'route'    => 'cms reindex <host>',
-                        'defaults' => array(
-                            'controller' => 'cli_cms',
-                            'action'     => 'reindex',
                         ),
                     ),
                 ),

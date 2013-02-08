@@ -57,27 +57,9 @@ class CmsController extends AbstractCliController
     public function getConsoleUsage()
     {
         $output = "\nCMS usage:";
-        $output .= "\n\ncms reindex <host>";
         $output .= "\ncms duplicateuuids <host>";
         $output .= "\ncms uniqueuuids <host> [--force|-f]";
 
-        return $output;
-    }
-
-    public function reindexAction()
-    {
-        //Prepare params
-        $request    = $this->getRequest();
-        /* @var $request \Zend\Console\Request */
-        $host   = $request->getParam('host');
-        if (!$this->siteEvent->getSite()) {
-            $output = sprintf("No site object created; host = '%s'", $host);
-            return $output;
-        }
-        $site   = $this->siteEvent->getSite();
-        $path   = $site->getPath();
-        $numIndexed = $this->cms->reindex($path, true);
-        $output = sprintf("%s items reindexed", $numIndexed);
         return $output;
     }
 

@@ -135,6 +135,7 @@ class ComponentFactory implements EventManagerAwareInterface
                         ->applyLayout($layout, $frontComponent, $panels);
             }
         }
+
         return $frontComponent;
     }
 

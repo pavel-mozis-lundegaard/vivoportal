@@ -75,7 +75,6 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         $sm = $e->getTarget()->getServiceManager();
         $sm->get('viewresolver')->attach($sm->get('template_resolver'));
     }
-
     /**
      * Registers view helpers to the view helper manager.
      * @param MvcEvent $e
@@ -97,7 +96,24 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
 
     public function getServiceConfig()
     {
-        return array();
+        return array(
+            'factories' => array(
+                'Vivo\CMS\UI\Manager\Explorer\Ribbon' => function (ServiceManager $sm) {
+                    $ribbon = new \Vivo\CMS\UI\Manager\Explorer\Ribbon();
+                    return $ribbon;
+                },
+                'Vivo\CMS\UI\Manager\HeaderBar' => function (ServiceManager $sm) {
+                    $headerBar = new \Vivo\CMS\UI\Manager\HeaderBar();
+                    $headerBar->addComponent($sm->get('Vivo\CMS\UI\Manager\SiteSelector'), 'siteSelector');
+                    return  $headerBar;
+                },
+                'Vivo\CMS\UI\Manager\SiteSelector' => function (ServiceManager $sm) {
+                    $siteSelector = new \Vivo\CMS\UI\Manager\SiteSelector(
+                            $sm->get('Vivo\CMS\Api\Manager\Manager'));
+                    return $siteSelector;
+                },
+            ),
+        );
     }
 
     public function getConsoleBanner(Console $console)

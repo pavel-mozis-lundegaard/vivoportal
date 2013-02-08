@@ -130,6 +130,7 @@ return array(
             'db_table_name_provider'    => 'Vivo\Service\DbTableNameProviderFactory',
             'db_table_gateway_provider' => 'Vivo\Service\DbTableGatewayProviderFactory',
             'workflow_factory'          => 'Vivo\CMS\Workflow\FactoryFactory',
+            'Vivo\CMS\Api\Manager\Manager' => 'Vivo\CMS\Api\Manager\ManagerFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -144,6 +145,7 @@ return array(
         ),
         'shared' => array(
             'view_model' => false,
+            'Vivo\CMS\UI\Manager\SiteSelector' => true,
         ),
         'initializers' => array(
             'component' => 'Vivo\Service\Initializer\ComponentInitializer',

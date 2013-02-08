@@ -1,16 +1,75 @@
 <?php
 namespace Vivo\UI\Ribbon;
 
+use Vivo\UI\TabContainerItemInterface;
+
 use Vivo\UI;
 
 /**
  * Ribbon Tab
  */
-class Tab extends UI\ComponentContainer
+class Tab extends UI\ComponentContainer implements TabContainerItemInterface
 {
-    public function init() {
-        $this->view->components = array_keys($this->components);
-        $this->view->name = $this->getName();
+
+    /**
+     * Index of unnamed groups.
+     * @var integer
+     */
+    protected $groupIndex = 0;
+
+
+    /**
+     * Constructor.
+     * @param string $label
+     */
+    public function __construct($label)
+    {
+        $this->label = $label;
+    }
+
+    public function init()
+    {
+        $this->getView()->components = array_keys($this->components);
+        $this->getView()->name = $this->getName();
         parent::init();
+    }
+
+    /**
+     * Adds riboon group.
+     * @param Group $group
+     */
+    public function addGroup(Group $group)
+    {
+        if ($name = $group->getName()) {
+            $this->addComponent($group, $name);
+        } else {
+            $this->addComponent($group, 'group' . $this->groupIndex++);
+        }
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\UI\TabContainerItemInterface::select()
+     */
+    public function select()
+    {
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\UI\TabContainerItemInterface::isDisabled()
+     */
+    public function isDisabled()
+    {
+        return false;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\UI\TabContainerItemInterface::getLabel()
+     */
+    public function getLabel()
+    {
+        return $this->label;
     }
 }

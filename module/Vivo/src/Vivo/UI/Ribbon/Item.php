@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\UI\Ribbon;
 
+use Vivo\UI\Ribbon;
+
 use Vivo\UI;
 
 /**
@@ -10,39 +12,57 @@ class Item extends UI\Component implements UI\TabContainerItemInterface, UI\Ribb
 {
 
     private $icon;
-    private $ribbon;
     private $visible = true;
     private $active = false;
     private $enabled = true;
 
-    public function __construct($name, $label, $icon, $ribbon = NULL)
+    /**
+     * @var string
+     */
+    protected $label;
+
+    /**
+     * @var Ribbon
+     */
+    protected $ribbon;
+
+    /**
+     * Constructor
+     * @param string $name
+     * @param string $label
+     * @param string $icon
+     * @param Ribbon $ribbon
+     */
+    public function __construct($name, $label, $icon, Ribbon $ribbon = null)
     {
-        $this->name = $name;
+        $this->setName($name);
         $this->label = $label;
         $this->icon = $icon;
+        $this->setRibbon($ribbon);
+    }
+
+    /**
+     * Sets ribbon.
+     * @param Ribbon $ribbon
+     */
+    public function setRibbon(Ribbon $ribbon)
+    {
         $this->ribbon = $ribbon;
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\UI\TabContainerItemInterface::getLabel()
+     */
     public function getLabel()
     {
         return $this->label;
     }
 
-    public function getIcon()
-    {
-        return $this->icon;
-    }
-
-    public function getHandler()
-    {
-        return $this->handler;
-    }
-
-    public function setHandler($handler)
-    {
-        $this->handler = $handler;
-    }
-
+    /**
+     *
+     * @param string $label
+     */
     public function setLabel($label)
     {
         $this->label = $label;
@@ -84,7 +104,10 @@ class Item extends UI\Component implements UI\TabContainerItemInterface, UI\Ribb
         $this->active = (bool) $active;
     }
 
-    function click()
+    /**
+     * Called when clicked on ribbon item.
+     */
+    public function click()
     {
         $this->ribbon->itemClick($this->getName());
     }
@@ -99,9 +122,20 @@ class Item extends UI\Component implements UI\TabContainerItemInterface, UI\Ribb
         return !$this->isEnabled();
     }
 
-    public function init() {
-        $this->view->name = $this->getName();
-        $this->view->icon = $this->getIcon();
-        $this->view->enabled = $this->isEnabled();
+    public function getIcon()
+    {
+        return $this->icon;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\UI\Component::view()
+     */
+    public function view()
+    {
+        $this->getView()->icon = $this->getIcon();
+        $this->getView()->enabled = $this->isEnabled();
+        $this->getView()->label = $this->label;
+        return parent::view();
     }
 }

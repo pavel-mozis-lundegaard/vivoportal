@@ -1,27 +1,24 @@
 <?php
 namespace Vivo\CMS\UI\Manager\Explorer;
 
-use Zend\Stdlib\RequestInterface;
-
-use Vivo\Service\Initializer\RequestAwareInterface;
-
 use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Model;
 use Vivo\CMS\UI\Manager\SiteSelector;
+use Vivo\Service\Initializer\RequestAwareInterface;
 use Vivo\UI\ComponentContainer;
+use Vivo\UI\PersistableInterface;
 
 use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\SharedEventManager;
-use Zend\Http\Request;
-use Zend\Session;
+use Zend\Stdlib\RequestInterface;
 
 /**
  * Explorer component.
  */
 class Explorer extends ComponentContainer implements EventManagerAwareInterface,
-        EntityManagerInterface, RequestAwareInterface
+        EntityManagerInterface, RequestAwareInterface, PersistableInterface
 {
     /**
      * Entity beeing explored.
@@ -57,23 +54,14 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
 
     /**
      * Constructor.
-     * @param Request $request
      * @param CMS $cms
-     * @param Session\ManagerInterface $sessionManager
      * @param SiteSelector $siteSelector
      * @param ExplorerComponentFactory $explorerComponentFactory
      */
-    public function __construct(CMS $cms,
-            Session\ManagerInterface $sessionManager,
-            SiteSelector $siteSelector,
-            ExplorerComponentFactory $explorerComponentFactory
-            )
+    public function __construct(CMS $cms, SiteSelector $siteSelector)
     {
         $this->cms = $cms;
-        $this->session = new Session\Container(__CLASS__, $sessionManager);
         $this->siteSelector = $siteSelector;
-        $this->explorerComponentFactory = $explorerComponentFactory;
-        $this->loadState();
     }
 
     /**
@@ -82,7 +70,6 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
      */
     public function init()
     {
-        parent::init();
         $this->loadEntity();
         $this->setCurrent($this->currentName);
 
@@ -91,53 +78,38 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
                 ->attach('setSite', array($this, 'onSiteChange'));
         $this->ribbon->getEventManager()
                 ->attach('itemClick', array($this, 'onRibbonClick'));
-    }
-
-    /**
-     * Load state from session.
-     */
-    protected function loadState()
-    {
-        $this->entity = $this->session->entity;
-        $this->currentName = $this->session->currentName ? : $this->currentName;
-    }
-
-    /**
-     * Saves the current state
-     */
-    public function saveState()
-    {
-        $this->session->entity = $this->entity;
-        $this->session->currentName = $this->currentName;
+        parent::init();
     }
 
     /**
      * (non-PHPdoc)
-     * @see \Vivo\UI\ComponentContainer::done()
+     * @see \Vivo\UI\PersistableInterface::loadState()
      */
-    public function done() {
-        $this->saveState();
-        parent::done();
+    public function loadState($state)
+    {
+        $this->entity = $state['entity'];
+        $this->currentName = isset($state['current_name']) ?
+                $state['current_name'] : $this->currentName;
     }
 
     /**
-     * Creates and attach component to explorer(brovser, viewer, editor).
-     *
-     * Uses ExplorerComponentFactory for lazy creation of components.
+     * (non-PHPdoc)
+     * @see \Vivo\UI\PersistableInterface::saveState()
+     */
+    public function saveState()
+    {
+        $state['entity'] = $this->entity;
+        $state['current_name'] = $this->currentName;
+        return $state;
+    }
+
+    /**
+     * Set current component
      * @param string $name
      */
     public function setCurrent($name)
     {
-        $component = $this->explorerComponentFactory->create($name, false);
-        if ($component) {
-            if ($this->hasComponent($name)) {
-                //                $this->removeComponent($name);
-            }
-
-            $this->currentName = $name;
-            $this->addComponent($component, $name);
-            $component->init();
-        }
+        $this->currentName = $name;
     }
 
     /**

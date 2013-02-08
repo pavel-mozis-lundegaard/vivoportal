@@ -1,22 +1,19 @@
 <?php
 namespace Vivo\CMS\UI\Manager;
 
-use Zend\Session\Container;
-
-use Zend\Session\SessionManager;
-
 use Vivo\CMS\Api\Manager\Manager;
 use Vivo\CMS\Model\Site;
 use Vivo\UI\Component;
+use Vivo\UI\PersistableInterface;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManagerAwareInterface;
 
 /**
- * Component for select site for editing.
- * @todo save site to session
+ * Component for selecting site for editing.
  */
-class SiteSelector extends Component implements EventManagerAwareInterface
+class SiteSelector extends Component implements EventManagerAwareInterface,
+        PersistableInterface
 {
 
     /**
@@ -35,32 +32,58 @@ class SiteSelector extends Component implements EventManagerAwareInterface
     protected $site;
 
     /**
-     * @var Container
-     */
-    protected $session;
-
-    /**
+     * Constructor.
      * @param Manager $manager
      */
-    public function __construct(Manager $manager, SessionManager $sessionManager)
+    public function __construct(Manager $manager)
     {
         $this->manager = $manager;
-        $this->session = new Container(__CLASS__, $sessionManager);
         $this->sites = $this->manager->getManageableSites();
-        $this->site = $this->session->site? : reset($this->sites);
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\UI\PersistableInterface::loadState()
+     */
+    public function loadState($state)
+    {
+        $this->site = isset($state['site']) ? $state['site']
+                : reset($this->sites);
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\UI\PersistableInterface::saveState()
+     */
+    public function saveState()
+    {
+        return array('site' => $this->site);
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \Zend\EventManager\EventManagerAwareInterface::setEventManager()
+     */
     public function setEventManager(EventManagerInterface $eventManager)
     {
         $this->eventManager = $eventManager;
         $this->eventManager->addIdentifiers(__CLASS__);
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see \Zend\EventManager\EventsCapableInterface::getEventManager()
+     */
     public function getEventManager()
     {
         return $this->eventManager;
     }
 
+    /**
+     * Sets currently edited site.
+     * @param string $siteName
+     * @throws \Exception
+     */
     public function set($siteName)
     {
         if (!key_exists($siteName, $this->sites)) {
@@ -76,10 +99,14 @@ class SiteSelector extends Component implements EventManagerAwareInterface
     public function setSite(Site $site)
     {
         $this->site = $site;
-        $this->session->site = $site;
-        $this->eventManager->trigger(__FUNCTION__, $this, array ('site' => $site));
+        $this->eventManager
+                ->trigger(__FUNCTION__, $this, array('site' => $site));
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\UI\Component::view()
+     */
     public function view()
     {
         $this->view->selectedSite = $this->site;

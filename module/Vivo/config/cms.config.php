@@ -54,6 +54,7 @@ return array(
             'Vivo\CMS\UI\Root'              => 'Vivo\CMS\UI\Root',
             'Vivo\UI\ComponentContainer'    => 'Vivo\UI\ComponentContainer',
             'Vivo\UI\TabContainer'          => 'Vivo\UI\TabContainer',
+            'Vivo\CMS\UI\Manager\Explorer\Ribbon'  => 'Vivo\CMS\UI\Manager\Explorer\Ribbon',
             'layout_empty_panel'            => 'Vivo\UI\Text',
         ),
         'factories' => array (

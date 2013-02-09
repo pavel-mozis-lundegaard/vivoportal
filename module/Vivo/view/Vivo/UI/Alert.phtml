@@ -1,0 +1,5 @@
+<?foreach ($messages as $m):?>
+<div class="alert alert-<?=$m['type']?>">
+<?=$this->translate($m['message'])?>
+</div>
+<?endforeach;?>

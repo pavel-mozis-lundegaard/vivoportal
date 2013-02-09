@@ -37,6 +37,7 @@ class ExplorerFactory implements FactoryInterface
         $explorer->addComponent($tree, 'tree');
 
         $finder = new \Vivo\CMS\UI\Manager\Explorer\Finder();
+        $finder->setAlert($sm->get('Vivo\UI\Alert'));
         $finder->setEntityManager($explorer);
         $finder->setView($sm->get('view_model'));
         $explorer->addComponent($finder, 'finder');

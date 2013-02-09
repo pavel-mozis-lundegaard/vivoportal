@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\CMS\UI\Manager\Explorer;
 
+use Vivo\UI\Alert;
+
 use Vivo\UI\Component;
 
 use Zend\EventManager\Event;
@@ -41,7 +43,12 @@ class Finder extends Component
      */
     public function set($relPath)
     {
-        $this->entityManager->setEntityByRelPath($relPath);
+        try {
+            $this->entityManager->setEntityByRelPath($relPath);
+        } catch (\Vivo\Repository\Exception\EntityNotFoundException $e) {
+            //TODO translate message
+            $this->alert->addMessage('Path does not exist.', Alert::TYPE_ERROR);
+        }
     }
 
     /**
@@ -69,5 +76,9 @@ class Finder extends Component
     public function getEntity()
     {
         return $this->entity;
+    }
+    public function setAlert(Alert $alert)
+    {
+        $this->alert = $alert;
     }
 }

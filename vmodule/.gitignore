@@ -1,3 +1,8 @@
-*
+/*
+/*/
 !readme.txt
 !.gitignore
+
+# Todo: Move theese modules to own repositories.
+!/Bootstrap2_3_0/
+!Bootstrap2_3_0/*

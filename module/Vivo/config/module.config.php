@@ -101,6 +101,7 @@ return array(
             'indexer_adapter_lucene'    => 'Vivo\Service\IndexerAdapterLuceneFactory',
             'indexer'                   => 'Vivo\Service\IndexerFactory',
             'repository'                => 'Vivo\Service\RepositoryFactory',
+            'repository_events'         => 'Vivo\Repository\EventManagerFactory',
             'indexer_helper'            => 'Vivo\Service\IndexerHelperFactory',
             'Vivo\CMS\Api\CMS'          => 'Vivo\Service\CmsFactory',
             'Vivo\CMS\Api\Module'       => 'Vivo\Service\CmsApiModuleFactory',

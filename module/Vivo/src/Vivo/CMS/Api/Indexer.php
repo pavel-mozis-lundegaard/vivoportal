@@ -13,6 +13,9 @@ use Vivo\CMS\Model;
 use Vivo\CMS\Model\Site;
 use Vivo\CMS\Api\DocumentInterface as DocumentApi;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
+use Zend\EventManager\EventManagerInterface;
+use Vivo\Repository\EventInterface as RepositoryEventInterface;
+use Vivo\Indexer\Query\Term as TermQuery;
 
 /**
  * Indexer
@@ -71,6 +74,7 @@ class Indexer implements IndexerInterface
      * @param \Vivo\Repository\RepositoryInterface $repository
      * @param DocumentApi $documentApi
      * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
+     * @param \Zend\EventManager\EventManagerInterface $repositoryEvents
      */
     public function __construct(VivoIndexerInterface $indexer,
                                 IndexerHelperInterface $indexerHelper,
@@ -78,7 +82,8 @@ class Indexer implements IndexerInterface
                                 QueryBuilder $queryBuilder,
                                 RepositoryInterface $repository,
                                 DocumentApi $documentApi,
-                                PathBuilderInterface $pathBuilder)
+                                PathBuilderInterface $pathBuilder,
+                                EventManagerInterface $repositoryEvents = null)
     {
         $this->indexer          = $indexer;
         $this->indexerHelper    = $indexerHelper;
@@ -87,6 +92,9 @@ class Indexer implements IndexerInterface
         $this->repository       = $repository;
         $this->documentApi      = $documentApi;
         $this->pathBuilder      = $pathBuilder;
+        if ($repositoryEvents) {
+            $repositoryEvents->attach(RepositoryEventInterface::EVENT_COMMIT, array($this, 'onRepositoryCommit'));
+        }
     }
 
     /**
@@ -143,35 +151,14 @@ class Indexer implements IndexerInterface
             $count      = 0;
             $entity     = $this->repository->getEntityFromStorage($path);
             if ($entity) {
-                if ($entity instanceof Model\Document) {
-                    $publishedContentTypes  = $this->documentApi->getPublishedContentTypes($entity);
-                } else {
-                    $publishedContentTypes    = array();
-                }
-                $options    = array('published_content_types' => $publishedContentTypes);
-                $idxDoc     = $this->indexerHelper->createDocument($entity, $options);
-                $this->indexer->addDocument($idxDoc);
-                $count      = 1;
-                //TODO - reindex entity Contents
-                //		if ($entity instanceof Vivo\CMS\Model\Document) {
-                //            /* @var $entity \Vivo\CMS\Model\Document */
-                //			for ($index = 1; $index <= $entity->getContentCount(); $index++)
-                //				foreach ($entity->getContents($index) as $content)
-                //					$count += $this->reindex($content, true);
-                //		}
+                $this->indexEntity($entity);
+                $count  = 1;
                 if ($deep) {
                     $descendants    = $this->repository->getDescendantsFromStorage($path);
                     foreach ($descendants as $descendant) {
-                        if ($descendant instanceof Model\Document) {
-                            $publishedContentTypes  = $this->documentApi->getPublishedContentTypes($descendant);
-                        } else {
-                            $publishedContentTypes  = array();
-                        }
-                        $options    = array('published_content_types' => $publishedContentTypes);
-                        $idxDoc     = $this->indexerHelper->createDocument($descendant, $options);
-                        $this->indexer->addDocument($idxDoc);
-                        $count++;
+                        $this->indexEntity($descendant);
                     }
+                    $count  += count($descendants);
                 }
             }
             $this->indexer->commit();
@@ -182,23 +169,75 @@ class Indexer implements IndexerInterface
         return $count;
     }
 
-    //TODO - is it ok to expose this method in API? (forces index out of sync with repo) - move to indexer helper?
-    public function delete()
+    /**
+     * Adds entity into index
+     * @param \Vivo\CMS\Model\Entity $entity
+     */
+    protected function indexEntity(Model\Entity $entity)
     {
-//        $delQuery   = $this->indexerHelper->buildTreeQuery($entity);
-//        $this->indexer->delete($delQuery);
+        if ($entity instanceof Model\Document) {
+            $publishedContentTypes  = $this->documentApi->getPublishedContentTypes($entity);
+        } else {
+            $publishedContentTypes    = array();
+        }
+        $options    = array('published_content_types' => $publishedContentTypes);
+        $idxDoc     = $this->indexerHelper->createDocument($entity, $options);
+        $this->indexer->addDocument($idxDoc);
+        //TODO - reindex entity Contents
+        //		if ($entity instanceof Vivo\CMS\Model\Document) {
+        //            /* @var $entity \Vivo\CMS\Model\Document */
+        //			for ($index = 1; $index <= $entity->getContentCount(); $index++)
+        //				foreach ($entity->getContents($index) as $content)
+        //					$count += $this->reindex($content, true);
+        //		}
     }
 
-    //TODO - is it ok to expose this method in API? (forces index out of sync with repo) - move to indexer helper?
-    public function save()
+    /**
+     * Removes entity and whole its subtree from index
+     * @param Model\Entity|string $spec Either an Entity object or its path
+     */
+    protected function deleteEntity($spec)
     {
-        //Indexer - remove old doc & insert new one
-//        $entityTerm = $this->indexerHelper->buildEntityTerm($entity);
-//        $delQuery   = new TermQuery($entityTerm);
-//        $entityDoc  = $this->indexerHelper->createDocument($entity, $entityOptions);
-//        $this->indexer->delete($delQuery);
-//        $this->indexer->addDocument($entityDoc);
-
+        $delQuery   = $this->indexerHelper->buildTreeQuery($spec);
+        $this->indexer->delete($delQuery);
     }
 
+    /**
+     * Saves or updated entity in index
+     * @param \Vivo\CMS\Model\Entity $entity
+     */
+    protected function saveEntity(Model\Entity $entity)
+    {
+        //Remove old doc
+        $entityTerm = $this->indexerHelper->buildEntityTerm($entity);
+        $delQuery   = new TermQuery($entityTerm);
+        $this->indexer->delete($delQuery);
+        //Insert new one
+        $this->indexEntity($entity);
+    }
+
+    /**
+     * Repository commit listener
+     * @param \Vivo\Repository\EventInterface $event
+     */
+    public function onRepositoryCommit(RepositoryEventInterface $event)
+    {
+        $this->indexer->begin();
+        /** @var $deleteEntityPaths array */
+        $deleteEntityPaths  = $event->getParam('delete_entity_paths');
+        foreach ($deleteEntityPaths as $deleteEntityPath) {
+            $this->deleteEntity($deleteEntityPath);
+        }
+        /** @var $saveEntities Model\Entity[] */
+        $saveEntities   = $event->getParam('save_entities');
+        foreach ($saveEntities as $entity) {
+            $this->saveEntity($entity);
+        }
+
+
+        //TODO - implement also support for other repository actions with resources etc.
+
+
+        $this->indexer->commit();
+    }
 }

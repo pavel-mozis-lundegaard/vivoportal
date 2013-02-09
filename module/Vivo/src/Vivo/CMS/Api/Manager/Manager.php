@@ -8,7 +8,7 @@ use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Model\Site;
 
 /**
- * Bussiness claas for backend Manager.
+ * Business class for backend Manager.
  */
 
 class Manager

@@ -12,6 +12,7 @@ use Vivo\IO\IOUtil;
 
 use Zend\Serializer\Adapter\AdapterInterface as Serializer;
 use Zend\Cache\Storage\StorageInterface as Cache;
+use Zend\EventManager\EventManagerInterface;
 
 /**
  * Repository class provides methods to work with CMS repository.
@@ -21,8 +22,16 @@ use Zend\Cache\Storage\StorageInterface as Cache;
  */
 class Repository implements RepositoryInterface
 {
+    /**
+     * Entity object filename
+     */
+    const ENTITY_FILENAME = 'Entity.object';
 
-	const ENTITY_FILENAME = 'Entity.object';
+    /**
+     * Event manager
+     * @var EventManagerInterface
+     */
+    protected $events;
 
 	/**
 	 * @var \Vivo\Storage\StorageInterface
@@ -94,10 +103,10 @@ class Repository implements RepositoryInterface
      * List of paths of entities prepared for deletion
      * @var string[]
      */
-    protected $deleteEntities       = array();
+    protected $deleteEntityPaths    = array();
 
     /**
-     * List of paths that are prepared to be deleted
+     * List of resource paths that are prepared to be deleted
      * @var string[]
      */
     protected $deletePaths          = array();
@@ -123,13 +132,15 @@ class Repository implements RepositoryInterface
      * @param \Zend\Serializer\Adapter\AdapterInterface $serializer
      * @param Watcher $watcher
      * @param \Vivo\IO\IOUtil $ioUtil
+     * @param \Zend\EventManager\EventManagerInterface $events
      * @throws Exception\Exception
      */
     public function __construct(Storage\StorageInterface $storage,
                                 Cache $cache = null,
                                 Serializer $serializer,
                                 Watcher $watcher,
-                                IOUtil $ioUtil)
+                                IOUtil $ioUtil,
+                                EventManagerInterface $events)
 	{
         if ($cache) {
             //Check that cache supports all required data types
@@ -148,6 +159,7 @@ class Repository implements RepositoryInterface
         $this->watcher          = $watcher;
         $this->ioUtil           = $ioUtil;
         $this->pathBuilder      = $this->storage->getPathBuilder();
+        $this->events           = $events;
 	}
 
     /**
@@ -425,7 +437,7 @@ class Repository implements RepositoryInterface
     public function deleteEntityByPath($path)
     {
         $path                   = $this->pathBuilder->sanitize($path);
-        $this->deleteEntities[] = $path;
+        $this->deleteEntityPaths[] = $path;
     }
 
     /**
@@ -586,7 +598,7 @@ class Repository implements RepositoryInterface
         try {
             //Delete - Phase 1 (move to temp files)
             //a) Entities
-            foreach ($this->deleteEntities as $path) {
+            foreach ($this->deleteEntityPaths as $path) {
                 $tmpPath                    = $this->pathBuilder->buildStoragePath(
                                                     array($this->tmpPathInStorage, uniqid('del-')), true);
                 $this->tmpDelFiles[$path]   = $tmpPath;
@@ -636,7 +648,7 @@ class Repository implements RepositoryInterface
             //The actual commit is successfully done, now process references to entities in Watcher, Cache, etc
 
             //Delete entities from Watcher and Cache
- 			foreach ($this->deleteEntities as $path) {
+ 			foreach ($this->deleteEntityPaths as $path) {
                 $this->watcher->remove($path);
                 if ($this->cache) {
                     $this->cache->removeItem($path);
@@ -651,7 +663,19 @@ class Repository implements RepositoryInterface
                     $this->cache->setItem($entity->getPath(), $entity);
                 }
             }
-
+            //Trigger commit event
+            $eventParams    = array(
+                'copy_files'            => $this->copyFiles,
+                'delete_paths'          => $this->deletePaths,
+                'delete_entity_paths'   => $this->deleteEntityPaths,
+                'save_data'             => $this->saveData,
+                'save_entities'         => $this->saveEntities,
+                'save_streams'          => $this->saveStreams,
+                'tmp_del_files'         => $this->tmpDelFiles,
+                'tmp_files'             => $this->tmpFiles,
+            );
+            $event          = new Event(EventInterface::EVENT_COMMIT, $this, $eventParams);
+            $this->events->trigger($event);
             //Clean-up after commit
             $this->reset();
         } catch (\Exception $e) {
@@ -668,7 +692,7 @@ class Repository implements RepositoryInterface
     {
         $this->copyFiles            = array();
         $this->deletePaths          = array();
-        $this->deleteEntities       = array();
+        $this->deleteEntityPaths       = array();
         $this->saveData             = array();
         $this->saveEntities         = array();
         $this->saveStreams          = array();

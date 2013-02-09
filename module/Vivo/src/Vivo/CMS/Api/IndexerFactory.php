@@ -17,15 +17,16 @@ class IndexerFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $indexer        = $serviceLocator->get('indexer');
-        $indexerHelper  = $serviceLocator->get('indexer_helper');
-        $queryParser    = $serviceLocator->get('indexer_query_parser');
-        $queryBuilder   = $serviceLocator->get('indexer_query_builder');
-        $repository     = $serviceLocator->get('repository');
-        $documentApi    = $serviceLocator->get('Vivo\CMS\Api\Document');
-        $pathBuilder    = $serviceLocator->get('path_builder');
-        $service        = new Indexer($indexer, $indexerHelper, $queryParser, $queryBuilder, $repository, $documentApi,
-                                      $pathBuilder);
+        $indexer            = $serviceLocator->get('indexer');
+        $indexerHelper      = $serviceLocator->get('indexer_helper');
+        $queryParser        = $serviceLocator->get('indexer_query_parser');
+        $queryBuilder       = $serviceLocator->get('indexer_query_builder');
+        $repository         = $serviceLocator->get('repository');
+        $documentApi        = $serviceLocator->get('Vivo\CMS\Api\Document');
+        $pathBuilder        = $serviceLocator->get('path_builder');
+        $repositoryEvents   = $serviceLocator->get('repository_events');
+        $service            = new Indexer($indexer, $indexerHelper, $queryParser, $queryBuilder, $repository,
+                                          $documentApi, $pathBuilder, $repositoryEvents);
         return $service;
     }
 }

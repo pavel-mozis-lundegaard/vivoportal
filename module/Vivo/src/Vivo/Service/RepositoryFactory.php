@@ -29,12 +29,14 @@ class RepositoryFactory implements FactoryInterface
         $serializer             = new \Vivo\Serializer\Adapter\Entity();
         $watcher                = new \Vivo\Repository\Watcher();
         $ioUtil                 = $serviceLocator->get('io_util');
+        $events                 = $serviceLocator->get('repository_events');
         //TODO - supply a real cache
         $repository             = new \Vivo\Repository\Repository($storage,
                                                                   null,
                                                                   $serializer,
                                                                   $watcher,
-                                                                  $ioUtil);
+                                                                  $ioUtil,
+                                                                  $events);
         return $repository;
     }
 }

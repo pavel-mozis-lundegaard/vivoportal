@@ -4,13 +4,13 @@ $param = $viewAll ? '-all' : '';
 <div id="tabContainer<?=$param?>">
     <div id="tabs<?=$param?>">
         <div class="tabsHolder<?=$param?>">
-            <ul class="tabs">
+            <ul class="nav nav-tabs">
                 <?
                 $position = 0;
                 foreach ($tabs as $tab):
                     $position++;
                 ?>
-                <li<?if (!$viewAll && $tab['name'] == $selected):?> class="selected"<?endif?> rel="tab<?=$position?>">
+                <li<?if (!$viewAll && $tab['name'] == $selected):?> class="active"<?endif?> rel="tab<?=$position?>">
                     <a href="<?=$this->actionUrl('select', array($tab['name']))?>"><?=$this->translate($tab['label'])?></a>
                 </li>
                <?endforeach?>

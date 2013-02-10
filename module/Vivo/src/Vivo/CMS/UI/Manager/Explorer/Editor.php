@@ -3,6 +3,7 @@ namespace Vivo\CMS\UI\Manager\Explorer;
 
 use Vivo\CMS\UI\AbstractForm;
 use Vivo\CMS\UI\Manager\Form\EntityEditor as EntityEditorForm;
+use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 
 class Editor extends AbstractForm
 {
@@ -20,12 +21,21 @@ class Editor extends AbstractForm
     private $entity;
 
     /**
-     * @param \Vivo\Metadata\MetadataManager $metadataManager
+     * Document API
+     * @var DocumentApiInterface
      */
-    public function __construct($cms, $metadataManager)
+    protected $documentApi;
+
+    /**
+     * @param $cms
+     * @param \Vivo\Metadata\MetadataManager $metadataManager
+     * @param \Vivo\CMS\Api\DocumentInterface $documentApi
+     */
+    public function __construct($cms, $metadataManager, DocumentApiInterface $documentApi)
     {
-        $this->cms = $cms;
-        $this->metadataManager = $metadataManager;
+        $this->cms              = $cms;
+        $this->metadataManager  = $metadataManager;
+        $this->documentApi      = $documentApi;
     }
 
     public function init()
@@ -35,7 +45,7 @@ class Editor extends AbstractForm
         $this->getForm()->bind($this->entity);
 
         /* @var $contentContainer \Vivo\CMS\Model\ContentContainer */
-        foreach ($this->cms->getContentContainers($this->entity) as $index => $contentContainer) {
+        foreach ($this->documentApi->getContentContainers($this->entity) as $index => $contentContainer) {
 //             echo 'content'.$index."\n";
             $this->contentTab->addComponent($this->getContentForm($contentContainer), "content_$index");
         }
@@ -75,7 +85,7 @@ class Editor extends AbstractForm
 
     protected function getContentForm($contentContainer)
     {
-        $contents = $this->cms->getContents($contentContainer);
+        $contents = $this->documentApi->getContents($contentContainer);
 
         $e = new Editor\ContentEditor($contents, $this->metadataManager);
         $e->setRequest($this->request);

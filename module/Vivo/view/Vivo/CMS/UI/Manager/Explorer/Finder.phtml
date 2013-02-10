@@ -1,7 +1,6 @@
-Finder component
 <b><?=$entity->getPath()?></b>
-<form method="get">
+<form method="get" class="form-inline">
 <input type="hidden" name="act" value="<?=$this->action('set')?>">
 <input type="text" name="args[]"/>
-<input type="submit">
+<input type="submit" class="btn" value="<?=$this->translate('Find');?>">
 </form>

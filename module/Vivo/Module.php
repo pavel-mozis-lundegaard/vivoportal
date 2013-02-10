@@ -98,13 +98,10 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
     {
         return array(
             'factories' => array(
-                'Vivo\CMS\UI\Manager\Explorer\Ribbon' => function (ServiceManager $sm) {
-                    $ribbon = new \Vivo\CMS\UI\Manager\Explorer\Ribbon();
-                    return $ribbon;
-                },
                 'Vivo\CMS\UI\Manager\HeaderBar' => function (ServiceManager $sm) {
                     $headerBar = new \Vivo\CMS\UI\Manager\HeaderBar();
                     $headerBar->addComponent($sm->get('Vivo\CMS\UI\Manager\SiteSelector'), 'siteSelector');
+                    $headerBar->addComponent($sm->get('Vivo\UI\Alert'), 'alert');
                     return  $headerBar;
                 },
                 'Vivo\CMS\UI\Manager\SiteSelector' => function (ServiceManager $sm) {

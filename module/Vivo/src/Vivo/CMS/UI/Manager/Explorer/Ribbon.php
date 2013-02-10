@@ -1,32 +1,48 @@
 <?php
 namespace Vivo\CMS\UI\Manager\Explorer;
 
+use Vivo\UI\Ribbon\Tab;
+use Vivo\UI\Ribbon\Group;
+use Vivo\UI\Ribbon\Item;
+
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManagerAwareInterface;
-use Vivo\UI\Component;
 
-class Ribbon extends Component implements EventManagerAwareInterface
+/**
+ * Ribbon for explorer.
+ *
+ */
+class Ribbon extends \Vivo\UI\Ribbon implements EventManagerAwareInterface
 {
-    private $eventManager;
 
+    /**
+     * Constructor.
+     */
     public function __construct()
     {
+        $tab = new Tab('Document');
 
+        $group = new Group('Show');
+        $group->addItem(new Item('viewer', 'Viewer', '', $this));
+        $group->addItem(new Item('browser', 'Browser', '', $this));
+        $tab->addGroup($group);
+
+        $group = new Group('Edit');
+        $group->addItem(new Item('editor', 'Editor', '', $this));
+        $tab->addGroup($group);
+
+        $this->addTab($tab);
+        $tab = new Tab('Advanced');
+        $this->addTab($tab);
     }
 
-    public function setEventManager(EventManagerInterface $eventManager)
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\UI\Component::getDefaultTemplate()
+     */
+    public function getDefaultTemplate()
     {
-        $this->eventManager = $eventManager;
-        $this->eventManager->addIdentifiers(__CLASS__);
-    }
-
-    public function getEventManager()
-    {
-        return $this->eventManager;
-    }
-
-    public function itemClick($name)
-    {
-        $this->eventManager->trigger(__FUNCTION__, $this, array('itemName' => $name));
+        //use parent template
+        return get_parent_class($this);
     }
 }

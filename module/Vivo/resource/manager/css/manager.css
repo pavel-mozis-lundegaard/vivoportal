@@ -1,10 +1,5 @@
 @CHARSET "UTF-8";
 
-table{
-	width: 100%;
-	border-collapse: collapse;
-}
-td {
+.row-fluid {
 	border: 1px solid;
-	
 }

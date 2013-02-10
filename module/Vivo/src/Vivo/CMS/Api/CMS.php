@@ -316,7 +316,7 @@ class CMS
     {
         //TODO - implement using PathBuilder
         $parts = explode('/ROOT', $entity->getPath());
-        return $parts[1];
+        return $parts[1].'/';
     }
 
     /**

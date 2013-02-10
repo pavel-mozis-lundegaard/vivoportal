@@ -3,3 +3,7 @@
 .row-fluid {
 	border: 1px solid;
 }
+
+ul {
+	list-style-type: none;
+}

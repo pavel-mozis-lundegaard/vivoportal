@@ -1,1 +1,25 @@
-Document tree component
+<?$last = 0;
+foreach ($this->tree as $item):
+    $document = $item->value;
+    $level = $document['level'];
+?>
+<?if($last<$level):?><ul><?endif;?>
+<?if($last==$level):?></li><?endif;?>
+<?if($last>$level):
+$i = $last - $level;
+while(--$i):?></li></ul><?endwhile;?></li><?endif;?>
+
+
+<li>
+<?if($document['expandable']):?>
+<i class="icon-plus"></i>
+<?else:?>
+<i class="icon-minus"></i>
+<?endif;?>
+<?=$this->actionLink('set', $document['document']->getTitle(), array ($document['rel_path']))?>
+<?if($document['active']):?><i class="icon-star"></i><?endif;?>
+
+<?$last = $level;
+endforeach;?>
+
+<?while(--$level):?></li></ul><?endwhile;?>

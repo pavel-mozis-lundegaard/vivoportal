@@ -207,7 +207,7 @@ class CMS
      * @param \Vivo\CMS\Model\Entity $entity
      * @return \Vivo\CMS\Model\Entity
      */
-    protected function prepareEntityForSaving(Model\Entity $entity)
+    public function prepareEntityForSaving(Model\Entity $entity)
     {
         $now            = new DateTime();
         $sanitizedPath  = $this->pathBuilder->sanitize($entity->getPath());

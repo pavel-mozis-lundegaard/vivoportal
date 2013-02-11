@@ -97,6 +97,38 @@ class Folder extends Entity
     }
 
     /**
+     * @param int $position
+     */
+    public function setPosition($position)
+    {
+        $this->position = $position;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPosition()
+    {
+        return $this->position;
+    }
+
+    /**
+     * @param bool allowListing
+     */
+    public function setAllowListing($allowListing = true)
+    {
+        $this->allowListing = (bool)$allowListing;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getAllowListing()
+    {
+        return $this->allowListing;
+    }
+
+    /**
      * @param array $field_names
      * @return string
      */

@@ -93,6 +93,11 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
         unset($this->components[$name]);
     }
 
+    public function removeAllComponents()
+    {
+        $this->components = array();
+    }
+
     /**
      * (non-PHPdoc)
      * @see \Vivo\UI\ComponentContainerInterface::getComponent()

@@ -282,6 +282,20 @@ class Document implements DocumentInterface
     }
 
     /**
+     * Saves content
+     * The entity is prepared before saving into repository
+     * @param Model\Entity $entity
+     * @param bool $commit
+     */
+    public function saveContent(Model\Content $content)
+    {
+        $content = $this->cms->prepareEntityForSaving($content);
+
+        $this->repository->saveEntity($content);
+        $this->repository->commit();
+    }
+
+    /**
      * Returns child documents.
      * @param Model\Document $document
      * @return Model\Document[]

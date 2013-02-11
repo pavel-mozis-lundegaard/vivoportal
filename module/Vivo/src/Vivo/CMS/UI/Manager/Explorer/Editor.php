@@ -3,6 +3,7 @@ namespace Vivo\CMS\UI\Manager\Explorer;
 
 use Vivo\CMS\UI\AbstractForm;
 use Vivo\CMS\UI\Manager\Form\EntityEditor as EntityEditorForm;
+use Zend\EventManager\Event;
 use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 
 class Editor extends AbstractForm
@@ -27,11 +28,11 @@ class Editor extends AbstractForm
     protected $documentApi;
 
     /**
-     * @param $cms
+     * @param \Vivo\CMS\Api\CMS $cms
      * @param \Vivo\Metadata\MetadataManager $metadataManager
      * @param \Vivo\CMS\Api\DocumentInterface $documentApi
      */
-    public function __construct($cms, $metadataManager, DocumentApiInterface $documentApi)
+    public function __construct(\Vivo\CMS\Api\CMS $cms, \Vivo\Metadata\MetadataManager $metadataManager, DocumentApiInterface $documentApi)
     {
         $this->cms              = $cms;
         $this->metadataManager  = $metadataManager;
@@ -40,17 +41,36 @@ class Editor extends AbstractForm
 
     public function init()
     {
+        $this->getParent()->getEventManager()->attach('setEntity', array ($this, 'onEntityChange'));
+
         $this->entity = $this->getParent()->getEntity();
 
+        $this->initEdior();
+
+        parent::init();
+    }
+
+    protected function initEdior()
+    {
         $this->getForm()->bind($this->entity);
+
+        $this->contentTab->removeAllComponents();
 
         /* @var $contentContainer \Vivo\CMS\Model\ContentContainer */
         foreach ($this->documentApi->getContentContainers($this->entity) as $index => $contentContainer) {
 //             echo 'content'.$index."\n";
             $this->contentTab->addComponent($this->getContentForm($contentContainer), "content_$index");
         }
+    }
 
-        parent::init();
+    /**
+     * Callback for entity change event.
+     * @param Event $e
+     */
+    public function onEntityChange(Event $e)
+    {
+        $this->entity = $e->getParam('entity');
+        $this->initEdior();
     }
 
     public function setTabContainer(\Vivo\UI\TabContainer $tab)
@@ -63,7 +83,7 @@ class Editor extends AbstractForm
         $metadata = $this->metadataManager->getMetadata(get_class($this->entity));
         $action = $this->request->getUri()->getPath();
 
-        $form = new EntityEditorForm('document', $metadata);
+        $form = new EntityEditorForm('document-'.$this->entity->getUuid(), $metadata);
         $form->setAttribute('action', $action);
         $form->add(array(
             'name' => 'act',
@@ -73,7 +93,7 @@ class Editor extends AbstractForm
             ),
         ));
         $form->add(array(
-            'name' => 'submit',
+            'name' => 'save',
             'attributes' => array(
                 'type'  => 'submit',
                 'value' => 'Save',
@@ -83,31 +103,47 @@ class Editor extends AbstractForm
         return $form;
     }
 
-    protected function getContentForm($contentContainer)
+    /**
+     * @param \Vivo\CMS\Model\ContentContainer $contentContainer
+     * @return \Vivo\CMS\UI\Manager\Explorer\Editor\ContentEditor
+     */
+    protected function getContentForm(\Vivo\CMS\Model\ContentContainer $contentContainer)
     {
-        $contents = $this->documentApi->getContents($contentContainer);
-
-        $e = new Editor\ContentEditor($contents, $this->metadataManager);
+        $e = new Editor\ContentEditor($this->documentApi, $this->metadataManager, $contentContainer);
         $e->setRequest($this->request);
         $e->setView(new \Zend\View\Model\ViewModel());
-        $e->init();
 
         return $e;
     }
 
+    /**
+     * Save action.
+     * @throws \Exception
+     */
     public function save()
     {
+        $result = true;
         $form = $this->getForm();
 
-        foreach ($this->getComponent('contentTab')->getComponents() as $name => $component) {
-            echo 'save: '.$name."<br>\n";
-            $component->save();
+        if ($form->isValid()) {
+            $this->documentApi->saveDocument($this->entity);
+        }
+        else {
+            $result = false;
         }
 
-        if ($form->isValid()) {
-//             print_r($this->entity);
+        /* @var $tab \Vivo\CMS\UI\Manager\Explorer\Editor\ContentEditor */
+        $component = $this->getComponent('contentTab')->getSelectedComponent();
 
-//             $this->redirector->redirect();
+        if(!$component instanceof Editor\ContentEditor) {
+            throw new \Exception('Selected tab is not instance of Vivo\CMS\UI\Manager\Explorer\Editor\ContentEditor');
+        }
+
+        $result &= $component->save();
+
+        if($result) {
+//             echo 'ok';
+            $this->redirector->redirect();
         }
     }
 }

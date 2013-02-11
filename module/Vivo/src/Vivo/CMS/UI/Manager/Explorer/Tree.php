@@ -1,10 +1,8 @@
 <?php
 namespace Vivo\CMS\UI\Manager\Explorer;
 
-use Doctrine\ORM\EntityManager;
-
+use Vivo\CMS\Api;
 use Vivo\CMS\Model\Folder;
-use Vivo\CMS\Api\CMS;
 use Vivo\UI\Component;
 use Vivo\Util\DataTree;
 
@@ -19,18 +17,24 @@ class Tree extends Component
     protected $entityManager;
 
     /**
-     *
-     * @var CMS
+     * @var Api\CMS
      */
-    protected $cms;
+    protected $cmsApi;
+
+    /**
+     * @var Api\Document
+     */
+    protected $documentApi;
 
     /**
      * Constuctor.
-     * @param CMS $cms
+     * @param Api\CMS $cmsApi
+     * @param Api\Document $documentApi
      */
-    public function __construct(CMS $cms)
+    public function __construct(Api\CMS $cmsApi, Api\Document $documentApi)
     {
-        $this->cms = $cms;
+        $this->cmsApi = $cmsApi;
+        $this->documentApi = $documentApi;
     }
 
     /**
@@ -40,7 +44,7 @@ class Tree extends Component
     protected function getSiteRoot()
     {
         $site = $this->entityManager->getSite();
-        return $this->cms->getSiteDocument('', $site);
+        return $this->cmsApi->getSiteEntity('', $site);
     }
 
     /**
@@ -53,17 +57,14 @@ class Tree extends Component
         $this->view->tree = new \RecursiveIteratorIterator($tree, \RecursiveIteratorIterator::SELF_FIRST);
     }
 
+    /**
+     *
+     * @param EntityManagerInterface $entityManager
+     */
     public function setEntityManager(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
-//         $this->entityManager->getEventManager()
-//                 ->attach('setEntity', array($this, 'onEntityChange'));
     }
-
-//     public function onEntityChange()
-//     {
-
-//     }
 
     /**
      *
@@ -74,6 +75,10 @@ class Tree extends Component
         $this->entityManager->setEntityByRelPath($relPath);
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\UI\Component::view()
+     */
     public function view()
     {
         $this->refreshTree();
@@ -81,7 +86,14 @@ class Tree extends Component
     }
 
 
-    public function getDocumentTree(Folder $rootFolder, $expandedPath = '' /*$maxDepth = 10, $maxItems = 20*/)
+    /**
+     * Returs tree of document using DataTree structure.
+     *
+     * @param Folder $rootFolder
+     * @param string $expandedPath
+     * @return \Vivo\Util\DataTree
+     */
+    protected function getDocumentTree(Folder $rootFolder, $expandedPath = '' /*$maxDepth = 10, $maxItems = 20*/)
     {
         $que = new \SplQueue();
         $tree = new DataTree($rootFolder);
@@ -92,7 +104,7 @@ class Tree extends Component
             /* @var $node  DataTree */
             $node = $que->pop();
             $document = $node->getValue();
-            foreach ($this->cms->getChildDocuments($document) as $child) {
+            foreach ($this->documentApi->getChildDocuments($document) as $child) {
                 $childNode = new DataTree($child);
                 $node->addChild($childNode);
                 if (strpos($expandedPath, $child->getPath()) !== false) {
@@ -103,14 +115,15 @@ class Tree extends Component
 
         $i = new \RecursiveIteratorIterator($root, \RecursiveIteratorIterator::SELF_FIRST);
         foreach ($i as $node) {
+            //add document aditional information
             $a = array ();
             $a['document'] = $node->value;
             $a['published'] = true;
             $a['content_type'] = '';
             $a['level'] = $node->getDeep();
-            $a['rel_path'] = $this->cms->getEntityRelPath($node->value);
+            $a['rel_path'] = $this->cmsApi->getEntityRelPath($node->value);
             $a['active'] = $node->value->getPath() == $expandedPath;
-            $a['expandable'] = (boolean) count($this->cms->getChildDocuments($node->value));
+            $a['expandable'] = (boolean) count($this->documentApi->getChildDocuments($node->value));
             $node->value = $a;
         }
         return $root;

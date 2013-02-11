@@ -11,6 +11,13 @@ use Zend\View\Helper\AbstractHelper;
 class ActionLink extends AbstractHelper
 {
 
+    protected $routePrefix;
+
+    public function setRoutePrefix($prefix)
+    {
+        $this->routePrefix = $prefix;
+    }
+
     public function __invoke($action, $body, $params = array())
     {
         $model = $this->view->plugin('view_model')->getCurrent();
@@ -19,7 +26,7 @@ class ActionLink extends AbstractHelper
         $act = $component['path'] . Component::COMPONENT_SEPARATOR . $action;
         $urlHelper = $this->getView()->plugin('url');
 
-        $url = $urlHelper('vivo/cms/query',
+        $url = $urlHelper($this->routePrefix . '/cms/query',
                 array('act' => $act, 'args' => $params), true);
         $link = "<a href='$url'>$body</a>";
         return $link;

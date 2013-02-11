@@ -55,19 +55,65 @@ return array(
                                     ),
                             ),
                     ),
+                ),
+            ),
+            'backend' => array(
+                'type' => 'Vivo\Backend\Hostname',
+                'options' => array (
+                'hosts' => array ('backend.v2'),
 
-//                     'backend' => array(
-//                         'type' => 'Zend\Mvc\Router\Http\Regex',
-//                         'options' => array(
-//                             'regex'    => '/system/manager/(?<path>.*)',
-//                             'spec'    => '/system/manager/%path%',
-//                             'defaults' => array(
-//                                 'controller' => 'cms_front_controller',
-//                                 'path' => '',
-//                                 'module' => '',
-//                             ),
-//                         ),
-//                     ),
+            ),
+                'may_terminate' => false,
+                'child_routes' => array(
+                    'modules' => array(
+                        'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'options' => array(
+                            'regex'    => '/(?<host>.*)/(?<module>.*)/(?<path>.*)',
+                            'spec'    => '/%host%/%module%/%path%',
+                            'defaults' => array(
+                                     'controller' => 'backend_controller',
+                                     'path'   => '',
+                                     'module' => 'explorer',
+                                     'host' => '',
+                                ),
+                        ),
+
+                    ),
+                        'cms' => array(
+                                'type' => 'Zend\Mvc\Router\Http\Regex',
+                                'options' => array(
+                                        'regex'    => '/(?<host>.*)/view/((?<path>.*)/)?',
+                                        'spec'    => '/%host%/view/%path%/',
+                                        'defaults' => array(
+                                                'controller' => 'cms_front_controller',
+                                                'path'   => '',
+//                                                'module' => 'explo',
+//                                                'host' => '',
+                                        ),
+                                ),
+                                'may_terminate' => true,
+                                'child_routes' => array(
+                                        'query' => array(
+                                                'type' => 'Query',
+                                        ),
+                                ),
+
+
+                        ),
+                        'resource' => array(
+                                'type' => 'Zend\Mvc\Router\Http\Regex',
+                                'options' => array(
+                                        'regex'    => '/(?<host>.*)/\.(?<source>.+)\.(?<type>.+?)/(?<path>.+)',
+                                        'spec'    => '/%host%/.%source%.%type%/%path%',
+                                        'defaults' => array(
+                                                'controller' => 'resource_front_controller',
+                                                'type' => '',
+                                                'path' => '',
+                                                'source' => '',
+                                        ),
+                                ),
+                        ),
+
                 ),
             ),
         ),
@@ -175,6 +221,7 @@ return array(
             'cli_cms'                   => 'Vivo\Service\Controller\CLI\CLICmsControllerFactory',
             'cli_indexer'               => 'Vivo\Service\Controller\CLI\CLIIndexerControllerFactory',
             'cli_setup'                 => 'Vivo\Service\Controller\CLI\CLISetupControllerFactory',
+            'backend_controller'         => 'Vivo\Backend\BackendControllerFactory',
         ),
     ),
     'view_manager' => array(
@@ -199,10 +246,11 @@ return array(
     'view_helpers' => array(
         'invokables' => array(
             'action'            => 'Vivo\View\Helper\Action',
-            'action_link'       => 'Vivo\View\Helper\ActionLink',
-            'action_url'        => 'Vivo\View\Helper\ActionUrl',
+//            'action_link'       => 'Vivo\View\Helper\ActionLink',
+//            'action_url'        => 'Vivo\View\Helper\ActionUrl',
             'vivoform'          => 'Vivo\View\Helper\VivoForm',
             'vivoformfieldset'  => 'Vivo\View\Helper\VivoFormFieldset',
+          //  'url' => 'Vivo\View\Helper\Url',
         ),
     ),
 

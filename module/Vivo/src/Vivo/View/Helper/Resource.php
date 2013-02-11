@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\View\Helper;
 
+use Zend\Mvc\Router\RouteMatch;
+
 use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Model\Entity;
 use Vivo\View\Helper\Exception\InvalidArgumentException;
@@ -25,6 +27,8 @@ class Resource extends AbstractHelper
      */
     private $cms;
 
+    protected $routePrefix;
+
     /**
      * Constructor.
      * @param CMS $cms
@@ -36,8 +40,15 @@ class Resource extends AbstractHelper
         $this->options  = array_merge($this->options, $options);
     }
 
+    public function setRoutePrefix($prefix)
+    {
+        $this->routePrefix = $prefix;
+    }
+
     public function __invoke($resourcePath, $source)
     {
+
+
         if ($this->options['check_resource'] == true) {
             $this->checkResource($resourcePath, $source);
         }
@@ -45,13 +56,13 @@ class Resource extends AbstractHelper
 
         if ($source instanceof Entity) {
             $entityUrl = $this->cms->getEntityUrl($source);
-            $url = $urlHelper('vivo/resource_entity',
+            $url = $urlHelper($this->routePrefix . '/resource_entity',
                             array('path' => $resourcePath,
                                     'entity' => $entityUrl,
                                     ));
         } elseif (is_string($source)) {
-            $url = $urlHelper('vivo/resource',
-                            array('source' => $source, 'path' => $resourcePath, 'type' => 'resource'));
+            $url = $urlHelper($this->routePrefix . '/resource',
+                            array('source' => $source, 'path' => $resourcePath, 'type' => 'resource'), true);
         } else {
             throw new InvalidArgumentException(
                     sprintf("%s: Invalid value for parameter 'source'.",

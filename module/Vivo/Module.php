@@ -82,16 +82,53 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
     public function registerViewHelpers($e) {
         $app          = $e->getTarget();
         $serviceLocator      = $app->getServiceManager();
+
+        $parts = explode('/', $e->getRouteMatch()->getMatchedRouteName());
+        $prefix  = $parts[0]; // 'vivo' or 'backend'
+
         /* @var $plugins \Zend\View\HelperPluginManager */
         $plugins      = $serviceLocator->get('view_helper_manager');
-        $plugins->setFactory('resource', function($sm) use($serviceLocator) {
+
+        $plugins->setFactory('resource', function($sm) use($serviceLocator, $prefix) {
             $helper = new ViewHelper\Resource($serviceLocator->get('Vivo\CMS\Api\CMS'));
+            $helper->setRoutePrefix($prefix);
             return $helper;
         });
         $plugins->setFactory('document', function($sm) use($serviceLocator) {
             $helper = new ViewHelper\Document($serviceLocator->get('Vivo\CMS\Api\CMS'));
             return $helper;
         });
+
+        $plugins->setFactory('actionUrl', function($sm) use($prefix) {
+                $helper = new ViewHelper\ActionUrl();
+                $helper->setRoutePrefix($prefix);
+                return $helper;
+        });
+
+        $plugins->setFactory('actionLink', function($sm) use($prefix) {
+                $helper = new ViewHelper\ActionLink();
+                $helper->setRoutePrefix($prefix);
+                return $helper;
+        });
+
+        $plugins->setFactory('url', function ($sm) use($serviceLocator) {
+                $helper = new ViewHelper\Url;
+                $router = \Zend\Console\Console::isConsole() ? 'HttpRouter' : 'Router';
+                $helper->setRouter($serviceLocator->get($router));
+
+                $match = $serviceLocator->get('application')
+                ->getMvcEvent()
+                ->getRouteMatch()
+                ;
+                if ($match instanceof \Zend\Mvc\Router\RouteMatch) {
+                    $helper->setRouteMatch($match);
+                }
+
+                return $helper;
+            });
+
+
+
     }
 
     public function getServiceConfig()

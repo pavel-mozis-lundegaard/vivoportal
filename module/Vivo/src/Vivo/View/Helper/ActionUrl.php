@@ -10,6 +10,19 @@ use Zend\View\Helper\AbstractHelper;
  */
 class ActionUrl extends AbstractHelper
 {
+    /**
+     *
+     * @var string
+     */
+    protected $routePrefix;
+
+    /**
+     * @param string $prefix
+     */
+    public function setRoutePrefix($prefix)
+    {
+        $this->routePrefix = $prefix;
+    }
 
     public function __invoke($action, $params = array())
     {
@@ -17,8 +30,7 @@ class ActionUrl extends AbstractHelper
         $component = $model->getVariable('component');
         $act = $component['path'] . Component::COMPONENT_SEPARATOR . $action;
         $urlHelper = $this->getView()->plugin('url');
-
-        return $urlHelper('vivo/cms/query',
+        return $urlHelper($this->routePrefix . '/cms/query',
                 array('act' => $act, 'args' => $params), true);
     }
 }

@@ -36,7 +36,7 @@ class Document extends AbstractHelper
     {
         $entityUrl = $this->cms->getEntityUrl($document);
         $urlHelper = $this->getView()->plugin('url');
-        $url = $urlHelper('vivo/cms', array('path' => $entityUrl));
+        $url = $urlHelper(null, array('path' => $entityUrl), false);
 
         //Replace encoded slashes in the url. It's needed because apache returns 404 when the url contains encoded slashes
         //This behvaior could be changed in apache config, but it is not possible to do that in .htaccess context.

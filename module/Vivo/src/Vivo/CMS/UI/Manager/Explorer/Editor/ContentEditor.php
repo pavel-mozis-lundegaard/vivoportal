@@ -72,7 +72,7 @@ class ContentEditor extends AbstractForm
 
     public function changeVersion()
     {
-
+//         echo __METHOD__;
     }
 
     /**

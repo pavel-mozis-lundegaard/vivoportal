@@ -1,4 +1,5 @@
 <?
-    $form->get('version')->setAttribute('onchange', 'alert("a");');
+$form->get('version')->setAttribute('onchange',
+    sprintf('this.form.act.value = "%s"; this.form.submit();', $this->action('changeVersion')));
 ?>
 <?=$this->vivoForm($form, array('renderFormTag' => false))?>

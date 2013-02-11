@@ -84,7 +84,7 @@ class Editor extends AbstractForm
             ),
         ));
         $form->add(array(
-            'name' => 'submit',
+            'name' => 'save',
             'attributes' => array(
                 'type'  => 'submit',
                 'value' => 'Save',

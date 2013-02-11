@@ -14,7 +14,9 @@ class ManagerFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        return new Manager($serviceLocator->get('Vivo\CMS\Api\CMS'),
-                $serviceLocator->get('repository'));
+        $cms        = $serviceLocator->get('Vivo\CMS\Api\CMS');
+        $repository = $serviceLocator->get('repository');
+        $indexerApi = $serviceLocator->get('Vivo\CMS\Api\Indexer');
+        return new Manager($cms, $repository, $indexerApi);
     }
 }

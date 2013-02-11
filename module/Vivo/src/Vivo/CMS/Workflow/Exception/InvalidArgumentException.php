@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Repository\Exception;
+namespace Vivo\CMS\Workflow\Exception;
 
 /**
  * InvalidArgumentException

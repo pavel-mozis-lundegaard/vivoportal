@@ -17,13 +17,13 @@ class CLIModuleControllerFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $sm = $serviceLocator->getServiceLocator();
-        $moduleStorageManager = $sm->get('module_storage_manager');
-        $remoteModule = $sm->get('remote_module');
-        $repository = $sm->get('repository');
-        $moduleApi = $sm->get('cms_api_module');
-        $controller = new \Vivo\Controller\CLI\ModuleController(
-                $moduleStorageManager, $remoteModule, $repository, $moduleApi);
+        $sm                     = $serviceLocator->getServiceLocator();
+        $moduleStorageManager   = $sm->get('module_storage_manager');
+        $remoteModule           = $sm->get('remote_module');
+        $repository             = $sm->get('repository');
+        $moduleApi              = $sm->get('Vivo\CMS\Api\Module');
+        $controller             = new \Vivo\Controller\CLI\ModuleController($moduleStorageManager, $remoteModule,
+                                                                            $repository, $moduleApi);
         return $controller;
     }
 }

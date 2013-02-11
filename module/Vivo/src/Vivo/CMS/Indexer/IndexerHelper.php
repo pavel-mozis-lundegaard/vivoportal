@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Repository;
+namespace Vivo\CMS\Indexer;
 
 use Vivo\CMS\Model\Entity;
 use Vivo\Indexer\Document;
@@ -8,32 +8,27 @@ use Vivo\Indexer\Term as IndexerTerm;
 use Vivo\Indexer\Query\Wildcard as WildcardQuery;
 use Vivo\Indexer\Query\BooleanOr;
 use Vivo\Indexer\Query\Term as TermQuery;
-use Vivo\Repository\Exception;
-use Vivo\Indexer\FieldHelperInterface as IndexerFieldHelper;
 use Vivo\CMS\Model\Document as DocumentModel;
 use Vivo\CMS\Model\Content;
-use Vivo\CMS\Api\CMS;
-
-use \DateTime;
 
 /**
  * IndexerHelper
  * Generates indexer documents for entities, builds indexer queries based on entity properties
  */
-class IndexerHelper
+class IndexerHelper implements IndexerHelperInterface
 {
     /**
      * Indexer field helper
-     * @var IndexerFieldHelper
+     * @var FieldHelperInterface
      */
     protected $indexerFieldHelper;
 
 
     /**
      * Constructor
-     * @param \Vivo\Indexer\FieldHelperInterface $indexerFieldHelper
+     * @param FieldHelperInterface $indexerFieldHelper
      */
-    public function __construct(IndexerFieldHelper $indexerFieldHelper)
+    public function __construct(FieldHelperInterface $indexerFieldHelper)
     {
         $this->indexerFieldHelper   = $indexerFieldHelper;
     }

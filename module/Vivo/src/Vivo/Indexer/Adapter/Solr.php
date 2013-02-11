@@ -7,9 +7,9 @@ use Vivo\Indexer\Document;
 use Vivo\Indexer\QueryParams;
 use Vivo\Indexer\Query;
 use Vivo\Indexer\Field;
-use Vivo\Indexer\FieldHelperInterface;
+use Vivo\CMS\Indexer\FieldHelperInterface;
 use Vivo\Indexer\IndexerInterface;
-use Vivo\Indexer\Exception\CannotDecomposeFieldnameException;
+use Vivo\CMS\Indexer\Exception\CannotDecomposeFieldnameException;
 
 use ApacheSolr\Document as SolrDocument;
 use ApacheSolr\Service as SolrService;

@@ -1,13 +1,13 @@
 <?php
-namespace Vivo\Service;
+namespace Vivo\Repository;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
 
 /**
- * RepositoryApiFactory
+ * EventManagerFactory
  */
-class RepositoryApiFactory implements FactoryInterface
+class EventManagerFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -16,8 +16,7 @@ class RepositoryApiFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $repository             = $serviceLocator->get('repository');
-        $repositoryApi          = new \Vivo\CMS\Api\Repository($repository);
-        return $repositoryApi;
+        $service    = new \Zend\EventManager\EventManager();
+        return $service;
     }
 }

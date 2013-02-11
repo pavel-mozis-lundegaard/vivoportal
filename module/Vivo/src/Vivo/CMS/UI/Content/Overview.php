@@ -6,6 +6,7 @@ use Vivo\CMS\Model\Content\Overview as OverviewModel;
 use Vivo\CMS\UI\Component;
 use Vivo\CMS\UI\Exception\Exception;
 use Vivo\SiteManager\Event\SiteEvent;
+use Vivo\CMS\Api\Indexer as IndexerApi;
 
 /**
  * Overview UI component
@@ -23,6 +24,12 @@ class Overview extends Component
     private $cms;
 
     /**
+     * Indexer API
+     * @var IndexerApi
+     */
+    protected $indexerApi;
+
+    /**
      * @var SiteEvent
      */
     private $siteEvent;
@@ -32,10 +39,17 @@ class Overview extends Component
      */
     protected $children = array();
 
-    public function __construct(CMS $cms, SiteEvent $siteEvent)
+    /**
+     * Constructor
+     * @param \Vivo\CMS\Api\CMS $cms
+     * @param \Vivo\CMS\Api\Indexer $indexerApi
+     * @param \Vivo\SiteManager\Event\SiteEvent $siteEvent
+     */
+    public function __construct(CMS $cms, IndexerApi $indexerApi, SiteEvent $siteEvent)
     {
-        $this->cms = $cms;
-        $this->siteEvent = $siteEvent;
+        $this->cms          = $cms;
+        $this->indexerApi   = $indexerApi;
+        $this->siteEvent    = $siteEvent;
     }
 
     public function init()
@@ -64,20 +78,19 @@ class Overview extends Component
 
             $params = array();
             if ($limit = $this->content->getOverviewLimit()) {
-                $params ['page_size'] = $limit;
+                $params['page_size'] = $limit;
             }
             if ($sort = $this->content->getOverviewSorting())
             {
                 $params['sort'] = $sort;
             }
 
-            $documents = $this->cms->getEntitiesByQuery($query, $params);
+            $documents = $this->indexerApi->getEntitiesByQuery($query, $params);
 
         } elseif ($type == OverviewModel::TYPE_STATIC) {
             $items = $this->content->getOverviewItems();
             foreach ($items as $item) {
-                $documents[] = $this->cms
-                        ->getSiteDocument($item, $this->siteEvent->getSite());
+                $documents[] = $this->cms->getSiteEntity($item, $this->siteEvent->getSite());
             }
         } else {
             throw new Exception(sprintf('%s: Unsupported overview type `%s`.', __DIR__, $type));

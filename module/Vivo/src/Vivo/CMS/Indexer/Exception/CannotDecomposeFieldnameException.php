@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Indexer\Exception;
+namespace Vivo\CMS\Indexer\Exception;
 
 /**
  * CannotDecomposeFieldnameException

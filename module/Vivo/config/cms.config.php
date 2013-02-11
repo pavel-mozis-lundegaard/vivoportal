@@ -16,7 +16,11 @@ return array(
             'Vivo\CMS\UI\Content\File:image'    => __DIR__.'/../view/Vivo/CMS/UI/Content/File.image.phtml',
             'Vivo\CMS\UI\Content\File'          => __DIR__.'/../view/Vivo/CMS/UI/Content/File.phtml',
             'Vivo\CMS\UI\Content\Overview'      => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.phtml',
+            'Vivo\CMS\UI\Content\Overview:Inline'      => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.Inline.phtml',
             'Vivo\CMS\UI\Content\Overview:Description' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.Description.phtml',
+            'Vivo\CMS\UI\Content\Overview:WithDate' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.WithDate.phtml',
+            'Vivo\CMS\UI\Content\Overview:WithDateDesc' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.WithDateDesc.phtml',
+            'Vivo\CMS\UI\Content\Overview:WithDateDescThumb' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.WithDateDescThumb.phtml',
             'Vivo\CMS\UI\Content\Logon'         => __DIR__.'/../view/Vivo/CMS/UI/Content/Logon.phtml',
             'Vivo\UI\ComponentContainer'        => __DIR__.'/../view/Vivo/UI/ComponentContainer.phtml',
             'Vivo\UI\TabContainer'              => __DIR__.'/../view/Vivo/UI/TabContainer.phtml',
@@ -28,8 +32,11 @@ return array(
         'custom_templates' => array (
             // custom selectable templates
             'Vivo\CMS\Model\Content\Overview' => array (
-                'Vivo\CMS\UI\Content\Overview:Description',
                 'Vivo\CMS\UI\Content\Overview',
+                'Vivo\CMS\UI\Content\Overview:Description',
+                'Vivo\CMS\UI\Content\Overview:WithDate',
+                'Vivo\CMS\UI\Content\Overview:WithDateDesc',
+                'Vivo\CMS\UI\Content\Overview:WithDateDescThumb',
             ),
         ),
     ),
@@ -91,33 +98,66 @@ return array(
         //configuration of ui components
         'Vivo\UI\Page' => array (
             'doctype' => 'HTML5',
-//                 'links' => array (
-//                     array(
-//                         'rel'  => 'stylesheet',
-//                         'href' => '/.ModuleName.resource/css/definedInVivoConfig.css',
-//                         'type' => 'text/css',
-//                         'media' => 'screen'
-//                     ),
-//                 ),
-//                 'scripts' => array (
-//                     array(
-//                         'src' => '/.ModuleName.resource/js/front.js',
-//                         'type' => 'text/javascript',
-//                     ),
-//                 ),
-            'metas' => array (
-//                     array (
-//                         'name' => 'Robots',
-//                         'content' => 'INDEX,FOLLOW',
-//                     ),
-//                     array (
-//                         'charset' => 'UTF-8',
-//                     ),
-                array (
-                    'http-equiv' => 'Content-Type',
-                    'content' => 'text/html',
-                    'charset' => 'utf-8',
+                'links' => array (
+                    array(
+                        'rel'  => 'stylesheet',
+                        'href' => '/.Vivo.resource/css/bootstrap.css',
+                        'type' => 'text/css',
+                        'media' => 'screen'
+                    ),
+                    array(
+                        'rel'  => 'stylesheet',
+                        'href' => '/.Vivo.resource/css/bootstrap-responsive.css',
+                        'type' => 'text/css',
+                        'media' => 'screen'
+                    ),
+                    array(
+                        'rel'  => 'apple-touch-icon-precomposed',
+                        'sizes' => '144x144',
+                        'href' => '/.Vivo.resource/apple-touch-icon-144.png'
+                    ),
+                    array(
+                        'rel'  => 'apple-touch-icon-precomposed',
+                        'sizes' => '114x114',
+                        'href' => '/.Vivo.resource/apple-touch-icon-114.png'
+                    ),
+                    array(
+                        'rel'  => 'apple-touch-icon-precomposed',
+                        'sizes' => '72x72',
+                        'href' => '/.Vivo.resource/apple-touch-icon-72.png'
+                    ),
+                    array(
+                        'rel'  => 'apple-touch-icon-precomposed',
+                        'href' => '/.Vivo.resource/apple-touch-icon-57.png'
+                    ),
+                    array(
+                        'rel'  => 'shortcut icon',
+                        'href' => '/.Vivo.resource/favicon.ico'
+                    ),
                 ),
+                'scripts' => array (
+                    array(
+                        'src' => '/.Vivo.resource/js/jquery.js',
+                        'type' => 'text/javascript',
+                    ),
+                    array(
+                        'src' => '/.Vivo.resource/js/bootstrap.js',
+                        'type' => 'text/javascript',
+                    ),
+                ),
+            'metas' => array (
+                    array (
+                        'name' => 'Robots',
+                        'content' => 'INDEX,FOLLOW',
+                    ),
+                    array (
+                        'charset' => 'UTF-8',
+                    ),
+                // array (
+                //     'http-equiv' => 'Content-Type',
+                //     'content' => 'text/html',
+                //     'charset' => 'utf-8',
+                // ),
             ),
         ),
     ),

@@ -1,0 +1,16 @@
+<div class="OverviewThumbnails">
+<? if(count($children)) : ?>
+	<ul>
+	<? foreach($children as $child) : ?>
+		<li>
+			<a href="<?=$this->document($child)?>"><?=$child->getTitle();?></a>
+			<? if($child->image) : ?>
+				<a href="<?=$this->document($child)?>">
+					<img src="<?=$child->getURL().$child->image ?>?width=125&amp;height=81&amp;crop=1" alt="" />
+				</a>
+			<? endif; ?>
+        </li>
+		<? endforeach; ?>
+	</ul>
+<? endif; ?>
+</div>

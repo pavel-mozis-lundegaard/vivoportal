@@ -1,8 +1,9 @@
-<div class="OverviewDescription">
+<div class="OverviewDateDesc">
 <? if(count($children)) : ?>
 	<ul>
 	<? foreach($children as $child) : ?>
-		<li><a href="<?=$this->document($child)?>"><?=$child->getTitle();?></a>
+		<li><a href="<?=$this->document($child)?>"><?=$child->getTitle();?></a><br />
+            <?/*=$child->published->format('d.m.Y') */?>
             <? if ($child->getDescription()): ?>
             <p><?= htmlspecialchars($child->getDescription()); ?></p>
         	<? endif; ?>

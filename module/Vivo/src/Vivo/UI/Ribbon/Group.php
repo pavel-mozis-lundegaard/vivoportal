@@ -8,6 +8,25 @@ use Vivo\UI;
  */
 class Group extends UI\ComponentContainer
 {
+
+    /**
+     * @var string
+     */
+    protected $label;
+
+    /**
+     * Constructor.
+     * @param string $label
+     */
+    public function __construct($label)
+    {
+        $this->label = $label;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\UI\ComponentContainer::init()
+     */
     public function init()
     {
         $items = array();
@@ -16,8 +35,19 @@ class Group extends UI\ComponentContainer
                 $items[] = $component->getName();
             }
         }
-        $this->view->components = $items;
-        $this->view->title = '('.$this->getName().')';
+        $this->getView()->components = $items;
+        $this->getView()->label = $this->label;
+
         parent::init();
+    }
+
+    /**
+     * Adds ribbon item to group.
+     * @param Item $item
+     * @return \Vivo\UI\Ribbon\Group
+     */
+    public function addItem(Item $item)
+    {
+        $this->addComponent($item, $item->getName());
     }
 }

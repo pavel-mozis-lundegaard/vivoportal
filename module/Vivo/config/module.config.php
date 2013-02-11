@@ -101,12 +101,15 @@ return array(
             'indexer_adapter_lucene'    => 'Vivo\Service\IndexerAdapterLuceneFactory',
             'indexer'                   => 'Vivo\Service\IndexerFactory',
             'repository'                => 'Vivo\Service\RepositoryFactory',
+            'repository_events'         => 'Vivo\Repository\EventManagerFactory',
             'indexer_helper'            => 'Vivo\Service\IndexerHelperFactory',
-            'cms'                       => 'Vivo\Service\CmsFactory',
+            'Vivo\CMS\Api\CMS'          => 'Vivo\Service\CmsFactory',
+            'Vivo\CMS\Api\Module'       => 'Vivo\Service\CmsApiModuleFactory',
+            'Vivo\CMS\Api\Document'     => 'Vivo\CMS\Api\DocumentFactory',
+            'Vivo\CMS\Api\Indexer'      => 'Vivo\CMS\Api\IndexerFactory',
+            'Vivo\CMS\Api\Site'         => 'Vivo\CMS\Api\SiteFactory',
             'module_resource_manager'   => 'Vivo\Service\ModuleResourceManagerFactory',
             'module_install_manager'    => 'Vivo\Service\ModuleInstallManagerFactory',
-            'cms_api_module'            => 'Vivo\Service\CmsApiModuleFactory',
-            'cms_api_repository'        => 'Vivo\Service\CmsApiRepositoryFactory',
             'db_provider_factory'       => 'Vivo\Service\DbProviderFactoryFactory',
             'db_provider_core'          => 'Vivo\Service\DbProviderCoreFactory',
             'pdo_abstract_factory'      => 'Vivo\Service\PdoAbstractFactoryFactory',
@@ -128,6 +131,7 @@ return array(
             'module_db_provider'        => 'Vivo\Service\ModuleDbProviderFactory',
             'db_table_name_provider'    => 'Vivo\Service\DbTableNameProviderFactory',
             'db_table_gateway_provider' => 'Vivo\Service\DbTableGatewayProviderFactory',
+            'workflow_factory'          => 'Vivo\CMS\Workflow\FactoryFactory',
             'Vivo\CMS\Api\Manager\Manager' => 'Vivo\CMS\Api\Manager\ManagerFactory',
         ),
         'aliases' => array(
@@ -137,7 +141,6 @@ return array(
             'Zend\Http\Request'                 => 'request',
             'Zend\View\HelperPluginManager'     => 'view_helper_manager',
             'Vivo\Util\Redirector'              => 'redirector',
-            'Vivo\CMS\Api\CMS'                  => 'cms',
             'Zend\View\Model\ViewModel'         => 'view_model',
             'Zend\Session\SessionManager'       => 'session_manager',
         ),
@@ -424,6 +427,15 @@ return array(
                         ),
                     ),
                 ),
+                'indexer_host_action' => array(
+                    'options' => array(
+                        'route'    => 'indexer <action> <host>',
+                        'defaults' => array(
+                            'controller' => 'cli_indexer',
+                            'action'     => 'default',
+                        ),
+                    ),
+                ),
                 'indexer_clear' => array(
                     'options' => array(
                         'route'    => 'indexer clear',
@@ -442,38 +454,20 @@ return array(
                         ),
                     ),
                 ),
-                'cms_reindex' => array(
+                'cms_host_action' => array(
                     'options' => array(
-                        'route'    => 'cms reindex <host>',
+                        'route'    => 'cms <action> <host>',
                         'defaults' => array(
                             'controller' => 'cli_cms',
-                            'action'     => 'reindex',
-                        ),
-                    ),
-                ),
-                'repository' => array(
-                    'options' => array(
-                        'route'    => 'repository [<action>]',
-                        'defaults' => array(
-                            'controller' => 'cli_repository',
                             'action'     => 'default',
                         ),
                     ),
                 ),
-                'repository_host_action' => array(
+                'cms_unique_uuids' => array(
                     'options' => array(
-                        'route'    => 'repository <action> <host>',
+                        'route'    => 'cms uniqueuuids <host> [--force|-f]',
                         'defaults' => array(
-                            'controller' => 'cli_repository',
-                            'action'     => 'default',
-                        ),
-                    ),
-                ),
-                'repository_unique_uuids' => array(
-                    'options' => array(
-                        'route'    => 'repository uniqueuuids <host> [--force|-f]',
-                        'defaults' => array(
-                            'controller' => 'cli_repository',
+                            'controller' => 'cli_cms',
                             'action'     => 'unique-uuids',
                         ),
                     ),

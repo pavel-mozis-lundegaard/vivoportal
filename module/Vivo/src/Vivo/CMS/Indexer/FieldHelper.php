@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Indexer;
+namespace Vivo\CMS\Indexer;
 
 use Vivo\Metadata\MetadataManager;
 use Vivo\Storage\PathBuilder\PathBuilder;
@@ -179,18 +179,6 @@ class FieldHelper implements FieldHelperInterface
     }
 
     /**
-     * Returns if the specified property is enabled for indexing
-     * @param string $entityClass
-     * @param string $property
-     * @return boolean
-     */
-    public function isEnabled($entityClass, $property)
-    {
-        $config = $this->getIndexerConfig($entityClass, $property);
-        return $config['enabled'];
-    }
-
-    /**
      * Returns indexer field name for the specified property
      * @param string $entityClass
      * @param string $property
@@ -280,7 +268,7 @@ class FieldHelper implements FieldHelperInterface
      * @throws Exception\InvalidArgumentException
      * @return array
      */
-    public function getPreset($name)
+    protected function getPreset($name)
     {
         if (!array_key_exists($name, $this->presets)) {
             throw new Exception\InvalidArgumentException(
@@ -294,7 +282,7 @@ class FieldHelper implements FieldHelperInterface
      * @param string $name
      * @return bool
      */
-    public function hasPreset($name)
+    protected function hasPreset($name)
     {
         if (array_key_exists($name, $this->presets)) {
             return true;

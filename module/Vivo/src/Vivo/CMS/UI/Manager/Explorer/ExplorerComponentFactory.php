@@ -43,7 +43,7 @@ class ExplorerComponentFactory extends ServiceManager
             ),
             'factories' => array(
                 'editor' => function (ServiceManager $sm) {
-                    $editor = new Editor($sm->get('cms'), $sm->get('metadata_manager'));
+                    $editor = new Editor($sm->get('Vivo\CMS\Api\CMS'), $sm->get('metadata_manager'));
                     $editor->setRequest($sm->get('request'));
                     $editor->setTabContainer($sm->get('Vivo\UI\TabContainer'), 'contentTab');
 

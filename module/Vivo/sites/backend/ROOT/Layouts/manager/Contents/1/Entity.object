@@ -1,8 +1,8 @@
 object Vivo\CMS\Model\Content\Layout {
   panels array (
-    string "headerBar" : string "Components\headerBar"
-    string "panel" : string "Components\modulesPAnel"
-    string "footerBar" : string "Components\footerBar"
+    string "headerBar" : string "Components/headerBar"
+    string "panel" : string "Components/modulesPanel"
+    string "footerBar" : string "Components/footerBar"
   )
   state string "PUBLISHED"
 	uuid string "A2D21AA25B69D89FAB5001CBE2D8A996"

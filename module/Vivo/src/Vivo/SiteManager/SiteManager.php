@@ -12,6 +12,7 @@ use Vivo\Module\StorageManager\StorageManager as ModuleStorageManager;
 use Vivo\SiteManager\Listener\InjectModuleManagerListener;
 use Vivo\Module\ResourceManager\ResourceManager as ModuleResourceManager;
 use Vivo\CMS\Api\CMS;
+use Vivo\CMS\Api\Site as SiteApi;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManagerAwareInterface;
@@ -80,6 +81,12 @@ class SiteManager implements SiteManagerInterface,
     protected $cms;
 
     /**
+     * Site API
+     * @var SiteApi
+     */
+    protected $siteApi;
+
+    /**
      * Application's service manager
      * @var ServiceManager
      */
@@ -99,6 +106,7 @@ class SiteManager implements SiteManagerInterface,
      * @param array $coreModules
      * @param \Vivo\Module\StorageManager\StorageManager $moduleStorageManager
      * @param \Vivo\CMS\Api\CMS $cms
+     * @param \Vivo\CMS\Api\Site $siteApi
      * @param \Zend\ServiceManager\ServiceManager $serviceManager
      * @param \Vivo\Module\ResourceManager\ResourceManager $moduleResourceManager
      * @param \Zend\Mvc\Router\RouteMatch $routeMatch
@@ -110,6 +118,7 @@ class SiteManager implements SiteManagerInterface,
                                 array $coreModules,
                                 ModuleStorageManager $moduleStorageManager,
                                 CMS $cms,
+                                SiteApi $siteApi,
                                 ServiceManager $serviceManager,
                                 ModuleResourceManager $moduleResourceManager,
                                 RouteMatch $routeMatch = null)
@@ -121,6 +130,7 @@ class SiteManager implements SiteManagerInterface,
         $this->coreModules          = $coreModules;
         $this->moduleStorageManager = $moduleStorageManager;
         $this->cms                  = $cms;
+        $this->siteApi              = $siteApi;
         $this->serviceManager       = $serviceManager;
         $this->moduleResourceManager    = $moduleResourceManager;
         $this->setRouteMatch($routeMatch);
@@ -135,7 +145,7 @@ class SiteManager implements SiteManagerInterface,
         $this->siteEvent->setRouteMatch($this->routeMatch);
 
         //Attach Site model load listener
-        $configListener         = new SiteModelLoadListener($this->routeParamHost, $this->cms);
+        $configListener         = new SiteModelLoadListener($this->routeParamHost, $this->siteApi);
         $configListener->attach($this->events);
         //Attach Site config listener
         $configListener         = new SiteConfigListener($this->cms);

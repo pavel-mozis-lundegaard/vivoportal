@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Indexer;
+namespace Vivo\CMS\Indexer;
 
 use Vivo\CMS\Model\Entity;
 
@@ -22,14 +22,6 @@ interface FieldHelperInterface
      * @return array
      */
     public function getIndexerConfigForFieldName($fieldName);
-
-    /**
-     * Returns if the specified property is enabled for indexing
-     * @param string $entityClass
-     * @param string $property
-     * @return boolean
-     */
-    public function isEnabled($entityClass, $property);
 
     /**
      * Returns indexer field name for the specified property

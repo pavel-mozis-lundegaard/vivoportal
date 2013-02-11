@@ -2,6 +2,8 @@
 namespace Vivo\CMS\Workflow\Exception;
 
 /**
- * @author miroslav.hajek
+ * ChangeStateException
  */
-class ChangeStateException implements ExceptionInterface { }
+class ChangeStateException implements ExceptionInterface
+{
+}

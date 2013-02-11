@@ -4,6 +4,7 @@ namespace Vivo\CMS\UI\Manager\Explorer;
 use Vivo\CMS\UI\AbstractForm;
 use Vivo\CMS\UI\Manager\Form\EntityEditor as EntityEditorForm;
 use Zend\EventManager\Event;
+use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 
 class Editor extends AbstractForm
 {
@@ -21,14 +22,21 @@ class Editor extends AbstractForm
     private $entity;
 
     /**
+     * Document API
+     * @var DocumentApiInterface
+     */
+    protected $documentApi;
+
+    /**
      * @param \Vivo\CMS\Api\CMS $cms
      * @param \Vivo\Metadata\MetadataManager $metadataManager
+     * @param \Vivo\CMS\Api\DocumentInterface $documentApi
      */
-    public function __construct(\Vivo\CMS\Api\CMS $cms, \Vivo\Metadata\MetadataManager $metadataManager)
+    public function __construct(\Vivo\CMS\Api\CMS $cms, \Vivo\Metadata\MetadataManager $metadataManager, DocumentApiInterface $documentApi)
     {
-        $this->cms = $cms;
-        $this->metadataManager = $metadataManager;
-        $this->csrfTimeout = 3600;
+        $this->cms              = $cms;
+        $this->metadataManager  = $metadataManager;
+        $this->documentApi      = $documentApi;
     }
 
     public function init()
@@ -49,7 +57,8 @@ class Editor extends AbstractForm
         $this->contentTab->removeAllComponents();
 
         /* @var $contentContainer \Vivo\CMS\Model\ContentContainer */
-        foreach ($this->cms->getContentContainers($this->entity) as $index => $contentContainer) {
+        foreach ($this->documentApi->getContentContainers($this->entity) as $index => $contentContainer) {
+//             echo 'content'.$index."\n";
             $this->contentTab->addComponent($this->getContentForm($contentContainer), "content_$index");
         }
     }
@@ -100,7 +109,7 @@ class Editor extends AbstractForm
      */
     protected function getContentForm(\Vivo\CMS\Model\ContentContainer $contentContainer)
     {
-        $e = new Editor\ContentEditor($this->cms, $this->metadataManager, $contentContainer);
+        $e = new Editor\ContentEditor($this->documentApi, $this->metadataManager, $contentContainer);
         $e->setRequest($this->request);
         $e->setView(new \Zend\View\Model\ViewModel());
 
@@ -117,7 +126,7 @@ class Editor extends AbstractForm
         $form = $this->getForm();
 
         if ($form->isValid()) {
-            $this->cms->saveDocument($this->entity);
+            $this->documentApi->saveDocument($this->entity);
         }
         else {
             $result = false;

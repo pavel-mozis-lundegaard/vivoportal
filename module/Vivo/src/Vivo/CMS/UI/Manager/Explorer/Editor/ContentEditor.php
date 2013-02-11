@@ -19,25 +19,25 @@ class ContentEditor extends AbstractForm
      */
     private $entity;
     /**
-     * @var \Vivo\CMS\Api\CMS
+     * @var \Vivo\CMS\Api\Document
      */
-    private $cms;
+    private $documentApi;
     /**
      * @var \Vivo\Metadata\MetadataManager
      */
     private $metadataManager;
 
     /**
-     * @param \Vivo\CMS\Api\CMS $cms
+     * @param \Vivo\CMS\Api\Document $documentApi
      * @param \Vivo\Metadata\MetadataManager $metadataManager
      * @param \Vivo\CMS\Model\ContentContainer $contentContainer
      */
     public function __construct(
-        \Vivo\CMS\Api\CMS $cms,
+        \Vivo\CMS\Api\Document $documentApi,
         \Vivo\Metadata\MetadataManager $metadataManager,
         \Vivo\CMS\Model\ContentContainer $contentContainer)
     {
-        $this->cms = $cms;
+        $this->documentApi = $documentApi;
         $this->metadataManager = $metadataManager;
         $this->contentContainer = $contentContainer;
         $this->autoAddCsrf = false;
@@ -45,7 +45,7 @@ class ContentEditor extends AbstractForm
 
     public function init()
     {
-        $this->contents = $this->cms->getContents($this->contentContainer);
+        $this->contents = $this->documentApi->getContents($this->contentContainer);
 
         foreach ($this->contents as $content) {
 //             echo $content->getUuid()." - " .$content->getPath()."\n";
@@ -81,7 +81,7 @@ class ContentEditor extends AbstractForm
     public function save()
     {
         if ($this->getForm()->isValid()) {
-            $this->cms->saveEntity($this->entity);
+            $this->documentApi->saveContent($this->entity);
 
             return true;
         }

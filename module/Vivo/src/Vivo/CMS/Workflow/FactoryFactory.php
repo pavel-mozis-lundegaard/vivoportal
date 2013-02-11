@@ -1,13 +1,14 @@
 <?php
-namespace Vivo\Service;
+namespace Vivo\CMS\Workflow;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
 
 /**
- * CmsApiRepositoryFactory
+ * FactoryFactory
+ * Workflow Factory Factory
  */
-class CmsApiRepositoryFactory implements FactoryInterface
+class FactoryFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -16,8 +17,7 @@ class CmsApiRepositoryFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $repository = $serviceLocator->get('repository');
-        $api        = new \Vivo\CMS\Api\Repository($repository);
-        return $api;
+        $service        = new Factory();
+        return $service;
     }
 }

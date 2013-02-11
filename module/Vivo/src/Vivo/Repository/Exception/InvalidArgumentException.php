@@ -6,5 +6,4 @@ namespace Vivo\Repository\Exception;
  */
 class InvalidArgumentException extends \InvalidArgumentException implements ExceptionInterface
 {
-
 }

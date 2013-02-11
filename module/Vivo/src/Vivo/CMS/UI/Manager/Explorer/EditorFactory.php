@@ -16,8 +16,11 @@ class EditorFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $sm = $serviceLocator->get('service_manager');
-        $editor = new Editor($sm->get('Vivo\CMS\Api\CMS'), $sm->get('metadata_manager'));
+        $sm                 = $serviceLocator->get('service_manager');
+        $cms                = $sm->get('Vivo\CMS\Api\CMS');
+        $metadataManager    = $sm->get('metadata_manager');
+        $documentApi        = $sm->get('Vivo\CMS\Api\Document');
+        $editor             = new Editor($cms, $metadataManager, $documentApi);
         $editor->setTabContainer($sm->create('Vivo\UI\TabContainer'), 'contentTab');
         return $editor;
     }

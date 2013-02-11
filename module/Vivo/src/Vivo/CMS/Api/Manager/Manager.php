@@ -2,13 +2,12 @@
 namespace Vivo\CMS\Api\Manager;
 
 use Vivo\Repository\Repository;
-
 use Vivo\CMS\Api\CMS;
-
 use Vivo\CMS\Model\Site;
+use Vivo\CMS\Api\IndexerInterface as IndexerApiInterface;
 
 /**
- * Bussiness claas for backend Manager.
+ * Business class for backend Manager.
  */
 
 class Manager
@@ -23,12 +22,22 @@ class Manager
     protected $repository;
 
     /**
-     * Constructor.
+     * Indexer Api
+     * @var IndexerApiInterface
      */
-    public function __construct(CMS $cms, Repository $repository)
+    protected $indexerApi;
+
+    /**
+     * Constructor
+     * @param \Vivo\CMS\Api\CMS $cms
+     * @param \Vivo\Repository\Repository $repository
+     * @param \Vivo\CMS\Api\IndexerInterface $indexerApi
+     */
+    public function __construct(CMS $cms, Repository $repository, IndexerApiInterface $indexerApi)
     {
-        $this->cms = $cms;
-        $this->repository = $repository;
+        $this->cms          = $cms;
+        $this->repository   = $repository;
+        $this->indexerApi   = $indexerApi;
     }
 
     /**
@@ -39,7 +48,7 @@ class Manager
     {
         //TODO security
         $query = '\path:"/*" AND \class:"Vivo\CMS\Model\Site"';
-        $sites = $this->repository->getEntities($query);
+        $sites = $this->indexerApi->getEntitiesByQuery($query);
         $result = array();
         foreach ($sites as $site) {
             $result[$site->getName()] = $site;

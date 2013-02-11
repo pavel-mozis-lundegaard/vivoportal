@@ -85,11 +85,11 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         /* @var $plugins \Zend\View\HelperPluginManager */
         $plugins      = $serviceLocator->get('view_helper_manager');
         $plugins->setFactory('resource', function($sm) use($serviceLocator) {
-            $helper = new ViewHelper\Resource($serviceLocator->get('cms'));
+            $helper = new ViewHelper\Resource($serviceLocator->get('Vivo\CMS\Api\CMS'));
             return $helper;
         });
         $plugins->setFactory('document', function($sm) use($serviceLocator) {
-            $helper = new ViewHelper\Document($serviceLocator->get('cms'));
+            $helper = new ViewHelper\Document($serviceLocator->get('Vivo\CMS\Api\CMS'));
             return $helper;
         });
     }
@@ -98,13 +98,10 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
     {
         return array(
             'factories' => array(
-                'Vivo\CMS\UI\Manager\Explorer\Ribbon' => function (ServiceManager $sm) {
-                    $ribbon = new \Vivo\CMS\UI\Manager\Explorer\Ribbon();
-                    return $ribbon;
-                },
                 'Vivo\CMS\UI\Manager\HeaderBar' => function (ServiceManager $sm) {
                     $headerBar = new \Vivo\CMS\UI\Manager\HeaderBar();
                     $headerBar->addComponent($sm->get('Vivo\CMS\UI\Manager\SiteSelector'), 'siteSelector');
+                    $headerBar->addComponent($sm->get('Vivo\UI\Alert'), 'alert');
                     return  $headerBar;
                 },
                 'Vivo\CMS\UI\Manager\SiteSelector' => function (ServiceManager $sm) {
@@ -127,7 +124,6 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                 array ('indexer', 'Perform operations on indexer..'),
                 array ('info','Show information about CMS instance.'),
                 array ('module', 'Manage modules.'),
-                array ('repository', 'Administer the repository.'),
                 array ('cms', 'CMS functions.'),
                 array ('setup', 'System setup'),
         );

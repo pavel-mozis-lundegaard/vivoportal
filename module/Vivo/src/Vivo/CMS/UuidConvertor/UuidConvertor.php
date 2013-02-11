@@ -1,10 +1,9 @@
 <?php
-namespace Vivo\Repository\UuidConvertor;
+namespace Vivo\CMS\UuidConvertor;
 
 use Vivo\Indexer\IndexerInterface;
 use Vivo\Indexer\Term as IndexerTerm;
 use Vivo\Indexer\Query\Term as TermQuery;
-use Vivo\Indexer\Document;
 
 /**
  * UuidConvertor

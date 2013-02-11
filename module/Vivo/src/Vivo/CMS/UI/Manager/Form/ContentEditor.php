@@ -25,11 +25,13 @@ class ContentEditor extends Form
         $this->setAttribute('method', 'post');
 
         $options = array();
-        $options[] = 'NEW';
-
         foreach ($contents as $k => $content) { /* @var $content \Vivo\CMS\Model\Content */
-            $options[$k] = sprintf('1.%d {%s} %s', $k, $content->getUuid(), get_class($content));
+            $options['EDIT:'.$content->getUuid()] = sprintf('1.%d [%s] %s {%s}',
+                $k, $content->getState(), get_class($content), $content->getUuid());
         }
+
+        $options['NEW:Vivo\CMS\Model\Content\File'] = sprintf('[%s] %s', 'NEW', 'Vivo\CMS\Model\Content\File');
+        $options['NEW:Vivo\CMS\Model\Content\Overview'] = sprintf('[%s] %s', 'NEW', 'Vivo\CMS\Model\Content\Overview');
 
         // Version selecbox
         $this->add(array(

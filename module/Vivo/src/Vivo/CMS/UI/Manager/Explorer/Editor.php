@@ -57,10 +57,14 @@ class Editor extends AbstractForm
         $this->contentTab->removeAllComponents();
 
         /* @var $contentContainer \Vivo\CMS\Model\ContentContainer */
-        foreach ($this->documentApi->getContentContainers($this->entity) as $index => $contentContainer) {
+        $containers = $this->documentApi->getContentContainers($this->entity);
+        $count = count($containers);
+        foreach ($containers as $index => $contentContainer) {
 //             echo 'content'.$index."\n";
             $this->contentTab->addComponent($this->getContentForm($contentContainer), "content_$index");
         }
+
+        $this->contentTab->addComponent($this->getContentForm(new \Vivo\CMS\Model\ContentContainer()), 'content_'.++$count);
     }
 
     /**
@@ -112,6 +116,7 @@ class Editor extends AbstractForm
         $e = new Editor\ContentEditor($this->documentApi, $this->metadataManager, $contentContainer);
         $e->setRequest($this->request);
         $e->setView(new \Zend\View\Model\ViewModel());
+        $e->init();
 
         return $e;
     }

@@ -234,6 +234,11 @@ class Document implements DocumentInterface
     public function getContentContainers(Model\Document $document)
     {
         $containers = $this->repository->getChildren($document, 'Vivo\CMS\Model\ContentContainer');
+
+        uasort($containers, function($a, $b) { /* @var $a \Vivo\CMS\Model\ContentContainer */
+            return $a->getOrder() > $b->getOrder();
+        });
+
         return $containers;
     }
 

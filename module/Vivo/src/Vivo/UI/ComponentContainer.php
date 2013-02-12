@@ -89,13 +89,15 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
                 "Component `$name` doesn't exist in container `"
                     . $this->getPath() . "`.");
         }
-        $this->getComponent($name)->setParent(null);
+        $this->getComponent($name)->setParent(null, null);
         unset($this->components[$name]);
     }
 
     public function removeAllComponents()
     {
-        $this->components = array();
+        foreach (array_keys($this->components) as $name) {
+            $this->removeComponent($name);
+        }
     }
 
     /**

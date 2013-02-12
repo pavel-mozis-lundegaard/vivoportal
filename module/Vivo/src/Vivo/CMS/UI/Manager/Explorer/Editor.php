@@ -113,9 +113,10 @@ class Editor extends AbstractForm
      */
     protected function getContentForm(\Vivo\CMS\Model\ContentContainer $contentContainer)
     {
-        $e = new Editor\Content($this->documentApi, $this->metadataManager, $contentContainer);
+        $e = new Editor\ContentTab($this->documentApi, $this->metadataManager, $contentContainer);
         $e->setRequest($this->request);
         $e->setView(new \Zend\View\Model\ViewModel());
+        $e->initEdior();
         $e->init();
 
         return $e;
@@ -137,18 +138,23 @@ class Editor extends AbstractForm
             $result = false;
         }
 
-        /* @var $tab \Vivo\CMS\UI\Manager\Explorer\Editor\ContentEditor */
+        /* @var $component \Vivo\CMS\UI\Manager\Explorer\Editor\Content */
         $component = $this->getComponent('contentTab')->getSelectedComponent();
 
-        if(!$component instanceof Editor\Content) {
-            throw new \Exception('Selected tab is not instance of Vivo\CMS\UI\Manager\Explorer\Editor\Content');
+        if(!$component instanceof Editor\ContentTab) {
+            throw new \Exception('Selected tab is not instance of Vivo\CMS\UI\Manager\Explorer\Editor\ContentTab');
         }
 
-        $result &= $component->save();
+        try {
+            $result &= $component->save();
+        }
+        catch(\Exception $e) {
+            throw $e;
+        }
+var_dump($result);
 
         if($result) {
-//             echo 'ok';
-            $this->redirector->redirect();
+//             $this->redirector->redirect();
         }
     }
 }

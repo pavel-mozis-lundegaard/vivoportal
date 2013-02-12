@@ -5,7 +5,7 @@ use Vivo\CMS\UI\AbstractForm;
 use Vivo\CMS\UI\Manager\Form\ContentEditor as ContentEditorForm;
 use Vivo\UI\TabContainerItemInterface;
 
-class ContentEditor extends AbstractForm implements TabContainerItemInterface
+class Content extends AbstractForm implements TabContainerItemInterface
 {
     /**
      * @var \Vivo\CMS\Model\ContentContainer

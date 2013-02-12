@@ -13,8 +13,6 @@ body {
   line-height: @baseLineHeight;
   color: @textColor;
   background-color: @bodyBackground;
-  padding-top: 60px;
-  padding-bottom: 40px;
 }
 
 
@@ -25,7 +23,8 @@ a {
   color: @linkColor;
   text-decoration: none;
 }
-a:hover {
+a:hover,
+a:focus {
   color: @linkColorHover;
   text-decoration: underline;
 }

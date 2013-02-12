@@ -4,7 +4,7 @@
 	<? foreach($children as $child) : ?>
 		<li class="clearfix">
 			<? if($child->image) : ?>
-				<img src="<?=$child->getURL().$child->image ?>?width=125&amp;height=81&amp;crop=1" alt="" />
+				<img src="<?=$this->resource($child, $child->image) ?>?width=125&amp;height=81&amp;crop=1" alt="" />
 			<? endif; ?>
 			<a href="<?=$this->document($child)?>"><?=$child->getTitle();?></a><br />
             <?/*=$child->published->format('d.m.Y') */?>

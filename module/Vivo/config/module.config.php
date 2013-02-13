@@ -10,7 +10,6 @@ return array(
                 'type' => 'Vivo\Router\Hostname',
                 'may_terminate' => false,
                 'child_routes' => array(
-
                     'cms' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
@@ -21,14 +20,13 @@ return array(
                                 'path' => '',
                             ),
                         ),
-                        'may_terminate' => true,
+                        'may_terminate' => false,
                         'child_routes' => array(
                             'query' => array(
                                 'type' => 'Query',
                             ),
                         ),
                     ),
-
                     'resource' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
@@ -42,7 +40,6 @@ return array(
                             ),
                         ),
                     ),
-
                     'resource_entity' => array(
                             'type' => 'Zend\Mvc\Router\Http\Regex',
                             'options' => array(
@@ -246,8 +243,8 @@ return array(
     'view_helpers' => array(
         'invokables' => array(
             'action'            => 'Vivo\View\Helper\Action',
-//            'action_link'       => 'Vivo\View\Helper\ActionLink',
-//            'action_url'        => 'Vivo\View\Helper\ActionUrl',
+            'action_link'       => 'Vivo\View\Helper\ActionLink',
+            'action_url'        => 'Vivo\View\Helper\ActionUrl',
             'vivoform'          => 'Vivo\View\Helper\VivoForm',
             'vivoformfieldset'  => 'Vivo\View\Helper\VivoFormFieldset',
           //  'url' => 'Vivo\View\Helper\Url',

@@ -10,24 +10,15 @@ use Zend\View\Helper\AbstractHelper;
  */
 class ActionLink extends AbstractHelper
 {
-
-    protected $routePrefix;
-
-    public function setRoutePrefix($prefix)
-    {
-        $this->routePrefix = $prefix;
-    }
-
-    public function __invoke($action, $body, $params = array())
+    public function __invoke($action, $body, $params = array(), $reuseMatchedParams = false)
     {
         $model = $this->view->plugin('view_model')->getCurrent();
         $component = $model->getVariable('component');
 
         $act = $component['path'] . Component::COMPONENT_SEPARATOR . $action;
         $urlHelper = $this->getView()->plugin('url');
-
-        $url = $urlHelper($this->routePrefix . '/cms/query',
-                array('act' => $act, 'args' => $params), true);
+        $url = $urlHelper(null,
+                array('act' => $act, 'args' => $params), $reuseMatchedParams);
         $link = "<a href='$url'>$body</a>";
         return $link;
     }

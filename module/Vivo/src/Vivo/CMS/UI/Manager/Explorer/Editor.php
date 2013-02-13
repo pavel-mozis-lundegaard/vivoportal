@@ -115,7 +115,6 @@ class Editor extends AbstractForm
     {
         $e = new Editor\ContentTab($this->documentApi, $this->metadataManager, $contentContainer);
         $e->setRequest($this->request);
-        $e->setView(new \Zend\View\Model\ViewModel());
         $e->initEdior();
         $e->init();
 

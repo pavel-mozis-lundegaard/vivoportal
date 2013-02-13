@@ -59,7 +59,6 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
 
         $component = new Content($this->documentApi, $this->metadataManager, $this->contentContainer, $this->entity);
         $component->setRequest($this->request);
-        $component->setView(new \Zend\View\Model\ViewModel());
 
         $this->addComponent($component, 'contentEditor');
 
@@ -138,7 +137,7 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
 
     public function view()
     {
-        $this->view->entity = $this->entity;
+        $this->getView()->entity = $this->entity;
 
         return parent::view();
     }

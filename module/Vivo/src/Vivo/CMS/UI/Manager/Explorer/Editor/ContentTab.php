@@ -3,6 +3,7 @@ namespace Vivo\CMS\UI\Manager\Explorer\Editor;
 
 use Vivo\CMS\UI\AbstractForm;
 use Vivo\UI\TabContainerItemInterface;
+use Vivo\Form\Form;
 
 class ContentTab extends AbstractForm implements TabContainerItemInterface
 {
@@ -43,7 +44,7 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
         $this->autoAddCsrf = false;
     }
 
-    public function initEdior()
+    public function init()
     {
         try {
             $this->contents = $this->documentApi->getContentVersions($this->contentContainer);
@@ -52,17 +53,8 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
             $this->contents = array();
         }
 
-        // Sets 1 entity
-        if($this->entity == null && count($this->contents)) {
-            $this->entity = $this->contents[0];
-        }
-
-        $component = new Content($this->documentApi, $this->metadataManager, $this->contentContainer, $this->entity);
-        $component->setRequest($this->request);
-
-        $this->addComponent($component, 'contentEditor');
-
-        $this->contentEditor->init();
+        parent::init();
+        $this->doChangeVersion();
     }
 
     protected function doGetForm()
@@ -70,23 +62,27 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
         $options = array();
         foreach ($this->contents as $k => $content) { /* @var $content \Vivo\CMS\Model\Content */
             $options['EDIT:'.$content->getUuid()] = sprintf('1.%d [%s] %s {%s}',
-                    $k, $content->getState(), get_class($content), $content->getUuid());
+                $k, $content->getState(), get_class($content), $content->getUuid());
         }
 
         $options['NEW:Vivo\CMS\Model\Content\File'] = sprintf('[%s] %s', 'NEW', 'Vivo\CMS\Model\Content\File');
         $options['NEW:Vivo\CMS\Model\Content\Overview'] = sprintf('[%s] %s', 'NEW', 'Vivo\CMS\Model\Content\Overview');
 
-        $form = new \Vivo\Form\Form('contentTabEditor');
+        $values = array_keys($options);
+
+        $form = new Form('contentTabEditor');
         $form->add(array(
                 'name' => 'version',
                 'type' => 'Vivo\Form\Element\Select',
-                'attributes' => array('options' => $options),
+                'attributes' => array('options' => $options, 'value' => $values[0]),
         ));
 
         return $form;
     }
 
-    public function changeVersion()
+    public function changeVersion() { }
+
+    private function doChangeVersion()
     {
         $version = $this->getForm()->get('version')->getValue();
 
@@ -96,8 +92,6 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
 
         if($type == 'NEW') {
             $this->entity = new $param;
-            $this->removeComponent('contentEditor');
-            $this->initEdior();
         }
         elseif($type == 'EDIT') {
             foreach ($this->contents as $content) {
@@ -106,10 +100,14 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
                     break;
                 }
             }
-
-            $this->removeComponent('contentEditor');
-            $this->initEdior();
         }
+
+        $component = new Content($this->documentApi, $this->metadataManager, $this->contentContainer, $this->entity);
+        $component->setRequest($this->request);
+
+        $this->addComponent($component, 'contentEditor');
+
+        parent::init();
     }
 
     /**
@@ -117,7 +115,16 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
      */
     public function save()
     {
-        return $this->contentEditor->save();
+        // Reload version selecbox
+        $result = $this->contentEditor->save();
+
+        if($result) {
+            $value = $this->getForm()->get('version')->getValue();
+            $this->resetForm();
+            $this->getForm()->get('version')->setValue($value);
+        }
+
+        return $result;
     }
 
     public function select()

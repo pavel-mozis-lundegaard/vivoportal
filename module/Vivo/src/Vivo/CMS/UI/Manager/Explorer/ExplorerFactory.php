@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\CMS\UI\Manager\Explorer;
 
+use Vivo\CMS\Api\Manager\Tree;
+
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
 
@@ -31,7 +33,9 @@ class ExplorerFactory implements FactoryInterface
         $explorer->addComponent($sm->create('Vivo\CMS\UI\Manager\Explorer\Viewer'), 'viewer');
         $explorer->addComponent($sm->create('Vivo\CMS\UI\Manager\Explorer\Editor'), 'editor');
 
-        $tree = new \Vivo\CMS\UI\Manager\Explorer\Tree();
+        $tree = new \Vivo\CMS\UI\Manager\Explorer\Tree(
+                $sm->get('Vivo\CMS\Api\CMS'),
+                $sm->get('Vivo\CMS\Api\Document'));
         $tree->setView($sm->get('view_model'));
         $tree->setEntityManager($explorer);
         $explorer->addComponent($tree, 'tree');

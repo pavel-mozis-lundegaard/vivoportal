@@ -3,8 +3,9 @@ namespace Vivo\CMS\UI\Manager\Explorer\Editor;
 
 use Vivo\CMS\UI\AbstractForm;
 use Vivo\CMS\UI\Manager\Form\ContentEditor as ContentEditorForm;
+use Vivo\UI\TabContainerItemInterface;
 
-class ContentEditor extends AbstractForm
+class Content extends AbstractForm
 {
     /**
      * @var \Vivo\CMS\Model\ContentContainer
@@ -35,44 +36,58 @@ class ContentEditor extends AbstractForm
     public function __construct(
         \Vivo\CMS\Api\Document $documentApi,
         \Vivo\Metadata\MetadataManager $metadataManager,
-        \Vivo\CMS\Model\ContentContainer $contentContainer)
+        \Vivo\CMS\Model\ContentContainer $contentContainer, $e)
     {
         $this->documentApi = $documentApi;
         $this->metadataManager = $metadataManager;
         $this->contentContainer = $contentContainer;
+        $this->entity = $e;
         $this->autoAddCsrf = false;
     }
 
     public function init()
     {
-        $this->contents = $this->documentApi->getContents($this->contentContainer);
-
-        foreach ($this->contents as $content) {
-//             echo $content->getUuid()." - " .$content->getPath()."\n";
-
-            if($content->getState() == 'PUBLISHED') {
-                $this->entity = $content;
-                break;
-            }
-        }
-
-        $this->getForm()->bind($this->entity);
+        $this->initEdior();
 
         parent::init();
     }
 
-    protected function doGetForm()
+    protected function initEdior()
     {
-        $metadata = $this->metadataManager->getMetadata(get_class($this->entity));
+        if($this->entity) {
+            $this->getForm()->bind($this->entity);
 
-        $form = new ContentEditorForm('content-'.$this->entity->getUuid(), $this->contents, $metadata);
+            // Example entity editor
+            switch (get_class($this->entity)) {
+                case 'Vivo\CMS\Model\Content\File':
+                    $editor = 'Vivo\CMS\UI\Content\Editor\File';
+                    break;
 
-        return $form;
+                case 'Vivo\CMS\Model\Content\Overview':
+                    $editor = 'Vivo\CMS\UI\Content\Editor\Overview';
+                    break;
+
+                default:
+                    $editor = 'Vivo\CMS\UI\Content\Editor\Editor';
+                    break;
+            }
+
+            $this->addComponent(new $editor, 'contentEditor');
+        }
     }
 
-    public function changeVersion()
+    protected function doGetForm()
     {
-//         echo __METHOD__;
+        if($this->entity) {
+            $metadata = $this->metadataManager->getMetadata(get_class($this->entity));
+
+            $form = new ContentEditorForm('content-'.$this->entity->getUuid(), $metadata);
+        }
+        else {
+            $form = new ContentEditorForm('content-NEW');
+        }
+
+        return $form;
     }
 
     /**
@@ -81,11 +96,12 @@ class ContentEditor extends AbstractForm
     public function save()
     {
         if ($this->getForm()->isValid()) {
-            $this->documentApi->saveContent($this->entity);
+            $this->documentApi->saveContent($this->contentContainer, $this->entity);
 
             return true;
         }
 
         return false;
     }
+
 }

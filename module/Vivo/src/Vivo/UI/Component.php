@@ -113,7 +113,7 @@ class Component implements ComponentInterface
      * @param ComponentContainerInterface $parent
      * @param string $name
      */
-    public function setParent(ComponentContainerInterface $parent, $name)
+    public function setParent(ComponentContainerInterface $parent = null, $name)
     {
         $this->parent = $parent;
         if ($name) {

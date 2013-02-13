@@ -115,6 +115,11 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
         return $this->form;
     }
 
+    protected function resetForm()
+    {
+        $this->form = null;
+    }
+
     /**
      * Creates ZF form and returns it
      * Factory method

@@ -58,7 +58,7 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
      * @param SiteSelector $siteSelector
      * @param ExplorerComponentFactory $explorerComponentFactory
      */
-    public function __construct(CMS $cms, SiteSelector $siteSelector)
+    public function __construct(CMS $cms, \Vivo\Backend\UI\SiteSelector $siteSelector)
     {
         $this->cms = $cms;
         $this->siteSelector = $siteSelector;

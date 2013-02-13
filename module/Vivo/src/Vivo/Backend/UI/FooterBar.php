@@ -1,13 +1,9 @@
 <?php
-namespace Vivo\CMS\UI\Manager;
+namespace Vivo\Backend\UI;
 
 use Vivo\CMS\UI\Component;
 
-/**
- * Panel for selecting manager module.
- */
-  
-class ModulesPanel extends Component
+class FooterBar extends Component
 {
 
     public function __construct()

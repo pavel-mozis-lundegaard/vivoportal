@@ -226,7 +226,6 @@ return array(
         ),
         'shared' => array(
             'view_model' => false,
-            'Vivo\CMS\UI\Manager\SiteSelector' => true,
         ),
         'initializers' => array(
             'component' => 'Vivo\Service\Initializer\ComponentInitializer',

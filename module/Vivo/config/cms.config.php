@@ -69,6 +69,11 @@ return array(
             'Vivo\UI\Alert'                  => 'Vivo\UI\AlertFactory',
             'security_manager'              => 'Vivo\Service\SimpleSecurityManagerFactory',
 //            'security_manager'              => 'Vivo\Service\DbSecurityManagerFactory',
+
+        //backend
+        //TODO move to own config
+            'Vivo\Backend\UI\Backend'    => 'Vivo\Backend\UI\BackendFactory',
+            'Vivo\Backend\UI\Explorer\Explorer'    => 'Vivo\Backend\UI\Explorer\ExplorerFactory',
         ),
         'aliases' => array(
         ),

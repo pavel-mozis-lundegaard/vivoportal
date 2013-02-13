@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\CMS\UI\Manager\Explorer;
+namespace Vivo\Backend\UI\Explorer;
 
 use Vivo\UI\Ribbon\Tab;
 use Vivo\UI\Ribbon\Group;

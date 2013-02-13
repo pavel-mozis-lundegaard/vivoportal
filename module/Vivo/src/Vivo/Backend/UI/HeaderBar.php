@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\CMS\UI\Manager;
+namespace Vivo\Backend\UI;
 
 use Vivo\CMS\UI\Component;
 

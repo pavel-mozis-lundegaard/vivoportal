@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\CMS\UI\Manager\Explorer;
+namespace Vivo\Backend\UI\Explorer;
 
 use Vivo\CMS\Api;
 use Vivo\CMS\Model\Folder;
@@ -61,7 +61,7 @@ class Tree extends Component
      *
      * @param EntityManagerInterface $entityManager
      */
-    public function setEntityManager(EntityManagerInterface $entityManager)
+    public function setEntityManager($entityManager)
     {
         $this->entityManager = $entityManager;
     }
@@ -103,8 +103,7 @@ class Tree extends Component
         while(!$que->isEmpty()){
             /* @var $node  DataTree */
             $node = $que->pop();
-            $document = $node->getValue();
-            foreach ($this->documentApi->getChildDocuments($document) as $child) {
+            foreach ($this->documentApi->getChildDocuments($node->getValue()) as $child) {
                 $childNode = new DataTree($child);
                 $node->addChild($childNode);
                 if (strpos($expandedPath, $child->getPath()) !== false) {

@@ -138,21 +138,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
 
     public function getServiceConfig()
     {
-        return array(
-            'factories' => array(
-                'Vivo\CMS\UI\Manager\HeaderBar' => function (ServiceManager $sm) {
-                    $headerBar = new \Vivo\CMS\UI\Manager\HeaderBar();
-                    $headerBar->addComponent($sm->get('Vivo\CMS\UI\Manager\SiteSelector'), 'siteSelector');
-                    $headerBar->addComponent($sm->get('Vivo\UI\Alert'), 'alert');
-                    return  $headerBar;
-                },
-                'Vivo\CMS\UI\Manager\SiteSelector' => function (ServiceManager $sm) {
-                    $siteSelector = new \Vivo\CMS\UI\Manager\SiteSelector(
-                            $sm->get('Vivo\CMS\Api\Manager\Manager'));
-                    return $siteSelector;
-                },
-            ),
-        );
+        return array();
     }
 
     public function getConsoleBanner(Console $console)

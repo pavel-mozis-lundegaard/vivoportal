@@ -1,8 +1,7 @@
 <?php
-namespace Vivo\CMS\UI\Manager\Explorer;
+namespace Vivo\Backend\UI\Explorer;
 
 use Vivo\UI\Alert;
-
 use Vivo\UI\Component;
 
 use Zend\EventManager\Event;
@@ -54,7 +53,7 @@ class Finder extends Component
     /**
      * @param EntityManagerInterface $entityManager
      */
-    public function setEntityManager(EntityManagerInterface $entityManager)
+    public function setEntityManager($entityManager)
     {
         $this->entityManager = $entityManager;
         $this->entityManager->getEventManager()->attach('setEntity', array ($this, 'onEntityChange'));
@@ -77,6 +76,11 @@ class Finder extends Component
     {
         return $this->entity;
     }
+
+    /**
+     * Sets Alert component.
+     * @param Alert $alert
+     */
     public function setAlert(Alert $alert)
     {
         $this->alert = $alert;

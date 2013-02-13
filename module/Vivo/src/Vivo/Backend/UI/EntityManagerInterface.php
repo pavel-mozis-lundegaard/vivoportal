@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\CMS\UI\Manager\Explorer;
+namespace Vivo\Backend\UI;
 
 use Vivo\CMS\Model\Entity;
 

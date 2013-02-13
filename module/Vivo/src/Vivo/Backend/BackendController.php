@@ -37,19 +37,9 @@ class BackendController implements DispatchableInterface,
     protected $event;
 
     /**
-     * @var \Vivo\CMS\Api\CMS
-     */
-    private $cms;
-
-    /**
      * @var SiteEvent
      */
     private $siteEvent;
-
-    /**
-     * @var \Vivo\CMS\ComponentFactory
-     */
-    private $componentFactory;
 
     /**
      * @var \Vivo\UI\ComponentTreeController
@@ -61,20 +51,6 @@ class BackendController implements DispatchableInterface,
      * @var ServiceManager
      */
     protected $serviceManager;
-
-    /**
-     *
-     * @var ServiceManager
-     */
-    protected $sm;
-
-    /**
-     * @param CMS $cms
-     */
-    public function setCMS(CMS $cms)
-    {
-        $this->cms = $cms;
-    }
 
     /**
      * @param Site $site
@@ -100,10 +76,6 @@ class BackendController implements DispatchableInterface,
 
         $this->loadBackendConfig();
 
-
-
-        //TODO merge backend config
-
         $sm = $this->sm;
         /* @var $page \Vivo\UI\Page */
         $root = $sm->get('Vivo\CMS\UI\Root');
@@ -111,19 +83,6 @@ class BackendController implements DispatchableInterface,
 
         $page->setMain($sm->get('Vivo\Backend\UI\Backend'));
         $root->setMain($page);
-
-
-
-
-
-
-//        die('backend controller');
-
-
-
-
-
-
 
         $this->tree->setRoot($root);
 

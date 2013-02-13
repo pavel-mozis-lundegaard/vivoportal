@@ -23,7 +23,6 @@ class BackendControllerFactory implements FactoryInterface
 
         $ctc = new \Vivo\UI\ComponentTreeController($sm->get('session_manager'), $sm->get('request'));
         $bc->setComponentTreeController($ctc);
-        $bc->setCMS($sm->get('Vivo\CMS\Api\CMS'));
         $bc->setSiteEvent($siteEvent);
 
         $bc->setSM($sm);

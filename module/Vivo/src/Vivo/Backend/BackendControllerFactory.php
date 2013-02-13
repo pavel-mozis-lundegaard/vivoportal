@@ -17,15 +17,16 @@ class BackendControllerFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $fc = new BackendController();
+        $bc = new BackendController();
         $sm = $serviceLocator->getServiceLocator();
         $siteEvent = $sm->get('site_event');
-//        $fc->setTreeUtil($sm->get('di')->get('Vivo\UI\ComponentTreeController'));
 
         $ctc = new \Vivo\UI\ComponentTreeController($sm->get('session_manager'), $sm->get('request'));
-        $fc->setComponentTreeController($ctc);
-        $fc->setCMS($sm->get('cms'));
-        $fc->setSiteEvent($siteEvent);
-        return $fc;
+        $bc->setComponentTreeController($ctc);
+        $bc->setCMS($sm->get('Vivo\CMS\Api\CMS'));
+        $bc->setSiteEvent($siteEvent);
+
+        $bc->setSM($sm);
+        return $bc;
     }
 }

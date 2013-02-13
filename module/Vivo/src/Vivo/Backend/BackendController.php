@@ -1,6 +1,10 @@
 <?php
 namespace Vivo\Backend;
 
+use Zend\Stdlib\ArrayUtils;
+use Zend\ServiceManager\ServiceManager;
+use Zend\ServiceManager\ServiceManagerAwareInterface;
+use Vivo\CMS\UI\Root;
 use Vivo\UI\ComponentTreeController;
 
 use Vivo\CMS\ComponentFactory;
@@ -11,7 +15,6 @@ use Vivo\IO\InputStreamInterface;
 use Vivo\SiteManager\Event\SiteEvent;
 use Vivo\UI\Component;
 use Vivo\UI\Exception\ExceptionInterface as UIException;
-use Vivo\UI\TreeUtil;
 
 use Zend\EventManager\EventInterface as Event;
 use Zend\Http\Response as HttpResponse;
@@ -25,7 +28,7 @@ use Zend\View\Model\ModelInterface;
  * The front controller which is responsible for dispatching all requests for documents and files in CMS repository.
  */
 class BackendController implements DispatchableInterface,
-    InjectApplicationEventInterface
+    InjectApplicationEventInterface, ServiceManagerAwareInterface
 {
 
     /**
@@ -54,12 +57,16 @@ class BackendController implements DispatchableInterface,
     private $tree;
 
     /**
-     * @param ComponentFactory $componentFactory
+     *
+     * @var ServiceManager
      */
-    public function setComponentFactory(ComponentFactory $componentFactory)
-    {
-        $this->componentFactory = $componentFactory;
-    }
+    protected $serviceManager;
+
+    /**
+     *
+     * @var ServiceManager
+     */
+    protected $sm;
 
     /**
      * @param CMS $cms
@@ -85,24 +92,38 @@ class BackendController implements DispatchableInterface,
      */
     public function dispatch(Request $request, Response $response = null)
     {
-
-        die('backend controller');
-
-
         if (!$this->siteEvent->getSite()) {
             throw new Exception\SiteNotFoundException(
                     sprintf("%s: Site not found for hostname '%s'.",
                             __METHOD__ , $this->siteEvent->getHost()));
         }
 
-        //TODO: add exception when document doesn't exist
-        //TODO: redirects based on document properties(https, $document->url etc.)
+        $this->loadBackendConfig();
 
-        $documentPath = $this->event->getRouteMatch()->getParam('path');
-        $document = $this->cms->getSiteDocument($documentPath, $this->siteEvent->getSite());
 
-        //create ui component tree
-        $root = $this->componentFactory->getRootComponent($document);
+
+        //TODO merge backend config
+
+        $sm = $this->sm;
+        /* @var $page \Vivo\UI\Page */
+        $root = $sm->get('Vivo\CMS\UI\Root');
+        $page = $sm->get('Vivo\UI\Page');
+
+        $page->setMain($sm->get('Vivo\Backend\UI\Backend'));
+        $root->setMain($page);
+
+
+
+
+
+
+//        die('backend controller');
+
+
+
+
+
+
 
         $this->tree->setRoot($root);
 
@@ -157,6 +178,28 @@ class BackendController implements DispatchableInterface,
         return $this->tree->invokeAction($path, $action, $params);
     }
 
+    public function loadBackendConfig()
+    {
+        $config = include __DIR__."/../../../config/backend.config.php";
+
+        $cmsConfig = $this->sm->get('cms_config');
+        unset($cmsConfig['ui']);
+        $cmsConfig = ArrayUtils::merge($cmsConfig, $config);
+
+
+        $this->sm->setAllowOverride(true);
+        $this->sm->setService('cms_config', $cmsConfig);
+        $this->sm->setAllowOverride(false);
+
+        //reconfigure template resolver
+        $this->sm->get('template_resolver')->configure($cmsConfig['templates']);
+
+        //TODO reconfigure service manager
+
+        return $config;
+    }
+
+
     /**
      * @param Event $event
      */
@@ -174,14 +217,6 @@ class BackendController implements DispatchableInterface,
     }
 
     /**
-     * @param TreeUtil $treeUtil
-     */
-    public function setTreeUtil(TreeUtil $treeUtil)
-    {
-        $this->treeUtil = $treeUtil;
-    }
-
-    /**
      * Sets ComponentTreeController
      * @param ComponentTreeController $tree
      */
@@ -196,4 +231,16 @@ class BackendController implements DispatchableInterface,
     public function getRequest() {
         return $this->event->getRequest();
     }
+
+    public function setServiceManager(ServiceManager $serviceManager)
+    {
+        $this->serviceManager = $serviceManager;
+    }
+
+    public function setSM(ServiceManager $sm)
+    {
+        //TODO use ServiceManagerAwareInitializer instead this method
+        $this->sm = $sm;
+    }
+
 }

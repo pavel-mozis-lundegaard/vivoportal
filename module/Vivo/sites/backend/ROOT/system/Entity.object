@@ -1,4 +1,0 @@
-object Vivo\CMS\Model\Folder {
-	description NULL
-	uuid string "abcdefghjklmnopqrstuvwhjhjhxyzlayouts"
-}

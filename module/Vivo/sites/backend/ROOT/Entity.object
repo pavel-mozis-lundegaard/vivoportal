@@ -1,4 +1,0 @@
-object Vivo\CMS\Model\Document {
-	description NULL
-	uuid string "abcdefghjklmnopqrstuvwhjhjhxyzlayouts"
-}

@@ -234,6 +234,11 @@ class Document implements DocumentInterface
     public function getContentContainers(Model\Document $document)
     {
         $containers = $this->repository->getChildren($document, 'Vivo\CMS\Model\ContentContainer');
+
+        uasort($containers, function($a, $b) { /* @var $a \Vivo\CMS\Model\ContentContainer */
+            return $a->getOrder() > $b->getOrder();
+        });
+
         return $containers;
     }
 
@@ -287,10 +292,22 @@ class Document implements DocumentInterface
      * @param Model\Entity $entity
      * @param bool $commit
      */
-    public function saveContent(Model\Content $content)
+    public function saveContent(Model\ContentContainer $container, Model\Content $content)
     {
-        $content = $this->cms->prepareEntityForSaving($content);
+        $contentVersions = $this->getContentVersions($container);
 
+        foreach ($contentVersions as $version) { /* @var $version \Vivo\CMS\Model\Content */
+            if($version->getUuid() !== $content->getUuid()
+            && $version->getState() == WorkflowInterface::STATE_PUBLISHED)
+            {
+                $version->setState(WorkflowInterface::STATE_ARCHIVED);
+
+                $this->cms->saveEntity($version, false);
+            }
+        }
+
+        $content = $this->cms->prepareEntityForSaving($content);
+//         print_r($content);
         $this->repository->saveEntity($content);
         $this->repository->commit();
     }
@@ -323,10 +340,20 @@ class Document implements DocumentInterface
     }
 
     /**
+     * @deprecated Use self::getContentVersions
+     *
+     * @see \Vivo\CMS\Api\DocumentInterface::getContents()
+     */
+    public function getContents(Model\ContentContainer $container)
+    {
+        return $this->getContentVersions($container);
+    }
+
+    /**
      * @param Model\ContentContainer $container
      * @return array <\Vivo\CMS\Model\Content>
      */
-    public function getContents(Model\ContentContainer $container)
+    public function getContentVersions(Model\ContentContainer $container)
     {
         $contents = $this->repository->getChildren($container, 'Vivo\CMS\Model\Content');
         return $contents;

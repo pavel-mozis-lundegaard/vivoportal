@@ -148,7 +148,7 @@ class SiteManager implements SiteManagerInterface,
         $configListener         = new SiteModelLoadListener($this->routeParamHost, $this->siteApi);
         $configListener->attach($this->events);
         //Attach Site config listener
-        $configListener         = new SiteConfigListener($this->cms);
+        $configListener         = new SiteConfigListener($this->siteApi);
         $configListener->attach($this->events);
         //Attach Collect modules listener
         $collectModulesListener = new CollectModulesListener($this->coreModules, $this->moduleStorageManager);

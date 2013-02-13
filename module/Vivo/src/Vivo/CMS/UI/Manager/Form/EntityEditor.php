@@ -28,15 +28,6 @@ class EntityEditor extends Form
         $fieldset->setOptions(array('use_as_base_fieldset' => true));
 
         $this->add($fieldset);
-
-        // Submit
-//         $this->add(array(
-//             'name' => 'submit',
-//             'attributes' => array(
-//                 'type'  => 'submit',
-//                 'value' => 'Save',
-//             ),
-//         ));
     }
 
 }

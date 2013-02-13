@@ -98,10 +98,18 @@ interface DocumentInterface
     public function getAvailableStates(Model\Document $document);
 
     /**
+     * @deprecated Use self::getContentVersions
+     *
      * @param Model\ContentContainer $container
      * @return array <\Vivo\CMS\Model\Content>
      */
     public function getContents(Model\ContentContainer $container);
+
+    /**
+     * @param Model\ContentContainer $container
+     * @return array <\Vivo\CMS\Model\Content>
+     */
+    public function getContentVersions(Model\ContentContainer $container);
 
     /**
      * @param Model\Document $document

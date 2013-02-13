@@ -81,13 +81,13 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
      */
     public function view()
     {
-        $form   = $this->getForm();
+        $form = $this->getForm();
         //Prepare the form
         if ($this->autoPrepareForm) {
             $form->prepare();
         }
         //Set form to view
-        $this->view->form   = $form;
+        $this->getView()->form = $form;
         return parent::view();
     }
 
@@ -113,6 +113,11 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
             }
         }
         return $this->form;
+    }
+
+    protected function resetForm()
+    {
+        $this->form = null;
     }
 
     /**

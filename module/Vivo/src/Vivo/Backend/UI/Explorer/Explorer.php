@@ -2,9 +2,6 @@
 namespace Vivo\Backend\UI\Explorer;
 
 use Vivo\Backend\UI\EntityManagerInterface;
-
-use Zend\ServiceManager\ServiceManager;
-
 use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Model;
 use Vivo\CMS\UI\Manager\SiteSelector;
@@ -16,6 +13,7 @@ use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\SharedEventManager;
+use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\RequestInterface;
 
 /**
@@ -56,18 +54,31 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
      */
     protected $explorerComponentFactory;
 
-    protected $sm;
+    /**
+     * @var ServiceManager
+     */
+    protected $serviceManager;
+
+    protected $explorerTabs = array(
+                'editor' => 'Vivo\CMS\UI\Manager\Explorer\Editor',
+                'viewer' => 'Vivo\Backend\UI\Explorer\Viewer',
+                'browser' => 'Vivo\Backend\UI\Explorer\Browser',
+                'inspect' => 'Vivo\Backend\UI\Explorer\Inspect',
+                );
 
     /**
      * Constructor.
-     * @param CMS $cms
+     * @param CMS $cmsApi
      * @param SiteSelector $siteSelector
      * @param ExplorerComponentFactory $explorerComponentFactory
      */
-    public function __construct(CMS $cms, \Vivo\Backend\UI\SiteSelector $siteSelector)
+    public function __construct(CMS $cmsApi,
+            \Vivo\Backend\UI\SiteSelector $siteSelector,
+            ServiceManager $serviceManager)
     {
-        $this->cms = $cms;
+        $this->cmsApi = $cmsApi;
         $this->siteSelector = $siteSelector;
+        $this->serviceManager = $serviceManager;
     }
 
     /**
@@ -96,6 +107,8 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
         $this->entity = $state['entity'];
         $this->currentName = isset($state['current_name']) ?
                 $state['current_name'] : $this->currentName;
+        $component = $this->serviceManager->get($this->explorerTabs[$this->currentName]);
+        $this->addComponent($component, $this->currentName);
     }
 
     /**
@@ -115,7 +128,11 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
      */
     public function setCurrent($name)
     {
+        $this->removeComponent($this->currentName);
         $this->currentName = $name;
+        $component = $this->serviceManager->get($this->explorerTabs[$this->currentName]);
+        $this->addComponent($component, $name);
+        $component->init();
     }
 
     /**
@@ -125,10 +142,10 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     {
         if ($site = $this->getSite()) {
             if ($relPath = $this->request->getQuery('url', false)) {
-                $entity = $this->cms->getSiteEntity($relPath, $site);
+                $entity = $this->cmsApi->getSiteEntity($relPath, $site);
                 $this->setEntity($entity);
             } elseif ($this->entity === null) {
-                $entity = $this->cms->getSiteEntity('/', $site);
+                $entity = $this->cmsApi->getSiteEntity('/', $site);
                 $this->setEntity($entity);
             }
         }
@@ -179,7 +196,7 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
      */
     public function setEntityByRelPath($relPath)
     {
-        $this->setEntity($this->cms->getSiteEntity($relPath, $this->getSite()));
+        $this->setEntity($this->cmsApi->getSiteEntity($relPath, $this->getSite()));
     }
 
     /**

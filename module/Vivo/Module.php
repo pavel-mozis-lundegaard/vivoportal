@@ -44,6 +44,10 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         $eventManager->attach(MvcEvent::EVENT_ROUTE, array ($this, 'registerTemplateResolver'));
         $eventManager->attach(MvcEvent::EVENT_ROUTE, array ($this, 'registerViewHelpers'));
 
+        $eventManager->attach(MvcEvent::EVENT_ROUTE, function ($e) use ($logger){
+            $logger->info('Matched route: '.$e->getRouteMatch()->getMatchedRouteName());
+        });
+
         $filterListener = $sm->get('Vivo\Http\Filter\OutputFilterListener');
         $filterListener->attach($eventManager);
     }
@@ -73,8 +77,11 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
     public function registerTemplateResolver(MvcEvent $e)
     {
         $sm = $e->getTarget()->getServiceManager();
-        $sm->get('viewresolver')->attach($sm->get('template_resolver'));
+        /* @var $viewResolver \Zend\View\Resolver\AggregateResolver */
+        $viewResolver = $sm->get('viewresolver');
+        $viewResolver->attach($sm->get('template_resolver'), 100);
     }
+
     /**
      * Registers view helpers to the view helper manager.
      * @param MvcEvent $e

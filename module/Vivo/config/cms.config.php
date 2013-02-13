@@ -73,6 +73,7 @@ return array(
         //backend
         //TODO move to own config
             'Vivo\Backend\UI\Backend'    => 'Vivo\Backend\UI\BackendFactory',
+            'Vivo\Backend\UI\SiteSelector'    => 'Vivo\Backend\UI\SiteSelectorFactory',
             'Vivo\Backend\UI\Explorer\Explorer'    => 'Vivo\Backend\UI\Explorer\ExplorerFactory',
         ),
         'aliases' => array(

@@ -65,6 +65,7 @@ class Url extends \Zend\View\Helper\Url
 
         $url = $this->router->assemble($params, $options);
         $url = str_replace('%2F', '/', $url);
+
         return $url;
     }
 }

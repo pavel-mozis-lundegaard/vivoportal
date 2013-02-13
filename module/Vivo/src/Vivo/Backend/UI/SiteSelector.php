@@ -1,8 +1,8 @@
 <?php
 namespace Vivo\Backend\UI;
 
-use Vivo\CMS\Api\Manager\Manager;
-use Vivo\CMS\Model\Site;
+use Vivo\CMS\Api\Site as SiteApi;
+use Vivo\SiteManager\Event\SiteEvent;
 use Vivo\UI\Component;
 use Vivo\UI\PersistableInterface;
 
@@ -22,9 +22,9 @@ class SiteSelector extends Component implements EventManagerAwareInterface,
     protected $eventManager;
 
     /**
-     * @var \Vivo\CMS\Api\Manager\Manager
+     * @var \Vivo\CMS\Api\Site
      */
-    protected $manager;
+    protected $siteApi;
 
     /**
      * @var \Vivo\CMS\Model\Site
@@ -33,12 +33,16 @@ class SiteSelector extends Component implements EventManagerAwareInterface,
 
     /**
      * Constructor.
-     * @param Manager $manager
+     * @param Site $siteApi
+     * @param SiteEvent $siteEvent
      */
-    public function __construct(Manager $manager)
+    public function __construct(SiteApi $siteApi, SiteEvent $siteEvent)
     {
-        $this->manager = $manager;
-        $this->sites = $this->manager->getManageableSites();
+        $this->siteApi = $siteApi;
+        $this->siteEvent = $siteEvent;
+        $this->sites = $this->siteApi->getManageableSites();
+
+        $this->site = $siteEvent->getSite();
     }
 
     /**
@@ -47,8 +51,8 @@ class SiteSelector extends Component implements EventManagerAwareInterface,
      */
     public function loadState($state)
     {
-        $this->site = isset($state['site']) ? $state['site']
-                : reset($this->sites);
+//        $this->site = isset($state['site']) ? $state['site']
+//                : reset($this->sites);
     }
 
     /**
@@ -57,7 +61,7 @@ class SiteSelector extends Component implements EventManagerAwareInterface,
      */
     public function saveState()
     {
-        return array('site' => $this->site);
+  //      return array('site' => $this->site);
     }
 
     /**

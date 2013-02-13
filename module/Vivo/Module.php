@@ -87,55 +87,53 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
      * @param MvcEvent $e
      */
     public function registerViewHelpers($e) {
-        $app          = $e->getTarget();
-        $serviceLocator      = $app->getServiceManager();
-
-        $parts = explode('/', $e->getRouteMatch()->getMatchedRouteName());
-        $prefix  = $parts[0]; // 'vivo' or 'backend'
-
+        $application    = $e->getTarget();
+        $serviceLocator = $application->getServiceManager();
+        $routeName      = $e->getRouteMatch()->getMatchedRouteName();
         /* @var $plugins \Zend\View\HelperPluginManager */
-        $plugins      = $serviceLocator->get('view_helper_manager');
+        $plugins        = $serviceLocator->get('view_helper_manager');
 
-        $plugins->setFactory('resource', function($sm) use($serviceLocator, $prefix) {
-            $helper = new ViewHelper\Resource($serviceLocator->get('Vivo\CMS\Api\CMS'));
-            $helper->setRoutePrefix($prefix);
+        //register url view helper
+        $plugins->setFactory('url', function ($sm) use($serviceLocator) {
+            $helper = new ViewHelper\Url;
+            $router = \Zend\Console\Console::isConsole() ? 'HttpRouter' : 'Router';
+            $helper->setRouter($serviceLocator->get($router));
+            $match = $serviceLocator->get('application')->getMvcEvent()
+                    ->getRouteMatch();
+            if ($match instanceof \Zend\Mvc\Router\RouteMatch) {
+                $helper->setRouteMatch($match);
+            }
             return $helper;
         });
+
+        //set basepath for backend view
+        if ($routeName == 'backend/cms/query') {
+            $url = $plugins->get('url');
+            $path = $url('backend/cms/query', array('path'=>''), false);
+            $basePath = $plugins->get('basepath');
+            $basePath->setBasePath($path);
+        }
+
+        //define resources routes for Resource view helper
+        $resourceRouteMap = array ('vivo/cms/query' => 'vivo/resource',
+                'backend/cms/query' => 'backend/resource',
+                'backend/modules' => 'backend/backend_resource',
+        );
+        $resourceRouteName = isset($resourceRouteMap[$routeName])?
+        $resourceRouteMap[$routeName]: '';
+
+        //register resource view helper
+        $plugins->setFactory('resource', function($sm) use($serviceLocator, $resourceRouteName) {
+            $helper = new ViewHelper\Resource($serviceLocator->get('Vivo\CMS\Api\CMS'));
+            $helper->setResourceRouteName($resourceRouteName);
+            return $helper;
+        });
+
+        //register document view helper
         $plugins->setFactory('document', function($sm) use($serviceLocator) {
             $helper = new ViewHelper\Document($serviceLocator->get('Vivo\CMS\Api\CMS'));
             return $helper;
         });
-
-        $plugins->setFactory('actionUrl', function($sm) use($prefix) {
-                $helper = new ViewHelper\ActionUrl();
-                $helper->setRoutePrefix($prefix);
-                return $helper;
-        });
-
-        $plugins->setFactory('actionLink', function($sm) use($prefix) {
-                $helper = new ViewHelper\ActionLink();
-                $helper->setRoutePrefix($prefix);
-                return $helper;
-        });
-
-        $plugins->setFactory('url', function ($sm) use($serviceLocator) {
-                $helper = new ViewHelper\Url;
-                $router = \Zend\Console\Console::isConsole() ? 'HttpRouter' : 'Router';
-                $helper->setRouter($serviceLocator->get($router));
-
-                $match = $serviceLocator->get('application')
-                ->getMvcEvent()
-                ->getRouteMatch()
-                ;
-                if ($match instanceof \Zend\Mvc\Router\RouteMatch) {
-                    $helper->setRouteMatch($match);
-                }
-
-                return $helper;
-            });
-
-
-
     }
 
     public function getServiceConfig()

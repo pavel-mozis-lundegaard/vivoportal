@@ -27,7 +27,11 @@ class Resource extends AbstractHelper
      */
     private $cms;
 
-    protected $routePrefix;
+    /**
+     *
+     * @var unknown
+     */
+    protected $resourceRouteName;
 
     /**
      * Constructor.
@@ -40,15 +44,17 @@ class Resource extends AbstractHelper
         $this->options  = array_merge($this->options, $options);
     }
 
-    public function setRoutePrefix($prefix)
+    /**
+     * Sets route used for asembling resource url.
+     * @param string $route
+     */
+    public function setResourceRouteName($resourceRouteName)
     {
-        $this->routePrefix = $prefix;
+        $this->resourceRouteName = $resourceRouteName;
     }
 
     public function __invoke($resourcePath, $source)
     {
-
-
         if ($this->options['check_resource'] == true) {
             $this->checkResource($resourcePath, $source);
         }
@@ -56,12 +62,12 @@ class Resource extends AbstractHelper
 
         if ($source instanceof Entity) {
             $entityUrl = $this->cms->getEntityUrl($source);
-            $url = $urlHelper($this->routePrefix . '/resource_entity',
+            $url = $urlHelper($this->resourceRouteName . '_entity',
                             array('path' => $resourcePath,
                                     'entity' => $entityUrl,
                                     ));
         } elseif (is_string($source)) {
-            $url = $urlHelper($this->routePrefix . '/resource',
+            $url = $urlHelper($this->resourceRouteName ,
                             array('source' => $source, 'path' => $resourcePath, 'type' => 'resource'), true);
         } else {
             throw new InvalidArgumentException(

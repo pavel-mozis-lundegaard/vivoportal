@@ -578,5 +578,6 @@ return array(
     'cms'      => array(
         //this config key is reserved for merged cms configuration
         //default values and structure are in cms.config.php
+        //do not access to this key directly - use service 'cms_config'
     ),
 );

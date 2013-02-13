@@ -63,6 +63,8 @@ class Url extends \Zend\View\Helper\Url
         if (!isset($params['path']))
             $params['path'] = $this->routeMatch->getParam('path');
 
-        return $this->router->assemble($params, $options);
+        $url = $this->router->assemble($params, $options);
+        $url = str_replace('%2F', '/', $url);
+        return $url;
     }
 }

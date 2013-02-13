@@ -34,6 +34,12 @@ class Ribbon extends \Vivo\UI\Ribbon implements EventManagerAwareInterface
         $this->addTab($tab);
         $tab = new Tab('Advanced');
         $this->addTab($tab);
+
+        $group = new Group('Expert');
+        $group->addItem(new Item('inspect', 'Inspect', '', $this));
+        $tab->addGroup($group);
+
+
     }
 
     /**

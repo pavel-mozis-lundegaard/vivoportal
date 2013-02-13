@@ -3,6 +3,7 @@ namespace Vivo\Module\InstallManager;
 
 use Vivo\Module\StorageManager\StorageManager as ModuleStorageManager;
 use Vivo\CMS\Api\CMS;
+use Vivo\CMS\Api\Site as SiteApi;
 use Vivo\CMS\Model\Site;
 use Vivo\IO\InputStreamWrapper;
 use Vivo\Module\Feature\SiteInstallableInterface;
@@ -27,6 +28,12 @@ class InstallManager implements InstallManagerInterface
      */
     protected $cms;
 
+
+    /**
+     * @var SiteApi
+     */
+    protected $siteApi;
+
     /**
      * DbProviderFactory
      * @var DbProviderFactory
@@ -45,17 +52,20 @@ class InstallManager implements InstallManagerInterface
      * Constructor
      * @param ModuleStorageManager $moduleStorageManager
      * @param CMS $cms
+     * @param SiteApi $siteApi
      * @param DbProviderFactory $dbProviderFactory
      * @param array $options
      * @throws Exception\InvalidArgumentException
      */
     public function __construct(ModuleStorageManager $moduleStorageManager,
                                 CMS $cms,
+                                SiteApi $siteApi,
                                 DbProviderFactory $dbProviderFactory,
                                 array $options)
     {
         $this->moduleStorageManager = $moduleStorageManager;
         $this->cms                  = $cms;
+        $this->siteApi              = $siteApi;
         $this->dbProviderFactory    = $dbProviderFactory;
         $this->options              = array_merge($this->options, $options);
         if (!isset($this->options['default_db_source'])) {
@@ -112,7 +122,7 @@ class InstallManager implements InstallManagerInterface
      */
     protected function getInstalledModulesInSite(Site $site)
     {
-        $config = $this->cms->getSiteConfig($site);
+        $config = $this->siteApi->getSiteConfig($site);
         if (isset($config['modules']['site_modules'])) {
             $modules    = array_keys($config['modules']['site_modules']);
         } else {
@@ -153,7 +163,7 @@ class InstallManager implements InstallManagerInterface
      */
     protected function getEnabledModulesInSite(Site $site)
     {
-        $config     = $this->cms->getSiteConfig($site);
+        $config     = $this->siteApi->getSiteConfig($site);
         $modules    = array();
         if (isset($config['modules']['site_modules'])) {
             foreach ($config['modules']['site_modules'] as $moduleName => $moduleConfig) {
@@ -215,11 +225,11 @@ class InstallManager implements InstallManagerInterface
      */
     protected function setEnableModuleInSite($module, Site $site, $enabled)
     {
-        $config = $this->cms->getSiteConfig($site);
+        $config = $this->siteApi->getSiteConfig($site);
         if (isset($config['modules']['site_modules'][$module])) {
             //OK, the module is installed
             $config['modules']['site_modules'][$module]['enabled']  = (bool)$enabled;
-            $this->cms->setSiteConfig($config, $site);
+            $this->siteApi->setSiteConfig($config, $site);
         } else {
             //The module is not installed
             throw new Exception\ModuleNotInstalledException(
@@ -255,7 +265,7 @@ class InstallManager implements InstallManagerInterface
         $site   = null;
         //Verify the site exists and get the Site model object
         if (!is_null($siteName)) {
-            if (!$this->cms->siteExists($siteName)) {
+            if (!$this->siteApi->siteExists($siteName)) {
                 throw new Exception\SiteDoesNotExistException(
                     sprintf("%s: Site '%' does not exist", __METHOD__, $siteName));
             }
@@ -310,9 +320,9 @@ class InstallManager implements InstallManagerInterface
      */
     protected function installModuleToSite($module, Site $site, array $config = array())
     {
-        $siteConfig         = $this->cms->getSiteConfig($site);
+        $siteConfig         = $this->siteApi->getSiteConfig($site);
         $siteConfig['modules']['site_modules'][$module] = $config;
-        $this->cms->setSiteConfig($siteConfig, $site);
+        $this->siteApi->setSiteConfig($siteConfig, $site);
     }
 
     /**
@@ -362,9 +372,9 @@ class InstallManager implements InstallManagerInterface
      */
     protected function uninstallFromSite($module, Site $site)
     {
-        $siteConfig         = $this->cms->getSiteConfig($site);
+        $siteConfig         = $this->siteApi->getSiteConfig($site);
         unset($siteConfig['modules']['site_modules'][$module]);
-        $this->cms->setSiteConfig($siteConfig, $site);
+        $this->siteApi->setSiteConfig($siteConfig, $site);
     }
 
     /**
@@ -420,7 +430,7 @@ class InstallManager implements InstallManagerInterface
                 //Site uninstallation
                 /** @var $installer SiteUninstallableInterface */
                 if ($installer instanceof SiteUninstallableInterface) {
-                    $siteConfig = $this->cms->getSiteConfig($site);
+                    $siteConfig = $this->siteApi->getSiteConfig($site);
                     if (!isset($siteConfig['modules']['site_modules'][$module]['db_source'])) {
                         throw new Exception\DbSourceMissingInConfigException(
                             sprintf("%s: Db source missing in config of site '%s' when uninstalling module '%s'",
@@ -445,12 +455,12 @@ class InstallManager implements InstallManagerInterface
     {
         if (!is_null($site)) {
             if (is_string($site)) {
-                if (!$this->cms->siteExists($site)) {
+                if (!$this->siteApi->siteExists($site)) {
                     //The site does not exist
                     throw new Exception\SiteDoesNotExistException(
                         sprintf("%s: Site with name '%s' does not exist", __METHOD__, $site));
                 }
-                $site   = $this->cms->getSite($site);
+                $site   = $this->siteApi->getSite($site);
             }
             if (!$site instanceof Site) {
                 throw new Exception\InvalidArgumentException(

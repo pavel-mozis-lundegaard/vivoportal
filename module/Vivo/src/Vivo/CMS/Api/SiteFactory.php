@@ -20,7 +20,8 @@ class SiteFactory implements FactoryInterface
         $repository     = $serviceLocator->get('repository');
         $indexerApi     = $serviceLocator->get('Vivo\CMS\Api\Indexer');
         $queryBuilder   = $serviceLocator->get('indexer_query_builder');
-        $siteApi        = new Site($cms, $repository, $indexerApi, $queryBuilder);
+        $pathBuilder    = $serviceLocator->get('path_builder');
+        $siteApi        = new Site($cms, $repository, $indexerApi, $queryBuilder, $pathBuilder);
         return $siteApi;
     }
 }

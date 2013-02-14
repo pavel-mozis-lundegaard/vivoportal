@@ -228,6 +228,14 @@ class Entity
         return $text;
     }
 
+    public function getSearchable() {
+        return $this->searchable;
+    }
+
+    public function setSearchable($searchable) {
+        $this->searchable = $searchable;
+    }
+
     /**
      * Compares if this content is logically equivalent to another content.
      * This implementation compares only properties defined via $FIELDS.

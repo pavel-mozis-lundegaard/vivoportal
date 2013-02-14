@@ -36,6 +36,14 @@ class Hyperlink extends Model\Content
     }
 
     /**
+     * Sets hyperlink url.
+     * @param string $url
+     */
+    public function setUrl($url) {
+        $this->url = $url;
+    }
+
+    /**
      * @param array $field_names
      * @return string
      */

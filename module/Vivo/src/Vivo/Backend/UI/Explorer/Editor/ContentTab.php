@@ -109,7 +109,7 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
 
         $this->addComponent($component, 'contentEditor');
 
-        parent::init();
+        $component->init();
     }
 
     /**

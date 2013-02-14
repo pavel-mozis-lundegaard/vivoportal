@@ -1,15 +1,33 @@
 <?php
 namespace Vivo\CMS\UI\Content\Editor;
 
-class File extends Editor implements ContentEditorInterface
+use Vivo\UI\AbstractForm;
+use Vivo\Form\Form;
+
+class File extends AbstractForm implements ContentEditorInterface
 {
     public function save()
     {
-        // TODO: Auto-generated method stub
+        $form = $this->getForm();
+
+        if($form->isValid()) {
+            echo $form->get('resource')->getValue();
+        }
     }
 
-    public function view()
+    public function doGetForm()
     {
-        return __METHOD__;
+        $form = new Form('editor');
+        $form->add(array(
+            'name' => 'resource',
+            'type' => 'Vivo\Form\Element\Textarea',
+            'options' => array(
+                'label' => 'resource',
+                'rows' => 10,
+                'cols' => 5,
+            ),
+        ));
+
+        return $form;
     }
 }

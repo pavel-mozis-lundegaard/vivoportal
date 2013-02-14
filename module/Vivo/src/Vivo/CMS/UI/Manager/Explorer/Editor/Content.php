@@ -60,19 +60,23 @@ class Content extends AbstractForm
             // Example entity editor
             switch (get_class($this->entity)) {
                 case 'Vivo\CMS\Model\Content\File':
-                    $editor = 'Vivo\CMS\UI\Content\Editor\File';
+                    $editorClass = 'Vivo\CMS\UI\Content\Editor\File';
                     break;
 
                 case 'Vivo\CMS\Model\Content\Overview':
-                    $editor = 'Vivo\CMS\UI\Content\Editor\Overview';
+                    $editorClass = 'Vivo\CMS\UI\Content\Editor\Overview';
                     break;
 
                 default:
-                    $editor = 'Vivo\CMS\UI\Content\Editor\Editor';
+                    $editorClass = 'Vivo\CMS\UI\Content\Editor\Editor';
                     break;
             }
 
-            $this->addComponent(new $editor, 'contentEditor');
+            $editor = new $editorClass;
+            if($editor instanceof \Vivo\Service\Initializer\RequestAwareInterface) {
+                $editor->setRequest($this->request);
+            }
+            $this->addComponent($editor, 'contentEditor');
         }
     }
 
@@ -96,6 +100,7 @@ class Content extends AbstractForm
     public function save()
     {
         if ($this->getForm()->isValid()) {
+            $this->contentEditor->save();
             $this->documentApi->saveContent($this->contentContainer, $this->entity);
 
             return true;

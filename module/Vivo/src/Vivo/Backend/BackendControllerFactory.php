@@ -18,6 +18,8 @@ class BackendControllerFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $bc = new BackendController();
+
+
         $sm = $serviceLocator->getServiceLocator();
         $siteEvent = $sm->get('site_event');
 

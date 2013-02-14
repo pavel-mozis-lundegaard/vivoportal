@@ -53,6 +53,22 @@ class BackendController implements DispatchableInterface,
     protected $serviceManager;
 
     /**
+     * Security manager.
+     * @var AbstractManager
+     */
+    protected $securityManager;
+
+
+    /**
+     * Constructor.
+     * @param AbstractManager $securityManager
+     */
+    public function __construct(/*AbstractManager $securityManager*/)
+    {
+        //$this->securityManager = $securityManager;
+    }
+
+    /**
      * @param Site $site
      */
     public function setSiteEvent(SiteEvent $siteEvent)
@@ -81,7 +97,17 @@ class BackendController implements DispatchableInterface,
         $root = $sm->get('Vivo\CMS\UI\Root');
         $page = $sm->get('Vivo\UI\Page');
 
-        $page->setMain($sm->get('Vivo\Backend\UI\Backend'));
+
+//         if ($user = $this->securityManager->getUserPrincipal())
+//         {
+             $page->setMain($sm->get('Vivo\Backend\UI\Backend'));
+//         } else {
+//             $page->setMain($sm->get('Vivo\UI\Logon'));
+//         }
+
+
+
+
         $root->setMain($page);
 
         $this->tree->setRoot($root);

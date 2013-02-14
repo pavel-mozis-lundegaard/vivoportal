@@ -1,8 +1,8 @@
 <?php
-namespace Vivo\CMS\UI\Manager\Explorer\Editor;
+namespace Vivo\Backend\UI\Explorer\Editor;
 
 use Vivo\CMS\UI\AbstractForm;
-use Vivo\CMS\UI\Manager\Form\ContentEditor as ContentEditorForm;
+use Vivo\Backend\UI\Form\ContentEditor as ContentEditorForm;
 use Vivo\UI\TabContainerItemInterface;
 
 class Content extends AbstractForm

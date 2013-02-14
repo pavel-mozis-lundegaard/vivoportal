@@ -32,9 +32,9 @@ class ExplorerFactory implements FactoryInterface
         //$explorer->addComponent($sm->create('Vivo\Backend\UI\Explorer\Browser'), 'browser');
 //         $viewer = new Viewer($sm->get('Vivo\CMS\Api\CMS'));
 //         $explorer->addComponent($viewer, 'viewer');
-//         $explorer->addComponent($sm->create('Vivo\CMS\UI\Manager\Explorer\Editor'), 'editor');
+//         $explorer->addComponent($sm->create('Vivo\Backend\UI\Explorer\Editor'), 'editor');
 //         $explorer->addComponent($sm->create('Vivo\Backend\UI\Explorer\Inspect'), 'inspect');
-//         $explorer->addComponent($sm->create('Vivo\CMS\UI\Manager\Explorer\Editor'), 'editor');
+//         $explorer->addComponent($sm->create('Vivo\Backend\UI\Explorer\Editor'), 'editor');
 //         $explorer->addComponent($sm->create('Vivo\Backend\UI\Explorer\Inspect'), 'inspect');
 
         $tree = new \Vivo\Backend\UI\Explorer\Tree(

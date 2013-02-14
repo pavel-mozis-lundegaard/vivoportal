@@ -63,18 +63,17 @@ return array(
             'Vivo\CMS\UI\Content\Layout'    => 'Vivo\CMS\Service\UI\Content\LayoutFactory',
             'Vivo\CMS\UI\Content\Overview'  => 'Vivo\CMS\Service\UI\Content\OverviewFactory',
             'Vivo\CMS\UI\Content\Logon'     => 'Vivo\CMS\Service\UI\Content\LogonFactory',
-            'Vivo\CMS\UI\Manager\Explorer\Explorer'  => 'Vivo\CMS\UI\Manager\Explorer\ExplorerFactory',
-            'Vivo\CMS\UI\Manager\Explorer\Editor'  => 'Vivo\CMS\UI\Manager\Explorer\EditorFactory',
             'Vivo\UI\Page'                  => 'Vivo\Service\UI\PageFactory',
-            'Vivo\UI\Alert'                  => 'Vivo\UI\AlertFactory',
+            'Vivo\UI\Alert'                 => 'Vivo\UI\AlertFactory',
             'security_manager'              => 'Vivo\Service\SimpleSecurityManagerFactory',
 //            'security_manager'              => 'Vivo\Service\DbSecurityManagerFactory',
 
         //backend
         //TODO move to own config
-            'Vivo\Backend\UI\Backend'    => 'Vivo\Backend\UI\BackendFactory',
-            'Vivo\Backend\UI\SiteSelector'    => 'Vivo\Backend\UI\SiteSelectorFactory',
-            'Vivo\Backend\UI\Explorer\Explorer'    => 'Vivo\Backend\UI\Explorer\ExplorerFactory',
+            'Vivo\Backend\UI\Backend'           => 'Vivo\Backend\UI\BackendFactory',
+            'Vivo\Backend\UI\SiteSelector'      => 'Vivo\Backend\UI\SiteSelectorFactory',
+            'Vivo\Backend\UI\Explorer\Explorer' => 'Vivo\Backend\UI\Explorer\ExplorerFactory',
+            'Vivo\Backend\UI\Explorer\Editor'   => 'Vivo\Backend\UI\Explorer\EditorFactory',
         ),
         'aliases' => array(
         ),

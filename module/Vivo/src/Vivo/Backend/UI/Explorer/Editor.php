@@ -1,8 +1,8 @@
 <?php
-namespace Vivo\CMS\UI\Manager\Explorer;
+namespace Vivo\Backend\UI\Explorer;
 
 use Vivo\CMS\UI\AbstractForm;
-use Vivo\CMS\UI\Manager\Form\EntityEditor as EntityEditorForm;
+use Vivo\Backend\UI\Form\EntityEditor as EntityEditorForm;
 use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 use Vivo\CMS\Model\ContentContainer;
 
@@ -114,7 +114,7 @@ class Editor extends AbstractForm
 
     /**
      * @param \Vivo\CMS\Model\ContentContainer $contentContainer
-     * @return \Vivo\CMS\UI\Manager\Explorer\Editor\ContentEditor
+     * @return \Vivo\Backend\UI\Explorer\Editor\ContentEditor
      */
     private function getContentTab(\Vivo\CMS\Model\ContentContainer $contentContainer)
     {
@@ -140,11 +140,11 @@ class Editor extends AbstractForm
             $this->success = false;
         }
 
-        /* @var $component \Vivo\CMS\UI\Manager\Explorer\Editor\ContentTab */
+        /* @var $component \Vivo\Backend\UI\Explorer\Editor\ContentTab */
         $component = $this->getComponent('contentTab')->getSelectedComponent();
 
         if(!$component instanceof Editor\ContentTab) {
-            throw new \Exception('Selected tab is not instance of Vivo\CMS\UI\Manager\Explorer\Editor\ContentTab');
+            throw new \Exception('Selected tab is not instance of Vivo\Backend\UI\Explorer\Editor\ContentTab');
         }
 
         try {

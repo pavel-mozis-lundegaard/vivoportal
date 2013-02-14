@@ -80,11 +80,14 @@ class Content extends AbstractForm
             $resolver = new ComponentResolver($this->sm->get('cms_config'));
             $editorClass = $resolver->resolve(get_class($this->content), ComponentResolver::EDITOR_COMPONENT);
 
+            /* @var $editor \Vivo\CMS\UI\Content\Editor\EditorInterface */
             $editor = $this->sm->create($editorClass);
+            $editor->setContent($this->content);
 
             if($editor instanceof \Vivo\Service\Initializer\RequestAwareInterface) {
                 $editor->setRequest($this->request);
             }
+
             $this->addComponent($editor, 'contentEditor');
         }
     }

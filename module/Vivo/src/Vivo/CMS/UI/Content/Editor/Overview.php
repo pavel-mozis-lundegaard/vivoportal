@@ -4,36 +4,38 @@ namespace Vivo\CMS\UI\Content\Editor;
 use Vivo\CMS\Model\Content;
 use Vivo\UI\AbstractForm;
 use Vivo\Form\Form;
+use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
 
 class Overview extends AbstractForm implements EditorInterface
 {
     /**
-     * @var \Vivo\CMS\Model\Content
+     * @var \Vivo\CMS\Model\Content\Overview
      */
     private $content;
-
-    public function __construct()
-    {
-
-    }
 
     public function setContent(Content $content)
     {
         $this->content = $content;
     }
 
+    public function init()
+    {
+        parent::init();
+
+        $this->getForm()->bind($this->content);
+    }
+
     public function save()
     {
-        $form = $this->getForm();
-
-        if($form->isValid()) {
-
-        }
+        //TODO
+        $this->getForm()->isValid();
     }
 
     public function doGetForm()
     {
         $form = new Form('editor');
+        $form->setHydrator(new ClassMethodsHydrator(false));
+        $form->setOptions(array('use_as_base_fieldset' => true));
         $form->add(array(
             'name' => 'type',
             'type' => 'Vivo\Form\Element\Text',

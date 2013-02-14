@@ -8,9 +8,7 @@ class OverviewFactory implements FactoryInterface
 {
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $editor = new Overview();
-
-        return $editor;
+        return new Overview();
     }
 
 }

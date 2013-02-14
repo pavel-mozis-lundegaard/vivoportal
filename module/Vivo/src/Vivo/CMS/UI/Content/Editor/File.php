@@ -1,11 +1,27 @@
 <?php
 namespace Vivo\CMS\UI\Content\Editor;
 
+use Vivo\CMS\Model\Content;
 use Vivo\UI\AbstractForm;
 use Vivo\Form\Form;
 
-class File extends AbstractForm implements ContentEditorInterface
+class File extends AbstractForm implements EditorInterface
 {
+    /**
+     * @var \Vivo\CMS\Model\Content
+     */
+    private $content;
+
+    public function __construct()
+    {
+
+    }
+
+    public function setContent(Content $content)
+    {
+        $this->content = $content;
+    }
+
     public function save()
     {
         $form = $this->getForm();

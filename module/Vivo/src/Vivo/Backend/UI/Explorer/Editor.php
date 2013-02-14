@@ -1,7 +1,7 @@
 <?php
 namespace Vivo\Backend\UI\Explorer;
 
-use Vivo\CMS\UI\AbstractForm;
+use Vivo\UI\AbstractForm;
 use Vivo\Backend\UI\Form\EntityEditor as EntityEditorForm;
 use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 use Vivo\CMS\Model\ContentContainer;
@@ -11,9 +11,9 @@ use Zend\EventManager\Event;
 class Editor extends AbstractForm
 {
     /**
-     * @var \Vivo\CMS\Api\CMS
+     * @var \Zend\ServiceManager\ServiceManager
      */
-    private $cms;
+    private $sm;
     /**
      * @var \Vivo\Metadata\MetadataManager
      */
@@ -26,7 +26,6 @@ class Editor extends AbstractForm
      * @var bool
      */
     private $success;
-
     /**
      * Document API
      * @var DocumentApiInterface
@@ -34,13 +33,13 @@ class Editor extends AbstractForm
     protected $documentApi;
 
     /**
-     * @param \Vivo\CMS\Api\CMS $cms
+     * @param \Zend\ServiceManager\ServiceManager $sm
      * @param \Vivo\Metadata\MetadataManager $metadataManager
      * @param \Vivo\CMS\Api\DocumentInterface $documentApi
      */
-    public function __construct(\Vivo\CMS\Api\CMS $cms, \Vivo\Metadata\MetadataManager $metadataManager, DocumentApiInterface $documentApi)
+    public function __construct($sm, \Vivo\Metadata\MetadataManager $metadataManager, DocumentApiInterface $documentApi)
     {
-        $this->cms              = $cms;
+        $this->sm               = $sm;
         $this->metadataManager  = $metadataManager;
         $this->documentApi      = $documentApi;
     }
@@ -64,10 +63,10 @@ class Editor extends AbstractForm
         $containers = $this->documentApi->getContentContainers($this->entity);
         $count = count($containers);
         foreach ($containers as $index => $contentContainer) {
-            $this->contentTab->addComponent($this->getContentTab($contentContainer), "content_$index");
+            $this->contentTab->addComponent($this->createContentTab($contentContainer), "content_$index");
         }
 
-        $this->contentTab->addComponent($this->getContentTab(new ContentContainer()), 'content_'.++$count);
+        $this->contentTab->addComponent($this->createContentTab(new ContentContainer()), 'content_'.++$count);
 
         parent::init();
     }
@@ -116,10 +115,10 @@ class Editor extends AbstractForm
      * @param \Vivo\CMS\Model\ContentContainer $contentContainer
      * @return \Vivo\Backend\UI\Explorer\Editor\ContentEditor
      */
-    private function getContentTab(\Vivo\CMS\Model\ContentContainer $contentContainer)
+    private function createContentTab(\Vivo\CMS\Model\ContentContainer $contentContainer)
     {
-        $e = new Editor\ContentTab($this->documentApi, $this->metadataManager, $contentContainer);
-        $e->setRequest($this->request);
+        $e = $this->sm->create('Vivo\Backend\UI\Explorer\Editor\ContentTab');
+        $e->setContentContainer($contentContainer);
 
         return $e;
     }
@@ -142,10 +141,6 @@ class Editor extends AbstractForm
 
         /* @var $component \Vivo\Backend\UI\Explorer\Editor\ContentTab */
         $component = $this->getComponent('contentTab')->getSelectedComponent();
-
-        if(!$component instanceof Editor\ContentTab) {
-            throw new \Exception('Selected tab is not instance of Vivo\Backend\UI\Explorer\Editor\ContentTab');
-        }
 
         try {
             $this->success &= $component->save();

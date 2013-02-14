@@ -1,12 +1,17 @@
 <?php
 namespace Vivo\Backend\UI\Explorer\Editor;
 
-use Vivo\CMS\UI\AbstractForm;
-use Vivo\Backend\UI\Form\ContentEditor as ContentEditorForm;
+use Vivo\UI\AbstractForm;
 use Vivo\UI\TabContainerItemInterface;
+use Vivo\Backend\UI\Form\ContentEditor as ContentEditorForm;
+use Vivo\CMS\ComponentResolver;
 
 class Content extends AbstractForm
 {
+    /**
+     * @var \Zend\ServiceManager\ServiceManager
+     */
+    private $sm;
     /**
      * @var \Vivo\CMS\Model\ContentContainer
      */
@@ -16,9 +21,9 @@ class Content extends AbstractForm
      */
     private $contents = array();
     /**
-     * @var \Vivo\CMS\Model\Entity
+     * @var \Vivo\CMS\Model\Content
      */
-    private $entity;
+    private $content;
     /**
      * @var \Vivo\CMS\Api\Document
      */
@@ -29,20 +34,35 @@ class Content extends AbstractForm
     private $metadataManager;
 
     /**
+     * @param \Zend\ServiceManager\ServiceManager $sm
      * @param \Vivo\CMS\Api\Document $documentApi
      * @param \Vivo\Metadata\MetadataManager $metadataManager
-     * @param \Vivo\CMS\Model\ContentContainer $contentContainer
      */
     public function __construct(
+        \Zend\ServiceManager\ServiceManager $sm,
         \Vivo\CMS\Api\Document $documentApi,
-        \Vivo\Metadata\MetadataManager $metadataManager,
-        \Vivo\CMS\Model\ContentContainer $contentContainer, $e)
+        \Vivo\Metadata\MetadataManager $metadataManager)
     {
+        $this->sm = $sm;
         $this->documentApi = $documentApi;
         $this->metadataManager = $metadataManager;
-        $this->contentContainer = $contentContainer;
-        $this->entity = $e;
         $this->autoAddCsrf = false;
+    }
+
+    /**
+     * @param \Vivo\CMS\Model\ContentContainer $contentContainer
+     */
+    public function setContentContainer(\Vivo\CMS\Model\ContentContainer $contentContainer)
+    {
+        $this->contentContainer = $contentContainer;
+    }
+
+    /**
+     * @param \Vivo\CMS\Model\Content $content
+     */
+    public function setContent(\Vivo\CMS\Model\Content $content = null)
+    {
+        $this->content = $content;
     }
 
     public function init()
@@ -54,25 +74,14 @@ class Content extends AbstractForm
 
     protected function initEdior()
     {
-        if($this->entity) {
-            $this->getForm()->bind($this->entity);
+        if($this->content) {
+            $this->getForm()->bind($this->content);
 
-            // Example entity editor
-            switch (get_class($this->entity)) {
-                case 'Vivo\CMS\Model\Content\File':
-                    $editorClass = 'Vivo\CMS\UI\Content\Editor\File';
-                    break;
+            $resolver = new ComponentResolver($this->sm->get('cms_config'));
+            $editorClass = $resolver->resolve(get_class($this->content), ComponentResolver::EDITOR_COMPONENT);
 
-                case 'Vivo\CMS\Model\Content\Overview':
-                    $editorClass = 'Vivo\CMS\UI\Content\Editor\Overview';
-                    break;
+            $editor = $this->sm->create($editorClass);
 
-                default:
-                    $editorClass = 'Vivo\CMS\UI\Content\Editor\Editor';
-                    break;
-            }
-
-            $editor = new $editorClass;
             if($editor instanceof \Vivo\Service\Initializer\RequestAwareInterface) {
                 $editor->setRequest($this->request);
             }
@@ -82,10 +91,10 @@ class Content extends AbstractForm
 
     protected function doGetForm()
     {
-        if($this->entity) {
-            $metadata = $this->metadataManager->getMetadata(get_class($this->entity));
+        if($this->content) {
+            $metadata = $this->metadataManager->getMetadata(get_class($this->content));
 
-            $form = new ContentEditorForm('content-'.$this->entity->getUuid(), $metadata);
+            $form = new ContentEditorForm('content-'.$this->content->getUuid(), $metadata);
         }
         else {
             $form = new ContentEditorForm('content-NEW');
@@ -101,7 +110,7 @@ class Content extends AbstractForm
     {
         if ($this->getForm()->isValid()) {
             $this->contentEditor->save();
-            $this->documentApi->saveContent($this->contentContainer, $this->entity);
+            $this->documentApi->saveContent($this->contentContainer, $this->content);
 
             return true;
         }

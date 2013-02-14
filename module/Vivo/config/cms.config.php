@@ -43,7 +43,8 @@ return array(
             'Vivo\CMS\Model\Content\Logon'      => 'Vivo\CMS\UI\Content\Logon',
         ),
         'editor_component' => array (
-
+            'Vivo\CMS\Model\Content\File'       => 'Vivo\CMS\UI\Content\Editor\File',
+            'Vivo\CMS\Model\Content\Overview'   => 'Vivo\CMS\UI\Content\Editor\Overview',
         ),
     ),
     'service_manager' => array (
@@ -68,12 +69,18 @@ return array(
             'security_manager'              => 'Vivo\Service\SimpleSecurityManagerFactory',
 //            'security_manager'              => 'Vivo\Service\DbSecurityManagerFactory',
 
-        //backend
-        //TODO move to own config
+            //backend
+            //TODO move to own config
             'Vivo\Backend\UI\Backend'           => 'Vivo\Backend\UI\BackendFactory',
             'Vivo\Backend\UI\SiteSelector'      => 'Vivo\Backend\UI\SiteSelectorFactory',
             'Vivo\Backend\UI\Explorer\Explorer' => 'Vivo\Backend\UI\Explorer\ExplorerFactory',
             'Vivo\Backend\UI\Explorer\Editor'   => 'Vivo\Backend\UI\Explorer\EditorFactory',
+            'Vivo\Backend\UI\Explorer\Editor\Content' => 'Vivo\Backend\UI\Explorer\Editor\ContentFactory',
+            'Vivo\Backend\UI\Explorer\Editor\ContentTab' => 'Vivo\Backend\UI\Explorer\Editor\ContentTabFactory',
+
+            //TODO: content editor factories
+            'Vivo\CMS\UI\Content\Editor\File'     => 'Vivo\CMS\UI\Content\Editor\FileFactory',
+            'Vivo\CMS\UI\Content\Editor\Overview' => 'Vivo\CMS\UI\Content\Editor\OverviewFactory',
         ),
         'aliases' => array(
         ),

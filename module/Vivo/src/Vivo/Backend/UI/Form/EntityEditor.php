@@ -1,7 +1,7 @@
 <?php
-namespace Vivo\CMS\UI\Manager\Form;
+namespace Vivo\Backend\UI\Form;
 
-use Vivo\CMS\UI\Manager\Form\Fieldset\EntityEditor as EntityEditorFieldset;
+use Vivo\Backend\UI\Form\Fieldset\EntityEditor as EntityEditorFieldset;
 use Vivo\Form\Form;
 use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
 

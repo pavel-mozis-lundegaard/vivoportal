@@ -1,12 +1,16 @@
 <?php
-namespace Vivo\CMS\UI\Manager\Explorer\Editor;
+namespace Vivo\Backend\UI\Explorer\Editor;
 
-use Vivo\CMS\UI\AbstractForm;
+use Vivo\UI\AbstractForm;
 use Vivo\UI\TabContainerItemInterface;
 use Vivo\Form\Form;
 
 class ContentTab extends AbstractForm implements TabContainerItemInterface
 {
+    /**
+     * @var \Zend\ServiceManager\ServiceManager
+     */
+    private $sm;
     /**
      * @var \Vivo\CMS\Model\ContentContainer
      */
@@ -16,32 +20,27 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
      */
     private $contents = array();
     /**
-     * @var \Vivo\CMS\Model\Entity
-     */
-    private $entity;
-    /**
      * @var \Vivo\CMS\Api\Document
      */
     private $documentApi;
-    /**
-     * @var \Vivo\Metadata\MetadataManager
-     */
-    private $metadataManager;
 
     /**
+     * @param \Zend\ServiceManager\ServiceManager $sm
      * @param \Vivo\CMS\Api\Document $documentApi
-     * @param \Vivo\Metadata\MetadataManager $metadataManager
+     */
+    public function __construct(\Zend\ServiceManager\ServiceManager $sm, \Vivo\CMS\Api\Document $documentApi)
+    {
+        $this->sm = $sm;
+        $this->documentApi = $documentApi;
+        $this->autoAddCsrf = false;
+    }
+
+    /**
      * @param \Vivo\CMS\Model\ContentContainer $contentContainer
      */
-    public function __construct(
-        \Vivo\CMS\Api\Document $documentApi,
-        \Vivo\Metadata\MetadataManager $metadataManager,
-        \Vivo\CMS\Model\ContentContainer $contentContainer)
+    public function setContentContainer(\Vivo\CMS\Model\ContentContainer $contentContainer)
     {
-        $this->documentApi = $documentApi;
-        $this->metadataManager = $metadataManager;
         $this->contentContainer = $contentContainer;
-        $this->autoAddCsrf = false;
     }
 
     public function init()
@@ -84,30 +83,33 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
 
     private function doChangeVersion()
     {
-        $version = $this->getForm()->get('version')->getValue();
+        /* @var $content \Vivo\CMS\Model\Content */
+        $content = null;
 
-// print_r(explode(':', $version));
+        $version = $this->getForm()->get('version')->getValue();
 
         list($type, $param) = explode(':', $version);
 
         if($type == 'NEW') {
-            $this->entity = new $param;
+            $content = new $param;
         }
         elseif($type == 'EDIT') {
-            foreach ($this->contents as $content) {
-                if($content->getUuid() == $param) {
-                    $this->entity = $content;
+            foreach ($this->contents as $c) {
+                if($c->getUuid() == $param) {
+                    $content = $c;
                     break;
                 }
             }
         }
 
-        $component = new Content($this->documentApi, $this->metadataManager, $this->contentContainer, $this->entity);
-        $component->setRequest($this->request);
+        /* @var $component \Vivo\Backend\UI\Explorer\Editor\Content */
+        $component = $this->sm->create('Vivo\Backend\UI\Explorer\Editor\Content');
+        $component->setContentContainer($this->contentContainer);
+        $component->setContent($content);
 
         $this->addComponent($component, 'contentEditor');
 
-        parent::init();
+        $component->init();
     }
 
     /**
@@ -140,13 +142,6 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
     public function getLabel()
     {
         return $this->contentContainer->getContainerName() ? $this->contentContainer->getContainerName() : '+';
-    }
-
-    public function view()
-    {
-        $this->getView()->entity = $this->entity;
-
-        return parent::view();
     }
 
 }

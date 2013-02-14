@@ -4,7 +4,7 @@ namespace Vivo\Backend\UI\Explorer;
 use Vivo\Backend\UI\EntityManagerInterface;
 use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Model;
-use Vivo\CMS\UI\Manager\SiteSelector;
+use Vivo\Backend\UI\SiteSelector;
 use Vivo\Service\Initializer\RequestAwareInterface;
 use Vivo\UI\ComponentContainer;
 use Vivo\UI\PersistableInterface;
@@ -60,7 +60,7 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     protected $serviceManager;
 
     protected $explorerTabs = array(
-                'editor' => 'Vivo\CMS\UI\Manager\Explorer\Editor',
+                'editor' => 'Vivo\Backend\UI\Explorer\Editor',
                 'viewer' => 'Vivo\Backend\UI\Explorer\Viewer',
                 'browser' => 'Vivo\Backend\UI\Explorer\Browser',
                 'inspect' => 'Vivo\Backend\UI\Explorer\Inspect',
@@ -192,7 +192,7 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
 
     /**
      * (non-PHPdoc)
-     * @see \Vivo\CMS\UI\Manager\Explorer\EntityManagerInterface::setEntityByRelPath()
+     * @see \Vivo\Backend\UI\Explorer\EntityManagerInterface::setEntityByRelPath()
      */
     public function setEntityByRelPath($relPath)
     {

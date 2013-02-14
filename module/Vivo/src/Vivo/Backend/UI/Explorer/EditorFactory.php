@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\CMS\UI\Manager\Explorer;
+namespace Vivo\Backend\UI\Explorer;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
@@ -17,10 +17,9 @@ class EditorFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $sm                 = $serviceLocator->get('service_manager');
-        $cms                = $sm->get('Vivo\CMS\Api\CMS');
         $metadataManager    = $sm->get('metadata_manager');
         $documentApi        = $sm->get('Vivo\CMS\Api\Document');
-        $editor             = new Editor($cms, $metadataManager, $documentApi);
+        $editor             = new Editor($sm, $metadataManager, $documentApi);
         $editor->setTabContainer($sm->create('Vivo\UI\TabContainer'), 'contentTab');
         return $editor;
     }

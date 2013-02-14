@@ -30,4 +30,11 @@ class Component extends Model\Content implements ProvideFrontComponentInterface
     {
         return $this->frontComponent;
     }
+
+    /**
+     * @param string $frontComponent
+     */
+    public function setFrontComponent($frontComponent) {
+        $this->frontComponent = $frontComponent;
+    }
 }

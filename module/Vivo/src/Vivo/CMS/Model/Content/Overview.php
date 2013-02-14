@@ -154,4 +154,18 @@ class Overview extends Model\Content
                 array_merge($field_names,
                         array('overviewPath', 'overviewItems')));
     }
+
+    /**
+     * @param string $overviewPath
+     */
+    public function setOverviewPath($overviewPath) {
+        $this->overviewPath = $overviewPath;
+    }
+
+    /**
+     * @param array $overviewItems
+     */
+    public function setOverviewItems($overviewItems) {
+        $this->overviewItems = $overviewItems;
+    }
 }

@@ -19,10 +19,13 @@ return array(
             'Vivo\CMS\UI\Content\Overview:Inline'      => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.Inline.phtml',
             'Vivo\CMS\UI\Content\Overview:NavInline'      => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.NavInline.phtml',
             'Vivo\CMS\UI\Content\Overview:NavBlock'      => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.NavBlock.phtml',
-            'Vivo\CMS\UI\Content\Overview:Description' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.Description.phtml',
+            'Vivo\CMS\UI\Content\Overview:Desc' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.Desc.phtml',
             'Vivo\CMS\UI\Content\Overview:Date' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.Date.phtml',
             'Vivo\CMS\UI\Content\Overview:DateDesc' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.DateDesc.phtml',
             'Vivo\CMS\UI\Content\Overview:DateDescThumb' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.DateDescThumb.phtml',
+            'Vivo\CMS\UI\Content\Overview:Thumb' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.Thumb.phtml',
+            'Vivo\CMS\UI\Content\Overview:ThumbDesc' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.ThumbDesc.phtml',
+            'Vivo\CMS\UI\Content\Overview:Carousel' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.Carousel.phtml',
             'Vivo\CMS\UI\Content\Logon'         => __DIR__.'/../view/Vivo/CMS/UI/Content/Logon.phtml',
             'Vivo\UI\ComponentContainer'        => __DIR__.'/../view/Vivo/UI/ComponentContainer.phtml',
             'Vivo\UI\TabContainer'              => __DIR__.'/../view/Vivo/UI/TabContainer.phtml',
@@ -38,10 +41,13 @@ return array(
                 'Vivo\CMS\UI\Content\Overview:Inline',
                 'Vivo\CMS\UI\Content\Overview:NavInline',
                 'Vivo\CMS\UI\Content\Overview:NavBlock',
-                'Vivo\CMS\UI\Content\Overview:Description',
+                'Vivo\CMS\UI\Content\Overview:Desc',
                 'Vivo\CMS\UI\Content\Overview:Date',
                 'Vivo\CMS\UI\Content\Overview:DateDesc',
                 'Vivo\CMS\UI\Content\Overview:DateDescThumb',
+                'Vivo\CMS\UI\Content\Overview:Thumb',
+                'Vivo\CMS\UI\Content\Overview:Carousel',
+                'Vivo\CMS\UI\Content\Overview:ThumbDesc'
             ),
         ),
     ),
@@ -106,18 +112,6 @@ return array(
                 'links' => array (
                     array(
                         'rel'  => 'stylesheet',
-                        'href' => '/.Vivo.resource/css/bootstrap.css',
-                        'type' => 'text/css',
-                        'media' => 'screen'
-                    ),
-                    array(
-                        'rel'  => 'stylesheet',
-                        'href' => '/.Vivo.resource/css/bootstrap-responsive.css',
-                        'type' => 'text/css',
-                        'media' => 'screen'
-                    ),
-                    array(
-                        'rel'  => 'stylesheet',
                         'href' => '/.Vivo.resource/css/front.css',
                         'type' => 'text/css',
                         'media' => 'screen'
@@ -147,14 +141,11 @@ return array(
                     ),
                 ),
                 'scripts' => array (
-                    array(
-                        'src' => '/.Vivo.resource/js/jquery.js',
+                    /*array(
+                        'src' => '/.Vivo.resource/js/jquery/1-9-1/jquery.js',
                         'type' => 'text/javascript',
                     ),
-                    array(
-                        'src' => '/.Vivo.resource/js/bootstrap.js',
-                        'type' => 'text/javascript',
-                    ),
+                    */
                 ),
             'metas' => array (
                     array (

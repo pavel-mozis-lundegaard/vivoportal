@@ -1,4 +1,4 @@
-<div class="OverviewThumbDesc">
+<div class="OverviewThumb">
 <? if(count($children)) : ?>
 		<ul class="thumbnails">
 		<? foreach($children as $child) : ?>
@@ -9,10 +9,7 @@
 						<img src="<?=$this->resource($child->getImage(), $child) ?>" alt="" />
 						<? endif; ?>
 						<div class="span12 caption">
-							<h3><?=$child->getTitle();?></h3>
-							<? if ($child->getDescription()): ?>
-							<p><?= htmlspecialchars($child->getDescription()); ?></p>
-							<? endif; ?>
+							<strong><?=$child->getTitle();?></strong>
 						</div>
 					</div>
 				</a>
@@ -20,4 +17,6 @@
 		<? endforeach; ?>
 		</ul>
 	<? endif; ?>
+	</div>
 </div>
+

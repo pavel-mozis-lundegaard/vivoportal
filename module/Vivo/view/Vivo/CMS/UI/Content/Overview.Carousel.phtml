@@ -1,0 +1,40 @@
+<link rel="stylesheet" href="<?= $this->resource('css/swiper/1-8-5/idangerous.swiper.css','Vivo')?>">
+<link rel="stylesheet" href="<?= $this->resource('css/front-Overview.Carousel.css','Vivo')?>">
+
+<div class="OverviewCarousel">
+<? if(count($children)) : ?>
+	<ul>
+	<? foreach($children as $child) : ?>
+		<li class="clearfix">
+			
+			<a href="<?=$this->document($child)?>"><?=$child->getTitle();?></a><br />
+            <?/*=$child->published->format('d.m.Y') */?>
+            <? if ($child->getDescription()): ?>
+            <p><?= htmlspecialchars($child->getDescription()); ?></p>
+        	<? endif; ?>
+        </li>
+		<? endforeach; ?>
+	</ul>
+<? endif; ?>
+
+<div class="swiper-container">
+  <div class="swiper-wrapper">
+      <!--First Slide-->
+      <div class="swiper-slide">
+        <img src="/.entity/Files/picture1/Contents.1/1/.path/resource.jpg">
+      </div>
+      
+      <!--Second Slide-->
+      <div class="swiper-slide">
+        <!-- Any HTML content of the second slide goes here -->b
+      </div>
+      
+      <!--Third Slide-->
+      <div class="swiper-slide">
+        <!-- Any HTML content of the third slide goes here -->c
+      </div>
+      <!--Etc..-->
+  </div>
+</div>
+
+</div>

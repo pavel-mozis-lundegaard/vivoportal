@@ -1,18 +1,53 @@
 <div class="OverviewDateDescThumb">
-<? if(count($children)) : ?>
-	<ul>
-	<? foreach($children as $child) : ?>
-		<li class="clearfix">
-			<? if($child->image) : ?>
-				<img src="<?=$this->resource($child, $child->image) ?>?width=125&amp;height=81&amp;crop=1" alt="" />
-			<? endif; ?>
-			<a href="<?=$this->document($child)?>"><?=$child->getTitle();?></a><br />
-            <?/*=$child->published->format('d.m.Y') */?>
-            <? if ($child->getDescription()): ?>
-            <p><?= htmlspecialchars($child->getDescription()); ?></p>
-        	<? endif; ?>
-        </li>
+
+	<? if(count($children)) : ?>
+		<ul class="thumbnails">
+		<? foreach($children as $child) : ?>
+			<li class="span9">
+				<a class="thumbnail" href="<?=$this->document($child)?>">
+					<div class="row-fluid">
+						<div class="span3">
+							<? if($child->getImage()) : ?>
+							<img src="<?=$this->resource($child->getImage(), $child) ?>" alt="" />
+							<? endif; ?>
+						</div>
+						<div class="span9 caption">
+							<h3><?=$child->getTitle();?></h3>
+							<? if ($child->getDescription()): ?>
+							<p><?=$child->getPublished()->format('d.m.Y') ?></p>
+							<p><?= htmlspecialchars($child->getDescription()); ?></p>
+							<? endif; ?>
+						</div>
+					</div>
+				</a>
+			</li>
 		<? endforeach; ?>
-	</ul>
-<? endif; ?>
+		</ul>
+	<? endif; ?>
+
+	<?/*
+	<? if(count($children)) : ?>
+		<ul class="thumbnails">
+		<? foreach($children as $child) : ?>
+			<li class="span3">
+				<a class="thumbnail" href="<?=$this->document($child)?>">
+					<div class="row-fluid">
+						<? if($child->getImage()) : ?>
+						<img src="<?=$this->resource($child->getImage(), $child) ?>" alt="" />
+						<? endif; ?>
+						<div class="span12 caption">
+							<h3><?=$child->getTitle();?></h3>
+							<? if ($child->getDescription()): ?>
+							<p><?=$child->getPublished()->format('d.m.Y') ?></p>
+							<p><?= htmlspecialchars($child->getDescription()); ?></p>
+							<? endif; ?>
+						</div>
+					</div>
+				</a>
+			</li>
+		<? endforeach; ?>
+		</ul>
+	<? endif; ?>
+	*/?>
+	</div>
 </div>

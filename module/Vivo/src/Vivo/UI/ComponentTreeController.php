@@ -176,7 +176,7 @@ class ComponentTreeController
      * @return \RecursiveIteratorIterator
      * @see \RecursiveIteratorIterator for available modes.
      */
-    public function getTreeIterator($mode = \RecursiveIteratorIterator::CHILD_FIRST)
+    public function getTreeIterator($mode = \RecursiveIteratorIterator::SELF_FIRST)
     {
         $iter  = new ComponentTreeIterator($this->getRoot());
         return new \RecursiveIteratorIterator ($iter, $mode);

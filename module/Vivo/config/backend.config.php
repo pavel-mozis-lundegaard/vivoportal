@@ -1,9 +1,6 @@
 <?php
 /**
- * CMS config (cms_config), this configuration could be overwritten
- * by configuration in modules and sites.
- * This config is registered as 'cms_config' service, when all configuration
- * sources (site, modules) are merged.
+ * config for backend
  */
 return array(
     'templates' => array (
@@ -26,21 +23,10 @@ return array(
             'Vivo\UI\Ribbon\Item'               => __DIR__.'/../view/Vivo/UI/Ribbon/Item.phtml',
 
         ),
-        'custom_templates' => array (
-            // custom selectable templates
-            'Vivo\CMS\Model\Content\Overview' => array (
-                'Vivo\CMS\UI\Content\Overview:Description',
-                'Vivo\CMS\UI\Content\Overview',
-            ),
-        ),
     ),
+
     'component_mapping' => array (
         'front_component' => array (
-            'Vivo\CMS\Model\Content\Layout'     => 'Vivo\CMS\UI\Content\Layout',
-            'Vivo\CMS\Model\Content\File'       => 'Vivo\CMS\UI\Content\File',
-            'Vivo\CMS\Model\Content\Overview'   => 'Vivo\CMS\UI\Content\Overview',
-            'Vivo\CMS\Model\Content\Hyperlink'  => 'Vivo\CMS\UI\Content\Hyperlink',
-            'Vivo\CMS\Model\Content\Logon'      => 'Vivo\CMS\UI\Content\Logon',
         ),
         'editor_component' => array (
 
@@ -73,7 +59,6 @@ return array(
         //backend
         //TODO move to own config
             'Vivo\Backend\UI\Backend'    => 'Vivo\Backend\UI\BackendFactory',
-            'Vivo\Backend\UI\SiteSelector'    => 'Vivo\Backend\UI\SiteSelectorFactory',
             'Vivo\Backend\UI\Explorer\Explorer'    => 'Vivo\Backend\UI\Explorer\ExplorerFactory',
         ),
         'aliases' => array(
@@ -83,38 +68,31 @@ return array(
         'initializers' => array(
         ),
     ),
-    'di' => array (
-        'instance' => array (
-            'alias' => array (
-            ),
-            'Vivo\UI\Component' => array (
-                'injection' => array (
-                ),
-                'parameters' => array (
-                    'view' => 'Zend\View\Model\ViewModel',
-                ),
-            ),
-        ),
-    ),
 
     'ui' => array (
         //configuration of ui components
         'Vivo\UI\Page' => array (
             'doctype' => 'HTML5',
-//                 'links' => array (
-//                     array(
-//                         'rel'  => 'stylesheet',
-//                         'href' => '/.ModuleName.resource/css/definedInVivoConfig.css',
-//                         'type' => 'text/css',
-//                         'media' => 'screen'
-//                     ),
-//                 ),
-//                 'scripts' => array (
-//                     array(
-//                         'src' => '/.ModuleName.resource/js/front.js',
-//                         'type' => 'text/javascript',
-//                     ),
-//                 ),
+                'links' => array (
+                    array(
+                        'rel'  => 'stylesheet',
+                        'href' => '.Vivo.resource/bootstrap/css/bootstrap.css',
+                        'type' => 'text/css',
+                        'media' => 'screen'
+                    ),
+                    array(
+                            'rel'  => 'stylesheet',
+                            'href' => '.Vivo.resource/backend/css/manager.css',
+                            'type' => 'text/css',
+                            'media' => 'screen'
+                    ),
+            ),
+                'scripts' => array (
+                    array(
+                        'src' => '.Vivo.resource/bootstrap/js/bootstrap.js',
+                        'type' => 'text/javascript',
+                    ),
+                ),
             'metas' => array (
 //                     array (
 //                         'name' => 'Robots',

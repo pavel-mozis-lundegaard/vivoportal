@@ -1,5 +1,0 @@
-object Vivo\CMS\Model\Content\Component {
-	frontComponent string "Vivo\CMS\UI\Manager\Explorer\Explorer"
-  state string "PUBLISHED"
-	uuid string "C04097AD4C17025BA340A6C05D604382"
-}

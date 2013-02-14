@@ -1,9 +1,0 @@
-Select site:
-<?foreach($availableSites as $site):?>
-<?if ($selectedSite->getName() == $site->getName()):?>
-<?=$site->getName()?>
-<?else:?>
-<?=$this->actionLink('set', $site->getName(), array ($site->getName()))?>
-<?endif;?>
-&nbsp;|&nbsp;
-<?endforeach;?>

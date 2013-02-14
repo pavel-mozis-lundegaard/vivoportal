@@ -44,6 +44,10 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         $eventManager->attach(MvcEvent::EVENT_ROUTE, array ($this, 'registerTemplateResolver'));
         $eventManager->attach(MvcEvent::EVENT_ROUTE, array ($this, 'registerViewHelpers'));
 
+        $eventManager->attach(MvcEvent::EVENT_ROUTE, function ($e) use ($logger){
+            $logger->info('Matched route: '.$e->getRouteMatch()->getMatchedRouteName());
+        });
+
         $filterListener = $sm->get('Vivo\Http\Filter\OutputFilterListener');
         $filterListener->attach($eventManager);
     }
@@ -73,21 +77,59 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
     public function registerTemplateResolver(MvcEvent $e)
     {
         $sm = $e->getTarget()->getServiceManager();
-        $sm->get('viewresolver')->attach($sm->get('template_resolver'));
+        /* @var $viewResolver \Zend\View\Resolver\AggregateResolver */
+        $viewResolver = $sm->get('viewresolver');
+        $viewResolver->attach($sm->get('template_resolver'), 100);
     }
+
     /**
      * Registers view helpers to the view helper manager.
      * @param MvcEvent $e
      */
     public function registerViewHelpers($e) {
-        $app          = $e->getTarget();
-        $serviceLocator      = $app->getServiceManager();
+        $application    = $e->getTarget();
+        $serviceLocator = $application->getServiceManager();
+        $routeName      = $e->getRouteMatch()->getMatchedRouteName();
         /* @var $plugins \Zend\View\HelperPluginManager */
-        $plugins      = $serviceLocator->get('view_helper_manager');
-        $plugins->setFactory('resource', function($sm) use($serviceLocator) {
-            $helper = new ViewHelper\Resource($serviceLocator->get('Vivo\CMS\Api\CMS'));
+        $plugins        = $serviceLocator->get('view_helper_manager');
+
+        //register url view helper
+        $plugins->setFactory('url', function ($sm) use($serviceLocator) {
+            $helper = new ViewHelper\Url;
+            $router = \Zend\Console\Console::isConsole() ? 'HttpRouter' : 'Router';
+            $helper->setRouter($serviceLocator->get($router));
+            $match = $serviceLocator->get('application')->getMvcEvent()
+                    ->getRouteMatch();
+            if ($match instanceof \Zend\Mvc\Router\RouteMatch) {
+                $helper->setRouteMatch($match);
+            }
             return $helper;
         });
+
+        //set basepath for backend view
+        if ($routeName == 'backend/cms/query') {
+            $url = $plugins->get('url');
+            $path = $url('backend/cms/query', array('path'=>''), false);
+            $basePath = $plugins->get('basepath');
+            $basePath->setBasePath($path);
+        }
+
+        //define resources routes for Resource view helper
+        $resourceRouteMap = array ('vivo/cms/query' => 'vivo/resource',
+                'backend/cms/query' => 'backend/resource',
+                'backend/modules' => 'backend/backend_resource',
+        );
+        $resourceRouteName = isset($resourceRouteMap[$routeName])?
+        $resourceRouteMap[$routeName]: '';
+
+        //register resource view helper
+        $plugins->setFactory('resource', function($sm) use($serviceLocator, $resourceRouteName) {
+            $helper = new ViewHelper\Resource($serviceLocator->get('Vivo\CMS\Api\CMS'));
+            $helper->setResourceRouteName($resourceRouteName);
+            return $helper;
+        });
+
+        //register document view helper
         $plugins->setFactory('document', function($sm) use($serviceLocator) {
             $helper = new ViewHelper\Document($serviceLocator->get('Vivo\CMS\Api\CMS'));
             return $helper;
@@ -96,21 +138,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
 
     public function getServiceConfig()
     {
-        return array(
-            'factories' => array(
-                'Vivo\CMS\UI\Manager\HeaderBar' => function (ServiceManager $sm) {
-                    $headerBar = new \Vivo\CMS\UI\Manager\HeaderBar();
-                    $headerBar->addComponent($sm->get('Vivo\CMS\UI\Manager\SiteSelector'), 'siteSelector');
-                    $headerBar->addComponent($sm->get('Vivo\UI\Alert'), 'alert');
-                    return  $headerBar;
-                },
-                'Vivo\CMS\UI\Manager\SiteSelector' => function (ServiceManager $sm) {
-                    $siteSelector = new \Vivo\CMS\UI\Manager\SiteSelector(
-                            $sm->get('Vivo\CMS\Api\Manager\Manager'));
-                    return $siteSelector;
-                },
-            ),
-        );
+        return array();
     }
 
     public function getConsoleBanner(Console $console)

@@ -10,7 +10,6 @@ return array(
                 'type' => 'Vivo\Router\Hostname',
                 'may_terminate' => false,
                 'child_routes' => array(
-
                     'cms' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
@@ -21,14 +20,13 @@ return array(
                                 'path' => '',
                             ),
                         ),
-                        'may_terminate' => true,
+                        'may_terminate' => false,
                         'child_routes' => array(
                             'query' => array(
                                 'type' => 'Query',
                             ),
                         ),
                     ),
-
                     'resource' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
@@ -42,7 +40,6 @@ return array(
                             ),
                         ),
                     ),
-
                     'resource_entity' => array(
                             'type' => 'Zend\Mvc\Router\Http\Regex',
                             'options' => array(
@@ -55,19 +52,102 @@ return array(
                                     ),
                             ),
                     ),
+                ),
+            ),
 
-//                     'backend' => array(
-//                         'type' => 'Zend\Mvc\Router\Http\Regex',
-//                         'options' => array(
-//                             'regex'    => '/system/manager/(?<path>.*)',
-//                             'spec'    => '/system/manager/%path%',
-//                             'defaults' => array(
-//                                 'controller' => 'cms_front_controller',
-//                                 'path' => '',
-//                                 'module' => '',
-//                             ),
-//                         ),
-//                     ),
+            //routes configuration for backend
+            'backend' => array(
+                'type' => 'Vivo\Backend\Hostname',
+                'options' => array (
+                    'hosts' => array (
+                        'backend.v2'
+                    ),
+                ),
+                'may_terminate' => false,
+                'child_routes' => array(
+                    //route for backend modules
+                    //@example http://<backendhost>/<sitehost>/<moduleName>/
+                    'modules' => array(
+                        'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'options' => array(
+                            'regex'    => '/(?<host>.+?)/(?<module>.+?)/(?<path>.*)',
+                            'spec'    => '/%host%/%module%/%path%',
+                            'defaults' => array(
+                                'controller' => 'backend_controller',
+                                'path'   => '',
+                                'module' => 'explorer',
+                                'host' => '',
+                            ),
+                        ),
+                        'may_terminate' => false,
+                        'child_routes' => array(
+                                'query' => array(
+                                        'type' => 'Query',
+                                ),
+                        ),
+                    ),
+
+                    //route for viewing site in backend
+                    //@example http://<backendhost>/<sitehost>/view/<pathWithinSite>
+                    'cms' => array(
+                        'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'options' => array(
+                            'regex'    => '/(?<host>.*)/view/((?<path>.*)/)?',
+                            'spec'    => '/%host%/view/%path%/',
+                            'defaults' => array(
+                                'controller' => 'cms_front_controller',
+                                'path'   => '',
+                            ),
+                        ),
+                        'may_terminate' => false,
+                        'child_routes' => array(
+                            'query' => array(
+                                'type' => 'Query',
+                            ),
+                        ),
+                    ),
+                    //route for site resources in backend view
+                    'resource' => array(
+                            'type' => 'Zend\Mvc\Router\Http\Regex',
+                            'options' => array(
+                                    'regex'    => '/(?<host>.+)/view/\.(?<source>.+)\.(?<type>.+?)/(?<path>.+)',
+                                    'spec'    => '/%host%/view/.%source%.%type%/%path%',
+                                    'defaults' => array(
+                                            'controller' => 'resource_front_controller',
+                                            'type' => '',
+                                            'path' => '',
+                                            'source' => '',
+                                    ),
+                            ),
+                    ),
+                    //route for site entity resources in backend view
+                    'resource_entity' => array(
+                            'type' => 'Zend\Mvc\Router\Http\Regex',
+                            'options' => array(
+                                    'regex'    => '/(?<host>.+)/view/\.entity(?<entity>.+?)((\.path(?<path>.+)))',
+                                    'spec'    => '/%host%/view/.entity/%entity%/.path/%path%',
+                                    'defaults' => array(
+                                            'controller' => 'resource_front_controller',
+                                            'path' => '',
+                                            'source' => 'entity',
+                                    ),
+                            ),
+                    ),
+
+                    //route for resources for backend
+                    'backend_resource' => array(
+                            'type' => 'Zend\Mvc\Router\Http\Regex',
+                            'options' => array(
+                                    'regex'    => '/\.(?<source>.+)\.(?<type>.+?)/(?<path>.+)',
+                                    'spec'    => '/.%source%.%type%/%path%',
+                                    'defaults' => array(
+                                            'controller' => 'resource_front_controller',
+                                            'type' => '',
+                                            'path' => '',
+                                            'source' => '',
+                                    ),
+                            ),
+                    ),
                 ),
             ),
         ),
@@ -146,7 +226,6 @@ return array(
         ),
         'shared' => array(
             'view_model' => false,
-            'Vivo\CMS\UI\Manager\SiteSelector' => true,
         ),
         'initializers' => array(
             'component' => 'Vivo\Service\Initializer\ComponentInitializer',
@@ -175,6 +254,7 @@ return array(
             'cli_cms'                   => 'Vivo\Service\Controller\CLI\CLICmsControllerFactory',
             'cli_indexer'               => 'Vivo\Service\Controller\CLI\CLIIndexerControllerFactory',
             'cli_setup'                 => 'Vivo\Service\Controller\CLI\CLISetupControllerFactory',
+            'backend_controller'         => 'Vivo\Backend\BackendControllerFactory',
         ),
     ),
     'view_manager' => array(
@@ -203,6 +283,7 @@ return array(
             'action_url'        => 'Vivo\View\Helper\ActionUrl',
             'vivoform'          => 'Vivo\View\Helper\VivoForm',
             'vivoformfieldset'  => 'Vivo\View\Helper\VivoFormFieldset',
+          //  'url' => 'Vivo\View\Helper\Url',
         ),
     ),
 
@@ -497,5 +578,6 @@ return array(
     'cms'      => array(
         //this config key is reserved for merged cms configuration
         //default values and structure are in cms.config.php
+        //do not access to this key directly - use service 'cms_config'
     ),
 );

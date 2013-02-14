@@ -1,5 +1,0 @@
-object Vivo\CMS\Model\Content\Component {
-  frontComponent string "Vivo\CMS\UI\Manager\FooterBar"
-  state string "PUBLISHED"
-	uuid string "A2D21AA25B69D89FAB5001CBE2D8A996"
-}

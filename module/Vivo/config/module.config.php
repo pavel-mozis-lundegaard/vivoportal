@@ -35,7 +35,7 @@ return array(
                     'resource' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
-                            'regex'    => '/\.(?<source>.+)\.(?<type>.+?)/(?<path>.+)',
+                            'regex'    => '/\.(?<source>.+?)\.(?<type>.+?)/(?<path>.+)',
                             'spec'    => '/.%source%.%type%/%path%',
                             'defaults' => array(
                                 'controller' => 'resource_front_controller',

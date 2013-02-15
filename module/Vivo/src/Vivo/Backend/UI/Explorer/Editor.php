@@ -55,9 +55,9 @@ class Editor extends AbstractForm
 
     private function initEdior()
     {
-        $this->getForm()->bind($this->entity);
-
         $this->contentTab->removeAllComponents();
+
+        $this->getForm()->bind($this->entity);
 
         /* @var $contentContainer \Vivo\CMS\Model\ContentContainer */
         $containers = $this->documentApi->getContentContainers($this->entity);
@@ -133,7 +133,7 @@ class Editor extends AbstractForm
         $form = $this->getForm();
 
         if ($form->isValid()) {
-            $this->documentApi->saveDocument($this->entity);
+            $this->entity = $this->documentApi->saveDocument($this->entity);
         }
         else {
             $this->success = false;

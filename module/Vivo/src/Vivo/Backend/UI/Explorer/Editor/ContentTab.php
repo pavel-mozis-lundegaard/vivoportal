@@ -131,7 +131,7 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
 
     public function select()
     {
-        // TODO: Auto-generated method stub
+
     }
 
     public function isDisabled()

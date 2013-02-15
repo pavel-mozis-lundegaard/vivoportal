@@ -5,11 +5,14 @@
 return array(
     'router' => array(
         'routes' => array(
+            //routes for frontend
             'vivo' => array(
                 //only add hostname to routermatch
                 'type' => 'Vivo\Router\Hostname',
                 'may_terminate' => false,
                 'child_routes' => array(
+                    //route for frontend documents
+                    //@example http://<sitehost>/<path>/
                     'cms' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
@@ -27,6 +30,8 @@ return array(
                             ),
                         ),
                     ),
+                    //route for fronend resources
+                    //@example http://<sitehost>/.<moduleName>.<resourceType>/<path>
                     'resource' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
@@ -40,17 +45,19 @@ return array(
                             ),
                         ),
                     ),
+                    //route for entity resources
+                    //@example http://<sitehost>/.entity/<entityPath>/.path/<resourcePath>
                     'resource_entity' => array(
-                            'type' => 'Zend\Mvc\Router\Http\Regex',
-                            'options' => array(
-                                    'regex'    => '/\.entity(?<entity>.+?)((\.path(?<path>.+)))',
-                                    'spec'    => '/.entity/%entity%/.path/%path%',
-                                    'defaults' => array(
-                                            'controller' => 'resource_front_controller',
-                                            'path' => '',
-                                            'source' => 'entity',
-                                    ),
+                        'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'options' => array(
+                            'regex'    => '/\.entity(?<entity>.+?)((\.path(?<path>.+)))',
+                            'spec'    => '/.entity/%entity%/.path/%path%',
+                            'defaults' => array(
+                                'controller' => 'resource_front_controller',
+                                'path' => '',
+                                'source' => 'entity',
                             ),
+                        ),
                     ),
                 ),
             ),
@@ -58,17 +65,31 @@ return array(
             //routes configuration for backend
             'backend' => array(
                 'type' => 'Vivo\Backend\Hostname',
+                'may_terminate' => false,
                 'options' => array (
                     'hosts' => array (
-                        'backend.v2'
                     ),
                 ),
-                'may_terminate' => false,
                 'child_routes' => array(
+                    //default backend route
+                    //@example http://<backendhost>/
+                    'default' => array (
+                        'type' => 'Literal',
+                        'may_terminate' => true,
+                        'options' => array(
+                            'route' => '/',
+                            'defaults' => array(
+                                'controller' => 'backend_controller',
+                            ),
+                        ),
+
+                    ),
+
                     //route for backend modules
                     //@example http://<backendhost>/<sitehost>/<moduleName>/
                     'modules' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'may_terminate' => false,
                         'options' => array(
                             'regex'    => '/(?<host>.+?)/(?<module>.+?)/(?<path>.*)',
                             'spec'    => '/%host%/%module%/%path%',
@@ -79,18 +100,38 @@ return array(
                                 'host' => '',
                             ),
                         ),
-                        'may_terminate' => false,
                         'child_routes' => array(
                                 'query' => array(
                                         'type' => 'Query',
                                 ),
                         ),
                     ),
-
+                    //route for modules without site context (system modules)
+                    //@example http://<backendhost>/system/<moduleName>/
+                    'system' => array (
+                        'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'may_terminate' => false,
+                        'options' => array(
+                            'regex'    => '/system/(?<module>.+?)/(?<path>.*)',
+                            'spec'    => '/system/%module%/%path%',
+                            'defaults' => array(
+                                'controller' => 'backend_controller',
+                                'path'   => '',
+                                'module' => 'explorer',
+                                'host' => '',
+                            ),
+                        ),
+                        'child_routes' => array(
+                                'query' => array(
+                                        'type' => 'Query',
+                                ),
+                        ),
+                    ),
                     //route for viewing site in backend
                     //@example http://<backendhost>/<sitehost>/view/<pathWithinSite>
                     'cms' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'may_terminate' => false,
                         'options' => array(
                             'regex'    => '/(?<host>.*)/view/((?<path>.*)/)?',
                             'spec'    => '/%host%/view/%path%/',
@@ -99,7 +140,6 @@ return array(
                                 'path'   => '',
                             ),
                         ),
-                        'may_terminate' => false,
                         'child_routes' => array(
                             'query' => array(
                                 'type' => 'Query',
@@ -107,46 +147,47 @@ return array(
                         ),
                     ),
                     //route for site resources in backend view
+                    //@example http://<backendhost>/<sitehost>/view/.<moduleName>.<resourceType>/<path>
                     'resource' => array(
-                            'type' => 'Zend\Mvc\Router\Http\Regex',
-                            'options' => array(
-                                    'regex'    => '/(?<host>.+)/view/\.(?<source>.+)\.(?<type>.+?)/(?<path>.+)',
-                                    'spec'    => '/%host%/view/.%source%.%type%/%path%',
-                                    'defaults' => array(
-                                            'controller' => 'resource_front_controller',
-                                            'type' => '',
-                                            'path' => '',
-                                            'source' => '',
-                                    ),
+                        'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'options' => array(
+                            'regex'    => '/(?<host>.+)/view/\.(?<source>.+)\.(?<type>.+?)/(?<path>.+)',
+                            'spec'    => '/%host%/view/.%source%.%type%/%path%',
+                            'defaults' => array(
+                                'controller' => 'resource_front_controller',
+                                'type' => '',
+                                'path' => '',
+                                'source' => '',
                             ),
+                        ),
                     ),
                     //route for site entity resources in backend view
                     'resource_entity' => array(
-                            'type' => 'Zend\Mvc\Router\Http\Regex',
-                            'options' => array(
-                                    'regex'    => '/(?<host>.+)/view/\.entity(?<entity>.+?)((\.path(?<path>.+)))',
-                                    'spec'    => '/%host%/view/.entity/%entity%/.path/%path%',
-                                    'defaults' => array(
-                                            'controller' => 'resource_front_controller',
-                                            'path' => '',
-                                            'source' => 'entity',
-                                    ),
+                        'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'options' => array(
+                            'regex'    => '/(?<host>.+)/view/\.entity(?<entity>.+?)((\.path(?<path>.+)))',
+                            'spec'    => '/%host%/view/.entity/%entity%/.path/%path%',
+                            'defaults' => array(
+                                'controller' => 'resource_front_controller',
+                                'path' => '',
+                                'source' => 'entity',
                             ),
+                        ),
                     ),
 
                     //route for resources for backend
                     'backend_resource' => array(
-                            'type' => 'Zend\Mvc\Router\Http\Regex',
-                            'options' => array(
-                                    'regex'    => '/\.(?<source>.+)\.(?<type>.+?)/(?<path>.+)',
-                                    'spec'    => '/.%source%.%type%/%path%',
-                                    'defaults' => array(
-                                            'controller' => 'resource_front_controller',
-                                            'type' => '',
-                                            'path' => '',
-                                            'source' => '',
-                                    ),
+                        'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'options' => array(
+                            'regex'    => '/\.(?<source>.+)\.(?<type>.+?)/(?<path>.+)',
+                            'spec'    => '/.%source%.%type%/%path%',
+                            'defaults' => array(
+                                'controller' => 'resource_front_controller',
+                                'type' => '',
+                                'path' => '',
+                                'source' => '',
                             ),
+                        ),
                     ),
                 ),
             ),

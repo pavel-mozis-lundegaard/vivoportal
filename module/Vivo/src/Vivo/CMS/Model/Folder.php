@@ -96,6 +96,46 @@ class Folder extends Entity
         return $this->title;
     }
 
+    public function getLanguage() {
+        return $this->language;
+    }
+
+    public function setLanguage($language) {
+        $this->language = $language;
+    }
+
+    public function getDescription() {
+        return $this->description;
+    }
+
+    public function setDescription($description) {
+        $this->description = $description;
+    }
+
+    public function getAllowListing() {
+        return $this->allowListing;
+    }
+
+    public function getPosition() {
+        return $this->position;
+    }
+
+    public function getSorting() {
+        return $this->sorting;
+    }
+
+    public function setSorting($sorting) {
+        $this->sorting = $sorting;
+    }
+
+    public function getSecurity() {
+        return $this->security;
+    }
+
+    public function setSecurity(Security $security) {
+        $this->security = $security;
+    }
+
     /**
      * @param int $position
      */
@@ -105,27 +145,11 @@ class Folder extends Entity
     }
 
     /**
-     * @return int
-     */
-    public function getPosition()
-    {
-        return $this->position;
-    }
-
-    /**
      * @param bool allowListing
      */
     public function setAllowListing($allowListing = true)
     {
         $this->allowListing = (bool)$allowListing;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getAllowListing()
-    {
-        return $this->allowListing;
     }
 
     /**

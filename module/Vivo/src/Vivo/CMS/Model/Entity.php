@@ -217,5 +217,4 @@ class Entity implements PathInterface
     {
 
     }
-
 }

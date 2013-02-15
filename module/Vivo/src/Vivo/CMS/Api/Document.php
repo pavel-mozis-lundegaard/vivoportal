@@ -271,28 +271,68 @@ class Document implements DocumentInterface
         $this->repository->commit();
     }
 
-    public function saveDocument(Model\Document $document/*, $parent = null*/)
+    /**
+     * @param Model\Document $document
+     * @return Model\Document
+     */
+    public function saveDocument(Model\Document $document)
     {
-        /*
-                if($parent != null && !$parent instanceof Model\Document && !$parent instanceof Model\Site) {
-                    throw new \InvalidArgumentException(sprintf('Argument %d passed to %s must be an instance of %s',
-                        2, __METHOD__, implode(', ', array('Vivo\Model\Document', 'Vivo\Model\Site')))
-                    );
-                }
-         */
-        $options    = array(
-            'published_content_types'   => $this->getPublishedContentTypes($document),
+        $options = array(
+            'published_content_types' => $this->getPublishedContentTypes($document),
         );
         $this->cms->saveEntity($document, $options);
+
+        return $document;
+    }
+
+    /**
+     * @param Model\ContentContainer $container
+     * @param Model\Content $content
+     * @return \Model\Content
+     */
+    public function createContent(Model\ContentContainer $container, Model\Content $content)
+    {
+        $versions = count($this->getContentVersions($container));
+
+        $path = $container->getPath().'/'.$versions;
+
+        $content->setPath($path);
+
+        $this->updateContentStates($container, $content);
+        $content = $this->cms->prepareEntityForSaving($content);
+
+        $this->repository->saveEntity($content);
+        $this->repository->commit();
+
+        return $content;
     }
 
     /**
      * Saves content
      * The entity is prepared before saving into repository
-     * @param Model\Entity $entity
-     * @param bool $commit
+     *
+     * @param Model\Content $content
+     * @return Model\Content
      */
-    public function saveContent(Model\ContentContainer $container, Model\Content $content)
+    public function saveContent(Model\Content $content)
+    {
+        $container = $this->cms->getEntityParent($content);
+
+        $this->updateContentStates($container, $content);
+
+        $content = $this->cms->prepareEntityForSaving($content);
+
+        $this->repository->saveEntity($content);
+        $this->repository->commit();
+
+        return $content;
+    }
+
+    /**
+     * @param Model\ContentContainer $container
+     * @param Model\Content $content
+     */
+    protected function updateContentStates(Model\ContentContainer $container, Model\Content $content)
     {
         $contentVersions = $this->getContentVersions($container);
 
@@ -305,11 +345,6 @@ class Document implements DocumentInterface
                 $this->cms->saveEntity($version, false);
             }
         }
-
-        $content = $this->cms->prepareEntityForSaving($content);
-//         print_r($content);
-        $this->repository->saveEntity($content);
-        $this->repository->commit();
     }
 
     /**

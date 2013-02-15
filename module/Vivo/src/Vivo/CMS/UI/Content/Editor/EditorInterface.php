@@ -2,6 +2,7 @@
 namespace Vivo\CMS\UI\Content\Editor;
 
 use Vivo\CMS\Model\Content;
+use Vivo\CMS\Model\ContentContainer;
 
 interface EditorInterface
 {
@@ -13,6 +14,6 @@ interface EditorInterface
     /**
      * Save action.
      */
-    public function save();
+    public function save(ContentContainer $container);
 
 }

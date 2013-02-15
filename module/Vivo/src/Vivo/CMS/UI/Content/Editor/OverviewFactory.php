@@ -8,7 +8,11 @@ class OverviewFactory implements FactoryInterface
 {
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        return new Overview();
+        $docApi = $serviceLocator->get('Vivo\CMS\Api\Document');
+
+        $editor = new Overview($docApi);
+
+        return $editor;
     }
 
 }

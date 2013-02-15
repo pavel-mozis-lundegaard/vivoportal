@@ -1,3 +1,10 @@
-<?=$this->vivoForm($form, array('renderFormTag' => false))?>
-<hr />
+<?
+foreach ($form->get('content')->getElements() as $name=>$element) {
+    if($name != 'state') {
+        echo $this->formRow($element);
+    }
+}
+?>
 <?=$this->contentEditor?>
+<hr />
+<?= $this->formRow($form->get('content')->get('state'))?>

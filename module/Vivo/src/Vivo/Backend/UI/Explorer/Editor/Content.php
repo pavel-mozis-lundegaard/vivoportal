@@ -4,6 +4,7 @@ namespace Vivo\Backend\UI\Explorer\Editor;
 use Vivo\UI\AbstractForm;
 use Vivo\UI\TabContainerItemInterface;
 use Vivo\Backend\UI\Form\ContentEditor as ContentEditorForm;
+use Vivo\CMS\Model;
 use Vivo\CMS\ComponentResolver;
 
 class Content extends AbstractForm
@@ -13,18 +14,6 @@ class Content extends AbstractForm
      */
     private $sm;
     /**
-     * @var \Vivo\CMS\Model\ContentContainer
-     */
-    private $contentContainer;
-    /**
-     * @var array
-     */
-    private $contents = array();
-    /**
-     * @var \Vivo\CMS\Model\Content
-     */
-    private $content;
-    /**
      * @var \Vivo\CMS\Api\Document
      */
     private $documentApi;
@@ -32,6 +21,14 @@ class Content extends AbstractForm
      * @var \Vivo\Metadata\MetadataManager
      */
     private $metadataManager;
+    /**
+     * @var \Vivo\CMS\Model\ContentContainer
+     */
+    private $contentContainer;
+    /**
+     * @var \Vivo\CMS\Model\Content
+     */
+    private $content;
 
     /**
      * @param \Zend\ServiceManager\ServiceManager $sm
@@ -52,7 +49,7 @@ class Content extends AbstractForm
     /**
      * @param \Vivo\CMS\Model\ContentContainer $contentContainer
      */
-    public function setContentContainer(\Vivo\CMS\Model\ContentContainer $contentContainer)
+    public function setContentContainer(Model\ContentContainer $contentContainer)
     {
         $this->contentContainer = $contentContainer;
     }
@@ -60,7 +57,7 @@ class Content extends AbstractForm
     /**
      * @param \Vivo\CMS\Model\Content $content
      */
-    public function setContent(\Vivo\CMS\Model\Content $content = null)
+    public function setContent(Model\Content $content = null)
     {
         $this->content = $content;
     }
@@ -75,7 +72,12 @@ class Content extends AbstractForm
     protected function initEdior()
     {
         if($this->content) {
-            $this->getForm()->bind($this->content);
+            $form = $this->getForm();
+            $form->bind($this->content);
+
+            if(!$this->content->getUuid()) {
+                $form->get('content')->get('state')->setValue('NEW');
+            }
 
             $resolver = new ComponentResolver($this->sm->get('cms_config'));
             $editorClass = $resolver->resolve(get_class($this->content), ComponentResolver::EDITOR_COMPONENT);
@@ -84,10 +86,6 @@ class Content extends AbstractForm
             $editor = $this->sm->create($editorClass);
             $editor->setContent($this->content);
 
-            if($editor instanceof \Vivo\Service\Initializer\RequestAwareInterface) {
-                $editor->setRequest($this->request);
-            }
-
             $this->addComponent($editor, 'contentEditor');
         }
     }
@@ -95,13 +93,15 @@ class Content extends AbstractForm
     protected function doGetForm()
     {
         if($this->content) {
+            $id = $this->content->getUuid();
             $metadata = $this->metadataManager->getMetadata(get_class($this->content));
-
-            $form = new ContentEditorForm('content-'.$this->content->getUuid(), $metadata);
         }
         else {
-            $form = new ContentEditorForm('content-NEW');
+            $id = 0;
+            $metadata = array();
         }
+
+        $form = new ContentEditorForm('content-'.$id, $metadata);
 
         return $form;
     }
@@ -112,8 +112,7 @@ class Content extends AbstractForm
     public function save()
     {
         if ($this->getForm()->isValid()) {
-            $this->contentEditor->save();
-            $this->documentApi->saveContent($this->contentContainer, $this->content);
+            $this->contentEditor->save($this->contentContainer);
 
             return true;
         }

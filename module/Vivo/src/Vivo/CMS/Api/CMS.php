@@ -131,6 +131,15 @@ class CMS
     }
 
     /**
+     * @param Model\Entity $entity
+     * @return \Vivo\CMS\Model\Entity
+     */
+    public function getEntityParent(Model\Entity $entity)
+    {
+        return $this->repository->getParent($entity);
+    }
+
+    /**
      * Saves entity
      * The entity is prepared before saving into repository
      * @param Model\Entity $entity

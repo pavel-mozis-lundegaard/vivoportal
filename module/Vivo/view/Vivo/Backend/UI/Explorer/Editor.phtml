@@ -1,9 +1,4 @@
 Editor<hr>
-<? if($success === 1) : ?>
-    <div style="border:1px solid green">Saved...</div>
-<? elseif($success === 0) : ?>
-    <div style="border:1px solid red">Error...</div>
-<? endif; ?>
 <form action="<?=$form->getAttribute('action')?>" method="<?=$form->getAttribute('method')?>">
     <?=$this->vivoForm($form, array('renderFormTag' => false))?>
     <hr>

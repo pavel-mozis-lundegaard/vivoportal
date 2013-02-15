@@ -5,68 +5,66 @@ use Vivo\Security\Manager\AbstractManager;
 
 class Logon extends \Vivo\UI\AbstractForm
 {
-
-    /**
-     * @var AbstractManager
-     */
     protected $securityManager;
 
-    public function __construct(/*AbstractManager $securityManager*/)
+    public function __construct(\Vivo\Security\Manager\AbstractManager $securityManager)
     {
-//        $this->securityManager = $securityManager;
+        $this->securityManager = $securityManager;
+    }
+
+    public function init()
+    {
+        parent::init();
     }
 
     public function logon()
     {
-        $form   = $this->getForm();
+        $form = $this->getForm();
         if ($form->isValid()) {
-            echo "valid";
+            //Form is valid
+            $validatedData = $form->getData();
+            $result = $this->securityManager->authenticate(
+                    $validatedData['logon']['domain'],
+                    $validatedData['logon']['username'],
+                    $validatedData['logon']['password']
+                    );
         }
+
+        //$this->redirector->redirect();
     }
 
     public function logoff()
     {
-        echo __METHOD__;
+        $this->securityManager->removeUserPrincipal();
     }
 
     protected function doGetForm()
     {
-        $form = new \Vivo\Form\Logon();
-
-        $fieldset = $form->get('logon');
-        /* @var $fieldset \Zend\Form\Fieldset */
-        $fieldset->add(array(
-            'name'      => 'domain',
-            'options'   => array(
-                'label'     => 'Domain',
-            ),
-            'attributes'    => array(
-                'type'      => 'text',
-
-            ),
-        ));
-
+        $form = new \Vivo\Form\Logon;
+        $fs = $form->get('logon');
         $form->add(array(
             'name' => 'act',
-            'attributes'    => array(
-                'type'          => 'hidden',
-                'value'     => $this->getPath('logon'),
+            'attributes' => array(
+                'type' => 'hidden',
+                'value' => $this->getPath('logon'),
             ),
         ));
 
-echo get_class($form->getInputFilter()->get('logon'));
-        $form->getInputFilter()->get('logon')->add(array(
-              // array(
-                'required'  => true,
-            //)
-            ),'domainx');
-
-    print_r($form->getInputFilter());
-
-    print_r($form->getInputFilter()->get('logon'));
-    die();
-
+        $fs->add(array('name' => 'domain',
+            'options' => array(
+                'label' => 'Domain',
+            ),
+            'attributes' => array(
+                'type' => 'text',
+//                'value'         => $this->getPath('logon'),
+            ),));
 
         return $form;
+    }
+
+    public function view()
+    {
+        $this->view->user = $this->securityManager->getUserPrincipal();
+        return parent::view();
     }
 }

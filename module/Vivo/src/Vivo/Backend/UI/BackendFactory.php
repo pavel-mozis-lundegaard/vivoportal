@@ -24,6 +24,7 @@ class BackendFactory implements FactoryInterface
 
         $headerBar->addComponent($sm->get('Vivo\Backend\UI\SiteSelector'), 'siteSelector');
         $headerBar->addComponent($sm->get('Vivo\UI\Alert'), 'alert');
+        $headerBar->addComponent($sm->get('Vivo\Backend\UI\Logon'), 'logon');
 
 
 

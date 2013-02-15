@@ -2,6 +2,7 @@
 namespace Vivo\Backend\UI\Explorer;
 
 use Vivo\UI\AbstractForm;
+use Vivo\UI\Alert;
 use Vivo\Backend\UI\Form\EntityEditor as EntityEditorForm;
 use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 use Vivo\CMS\Model\ContentContainer;
@@ -14,23 +15,27 @@ class Editor extends AbstractForm
      * @var \Zend\ServiceManager\ServiceManager
      */
     private $sm;
-    /**
-     * @var \Vivo\Metadata\MetadataManager
-     */
-    private $metadataManager;
-    /**
-     * @var \Vivo\CMS\Model\Entity
-     */
-    private $entity;
-    /**
-     * @var bool
-     */
-    private $success;
+
     /**
      * Document API
      * @var DocumentApiInterface
      */
     protected $documentApi;
+
+    /**
+     * @var \Vivo\Metadata\MetadataManager
+     */
+    private $metadataManager;
+
+    /**
+     * @var \Vivo\CMS\Model\Entity
+     */
+    private $entity;
+
+    /**
+     * @var \Vivo\UI\Alert
+     */
+    private $alert;
 
     /**
      * @param \Zend\ServiceManager\ServiceManager $sm
@@ -42,6 +47,14 @@ class Editor extends AbstractForm
         $this->sm               = $sm;
         $this->metadataManager  = $metadataManager;
         $this->documentApi      = $documentApi;
+    }
+
+    /**
+     * @param Alert $alert
+     */
+    public function setAlert(Alert $alert)
+    {
+        $this->alert = $alert;
     }
 
     public function init()
@@ -129,35 +142,37 @@ class Editor extends AbstractForm
      */
     public function save()
     {
-        $this->success = true;
+        $success = true;
         $form = $this->getForm();
 
         if ($form->isValid()) {
             $this->entity = $this->documentApi->saveDocument($this->entity);
         }
         else {
-            $this->success = false;
+            $success = false;
         }
 
         /* @var $component \Vivo\Backend\UI\Explorer\Editor\ContentTab */
         $component = $this->getComponent('contentTab')->getSelectedComponent();
 
         try {
-            $this->success &= $component->save();
+            $success &= $component->save();
         }
         catch(\Exception $e) {
             throw $e;
         }
 
+        if($this->alert) {
+            if($success) {
+                $this->alert->addMessage('Saved...', Alert::TYPE_SUCCESS);
+            }
+            else {
+                $this->alert->addMessage('Error...', Alert::TYPE_ERROR);
+            }
+        }
+
 //         if($this->success) {
 //             $this->redirector->redirect();
 //         }
-    }
-
-    public function view()
-    {
-        $this->getView()->success = $this->success;
-
-        return parent::view();
     }
 }

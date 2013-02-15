@@ -26,6 +26,7 @@ return array(
             'Vivo\CMS\UI\Content\Overview:Thumb' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.Thumb.phtml',
             'Vivo\CMS\UI\Content\Overview:ThumbDesc' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.ThumbDesc.phtml',
             'Vivo\CMS\UI\Content\Overview:Carousel' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.Carousel.phtml',
+            'Vivo\CMS\UI\Content\Overview:CarouselTouch' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.CarouselTouch.phtml',
             'Vivo\CMS\UI\Content\Logon'         => __DIR__.'/../view/Vivo/CMS/UI/Content/Logon.phtml',
             'Vivo\UI\ComponentContainer'        => __DIR__.'/../view/Vivo/UI/ComponentContainer.phtml',
             'Vivo\UI\TabContainer'              => __DIR__.'/../view/Vivo/UI/TabContainer.phtml',
@@ -47,7 +48,8 @@ return array(
                 'Vivo\CMS\UI\Content\Overview:DateDescThumb',
                 'Vivo\CMS\UI\Content\Overview:Thumb',
                 'Vivo\CMS\UI\Content\Overview:Carousel',
-                'Vivo\CMS\UI\Content\Overview:ThumbDesc'
+                'Vivo\CMS\UI\Content\Overview:ThumbDesc',
+                'Vivo\CMS\UI\Content\Overview:CarouselTouch'
             ),
         ),
     ),

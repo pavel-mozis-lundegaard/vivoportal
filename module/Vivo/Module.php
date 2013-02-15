@@ -117,7 +117,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         //define resources routes for Resource view helper
         $resourceRouteMap = array ('vivo/cms/query' => 'vivo/resource',
                 'backend/cms/query' => 'backend/resource',
-                'backend/modules' => 'backend/backend_resource',
+                'backend/modules/query' => 'backend/backend_resource',
         );
         $resourceRouteName = isset($resourceRouteMap[$routeName])?
         $resourceRouteMap[$routeName]: '';

@@ -349,15 +349,15 @@ class Document implements DocumentInterface
 
     /**
      * Returns child documents.
-     * @param Model\Document $document
-     * @return Model\Document[]
+     * @param Model\Folder $document
+     * @return Model\Folder[]
      */
-    public function getChildDocuments(Model\Document $document)
+    public function getChildDocuments(Model\Folder $document)
     {
         $children   = $this->repository->getChildren($document);
         $result = array();
         foreach ($children as $child) {
-            if ($child instanceof Model\Document) {
+            if ($child instanceof Model\Folder) {
                 $result[] = $child;
             }
         }

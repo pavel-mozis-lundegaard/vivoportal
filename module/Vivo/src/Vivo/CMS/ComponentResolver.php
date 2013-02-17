@@ -62,8 +62,8 @@ class ComponentResolver
             if (!isset($this->mappings[$type][$class])) {
                 throw new InvalidArgumentException(
                     sprintf(
-                        "%s: Could not determine UI component class for model %s. It isn't defined in mappings",
-                        __METHOD__, $class));
+                        "%s: Could not determine %s class for model %s. It isn't defined in mappings.",
+                        __METHOD__, $type, $class));
             }
             $componentClass = $this->mappings[$type][$class];
         }

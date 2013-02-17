@@ -52,7 +52,6 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
             $this->contents = array();
         }
 
-        parent::init();
         $this->doChangeVersion();
     }
 

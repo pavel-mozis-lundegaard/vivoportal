@@ -8,23 +8,20 @@ namespace Vivo\UI;
 class ComponentTreeIterator implements \RecursiveIterator
 {
     /**
-     * @var ComponentContainerInterface
-     */
-    protected $root;
-
-    /**
      * @var array
      */
-    protected $components;
+    protected $components = array();
 
     /**
      * Constructor.
-     * @param ComponentContainerInterface $root
+     * @param ComponentContainerInterface|array $root
      */
-    public function __construct(ComponentContainerInterface $root)
+    public function __construct($components)
     {
-        $this->root = $root;
-        $this->components = $root->getComponents();
+        if (is_array($components))
+            $this->components = $components;
+        else
+            $this->components = array($components);
     }
 
     /**
@@ -42,7 +39,7 @@ class ComponentTreeIterator implements \RecursiveIterator
      */
     public function getChildren()
     {
-        return new self(current($this->components));
+        return new self(current($this->components)->getComponents());
     }
 
     /**

@@ -23,6 +23,7 @@ class ExplorerFactory implements FactoryInterface
 
         $explorer = new \Vivo\Backend\UI\Explorer\Explorer($sm->get('Vivo\CMS\Api\CMS'),
                 $siteSelector, $sm);
+        $explorer->setComponentTreeController($serviceLocator->get('component_tree_controller'));
 
         $explorer->setEventManager($sm->get('event_manager'));
 

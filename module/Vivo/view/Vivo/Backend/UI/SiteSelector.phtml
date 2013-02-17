@@ -1,0 +1,16 @@
+
+
+
+<ul class="nav">
+<?foreach($availableSites as $site):
+$hosts = $site->getHosts();
+?>
+<?if ($selectedSite->getName() == $site->getName()):?>
+<li class="active">
+<?else:?>
+<li>
+<?endif;?>
+<a href="<?=$this->url('backend/modules/query', array ('host' => current($hosts)))?>"><?=$site->getName()?></a>
+</li>
+<?endforeach;?>
+</ul>

@@ -17,14 +17,13 @@ class Link extends Model\Content
     public $relPath;
 
     /**
-     * Constructor
+     * Constructor.
      * @param string $path Entity path
      */
     public function __construct($path = null)
     {
         parent::__construct($path);
     }
-
 
     /**
      * Returns linked document relative path.
@@ -33,5 +32,13 @@ class Link extends Model\Content
     public function getRelPath()
     {
         return $this->relPath;
+    }
+
+    /**
+     * Sets relative path of linked document.
+     * @param type $relPath
+     */
+    public function setRelPath($relPath) {
+        $this->relPath = $relPath;
     }
 }

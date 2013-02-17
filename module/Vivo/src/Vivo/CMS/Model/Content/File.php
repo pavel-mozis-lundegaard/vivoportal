@@ -14,14 +14,14 @@ class File extends Model\Content
      * @var string
      */
     protected $mimeType;
+
     /**
      * @var string Original filename.
      */
     protected $filename;
 
     /**
-     * Setting default values.
-     *
+     * Constructor.
      * @param string $path Entity path.
      */
     public function __construct($path = null)
@@ -30,6 +30,8 @@ class File extends Model\Content
     }
 
     /**
+     * Sets file mimetype
+     *
      * @param string $mimeType
      */
     public function setMimeType($mimeType)
@@ -53,5 +55,14 @@ class File extends Model\Content
     public function getFilename()
     {
         return $this->filename;
+    }
+
+    /**
+     *Sets the original file name.
+     *
+     * @param string $filename
+     */
+    public function setFilename($filename) {
+        $this->filename = $filename;
     }
 }

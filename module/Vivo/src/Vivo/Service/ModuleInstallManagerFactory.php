@@ -18,7 +18,8 @@ class ModuleInstallManagerFactory implements FactoryInterface
     {
         $config                 = $serviceLocator->get('config');
         $moduleStorageManager   = $serviceLocator->get('module_storage_manager');
-        $cms                    = $serviceLocator->get('cms');
+        $cmsApi                 = $serviceLocator->get('Vivo\CMS\Api\CMS');
+        $siteApi                 = $serviceLocator->get('Vivo\CMS\Api\Site');
         $dbProviderFactory      = $serviceLocator->get('db_provider_factory');
         $options                = array();
         if (!isset($config['modules']['default_db_source'])) {
@@ -27,7 +28,8 @@ class ModuleInstallManagerFactory implements FactoryInterface
         }
         $options['default_db_source']   = $config['modules']['default_db_source'];
         $moduleInstallManager   = new \Vivo\Module\InstallManager\InstallManager($moduleStorageManager,
-            $cms,
+            $cmsApi,
+            $siteApi,
             $dbProviderFactory,
             $options);
         return $moduleInstallManager;

@@ -10,14 +10,9 @@ class Component extends Model\Content implements ProvideFrontComponentInterface
 {
 
     /**
-     * @var string Default front component FQCN.
-     */
-    static $DEFAULT_FRONT_COMPONENT = 'Vivo\CMS\UI\Blank';
-
-    /**
      * @var string Front component FQCN
      */
-    public $frontComponent;
+    protected $frontComponent  = 'Vivo\CMS\UI\Blank';
 
     /**
      * @param string $path Entity path in CMS repository
@@ -25,7 +20,6 @@ class Component extends Model\Content implements ProvideFrontComponentInterface
     public function __construct($path = null)
     {
         parent::__construct($path);
-        $this->frontComponent = self::$DEFAULT_FRONT_COMPONENT;
     }
 
     /**
@@ -35,5 +29,12 @@ class Component extends Model\Content implements ProvideFrontComponentInterface
     public function getFrontComponent()
     {
         return $this->frontComponent;
+    }
+
+    /**
+     * @param string $frontComponent
+     */
+    public function setFrontComponent($frontComponent) {
+        $this->frontComponent = $frontComponent;
     }
 }

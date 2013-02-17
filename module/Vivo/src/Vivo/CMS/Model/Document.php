@@ -225,7 +225,7 @@ class Document extends Folder
     }
 
     /**
-     * Returns path of layout document.
+     * Returns relPath of layout document.
      *
      * @return string
      */
@@ -235,11 +235,136 @@ class Document extends Folder
     }
 
     /**
+     * @param string $layout
+     */
+    public function setLayout($layout)
+    {
+        $this->layout = $layout;
+    }
+
+    /**
      * Returns layout panels.
      * @return array of document paths
      */
     public function getLayoutPanels()
     {
         return $this->layoutPanels;
+    }
+
+    /**
+     * Returns document description.
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * Sets document description.
+     * @param string $description
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return $this->url;
+    }
+
+    /**
+     * @param string $url
+     */
+    public function setUrl($url)
+    {
+        $this->url = $url;
+    }
+
+    public function getImage()
+    {
+        return $this->image;
+    }
+
+    public function setImage($image)
+    {
+        $this->image = $image;
+    }
+
+    public function getPublished()
+    {
+        return $this->published;
+    }
+
+    public function setPublished(\DateTime $published)
+    {
+        $this->published = $published;
+    }
+    public function getUrlPrecedence() {
+        return $this->urlPrecedence;
+    }
+
+    public function setUrlPrecedence($urlPrecedence) {
+        $this->urlPrecedence = $urlPrecedence;
+    }
+
+    public function getNavigable() {
+        return $this->navigable;
+    }
+
+    public function setNavigable($navigable) {
+        $this->navigable = $navigable;
+    }
+
+    public function getAutoVersioning() {
+        return $this->autoVersioning;
+    }
+
+    public function setAutoVersioning($autoVersioning) {
+        $this->autoVersioning = $autoVersioning;
+    }
+
+    public function getSecured() {
+        return $this->secured;
+    }
+
+    public function setSecured($secured) {
+        $this->secured = $secured;
+    }
+
+    public function getLinkAttributes() {
+        return $this->linkAttributes;
+    }
+
+    public function setLinkAttributes($linkAttributes) {
+        $this->linkAttributes = $linkAttributes;
+    }
+
+    public function getVocabularies() {
+        return $this->vocabularies;
+    }
+
+    public function setVocabularies($vocabularies) {
+        $this->vocabularies = $vocabularies;
+    }
+
+    public function getExpiration() {
+        return $this->expiration;
+    }
+
+    public function setExpiration($expiration) {
+        $this->expiration = $expiration;
+    }
+
+    public function getInternalNotice() {
+        return $this->internalNotice;
+    }
+
+    public function setInternalNotice($internalNotice) {
+        $this->internalNotice = $internalNotice;
     }
 }

@@ -14,7 +14,7 @@ use Zend\Stdlib\RequestInterface;
  * Form
  * Base abstract Vivo Form
  */
-abstract class AbstractForm extends Component implements RequestAwareInterface, RedirectorAwareInterface
+abstract class AbstractForm extends ComponentContainer implements RequestAwareInterface, RedirectorAwareInterface
 {
     /**
      * @var ZfForm
@@ -81,13 +81,13 @@ abstract class AbstractForm extends Component implements RequestAwareInterface, 
      */
     public function view()
     {
-        $form   = $this->getForm();
+        $form = $this->getForm();
         //Prepare the form
         if ($this->autoPrepareForm) {
             $form->prepare();
         }
         //Set form to view
-        $this->view->form   = $form;
+        $this->getView()->form = $form;
         return parent::view();
     }
 
@@ -102,7 +102,7 @@ abstract class AbstractForm extends Component implements RequestAwareInterface, 
             if ($this->autoAddCsrf) {
                 //Add CSRF field
                 $this->form->add(array(
-                    'type'      => 'Zend\Form\Element\Csrf',
+                    'type'      => 'Vivo\Form\Element\Csrf',
                     'name'      => 'csrf',
                     'options'   => array(
                         'csrf_options'  => array(
@@ -113,6 +113,11 @@ abstract class AbstractForm extends Component implements RequestAwareInterface, 
             }
         }
         return $this->form;
+    }
+
+    protected function resetForm()
+    {
+        $this->form = null;
     }
 
     /**
@@ -153,6 +158,20 @@ abstract class AbstractForm extends Component implements RequestAwareInterface, 
         unset($data['act']);
 
         $form   = $this->getForm();
+
+        //If form elements are wrapped with the form name, extract only this part of the GET/POST data
+        if ($form->wrapElements()) {
+            $formName   = $form->getName();
+            if (!$formName) {
+                throw new Exception\LogicException(sprintf("%s: Form name not set", __METHOD__));
+            }
+            if (isset($data[$formName])) {
+                $data   = $data[$formName];
+            } else {
+                $data   = array();
+            }
+        }
+
         $form->setData($data);
         $this->dataLoaded   = true;
     }

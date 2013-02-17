@@ -1,7 +1,7 @@
 <?php
 namespace Vivo\SiteManager\Listener;
 
-use Vivo\CMS\Api\CMS;
+use Vivo\CMS\Api\Site as SiteApi;
 use Vivo\SiteManager\Event\SiteEventInterface;
 use Vivo\SiteManager\Exception;
 
@@ -25,20 +25,20 @@ class SiteModelLoadListener implements ListenerAggregateInterface
     protected $routeParamHost;
 
     /**
-     * CMS object
-     * @var CMS
+     * Site API
+     * @var SiteApi
      */
-    protected $cms;
+    protected $siteApi;
 
     /**
      * Constructor
      * @param $routeParamHost
-     * @param \Vivo\CMS\Api\CMS $cms
+     * @param \Vivo\CMS\Api\Site $siteApi
      */
-    public function __construct($routeParamHost, CMS $cms)
+    public function __construct($routeParamHost, SiteApi $siteApi)
     {
         $this->routeParamHost   = $routeParamHost;
-        $this->cms              = $cms;
+        $this->siteApi          = $siteApi;
     }
 
     /**
@@ -77,7 +77,7 @@ class SiteModelLoadListener implements ListenerAggregateInterface
         if ($routeMatch) {
             $host  = $routeMatch->getParam($this->routeParamHost);
             if ($host) {
-                $siteModel  = $this->cms->getSiteByHost($host);
+                $siteModel  = $this->siteApi->getSiteByHost($host);
                 $e->setHost($host);
                 $e->setSite($siteModel);
                 $e->stopPropagation(true);

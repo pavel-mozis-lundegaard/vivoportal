@@ -28,6 +28,13 @@ interface PathBuilderInterface
     public function getStoragePathComponents($path);
 
     /**
+     * Returns sanitized path (trimmed, no double separators, etc.)
+     * @param string $path
+     * @return string
+     */
+    public function sanitize($path);
+
+    /**
      * Returns true when the $path denotes an absolute path
      * @param string $path
      * @return boolean

@@ -1,4 +1,0 @@
-object Vivo\CMS\Model\Document {
-	title string "Manager"
-  uuid string "58B08A42A3D6029D67D885D6566A338C"
-}

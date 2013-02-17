@@ -19,7 +19,7 @@ class ResourceFrontControllerFactory implements FactoryInterface
     {
         $sm = $serviceLocator->getServiceLocator();
         $controller = new \Vivo\Controller\ResourceFrontController();
-        $controller->setCMS($sm->get('cms'));
+        $controller->setCMS($sm->get('Vivo\CMS\Api\CMS'));
         $controller->setResourceManager($sm->get('module_resource_manager'));
         $controller->setSiteEvent($sm->get('site_event'));
         return $controller;

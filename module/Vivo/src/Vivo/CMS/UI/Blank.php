@@ -6,11 +6,15 @@ use Vivo\UI;
 /**
  * Blank UI component.
  */
-class Blank extends UI\Text {
+class Blank extends UI\Text
+{
 
-	function __construct() {
-		parent::__construct('Blank UI component');
-	}
-	
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct('Blank UI component.');
+    }
 }
 

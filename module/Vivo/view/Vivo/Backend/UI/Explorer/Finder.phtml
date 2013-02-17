@@ -1,0 +1,10 @@
+<div class="navbar">
+    <div class="navbar-inner">
+<form method="get" class="navbar-form pull-left">
+<input type="hidden" name="act" value="<?=$this->action('set')?>">
+<input type="text" name="args[]"/>
+<input type="submit" class="btn" value="<?=$this->translate('Find');?>">
+</form>
+        <div class="navbar-text span5"><b><?=$entity->getPath()?></b></div>
+        </div>
+</div>

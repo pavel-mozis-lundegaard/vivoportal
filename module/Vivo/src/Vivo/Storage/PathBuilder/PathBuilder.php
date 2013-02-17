@@ -16,6 +16,12 @@ class PathBuilder implements PathBuilderInterface
     protected $separator;
 
     /**
+     * Character used to replace illegal path characters
+     * @var string
+     */
+    protected $replacementChar    = '-';
+
+    /**
      * Constructor
      * @param string $separator Path components separator
      * @throws \Vivo\Storage\Exception\InvalidArgumentException
@@ -47,15 +53,17 @@ class PathBuilder implements PathBuilderInterface
     public function buildStoragePath(array $elements, $absolute = true)
     {
         $components = array();
+        $separator  = $this->getStoragePathSeparator();
         //Get atomic components
-        foreach ($elements as $key => $element) {
+        foreach ($elements as $element) {
             $elementComponents  = $this->getStoragePathComponents($element);
             $components         = array_merge($components, $elementComponents);
         }
-        $path   = implode($this->getStoragePathSeparator(), $components);
+        $path   = implode($separator, $components);
         if ($absolute) {
-            $path    = $this->getStoragePathSeparator() . $path;
+            $path    = $separator . $path;
         }
+        $path   = $this->removeIllegalCharacters($path);
         return $path;
     }
 
@@ -77,6 +85,24 @@ class PathBuilder implements PathBuilderInterface
         //Reset array indices
         $components = array_values($components);
         return $components;
+    }
+
+    /**
+     * Returns sanitized path (trimmed, no double separators, etc.)
+     * @param string $path
+     * @return string
+     */
+    public function sanitize($path)
+    {
+        $absolute   = $this->isAbsolute($path);
+        $components = $this->getStoragePathComponents($path);
+        $separator  = $this->getStoragePathSeparator();
+        $sanitized  = implode($separator, $components);
+        if ($absolute) {
+            $sanitized  = $separator . $sanitized;
+        }
+        $sanitized  = $this->removeIllegalCharacters($sanitized);
+        return  $sanitized;
     }
 
     /**
@@ -105,7 +131,24 @@ class PathBuilder implements PathBuilderInterface
      */
     public function isAbsolute($path)
     {
+        $path       = trim($path);
         $firstChar  = substr($path, 0, 1);
         return $firstChar == $this->getStoragePathSeparator();
+    }
+
+    /**
+     * Returns $path with all illegal characters removed and replaced with replacement character
+     * @param string $path
+     * @return string
+     */
+    protected function removeIllegalCharacters($path)
+    {
+        $cleaned            = '';
+        $len                = strlen($path);
+        for ($i = 0; $i < $len; $i++) {
+            $cleaned    .= (stripos('abcdefghijklmnopqrstuvwxyz0123456789-_/.', $path{$i}) !== false)
+                            ? $path[$i] : $this->replacementChar;
+        }
+        return $cleaned;
     }
 }

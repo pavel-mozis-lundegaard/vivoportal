@@ -24,6 +24,7 @@ return array(
             'Vivo\UI\Ribbon\Tab'                => __DIR__.'/../view/Vivo/UI/Ribbon/Tab.phtml',
             'Vivo\UI\Ribbon\Group'              => __DIR__.'/../view/Vivo/UI/Ribbon/Group.phtml',
             'Vivo\UI\Ribbon\Item'               => __DIR__.'/../view/Vivo/UI/Ribbon/Item.phtml',
+
         ),
         'custom_templates' => array (
             // custom selectable templates
@@ -42,16 +43,19 @@ return array(
             'Vivo\CMS\Model\Content\Logon'      => 'Vivo\CMS\UI\Content\Logon',
         ),
         'editor_component' => array (
-
+            'Vivo\CMS\Model\Content\File'       => 'Vivo\CMS\UI\Content\Editor\File',
+            'Vivo\CMS\Model\Content\Overview'   => 'Vivo\CMS\UI\Content\Editor\Overview',
         ),
     ),
     'service_manager' => array (
         //configuration of service manager, services defined here should not override
         //services defined in Vivo config
         'invokables' => array (
+            'Vivo\CMS\UI\Blank'             => 'Vivo\CMS\UI\Blank',
             'Vivo\CMS\UI\Root'              => 'Vivo\CMS\UI\Root',
             'Vivo\UI\ComponentContainer'    => 'Vivo\UI\ComponentContainer',
             'Vivo\UI\TabContainer'          => 'Vivo\UI\TabContainer',
+            'Vivo\CMS\UI\Manager\Explorer\Ribbon'  => 'Vivo\CMS\UI\Manager\Explorer\Ribbon',
             'layout_empty_panel'            => 'Vivo\UI\Text',
         ),
         'factories' => array (
@@ -61,9 +65,22 @@ return array(
             'Vivo\CMS\UI\Content\Overview'  => 'Vivo\CMS\Service\UI\Content\OverviewFactory',
             'Vivo\CMS\UI\Content\Logon'     => 'Vivo\CMS\Service\UI\Content\LogonFactory',
             'Vivo\UI\Page'                  => 'Vivo\Service\UI\PageFactory',
-
+            'Vivo\UI\Alert'                 => 'Vivo\UI\AlertFactory',
             'security_manager'              => 'Vivo\Service\SimpleSecurityManagerFactory',
 //            'security_manager'              => 'Vivo\Service\DbSecurityManagerFactory',
+
+            //backend
+            //TODO move to own config
+            'Vivo\Backend\UI\Backend'           => 'Vivo\Backend\UI\BackendFactory',
+            'Vivo\Backend\UI\SiteSelector'      => 'Vivo\Backend\UI\SiteSelectorFactory',
+            'Vivo\Backend\UI\Explorer\Explorer' => 'Vivo\Backend\UI\Explorer\ExplorerFactory',
+            'Vivo\Backend\UI\Explorer\Editor'   => 'Vivo\Backend\UI\Explorer\EditorFactory',
+            'Vivo\Backend\UI\Explorer\Editor\Content' => 'Vivo\Backend\UI\Explorer\Editor\ContentFactory',
+            'Vivo\Backend\UI\Explorer\Editor\ContentTab' => 'Vivo\Backend\UI\Explorer\Editor\ContentTabFactory',
+
+            //TODO: content editor factories
+            'Vivo\CMS\UI\Content\Editor\File'     => 'Vivo\CMS\UI\Content\Editor\FileFactory',
+            'Vivo\CMS\UI\Content\Editor\Overview' => 'Vivo\CMS\UI\Content\Editor\OverviewFactory',
         ),
         'aliases' => array(
         ),

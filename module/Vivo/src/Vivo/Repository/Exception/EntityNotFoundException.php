@@ -1,4 +1,9 @@
 <?php
 namespace Vivo\Repository\Exception;
 
-class EntityNotFoundException extends \Exception implements ExceptionInterface { }
+/**
+ * EntityNotFoundException
+ */
+class EntityNotFoundException extends \Exception implements ExceptionInterface
+{
+}

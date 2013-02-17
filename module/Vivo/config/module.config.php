@@ -5,12 +5,14 @@
 return array(
     'router' => array(
         'routes' => array(
+            //routes for frontend
             'vivo' => array(
                 //only add hostname to routermatch
                 'type' => 'Vivo\Router\Hostname',
                 'may_terminate' => false,
                 'child_routes' => array(
-
+                    //route for frontend documents
+                    //@example http://<sitehost>/<path>/
                     'cms' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
@@ -21,15 +23,160 @@ return array(
                                 'path' => '',
                             ),
                         ),
-                        'may_terminate' => true,
+                        'may_terminate' => false,
                         'child_routes' => array(
                             'query' => array(
                                 'type' => 'Query',
                             ),
                         ),
                     ),
-
+                    //route for fronend resources
+                    //@example http://<sitehost>/.<moduleName>.<resourceType>/<path>
                     'resource' => array(
+                        'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'options' => array(
+                            'regex'    => '/\.(?<source>.+?)\.(?<type>.+?)/(?<path>.+)',
+                            'spec'    => '/.%source%.%type%/%path%',
+                            'defaults' => array(
+                                'controller' => 'resource_front_controller',
+                                'type' => '',
+                                'path' => '',
+                                'source' => '',
+                            ),
+                        ),
+                    ),
+                    //route for entity resources
+                    //@example http://<sitehost>/.entity/<entityPath>/.path/<resourcePath>
+                    'resource_entity' => array(
+                        'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'options' => array(
+                            'regex'    => '/\.entity(?<entity>.+?)((\.path(?<path>.+)))',
+                            'spec'    => '/.entity/%entity%/.path/%path%',
+                            'defaults' => array(
+                                'controller' => 'resource_front_controller',
+                                'path' => '',
+                                'source' => 'entity',
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+
+            //routes configuration for backend
+            'backend' => array(
+                'type' => 'Vivo\Backend\Hostname',
+                'may_terminate' => false,
+                'options' => array (
+                    'hosts' => array (
+                    ),
+                ),
+                'child_routes' => array(
+                    //default backend route
+                    //@example http://<backendhost>/
+                    'default' => array (
+                        'type' => 'Literal',
+                        'may_terminate' => true,
+                        'options' => array(
+                            'route' => '/',
+                            'defaults' => array(
+                                'controller' => 'backend_controller',
+                            ),
+                        ),
+
+                    ),
+
+                    //route for backend modules
+                    //@example http://<backendhost>/<sitehost>/<moduleName>/
+                    'modules' => array(
+                        'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'may_terminate' => false,
+                        'options' => array(
+                            'regex'    => '/(?<host>.+?)/(?<module>.+?)/(?<path>.*)',
+                            'spec'    => '/%host%/%module%/%path%',
+                            'defaults' => array(
+                                'controller' => 'backend_controller',
+                                'path'   => '',
+                                'module' => 'explorer',
+                                'host' => '',
+                            ),
+                        ),
+                        'child_routes' => array(
+                                'query' => array(
+                                        'type' => 'Query',
+                                ),
+                        ),
+                    ),
+                    //route for modules without site context (system modules)
+                    //@example http://<backendhost>/system/<moduleName>/
+                    'system' => array (
+                        'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'may_terminate' => false,
+                        'options' => array(
+                            'regex'    => '/system/(?<module>.+?)/(?<path>.*)',
+                            'spec'    => '/system/%module%/%path%',
+                            'defaults' => array(
+                                'controller' => 'backend_controller',
+                                'path'   => '',
+                                'module' => 'explorer',
+                                'host' => '',
+                            ),
+                        ),
+                        'child_routes' => array(
+                                'query' => array(
+                                        'type' => 'Query',
+                                ),
+                        ),
+                    ),
+                    //route for viewing site in backend
+                    //@example http://<backendhost>/<sitehost>/view/<pathWithinSite>
+                    'cms' => array(
+                        'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'may_terminate' => false,
+                        'options' => array(
+                            'regex'    => '/(?<host>.*)/view/((?<path>.*)/)?',
+                            'spec'    => '/%host%/view/%path%/',
+                            'defaults' => array(
+                                'controller' => 'cms_front_controller',
+                                'path'   => '',
+                            ),
+                        ),
+                        'child_routes' => array(
+                            'query' => array(
+                                'type' => 'Query',
+                            ),
+                        ),
+                    ),
+                    //route for site resources in backend view
+                    //@example http://<backendhost>/<sitehost>/view/.<moduleName>.<resourceType>/<path>
+                    'resource' => array(
+                        'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'options' => array(
+                            'regex'    => '/(?<host>.+)/view/\.(?<source>.+)\.(?<type>.+?)/(?<path>.+)',
+                            'spec'    => '/%host%/view/.%source%.%type%/%path%',
+                            'defaults' => array(
+                                'controller' => 'resource_front_controller',
+                                'type' => '',
+                                'path' => '',
+                                'source' => '',
+                            ),
+                        ),
+                    ),
+                    //route for site entity resources in backend view
+                    'resource_entity' => array(
+                        'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'options' => array(
+                            'regex'    => '/(?<host>.+)/view/\.entity(?<entity>.+?)((\.path(?<path>.+)))',
+                            'spec'    => '/%host%/view/.entity/%entity%/.path/%path%',
+                            'defaults' => array(
+                                'controller' => 'resource_front_controller',
+                                'path' => '',
+                                'source' => 'entity',
+                            ),
+                        ),
+                    ),
+
+                    //route for resources for backend
+                    'backend_resource' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
                             'regex'    => '/\.(?<source>.+)\.(?<type>.+?)/(?<path>.+)',
@@ -42,32 +189,6 @@ return array(
                             ),
                         ),
                     ),
-
-                    'resource_entity' => array(
-                            'type' => 'Zend\Mvc\Router\Http\Regex',
-                            'options' => array(
-                                    'regex'    => '/\.entity(?<entity>.+?)((\.path(?<path>.+)))',
-                                    'spec'    => '/.entity/%entity%/.path/%path%',
-                                    'defaults' => array(
-                                            'controller' => 'resource_front_controller',
-                                            'path' => '',
-                                            'source' => 'entity',
-                                    ),
-                            ),
-                    ),
-
-//                     'backend' => array(
-//                         'type' => 'Zend\Mvc\Router\Http\Regex',
-//                         'options' => array(
-//                             'regex'    => '/system/manager/(?<path>.*)',
-//                             'spec'    => '/system/manager/%path%',
-//                             'defaults' => array(
-//                                 'controller' => 'cms_front_controller',
-//                                 'path' => '',
-//                                 'module' => '',
-//                             ),
-//                         ),
-//                     ),
                 ),
             ),
         ),
@@ -101,12 +222,15 @@ return array(
             'indexer_adapter_lucene'    => 'Vivo\Service\IndexerAdapterLuceneFactory',
             'indexer'                   => 'Vivo\Service\IndexerFactory',
             'repository'                => 'Vivo\Service\RepositoryFactory',
+            'repository_events'         => 'Vivo\Repository\EventManagerFactory',
             'indexer_helper'            => 'Vivo\Service\IndexerHelperFactory',
-            'cms'                       => 'Vivo\Service\CmsFactory',
+            'Vivo\CMS\Api\CMS'          => 'Vivo\Service\CmsFactory',
+            'Vivo\CMS\Api\Module'       => 'Vivo\Service\CmsApiModuleFactory',
+            'Vivo\CMS\Api\Document'     => 'Vivo\CMS\Api\DocumentFactory',
+            'Vivo\CMS\Api\Indexer'      => 'Vivo\CMS\Api\IndexerFactory',
+            'Vivo\CMS\Api\Site'         => 'Vivo\CMS\Api\SiteFactory',
             'module_resource_manager'   => 'Vivo\Service\ModuleResourceManagerFactory',
             'module_install_manager'    => 'Vivo\Service\ModuleInstallManagerFactory',
-            'cms_api_module'            => 'Vivo\Service\CmsApiModuleFactory',
-            'cms_api_repository'        => 'Vivo\Service\CmsApiRepositoryFactory',
             'db_provider_factory'       => 'Vivo\Service\DbProviderFactoryFactory',
             'db_provider_core'          => 'Vivo\Service\DbProviderCoreFactory',
             'pdo_abstract_factory'      => 'Vivo\Service\PdoAbstractFactoryFactory',
@@ -128,6 +252,7 @@ return array(
             'module_db_provider'        => 'Vivo\Service\ModuleDbProviderFactory',
             'db_table_name_provider'    => 'Vivo\Service\DbTableNameProviderFactory',
             'db_table_gateway_provider' => 'Vivo\Service\DbTableGatewayProviderFactory',
+            'workflow_factory'          => 'Vivo\CMS\Workflow\FactoryFactory',
             'Vivo\CMS\Api\Manager\Manager' => 'Vivo\CMS\Api\Manager\ManagerFactory',
         ),
         'aliases' => array(
@@ -137,13 +262,11 @@ return array(
             'Zend\Http\Request'                 => 'request',
             'Zend\View\HelperPluginManager'     => 'view_helper_manager',
             'Vivo\Util\Redirector'              => 'redirector',
-            'Vivo\CMS\Api\CMS'                  => 'cms',
             'Zend\View\Model\ViewModel'         => 'view_model',
             'Zend\Session\SessionManager'       => 'session_manager',
         ),
         'shared' => array(
             'view_model' => false,
-            'Vivo\CMS\UI\Manager\SiteSelector' => true,
         ),
         'initializers' => array(
             'component' => 'Vivo\Service\Initializer\ComponentInitializer',
@@ -172,6 +295,7 @@ return array(
             'cli_cms'                   => 'Vivo\Service\Controller\CLI\CLICmsControllerFactory',
             'cli_indexer'               => 'Vivo\Service\Controller\CLI\CLIIndexerControllerFactory',
             'cli_setup'                 => 'Vivo\Service\Controller\CLI\CLISetupControllerFactory',
+            'backend_controller'         => 'Vivo\Backend\BackendControllerFactory',
         ),
     ),
     'view_manager' => array(
@@ -200,6 +324,7 @@ return array(
             'action_url'        => 'Vivo\View\Helper\ActionUrl',
             'vivoform'          => 'Vivo\View\Helper\VivoForm',
             'vivoformfieldset'  => 'Vivo\View\Helper\VivoFormFieldset',
+          //  'url' => 'Vivo\View\Helper\Url',
         ),
     ),
 
@@ -424,6 +549,15 @@ return array(
                         ),
                     ),
                 ),
+                'indexer_host_action' => array(
+                    'options' => array(
+                        'route'    => 'indexer <action> <host>',
+                        'defaults' => array(
+                            'controller' => 'cli_indexer',
+                            'action'     => 'default',
+                        ),
+                    ),
+                ),
                 'indexer_clear' => array(
                     'options' => array(
                         'route'    => 'indexer clear',
@@ -442,38 +576,20 @@ return array(
                         ),
                     ),
                 ),
-                'cms_reindex' => array(
+                'cms_host_action' => array(
                     'options' => array(
-                        'route'    => 'cms reindex <host>',
+                        'route'    => 'cms <action> <host>',
                         'defaults' => array(
                             'controller' => 'cli_cms',
-                            'action'     => 'reindex',
-                        ),
-                    ),
-                ),
-                'repository' => array(
-                    'options' => array(
-                        'route'    => 'repository [<action>]',
-                        'defaults' => array(
-                            'controller' => 'cli_repository',
                             'action'     => 'default',
                         ),
                     ),
                 ),
-                'repository_host_action' => array(
+                'cms_unique_uuids' => array(
                     'options' => array(
-                        'route'    => 'repository <action> <host>',
+                        'route'    => 'cms uniqueuuids <host> [--force|-f]',
                         'defaults' => array(
-                            'controller' => 'cli_repository',
-                            'action'     => 'default',
-                        ),
-                    ),
-                ),
-                'repository_unique_uuids' => array(
-                    'options' => array(
-                        'route'    => 'repository uniqueuuids <host> [--force|-f]',
-                        'defaults' => array(
-                            'controller' => 'cli_repository',
+                            'controller' => 'cli_cms',
                             'action'     => 'unique-uuids',
                         ),
                     ),
@@ -503,5 +619,6 @@ return array(
     'cms'      => array(
         //this config key is reserved for merged cms configuration
         //default values and structure are in cms.config.php
+        //do not access to this key directly - use service 'cms_config'
     ),
 );

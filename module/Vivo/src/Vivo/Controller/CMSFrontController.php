@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\Controller;
 
+use Vivo\UI\ComponentTreeController;
+
 use Vivo\CMS\ComponentFactory;
 use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Model\Site;
@@ -47,9 +49,9 @@ class CMSFrontController implements DispatchableInterface,
     private $componentFactory;
 
     /**
-     * @var \Vivo\UI\TreeUtil
+     * @var \Vivo\UI\ComponentTreeController
      */
-    private $treeUtil;
+    private $tree;
 
     /**
      * @param ComponentFactory $componentFactory
@@ -93,21 +95,26 @@ class CMSFrontController implements DispatchableInterface,
         //TODO: redirects based on document properties(https, $document->url etc.)
 
         $documentPath = $this->event->getRouteMatch()->getParam('path');
-        $document = $this->cms->getSiteDocument($documentPath, $this->siteEvent->getSite());
+        $document = $this->cms->getSiteEntity($documentPath, $this->siteEvent->getSite());
+
+        //create ui component tree
         $root = $this->componentFactory->getRootComponent($document);
 
-        $this->treeUtil->setRoot($root);
-        $root->init(); //TODO lazy init
+        $this->tree->setRoot($root);
 
+        $this->tree->loadState();
         if ($this->getRequest()->isXmlHttpRequest()) {
+            $this->tree->init(); //replace by lazy init
             //if request is  ajax call, we use result of method
             $result = $this->handleAction();
         } else {
+            $this->tree->init();
             $this->handleAction();
-            $result = $root->view();
+            $result = $this->tree->view();
         }
 
-        $root->done();
+        $this->tree->saveState();
+        $this->tree->done();
 
         if ($result instanceof ModelInterface) {
             $this->event->setViewModel($result);
@@ -125,7 +132,7 @@ class CMSFrontController implements DispatchableInterface,
     /**
      * Handles action on component.
      */
-    public function handleAction()
+    protected function handleAction()
     {
         //TODO is a better way how to obtain params?
         //TODO create router for asembling and matching path of action
@@ -143,7 +150,7 @@ class CMSFrontController implements DispatchableInterface,
         $parts = explode(Component::COMPONENT_SEPARATOR, $action);
         $action = array_pop($parts);
         $path = implode(Component::COMPONENT_SEPARATOR, $parts);
-        return $this->treeUtil->invokeAction($path, $action, $params);
+        return $this->tree->invokeAction($path, $action, $params);
     }
 
     /**
@@ -168,6 +175,15 @@ class CMSFrontController implements DispatchableInterface,
     public function setTreeUtil(TreeUtil $treeUtil)
     {
         $this->treeUtil = $treeUtil;
+    }
+
+    /**
+     * Sets ComponentTreeController
+     * @param ComponentTreeController $tree
+     */
+    public function setComponentTreeController(ComponentTreeController $tree)
+    {
+        $this->tree = $tree;
     }
 
     /**

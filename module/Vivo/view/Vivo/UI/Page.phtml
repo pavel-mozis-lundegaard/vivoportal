@@ -10,6 +10,7 @@ foreach ($scripts as $script) {
 
 <head>
 
+<base href="<?php echo $this->basePath(); ?>/" />
 <? foreach ($metas as $element): ?>
 <meta<? foreach ($element as $name => $value) echo " $name=\"".htmlspecialchars($value).'"' ?> />
 <? endforeach ?>

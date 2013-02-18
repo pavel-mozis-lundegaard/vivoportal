@@ -78,6 +78,8 @@ interface DocumentInterface
      */
     public function getDocumentContents(Model\Document $document, $index/*, $state {PUBLISHED}*/);
 
+    public function copyDocument(Model\Document $document, )
+
     /**
      * @param Model\Document $document
      * @param string $target Path.
@@ -116,4 +118,11 @@ interface DocumentInterface
      * @return \Vivo\CMS\Workflow\WorkflowInterface
      */
     public function getWorkflow(Model\Document $document);
+
+    /**
+     * Returns if the document has any child documents
+     * @param \Vivo\CMS\Model\Document $document
+     * @return boolean
+     */
+    public function hasChildDocuments(Model\Document $document);
 }

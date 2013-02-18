@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Backend\Explorer\Exception;
+namespace Vivo\Backend\UI\Explorer\Exception;
 
 interface ExceptionInterface
 {

@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\CMS\UI\Manager\Form;
+namespace Vivo\Backend\UI\Form;
 
 use Vivo\Form\Form;
 

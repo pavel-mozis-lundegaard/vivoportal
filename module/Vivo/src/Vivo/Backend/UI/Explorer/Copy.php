@@ -1,12 +1,10 @@
 <?php
-namespace Vivo\CMS\UI\Manager\Explorer;
+namespace Vivo\Backend\UI\Explorer;
 
-use Vivo\CMS\Model\Site;
 use Vivo\CMS\UI\AbstractForm;
 use Vivo\CMS\Api\CMS;
-use Vivo\CMS\UI\Manager\Form\Copy as CopyForm;
-
-use Zend\Form\Form as ZfForm;
+use Vivo\Backend\UI\Form\Copy as CopyForm;
+use Vivo\Form\Form;
 
 /**
  * Copy
@@ -17,15 +15,15 @@ class Copy extends AbstractForm
      * CMS Api
      * @var CMS
      */
-    protected $cms;
+    protected $cmsApi;
 
     /**
      * Constructor
-     * @param \Vivo\CMS\Api\CMS $cms
+     * @param \Vivo\CMS\Api\CMS $cmsApi
      */
-    public function __construct(CMS $cms)
+    public function __construct(CMS $cmsApi)
     {
-        $this->cms  = $cms;
+        $this->cmsApi  = $cmsApi;
     }
 
     public function view()
@@ -48,19 +46,18 @@ class Copy extends AbstractForm
             $explorer   = $this->getParent();
             //Copy - and redirect
             $doc        = $explorer->getEntity();
-            $copiedDoc  = $this->cms->copyDocument($doc, $explorer->getSite(), $validData['path'],
+            $copiedDoc  = $this->cmsApi->copyDocument($doc, $explorer->getSite(), $validData['path'],
                                                    $validData['name_in_path'], $validData['name']);
-//            $explorer->setEntity($copiedDoc);
-            $explorer->setCurrent('viewer');
-            $explorer->saveState();
-            $this->redirector->redirect();
+            $explorer->setEntity($copiedDoc);
+            $explorer->setCurrent('editor');
+//            $this->redirector->redirect();
         }
     }
 
     /**
      * Creates ZF form and returns it
      * Factory method
-     * @return ZfForm
+     * @return Form
      */
     protected function doGetForm()
     {

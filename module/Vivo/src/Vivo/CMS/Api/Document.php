@@ -288,7 +288,7 @@ class Document implements DocumentInterface
     /**
      * @param Model\ContentContainer $container
      * @param Model\Content $content
-     * @return \Model\Content
+     * @return Model\Content
      */
     public function createContent(Model\ContentContainer $container, Model\Content $content)
     {
@@ -357,7 +357,7 @@ class Document implements DocumentInterface
         $children   = $this->repository->getChildren($document);
         $result = array();
         foreach ($children as $child) {
-            if ($child instanceof Model\Folder) {
+            if ($child instanceof Model\Document) {
                 $result[] = $child;
             }
         }
@@ -403,4 +403,16 @@ class Document implements DocumentInterface
         $workflow   = $this->workflowFactory->get($document->getWorkflow());
         return $workflow;
     }
+
+    /**
+   * Returns if the document has any child documents
+   * @param \Vivo\CMS\Model\Document $document
+      * @return bool
+     */
+   public function hasChildDocuments(Model\Document $document)
+   {
+        $childDocs      = $this->getChildDocuments($document);
+        $hasChildDocs   = count($childDocs) > 0;
+        return $hasChildDocs;
+   }
 }

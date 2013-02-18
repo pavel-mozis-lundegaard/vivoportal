@@ -1,10 +1,10 @@
 <?php
-namespace Vivo\CMS\UI\Manager\Explorer;
+namespace Vivo\Backend\UI\Explorer;
 
-use Vivo\CMS\Model\Document;
 use Vivo\CMS\UI\AbstractForm;
+use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 use Vivo\CMS\Api\CMS;
-use Vivo\CMS\UI\Manager\Form\Delete as DeleteForm;
+use Vivo\Backend\UI\Form\Delete as DeleteForm;
 use Vivo\Form\Form;
 
 /**
@@ -13,18 +13,26 @@ use Vivo\Form\Form;
 class Delete extends AbstractForm
 {
     /**
-     * CMS Api
+     * CMS API
      * @var CMS
      */
-    protected $cms;
+    protected $cmsApi;
+
+    /**
+     * Document API
+     * @var DocumentApiInterface
+     */
+    protected $docApi;
 
     /**
      * Constructor
-     * @param \Vivo\CMS\Api\CMS $cms
+     * @param \Vivo\CMS\Api\CMS $cmsApi
+     * @param \Vivo\CMS\Api\DocumentInterface $docApi
      */
-    public function __construct(CMS $cms)
+    public function __construct(CMS $cmsApi, DocumentApiInterface $docApi)
     {
-        $this->cms      = $cms;
+        $this->cmsApi   = $cmsApi;
+        $this->docApi   = $docApi;
     }
 
     public function view()
@@ -46,12 +54,11 @@ class Delete extends AbstractForm
             $explorer   = $this->getParent();
             //Delete - and redirect
             $doc        = $explorer->getEntity();
-            $docParent  = $this->cms->getParent($doc);
-            $this->cms->removeDocument($doc);
+            $docParent  = $this->cmsApi->getParent($doc);
+            $this->cmsApi->removeEntity($doc);
             $explorer->setEntity($docParent);
             $explorer->setCurrent('viewer');
-            $explorer->saveState();
-            $this->redirector->redirect();
+//            $this->redirector->redirect();
         }
     }
 
@@ -64,8 +71,7 @@ class Delete extends AbstractForm
         /** @var $explorer Explorer */
         $explorer   = $this->getParent();
         $explorer->setCurrent('viewer');
-        $explorer->saveState();
-        $this->redirector->redirect();
+//        $this->redirector->redirect();
     }
 
     /**
@@ -77,7 +83,7 @@ class Delete extends AbstractForm
     {
         /** @var $explorer Explorer */
         $explorer   = $this->getParent();
-        $hasSubdocs = $this->cms->hasChildDocuments($explorer->getEntity());
+        $hasSubdocs = $this->docApi->hasChildDocuments($explorer->getEntity());
         $form       = new DeleteForm($hasSubdocs);
         $form->setAttribute('action', $this->request->getUri()->getPath());
         $form->add(array(

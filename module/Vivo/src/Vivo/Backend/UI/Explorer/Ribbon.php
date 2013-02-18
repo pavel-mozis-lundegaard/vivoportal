@@ -29,6 +29,9 @@ class Ribbon extends \Vivo\UI\Ribbon implements EventManagerAwareInterface
 
         $group = new Group('Edit');
         $group->addItem(new Item('editor', 'Editor', '', $this));
+        $group->addItem(new Item('delete', 'Delete', '', $this));
+        $group->addItem(new Item('copy', 'Copy', '', $this));
+        $group->addItem(new Item('move', 'Move', '', $this));
         $tab->addGroup($group);
 
         $this->addTab($tab);

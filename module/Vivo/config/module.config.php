@@ -254,7 +254,8 @@ return array(
             'db_table_gateway_provider' => 'Vivo\Service\DbTableGatewayProviderFactory',
             'workflow_factory'          => 'Vivo\CMS\Workflow\FactoryFactory',
             'Vivo\CMS\Api\Manager\Manager' => 'Vivo\CMS\Api\Manager\ManagerFactory',
-            'component_tree_controller' => 'Vivo\UI\ComponentTreeControllerFactory'
+            'component_tree_controller' => 'Vivo\UI\ComponentTreeControllerFactory',
+            'Vivo\CMS\AvailableContentsProvider' => 'Vivo\CMS\AvailableContentsProviderFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',

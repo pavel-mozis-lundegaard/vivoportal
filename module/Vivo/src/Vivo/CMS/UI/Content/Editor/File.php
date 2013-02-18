@@ -37,19 +37,16 @@ class File extends AbstractForm implements EditorInterface
 
     public function init()
     {
-        parent::init();
-
-        $form = $this->getForm();
-        $form->bind($this->content);
-
         try {
             $data = $this->cmsApi->getResource($this->content, 'resource.html');
 
-            $form->get('resource')->setValue($data);
+            $this->getForm()->get('resource')->setValue($data);
         }
         catch (PathNotSetException $e) {
 
         }
+
+        parent::init();
     }
 
     public function save(Model\ContentContainer $contentContainer)
@@ -72,7 +69,8 @@ class File extends AbstractForm implements EditorInterface
 
     public function doGetForm()
     {
-        $form = new Form('editor');
+        $form = new Form('editor-'.$this->content->getUuid());
+        $form->setWrapElements(true);
         $form->setHydrator(new ClassMethodsHydrator(false));
         $form->setOptions(array('use_as_base_fieldset' => true));
         $form->add(array(

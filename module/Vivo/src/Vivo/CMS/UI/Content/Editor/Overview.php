@@ -32,9 +32,9 @@ class Overview extends AbstractForm implements EditorInterface
 
     public function init()
     {
-        parent::init();
-
         $this->getForm()->bind($this->content);
+
+        parent::init();
     }
 
     public function save(Model\ContentContainer $contentContainer)
@@ -51,7 +51,7 @@ class Overview extends AbstractForm implements EditorInterface
 
     public function doGetForm()
     {
-        $form = new Form('editor');
+        $form = new Form('editor-'.$this->content->getUuid());
         $form->setHydrator(new ClassMethodsHydrator(false));
         $form->setOptions(array('use_as_base_fieldset' => true));
         $form->add(array(

@@ -23,9 +23,7 @@ class CMSFrontControllerFactory implements FactoryInterface
         if ($siteEvent->getSite()) {
             $fc->setComponentFactory($sm->get('component_factory'));
         }
-//        $fc->setTreeUtil($sm->get('di')->get('Vivo\UI\ComponentTreeController'));
-        $ctc = new \Vivo\UI\ComponentTreeController($sm->get('session_manager'), $sm->get('request'));
-        $fc->setComponentTreeController($ctc);
+        $fc->setComponentTreeController($sm->get('Vivo\UI\ComponentTreeController'));
         $fc->setCMS($sm->get('Vivo\CMS\Api\CMS'));
         $fc->setSiteEvent($siteEvent);
         return $fc;

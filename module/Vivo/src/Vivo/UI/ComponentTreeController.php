@@ -6,6 +6,8 @@ use Vivo\UI\Exception\LogicException;
 use Vivo\UI\Exception\ExceptionInterface as UIException;
 use Vivo\UI\Exception\RuntimeException;
 
+use Zend\EventManager\EventManagerAwareInterface;
+use Zend\EventManager\EventManagerInterface;
 use Zend\Session\Container;
 use Zend\Session\SessionManager;
 use Zend\Http\PhpEnvironment\Request;
@@ -13,7 +15,7 @@ use Zend\Http\PhpEnvironment\Request;
 /**
  * Performs operation on UI component tree.
  */
-class ComponentTreeController
+class ComponentTreeController implements EventManagerAwareInterface
 {
     /**
      * @var ComponentInterface
@@ -29,6 +31,11 @@ class ComponentTreeController
      * @var Request
      */
     protected $request;
+
+    /**
+     * @var \Zend\EventManager\EventManagerInterface
+     */
+    protected $events;
 
     /**
      * Constructor.
@@ -92,6 +99,9 @@ class ComponentTreeController
     public function init()
     {
         foreach ($this->getTreeIterator() as $name => $component){
+            $message = 'Init component: ' . $component->getPath();
+            $this->events->trigger('log', $this, array('message' => $message,
+                'priority'=> \Vivo\Log\Logger::INFO));
             $component->init();
         }
     }
@@ -101,8 +111,11 @@ class ComponentTreeController
      */
     public function loadState()
     {
-        foreach ($this->getTreeIterator() as $name => $component){
+        foreach ($this->getTreeIterator() as $component){
             if ($component instanceof PersistableInterface){
+                $message = 'Load component state: ' . $component->getPath();
+                $this->events->trigger('log', $this, array('message' => $message,
+                'priority'=> \Vivo\Log\Logger::INFO));
                 $key = $this->request->getUri()->getPath(). $component->getPath();
                 $state = $this->session[$key];
                 $component->loadState($state);
@@ -115,8 +128,11 @@ class ComponentTreeController
      */
     public function saveState()
     {
-        foreach ($this->getTreeIterator() as $name => $component) {
+        foreach ($this->getTreeIterator() as $component) {
             if ($component instanceof PersistableInterface){
+                $message = 'Save component state: ' . $component->getPath();
+                $this->events->trigger('log', $this, array('message' => $message,
+                'priority'=> \Vivo\Log\Logger::INFO));
                 $key = $this->request->getUri()->getPath(). $component->getPath();
                 $this->session[$key] = $component->saveState();
             }
@@ -137,7 +153,7 @@ class ComponentTreeController
      */
     public function done()
     {
-        foreach ($this->getTreeIterator() as $name => $component){
+        foreach ($this->getTreeIterator() as $component){
             $component->done();
         }
     }
@@ -189,5 +205,24 @@ class ComponentTreeController
     {
         $iter  = new ComponentTreeIterator(array($this->getRoot()));
         return new \RecursiveIteratorIterator ($iter, $mode);
+    }
+
+    /**
+     * Returns event manager.
+     * @return EventManagerInterface
+     */
+    public function getEventManager()
+    {
+        return $this->events;
+    }
+
+    /**
+     * Sets event manager
+     * @param \Zend\EventManager\EventManagerInterface $eventManager
+     */
+    public function setEventManager(EventManagerInterface $eventManager)
+    {
+        $this->events = $eventManager;
+        $this->events->addIdentifiers(__CLASS__);
     }
 }

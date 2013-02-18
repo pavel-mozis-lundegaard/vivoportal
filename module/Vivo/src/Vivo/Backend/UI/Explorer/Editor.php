@@ -7,7 +7,6 @@ use Vivo\Backend\UI\Form\EntityEditor as EntityEditorForm;
 use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 use Vivo\CMS\Model\ContentContainer;
 
-
 class Editor extends AbstractForm
 {
     /**
@@ -65,16 +64,9 @@ class Editor extends AbstractForm
     {
         $this->entity = $this->getParent()->getEntity();
 
-        $this->initEdior();
-        //call parent init to load form data
-        parent::init();
-    }
-
-    private function initEdior()
-    {
-        $this->contentTab->removeAllComponents();
-
         $this->getForm()->bind($this->entity);
+
+        parent::init();
 
         /* @var $contentContainer \Vivo\CMS\Model\ContentContainer */
         $containers = $this->documentApi->getContentContainers($this->entity);
@@ -84,7 +76,6 @@ class Editor extends AbstractForm
         }
 
         $this->contentTab->addComponent($this->createContentTab(new ContentContainer()), 'content_'.++$count);
-
     }
 
     public function setTabContainer(\Vivo\UI\TabContainer $tab)
@@ -120,13 +111,11 @@ class Editor extends AbstractForm
      * @param \Vivo\CMS\Model\ContentContainer $contentContainer
      * @return \Vivo\Backend\UI\Explorer\Editor\ContentEditor
      */
-    private function createContentTab(\Vivo\CMS\Model\ContentContainer $contentContainer)
+    private function createContentTab(ContentContainer $contentContainer)
     {
         $e = $this->sm->create('Vivo\Backend\UI\Explorer\Editor\ContentTab');
         $e->setContentContainer($contentContainer);
 
-        //init component
-        $e->init();
         return $e;
     }
 

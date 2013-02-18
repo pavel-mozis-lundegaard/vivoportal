@@ -64,16 +64,9 @@ class Editor extends AbstractForm
     {
         $this->entity = $this->getParent()->getEntity();
 
-        parent::init();
-
-        $this->initEdior();
-    }
-
-    private function initEdior()
-    {
-        $this->contentTab->removeAllComponents();
-
         $this->getForm()->bind($this->entity);
+
+        parent::init();
 
         /* @var $contentContainer \Vivo\CMS\Model\ContentContainer */
         $containers = $this->documentApi->getContentContainers($this->entity);
@@ -122,7 +115,6 @@ class Editor extends AbstractForm
     {
         $e = $this->sm->create('Vivo\Backend\UI\Explorer\Editor\ContentTab');
         $e->setContentContainer($contentContainer);
-        $e->init();
 
         return $e;
     }

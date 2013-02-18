@@ -135,7 +135,6 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
         if($needInit) {
             $this->tree->setRoot($component);
             $this->tree->init();
-            $this->tree->loadState();
         }
     }
 

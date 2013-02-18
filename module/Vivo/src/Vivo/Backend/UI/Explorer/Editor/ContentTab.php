@@ -45,14 +45,19 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
 
     public function init()
     {
+        $this->loadContents();
+        parent::init();
+        $this->doChangeVersion();
+    }
+
+    private function loadContents()
+    {
         try {
             $this->contents = $this->documentApi->getContentVersions($this->contentContainer);
         }
         catch(\Exception $e) {
             $this->contents = array();
         }
-
-        $this->doChangeVersion();
     }
 
     protected function doGetForm()
@@ -116,12 +121,13 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
      */
     public function save()
     {
-        // Reload version selecbox
         $result = $this->contentEditor->save();
 
         if($result) {
+            // Reload version selecbox
             $value = $this->getForm()->get('version')->getValue();
             $this->resetForm();
+            $this->loadContents();
             $this->getForm()->get('version')->setValue($value);
         }
 

@@ -7,7 +7,6 @@ use Vivo\Backend\UI\Form\EntityEditor as EntityEditorForm;
 use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 use Vivo\CMS\Model\ContentContainer;
 
-use Zend\EventManager\Event;
 
 class Editor extends AbstractForm
 {
@@ -38,6 +37,11 @@ class Editor extends AbstractForm
     private $alert;
 
     /**
+     * @var boolean
+     */
+    protected $autoAddCsrf = false;
+
+    /**
      * @param \Zend\ServiceManager\ServiceManager $sm
      * @param \Vivo\Metadata\MetadataManager $metadataManager
      * @param \Vivo\CMS\Api\DocumentInterface $documentApi
@@ -59,11 +63,11 @@ class Editor extends AbstractForm
 
     public function init()
     {
-        $this->getParent()->getEventManager()->attach('setEntity', array ($this, 'onEntityChange'));
-
         $this->entity = $this->getParent()->getEntity();
 
         $this->initEdior();
+        //call parent init to load form data
+        parent::init();
     }
 
     private function initEdior()
@@ -81,17 +85,6 @@ class Editor extends AbstractForm
 
         $this->contentTab->addComponent($this->createContentTab(new ContentContainer()), 'content_'.++$count);
 
-        parent::init();
-    }
-
-    /**
-     * Callback for entity change event.
-     * @param Event $e
-     */
-    public function onEntityChange(Event $e)
-    {
-        $this->entity = $e->getParam('entity');
-        $this->initEdior();
     }
 
     public function setTabContainer(\Vivo\UI\TabContainer $tab)
@@ -103,7 +96,6 @@ class Editor extends AbstractForm
     {
         $metadata = $this->metadataManager->getMetadata(get_class($this->entity));
         $action = $this->request->getUri()->getPath();
-
         $form = new EntityEditorForm('document-'.$this->entity->getUuid(), $metadata);
         $form->setAttribute('action', $action);
         $form->add(array(
@@ -133,6 +125,8 @@ class Editor extends AbstractForm
         $e = $this->sm->create('Vivo\Backend\UI\Explorer\Editor\ContentTab');
         $e->setContentContainer($contentContainer);
 
+        //init component
+        $e->init();
         return $e;
     }
 

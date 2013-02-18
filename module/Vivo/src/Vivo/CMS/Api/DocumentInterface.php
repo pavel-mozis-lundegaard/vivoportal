@@ -91,7 +91,7 @@ interface DocumentInterface
      * @param Model\Document $document
      * @return Model\Document[]
      */
-    public function getChildDocuments(Model\Document $document);
+    public function getChildDocuments(Model\Folder $document);
 
     public function getAllStates(Model\Document $document);
 

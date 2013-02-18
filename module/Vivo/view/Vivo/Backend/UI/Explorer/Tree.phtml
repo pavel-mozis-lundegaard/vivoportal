@@ -8,7 +8,7 @@ foreach ($this->tree as $item):
 <?if($last==$level):?></li><?endif;?>
 <?if($last>$level):
 $i = $last - $level;
-while(--$i):?></li></ul><?endwhile;?></li><?endif;?>
+while($i--):?></li></ul><?endwhile;?></li><?endif;?>
 
 
 <li>

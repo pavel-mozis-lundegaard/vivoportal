@@ -26,7 +26,12 @@ class ComponentTreeController
     protected $session;
 
     /**
-     * Construct.
+     * @var Request
+     */
+    protected $request;
+
+    /**
+     * Constructor.
      * @param SessionManager $sessionManager
      */
     public function __construct(SessionManager $sessionManager, Request $request)
@@ -86,7 +91,9 @@ class ComponentTreeController
      */
     public function init()
     {
-        $this->root->init();
+        foreach ($this->getTreeIterator() as $name => $component){
+            $component->init();
+        }
     }
 
     /**
@@ -130,7 +137,9 @@ class ComponentTreeController
      */
     public function done()
     {
-        $this->root->done();
+        foreach ($this->getTreeIterator() as $name => $component){
+            $component->done();
+        }
     }
 
     /**
@@ -178,7 +187,7 @@ class ComponentTreeController
      */
     public function getTreeIterator($mode = \RecursiveIteratorIterator::SELF_FIRST)
     {
-        $iter  = new ComponentTreeIterator($this->getRoot());
+        $iter  = new ComponentTreeIterator(array($this->getRoot()));
         return new \RecursiveIteratorIterator ($iter, $mode);
     }
 }

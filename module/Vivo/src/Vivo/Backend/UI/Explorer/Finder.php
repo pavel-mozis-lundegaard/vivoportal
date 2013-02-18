@@ -1,12 +1,14 @@
 <?php
 namespace Vivo\Backend\UI\Explorer;
 
+use Vivo\Repository\Exception\EntityNotFoundException;
+use Vivo\Service\Initializer\TranslatorAwareInterface;
 use Vivo\UI\Alert;
 use Vivo\UI\Component;
-
 use Zend\EventManager\Event;
+use Zend\I18n\Translator\Translator;
 
-class Finder extends Component
+class Finder extends Component implements TranslatorAwareInterface
 {
 
     /**
@@ -22,6 +24,13 @@ class Finder extends Component
      * (non-PHPdoc)
      * @see \Vivo\UI\Component::init()
      */
+
+    /**
+     * @var Translator
+     */
+    protected $translator;
+
+
     public function init()
     {
         $this->entity = $this->entityManager->getEntity();
@@ -44,9 +53,12 @@ class Finder extends Component
     {
         try {
             $this->entityManager->setEntityByRelPath($relPath);
-        } catch (\Vivo\Repository\Exception\EntityNotFoundException $e) {
+        } catch (EntityNotFoundException $e) {
             //TODO translate message
-            $this->alert->addMessage('Path does not exist.', Alert::TYPE_ERROR);
+
+            $message = sprintf($this->translator->translate(
+                    'Document with path `%s` does not exist.'), $relPath);
+            $this->alert->addMessage($message, Alert::TYPE_ERROR);
         }
     }
 
@@ -84,5 +96,10 @@ class Finder extends Component
     public function setAlert(Alert $alert)
     {
         $this->alert = $alert;
+    }
+
+    public function setTranslator(Translator $translator)
+    {
+        $this->translator = $translator;
     }
 }

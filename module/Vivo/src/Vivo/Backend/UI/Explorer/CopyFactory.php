@@ -16,9 +16,8 @@ class CopyFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $cmsApi             = $serviceLocator->get('Vivo\CMS\Api\CMS');
-//        $documentApi        = $serviceLocator->get('Vivo\CMS\Api\Document');
-        $copy               = new Copy($cmsApi);
+        $documentApi        = $serviceLocator->get('Vivo\CMS\Api\Document');
+        $copy               = new Copy($documentApi);
         return $copy;
     }
 }

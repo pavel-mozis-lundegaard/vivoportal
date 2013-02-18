@@ -192,6 +192,22 @@ class Repository implements RepositoryInterface
     }
 
     /**
+     * Returns if an entity exists in the repository at the given path
+     * @param string $path
+     * @return boolean
+     */
+    public function hasEntity($path)
+    {
+        try {
+            $this->getEntity($path);
+            $hasEntity  = true;
+        } catch (Exception\EntityNotFoundException $e) {
+            $hasEntity  = false;
+        }
+        return $hasEntity;
+    }
+
+    /**
      * Looks up an entity in cache and returns it
      * If the entity does not exist in cache or the cache is not configured, returns null
      * @param string $path
@@ -468,11 +484,24 @@ class Repository implements RepositoryInterface
      * Schedules entity for copying in storage
      * @param PathInterface $entity
      * @param string $target
+     * @return null|\Vivo\CMS\Model\Entity
      */
     public function copyEntity(PathInterface $entity, $target)
     {
-        //TODO - Implement this method
-        throw new \Exception(sprintf('%s not implemented!', __METHOD__));
+        $this->storage->copy($entity->getPath(), $target);
+        if ($this->hasEntity($target)) {
+            $copy   = $this->getEntity($target);
+
+            //TODO - process the copied entity
+
+            $this->commit();
+
+            //TODO - reindex copy
+
+        } else {
+            $copy   = null;
+        }
+        return $copy;
     }
 
 	/**

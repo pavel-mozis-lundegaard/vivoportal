@@ -2,7 +2,7 @@
 namespace Vivo\Backend\UI\Explorer;
 
 use Vivo\CMS\UI\AbstractForm;
-use Vivo\CMS\Api\CMS;
+use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 use Vivo\Backend\UI\Form\Copy as CopyForm;
 use Vivo\Form\Form;
 
@@ -12,18 +12,18 @@ use Vivo\Form\Form;
 class Copy extends AbstractForm
 {
     /**
-     * CMS Api
-     * @var CMS
+     * Document API
+     * @var DocumentApiInterface
      */
-    protected $cmsApi;
+    protected $documentApi;
 
     /**
      * Constructor
-     * @param \Vivo\CMS\Api\CMS $cmsApi
+     * @param \Vivo\CMS\Api\DocumentInterface $documentApi
      */
-    public function __construct(CMS $cmsApi)
+    public function __construct(DocumentApiInterface $documentApi)
     {
-        $this->cmsApi  = $cmsApi;
+        $this->documentApi  = $documentApi;
     }
 
     public function view()
@@ -46,7 +46,7 @@ class Copy extends AbstractForm
             $explorer   = $this->getParent();
             //Copy - and redirect
             $doc        = $explorer->getEntity();
-            $copiedDoc  = $this->cmsApi->copyDocument($doc, $explorer->getSite(), $validData['path'],
+            $copiedDoc  = $this->documentApi->copyDocument($doc, $explorer->getSite(), $validData['path'],
                                                    $validData['name_in_path'], $validData['name']);
             $explorer->setEntity($copiedDoc);
             $explorer->setCurrent('editor');

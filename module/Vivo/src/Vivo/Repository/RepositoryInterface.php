@@ -8,7 +8,8 @@ use Vivo\CMS\Model\Entity;
 /**
  * RepositoryInterface
  */
-interface RepositoryInterface extends TransactionalInterface {
+interface RepositoryInterface extends TransactionalInterface
+{
 	/**
      * Returns entity identified by path
      * When the entity is not found, throws an exception
@@ -17,6 +18,13 @@ interface RepositoryInterface extends TransactionalInterface {
      * @throws Exception\EntityNotFoundException
 	 */
 	public function getEntity($path);
+
+    /**
+     * Returns if an entity exists in the repository at the given path
+     * @param string $path
+     * @return boolean
+     */
+    public function hasEntity($path);
 
     /**
      * Looks up an entity in storage and returns it
@@ -58,6 +66,7 @@ interface RepositoryInterface extends TransactionalInterface {
      * Schedules entity for copying in storage
 	 * @param PathInterface $entity
 	 * @param string $target
+     * @return Entity|null
 	 */
 	public function copyEntity(PathInterface $entity, $target);
 

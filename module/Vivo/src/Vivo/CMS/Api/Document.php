@@ -1,13 +1,14 @@
 <?php
 namespace Vivo\CMS\Api;
 
-use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Model;
 use Vivo\Repository\RepositoryInterface;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
 use Vivo\CMS\Workflow\Factory as WorkflowFactory;
 use Vivo\CMS\Workflow\WorkflowInterface;
 use Vivo\CMS\Exception;
+use Vivo\Uuid\GeneratorInterface as UuidGeneratorInterface;
+use DateTime;
 
 /**
  * Document
@@ -37,24 +38,33 @@ class Document implements DocumentInterface
      * CMS API
      * @var CMS
      */
-    protected $cms;
+    protected $cmsApi;
+
+    /**
+     * UUID Generator
+     * @var UuidGeneratorInterface
+     */
+    protected $uuidGenerator;
 
     /**
      * Constructor
-     * @param CMS $cms
+     * @param CMS $cmsApi
      * @param \Vivo\Repository\RepositoryInterface $repository
      * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
      * @param \Vivo\CMS\Workflow\Factory $workflowFactory
+     * @param \Vivo\Uuid\GeneratorInterface $uuidGenerator
      */
-    public function __construct(CMS $cms,
+    public function __construct(CMS $cmsApi,
                                 RepositoryInterface $repository,
                                 PathBuilderInterface $pathBuilder,
-                                WorkflowFactory $workflowFactory)
+                                WorkflowFactory $workflowFactory,
+                                UuidGeneratorInterface $uuidGenerator)
     {
-        $this->cms              = $cms;
+        $this->cmsApi           = $cmsApi;
         $this->repository       = $repository;
         $this->pathBuilder      = $pathBuilder;
         $this->workflowFactory  = $workflowFactory;
+        $this->uuidGenerator    = $uuidGenerator;
     }
 
     /**
@@ -132,10 +142,10 @@ class Document implements DocumentInterface
         $oldContent = $this->getPublishedContent($document, $content->getIndex());
         if ($oldContent) {
             $oldContent->setState(WorkflowInterface::STATE_ARCHIVED);
-            $this->cms->saveEntity($oldContent, false);
+            $this->cmsApi->saveEntity($oldContent, false);
         }
         $content->setState(WorkflowInterface::STATE_PUBLISHED);
-        $this->cms->saveEntity($content, true);
+        $this->cmsApi->saveEntity($content, true);
     }
 
     /**
@@ -161,7 +171,7 @@ class Document implements DocumentInterface
             $this->publishContent($content);
         } else {
             $content->setState($state);
-            $this->cms->saveEntity($content);
+            $this->cmsApi->saveEntity($content);
         }
     }
 
@@ -192,7 +202,7 @@ class Document implements DocumentInterface
         $contentPath    = $this->pathBuilder->buildStoragePath($components, true);
         $content->setPath($contentPath);
         $content->setState(WorkflowInterface::STATE_NEW);
-        $this->cms->saveEntity($content);
+        $this->cmsApi->saveEntity($content);
     }
 
     /**
@@ -229,7 +239,7 @@ class Document implements DocumentInterface
 
     /**
      * @param Model\Document $document
-     * @return array <\Vivo\CMS\Model\ContentContainer>
+     * @return Model\ContentContainer[]
      */
     public function getContentContainers(Model\Document $document)
     {
@@ -280,7 +290,7 @@ class Document implements DocumentInterface
         $options = array(
             'published_content_types' => $this->getPublishedContentTypes($document),
         );
-        $this->cms->saveEntity($document, $options);
+        $this->cmsApi->saveEntity($document, $options);
 
         return $document;
     }
@@ -299,7 +309,7 @@ class Document implements DocumentInterface
         $content->setPath($path);
 
         $this->updateContentStates($container, $content);
-        $content = $this->cms->prepareEntityForSaving($content);
+        $content = $this->cmsApi->prepareEntityForSaving($content);
 
         $this->repository->saveEntity($content);
         $this->repository->commit();
@@ -316,11 +326,11 @@ class Document implements DocumentInterface
      */
     public function saveContent(Model\Content $content)
     {
-        $container = $this->cms->getEntityParent($content);
+        $container = $this->cmsApi->getEntityParent($content);
 
         $this->updateContentStates($container, $content);
 
-        $content = $this->cms->prepareEntityForSaving($content);
+        $content = $this->cmsApi->prepareEntityForSaving($content);
 
         $this->repository->saveEntity($content);
         $this->repository->commit();
@@ -342,7 +352,7 @@ class Document implements DocumentInterface
             {
                 $version->setState(WorkflowInterface::STATE_ARCHIVED);
 
-                $this->cms->saveEntity($version, false);
+                $this->cmsApi->saveEntity($version, false);
             }
         }
     }
@@ -375,18 +385,20 @@ class Document implements DocumentInterface
     }
 
     /**
-     * @deprecated Use self::getContentVersions
-     *
-     * @see \Vivo\CMS\Api\DocumentInterface::getContents()
+     * Returns number of contents the document has
+     * @param \Vivo\CMS\Model\Document $document
+     * @return integer
      */
-    public function getContents(Model\ContentContainer $container)
+    public function getContentCount(Model\Document $document)
     {
-        return $this->getContentVersions($container);
+        $containers     = $this->getContentContainers($document);
+        $contentCount   = count($containers);
+        return $contentCount;
     }
 
     /**
      * @param Model\ContentContainer $container
-     * @return array <\Vivo\CMS\Model\Content>
+     * @return Model\Content[]
      */
     public function getContentVersions(Model\ContentContainer $container)
     {
@@ -415,4 +427,126 @@ class Document implements DocumentInterface
         $hasChildDocs   = count($childDocs) > 0;
         return $hasChildDocs;
    }
+
+    /**
+     * Copies document to a new location
+     * @param \Vivo\CMS\Model\Document $document
+     * @param \Vivo\CMS\Model\Site $site
+     * @param string $targetUrl
+     * @param string $targetName
+     * @param string $title
+     * @throws \Vivo\CMS\Exception\Exception
+     * @return \Vivo\CMS\Model\Document
+     */
+    public function copyDocument(Model\Document $document, Model\Site $site, $targetUrl, $targetName, $title)
+    {
+        //TODO - check recursive operation
+//        if (strpos($target, "$path/") === 0) {
+//            throw new CMS\Exception(500, 'recursive_operation', array($path, $target));
+//        }
+
+        //Add trailing slash
+        $targetUrl  = $targetUrl . ((substr($targetUrl, -1) == '/') ? '' : '/');
+        if (!$this->cmsApi->getSiteEntity($targetUrl, $site)) {
+            //The location to copy to does not exist
+            throw new Exception\Exception(sprintf("%s: Target location '%s' does not exist", __METHOD__, $targetUrl));
+        }
+        $targetUrl  .= $targetName . '/';
+        $targetPath = $this->cmsApi->getEntityAbsolutePath($targetUrl, $site);
+        if ($this->repository->hasEntity($targetPath)) {
+            //There is an entity at the target path already
+            throw new Exception\Exception(sprintf("%s: There is an entity at the target path '%s'", __METHOD__, $targetPath));
+        }
+        /** @var $copied \Vivo\CMS\Model\Document */
+        $copied = $this->repository->copyEntity($document, $targetPath);
+        if (!$copied) {
+            throw new Exception\Exception(
+                sprintf("%s: Copying from '%s' to '%s' failed", __METHOD__, $document->getPath(), $targetPath));
+        }
+        $copied->setTitle($title);
+        $this->processCopiedDocument($document, $copied);
+
+        $contentCount   = $this->getContentCount($copied);
+        for($index = 1; $index <= $contentCount; $index++) {
+            //Get the old versions
+            $oldVersions    = $this->getDocumentContents($document, $index);
+            //Get copied versions
+            $newVersions    = $this->getDocumentContents($copied, $index);
+            $versionCount   = count($newVersions);
+            for ($i = 0; $i < $versionCount; $i++) {
+                /** @var $newVersion \Vivo\CMS\Model\Content */
+                $newVersion = $newVersions[$i];
+                // Change workflow state to NEW
+                $this->setState($newVersion, WorkflowInterface::STATE_NEW);
+                // Replace references
+                if ($newVersion instanceof Model\Content\File && $newVersion->getMimeType() == 'text/html') {
+                    /** @var $newVersion Model\Content\File */
+                    /** @var $oldVersion \Vivo\CMS\Model\Content */
+                    $oldVersion = $oldVersions[$i];
+                    $oldUuid    = $oldVersion->getUuid();
+                    $newUuid    = $newVersion->getUuid();
+                    $filename   = $newVersion->getFilename();
+                    $html       = $this->repository->getResource($newVersion, $filename);
+                    $html       = str_replace("[ref:$oldUuid]", "[ref:$newUuid]", $html);
+                    $this->repository->saveResource($newVersion, $filename, $html);
+                }
+                //TODO - review: is this save redundant?
+//                $this->saveEntity($newVersion);
+            }
+        }
+        //TODO - review: is this call redundant?
+//        $this->copyChangeState($copied);
+        $this->repository->commit();
+        return $copied;
+    }
+
+    protected function processCopiedDocument(Model\Document $original, Model\Document $copy)
+    {
+        $now    = new DateTime();
+        $copy->setUuid($this->uuidGenerator->create());
+        $copy->setCreated($now);
+        $copy->setModified($now);
+        $copy->setPublished($now);
+
+        //TODO - set createdBy, modifiedBy
+//        $entity->createdBy = $entity->modifiedBy =
+//            ($user = CMS::$securityManager->getUserPrincipal()) ?
+//                "{$user->domain}\\{$user->username}" :
+//                Context::$instance->site->domain.'\\'.Security\Manager::USER_ANONYMOUS;
+
+        $this->saveDocument($copy);
+
+
+        $allContentVersions = $this->getAllContentVersions($copy);
+        foreach($allContentVersions as $contentVersion) {
+            $contentVersion->setUuid($this->uuidGenerator->create());
+            $contentVersion->setCreated($now);
+            $contentVersion->setModified($now);
+
+            //TODO - set createdBy, modifiedBy
+
+            $this->saveContent($contentVersion);
+        }
+
+        $childDocs  = $this->getChildDocuments($copy);
+        foreach ($childDocs as $childDoc) {
+            $this->processCopiedDocument($childDoc);
+        }
+    }
+
+    /**
+     * Returns array of all document content versions
+     * @param Model\Document $document
+     * @return Model\Content[]
+     */
+    protected function getAllContentVersions(Model\Document $document)
+    {
+        $allVersions        = array();
+        $contentContainers  = $this->getContentContainers($document);
+        foreach ($contentContainers as $contentContainer) {
+            $versions       = $this->getContentVersions($contentContainer);
+            $allVersions    = array_merge($allVersions, $versions);
+        }
+        return $allVersions;
+    }
 }

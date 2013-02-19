@@ -43,7 +43,7 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
      * @param \Zend\ServiceManager\ServiceManager $sm
      * @param \Vivo\CMS\Api\Document $documentApi
      */
-    public function __construct(\Zend\ServiceManager\ServiceManager $sm, \Vivo\CMS\Api\Document $documentApi)
+    public function __construct(\Zend\ServiceManager\ServiceManager $sm, Api\Document $documentApi)
     {
         $this->sm = $sm;
         $this->documentApi = $documentApi;
@@ -73,12 +73,18 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
         $this->doChangeVersion();
     }
 
+    public function initForm()
+    {
+        $this->loadContents();
+        $this->doChangeVersion();
+    }
+
     private function loadContents()
     {
         try {
             $this->contents = $this->documentApi->getContentVersions($this->contentContainer);
         }
-        catch(\Exception $e) {
+        catch(\Vivo\Repository\Exception\ExceptionInterface $e) {
             $this->contents = array();
         }
     }
@@ -97,7 +103,8 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
 
         $values = array_keys($options);
 
-        $form = new Form('contentTabEditor');
+        $form = new Form('container-'.$this->contentContainer->getUuid());
+        $form->setWrapElements(true);
         $form->add(array(
                 'name' => 'version',
                 'type' => 'Vivo\Form\Element\Select',

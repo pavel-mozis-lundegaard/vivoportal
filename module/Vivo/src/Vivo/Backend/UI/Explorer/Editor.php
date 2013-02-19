@@ -95,7 +95,7 @@ class Editor extends AbstractForm
             $this->contentTab->addComponent($this->createContentTab($contentContainer), "content_$index");
         }
 
-        $this->contentTab->addComponent($this->createContentTab(new ContentContainer()), 'content_'.++$count);
+        $this->contentTab->addComponent($this->createContentTab(new ContentContainer()), "content_$count");
     }
 
     /**
@@ -171,6 +171,11 @@ class Editor extends AbstractForm
 
         if($this->alert) {
             if($success) {
+                $this->contentTab->removeAllComponents();
+                $this->init();
+                $selected = $this->contentTab->getSelectedComponent();
+                $selected->initForm();
+
                 $this->alert->addMessage('Saved...', Alert::TYPE_SUCCESS);
             }
             else {
@@ -179,7 +184,7 @@ class Editor extends AbstractForm
         }
 
 //         if($this->success) {
-//             $this->redirector->redirect();
+//             $this->events->trigger(new RedirectEvent($redirUrl));
 //         }
     }
 }

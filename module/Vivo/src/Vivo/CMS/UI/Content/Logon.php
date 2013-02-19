@@ -1,9 +1,10 @@
 <?php
 namespace Vivo\CMS\UI\Content;
 
-use Vivo\CMS\UI\AbstractForm;
 use Vivo\Form\Logon as ZfFormLogon;
+use Vivo\CMS\UI\AbstractForm;
 use Vivo\CMS\Security\Manager\AbstractManager as AbstractSecurityManager;
+use Vivo\Util\RedirectEvent;
 
 use Zend\Form\Form as ZfForm;
 
@@ -68,7 +69,7 @@ class Logon extends AbstractForm
                     $redirUrl   = $model->getErrorUrl();
                 }
             }
-            $this->redirector->redirect($redirUrl);
+        $this->events->trigger(new RedirectEvent($redirUrl));
         }
     }
 
@@ -85,7 +86,8 @@ class Logon extends AbstractForm
         if ($model->getLogoffUrl()) {
             $redirUrl   = $model->getLogoffUrl();
         }
-        $this->redirector->redirect($redirUrl);
+
+        $this->events->trigger(new RedirectEvent($redirUrl));
     }
 
     /**

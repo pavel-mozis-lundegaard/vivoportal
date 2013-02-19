@@ -244,7 +244,7 @@ return array(
             'indexer_query_parser'      => 'Vivo\Service\IndexerQueryParserFactory',
             'module_name_resolver'      => 'Vivo\Service\ModuleNameResolverFactory',
             'metadata_manager'          => 'Vivo\Service\MetadataManagerFactory',
-            'redirector'                => 'Vivo\Service\RedirectorFactory',
+            'redirector'                => 'Vivo\Util\RedirectorFactory',
             'logger'                    => 'Vivo\Service\LoggerFactory',
             'default_log'               => 'Vivo\Service\LogFileWriterFactory',
             'template_resolver'         => 'Vivo\Service\TemplateResolverFactory',

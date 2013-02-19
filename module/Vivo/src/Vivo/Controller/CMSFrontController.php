@@ -54,6 +54,12 @@ class CMSFrontController implements DispatchableInterface,
     private $tree;
 
     /**
+     *
+     * @var \Vivo\Util\Redirector
+     */
+    protected $redirector;
+
+    /**
      * @param ComponentFactory $componentFactory
      */
     public function setComponentFactory(ComponentFactory $componentFactory)
@@ -110,11 +116,14 @@ class CMSFrontController implements DispatchableInterface,
         } else {
             $this->tree->init();
             $this->handleAction();
-            $result = $this->tree->view();
+            if (!$this->redirector->isRedirect()) {
+                $result = $this->tree->view();
+            }
         }
 
         $this->tree->saveState();
         $this->tree->done();
+
 
         if ($result instanceof ModelInterface) {
             $this->event->setViewModel($result);
@@ -125,6 +134,8 @@ class CMSFrontController implements DispatchableInterface,
         } elseif (is_string($result)) {
             //skip rendering phase
             $response->setContent($result);
+            return $response;
+        } elseif($this->redirector->isRedirect()) {
             return $response;
         }
     }
@@ -192,4 +203,24 @@ class CMSFrontController implements DispatchableInterface,
     public function getRequest() {
         return $this->event->getRequest();
     }
+
+    /**
+     * Returns redirector.
+     * @return Redirector
+     */
+    public function getRedirector()
+    {
+        return $this->redirector;
+    }
+
+    /**
+     * Sets redirector.
+     * @param \Vivo\Util\Redirector $redirector
+     */
+    public function setRedirector(\Vivo\Util\Redirector $redirector)
+    {
+        $this->redirector = $redirector;
+    }
+
+
 }

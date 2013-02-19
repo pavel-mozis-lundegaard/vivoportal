@@ -85,15 +85,21 @@ interface DocumentInterface
      * @param string $targetUrl
      * @param string $targetName
      * @param string $title
-     * @return \Vivo\CMS\Model\Document
+     * @return Model\Document
      */
     public function copyDocument(Model\Document $document, Model\Site $site, $targetUrl, $targetName, $title);
 
     /**
      * @param Model\Document $document
-     * @param string $target Path.
+     * @param \Vivo\CMS\Model\Site $site
+     * @param string $targetUrl
+     * @param string $targetName
+     * @param string $title
+     * @param boolean $createHyperlink
+     * @return Model\Document
      */
-    public function moveDocument(Model\Document $document, $target);
+    public function moveDocument(Model\Document $document, Model\Site $site, $targetUrl, $targetName, $title,
+                                 $createHyperlink);
 
     public function saveDocument(Model\Document $document/*, $parent = null*/);
 

@@ -56,14 +56,15 @@ interface RepositoryInterface extends TransactionalInterface
     public function deleteEntityByPath($path);
 
     /**
-     * Schedules entity for moving in the storage
+     * Moves entity
 	 * @param PathInterface $entity
 	 * @param string $target
+     * @return Entity|null
 	 */
 	public function moveEntity(PathInterface $entity, $target);
 
     /**
-     * Schedules entity for copying in storage
+     * Copies entity
 	 * @param PathInterface $entity
 	 * @param string $target
      * @return Entity|null

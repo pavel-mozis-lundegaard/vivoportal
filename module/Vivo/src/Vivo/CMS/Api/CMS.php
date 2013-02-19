@@ -161,22 +161,22 @@ class CMS
      */
     public function prepareEntityForSaving(Model\Entity $entity)
     {
+        //TODO - retrieve a real username
+        $username       = '???';
         $now            = new DateTime();
         $sanitizedPath  = $this->pathBuilder->sanitize($entity->getPath());
         $entity->setPath($sanitizedPath);
-        if (!$entity->getCreated() instanceof \DateTime) {
-            $entity->setCreated($now);
-        }
-        if (!$entity->getCreatedBy()) {
-            //TODO - what to do when an entity does not have its creator set?
-            //$entity->setCreatedBy($username);
-        }
         if(!$entity->getUuid()) {
             $entity->setUuid($this->uuidGenerator->create());
         }
+        if (!$entity->getCreated() instanceof \DateTime) {
+            $entity->setCreated($now);
+        }
         $entity->setModified($now);
-        //TODO - set entity modifier
-//        $entity->setModifiedBy($username);
+        if (!$entity->getCreatedBy()) {
+            $entity->setCreatedBy($username);
+        }
+        $entity->setModifiedBy($username);
         return $entity;
     }
 

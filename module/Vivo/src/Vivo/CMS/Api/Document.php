@@ -8,6 +8,9 @@ use Vivo\CMS\Workflow\Factory as WorkflowFactory;
 use Vivo\CMS\Workflow\WorkflowInterface;
 use Vivo\CMS\Exception;
 use Vivo\Uuid\GeneratorInterface as UuidGeneratorInterface;
+use Vivo\CMS\Model\Content\Hyperlink;
+use Vivo\CMS\Model\ContentContainer;
+
 use DateTime;
 
 /**
@@ -194,11 +197,40 @@ class Document implements DocumentInterface
         return null;
     }
 
+    /**
+     * Adds the submitted content container to the document
+     * Returns content container number
+     * @param \Vivo\CMS\Model\Document $document
+     * @param \Vivo\CMS\Model\ContentContainer $contentContainer
+     * @return integer
+     */
+    public function addContentContainer(Model\Document $document, Model\ContentContainer $contentContainer)
+    {
+        $containers = $this->getContentContainers($document);
+        //Get the highest container number
+        $highest    = 0;
+        foreach ($containers as $container) {
+            $basename   = $this->pathBuilder->basename($container->getPath());
+            $parts      = explode('.', $basename);
+            $num        = (int) array_pop($parts);
+            if ($num > $highest) {
+                $highest    = $num;
+            }
+        }
+        $newNum = $highest + 1;
+        $containerPathComponents    = array($document->getPath(), 'Contents.' . $newNum);
+        $containerPath              = $this->pathBuilder->buildStoragePath($containerPathComponents, true);
+        $contentContainer->setPath($containerPath);
+        $this->repository->saveEntity($contentContainer);
+        $this->repository->commit();
+        return $newNum;
+    }
+
     public function addDocumentContent(Model\Document $document, Model\Content $content, $index = 0)
     {
         $path           = $document->getPath();
         $version        = count($this->getDocumentContents($document, $index));
-        $components     = array($path, 'Contents' . $index, $version);
+        $components     = array($path, 'Contents.' . $index, $version);
         $contentPath    = $this->pathBuilder->buildStoragePath($components, true);
         $content->setPath($contentPath);
         $content->setState(WorkflowInterface::STATE_NEW);
@@ -269,16 +301,6 @@ class Document implements DocumentInterface
         $pathElements   = array($document->getPath(), 'Contents.', $index);
         $path           = $this->pathBuilder->buildStoragePath($pathElements, true);
         return $this->repository->getChildren(new Model\Entity($path));
-    }
-
-    /**
-     * @param Model\Document $document
-     * @param string $target Path.
-     */
-    public function moveDocument(Model\Document $document, $target)
-    {
-        $this->repository->moveEntity($document, $target);
-        $this->repository->commit();
     }
 
     /**
@@ -417,16 +439,79 @@ class Document implements DocumentInterface
     }
 
     /**
-   * Returns if the document has any child documents
-   * @param \Vivo\CMS\Model\Document $document
-      * @return bool
+     * Returns if the document has any child documents
+     * @param \Vivo\CMS\Model\Document $document
+     * @return bool
      */
-   public function hasChildDocuments(Model\Document $document)
-   {
+    public function hasChildDocuments(Model\Document $document)
+    {
         $childDocs      = $this->getChildDocuments($document);
         $hasChildDocs   = count($childDocs) > 0;
         return $hasChildDocs;
-   }
+    }
+
+    /**
+     * @param Model\Document $document
+     * @param \Vivo\CMS\Model\Site $site
+     * @param string $targetUrl
+     * @param string $targetName
+     * @param string $title
+     * @param boolean $createHyperlink
+     * @throws \Vivo\CMS\Exception\Exception
+     * @return Model\Document
+     */
+    public function moveDocument(Model\Document $document, Model\Site $site, $targetUrl, $targetName, $title,
+                                 $createHyperlink)
+    {
+        //Add trailing slash
+        $targetUrl  = $targetUrl . ((substr($targetUrl, -1) == '/') ? '' : '/');
+        if (!$this->cmsApi->getSiteEntity($targetUrl, $site)) {
+            //The location to move to does not exist
+            throw new Exception\Exception(sprintf("%s: Target location '%s' does not exist", __METHOD__, $targetUrl));
+        }
+        $targetUrl  .= $targetName . '/';
+        $targetPath = $this->cmsApi->getEntityAbsolutePath($targetUrl, $site);
+        if ($this->repository->hasEntity($targetPath)) {
+            //There is an entity at the target path already
+            throw new Exception\Exception(sprintf("%s: There is an entity at the target path '%s'", __METHOD__, $targetPath));
+        }
+        /** @var $moved \Vivo\CMS\Model\Document */
+        $docClone   = clone $document;
+        $moved  = $this->repository->moveEntity($document, $targetPath);
+        if (!$moved) {
+            throw new Exception\Exception(
+                sprintf("%s: Move from '%s' to '%s' failed", __METHOD__, $document->getPath(), $targetPath));
+        }
+        $moved->setTitle($title);
+        //TODO - get real username of the user copying the document
+        $moveChildren       = $this->repository->getChildren($moved, false, true);
+        /** @var $subTreeEntities Model\Entity[] */
+        $subTreeEntities    = array_merge(array($moved), $moveChildren);
+        foreach ($subTreeEntities as $entity) {
+            $this->cmsApi->saveEntity($entity, false);
+        }
+        //Hyperlink
+        if ($createHyperlink) {
+            //Document
+            $docClone->setUuid($this->uuidGenerator->create());
+            $docClone->setTitle($docClone->getTitle() . ' HYPERLINK');
+            $this->cmsApi->saveEntity($docClone);
+            //Content container
+            $contentContainer   = new ContentContainer();
+            $contentContainer->setUuid($this->uuidGenerator->create());
+            $this->cmsApi->prepareEntityForSaving($contentContainer);
+            $containerNumber    = $this->addContentContainer($docClone, $contentContainer);
+            //Content - hyperlink
+            $hyperlink  = new Hyperlink();
+            $hyperlink->setUuid($this->uuidGenerator->create());
+            $hyperlink->setUrl($this->cmsApi->getEntityRelPath($moved));
+            $this->addDocumentContent($docClone, $hyperlink, $containerNumber);
+            $hyperlink->setState(WorkflowInterface::STATE_PUBLISHED);
+            $this->repository->saveEntity($hyperlink);
+        }
+        $this->repository->commit();
+        return $moved;
+    }
 
     /**
      * Copies document to a new location
@@ -464,73 +549,58 @@ class Document implements DocumentInterface
                 sprintf("%s: Copying from '%s' to '%s' failed", __METHOD__, $document->getPath(), $targetPath));
         }
         $copied->setTitle($title);
-        $this->processCopiedDocument($document, $copied);
-
-        $contentCount   = $this->getContentCount($copied);
-        for($index = 1; $index <= $contentCount; $index++) {
-            //Get the old versions
-            $oldVersions    = $this->getDocumentContents($document, $index);
-            //Get copied versions
-            $newVersions    = $this->getDocumentContents($copied, $index);
-            $versionCount   = count($newVersions);
-            for ($i = 0; $i < $versionCount; $i++) {
-                /** @var $newVersion \Vivo\CMS\Model\Content */
-                $newVersion = $newVersions[$i];
-                // Change workflow state to NEW
-                $this->setState($newVersion, WorkflowInterface::STATE_NEW);
-                // Replace references
-                if ($newVersion instanceof Model\Content\File && $newVersion->getMimeType() == 'text/html') {
-                    /** @var $newVersion Model\Content\File */
-                    /** @var $oldVersion \Vivo\CMS\Model\Content */
-                    $oldVersion = $oldVersions[$i];
-                    $oldUuid    = $oldVersion->getUuid();
-                    $newUuid    = $newVersion->getUuid();
-                    $filename   = $newVersion->getFilename();
-                    $html       = $this->repository->getResource($newVersion, $filename);
-                    $html       = str_replace("[ref:$oldUuid]", "[ref:$newUuid]", $html);
-                    $this->repository->saveResource($newVersion, $filename, $html);
-                }
-                //TODO - review: is this save redundant?
-//                $this->saveEntity($newVersion);
+        $oldUuid    = $copied->getUuid();
+        $now                = new DateTime();
+        $copyChildren       = $this->repository->getChildren($copied, false, true);
+        /** @var $subTreeEntities Model\Entity[] */
+        $subTreeEntities    = array_merge(array($copied), $copyChildren);
+        foreach ($subTreeEntities as $entity) {
+            $oldUuid    = $entity->getUuid();
+            $newUuid    = $this->uuidGenerator->create();
+            //Assign a new UUID
+            $entity->setUuid($newUuid);
+            //Replace old UUID refs with new ones
+            //$this->replaceUuidRefs($oldUuid, $newUuid, $copy);
+            $entity->setCreated($now);
+            if ($entity instanceof Model\Document) {
+                //Document
+                $entity->setPublished($now);
+                $this->saveDocument($entity);
+            } elseif ($entity instanceof Model\Content) {
+                //Content
+                $this->setState($entity, WorkflowInterface::STATE_NEW);
+                $this->saveContent($entity);
+            } else {
+                //Entity
+                $this->cmsApi->saveEntity($entity);
             }
         }
-        //TODO - review: is this call redundant?
-//        $this->copyChangeState($copied);
+        $newUuid    = $copied->getUuid();
+        $this->replaceUuidRefs($oldUuid, $newUuid, $copied);
         $this->repository->commit();
         return $copied;
     }
 
-    protected function processCopiedDocument(Model\Document $original, Model\Document $copy)
+    /**
+     * Replaces UUIDs in a subtree
+     * @param string $oldUuid
+     * @param string $newUuid
+     * @param \Vivo\CMS\Model\Document $rootDoc
+     */
+    public function replaceUuidRefs($oldUuid, $newUuid, Model\Document $rootDoc)
     {
-        $now    = new DateTime();
-        $copy->setUuid($this->uuidGenerator->create());
-        $copy->setCreated($now);
-        $copy->setModified($now);
-        $copy->setPublished($now);
-
-        //TODO - set createdBy, modifiedBy
-//        $entity->createdBy = $entity->modifiedBy =
-//            ($user = CMS::$securityManager->getUserPrincipal()) ?
-//                "{$user->domain}\\{$user->username}" :
-//                Context::$instance->site->domain.'\\'.Security\Manager::USER_ANONYMOUS;
-
-        $this->saveDocument($copy);
-
-
-        $allContentVersions = $this->getAllContentVersions($copy);
-        foreach($allContentVersions as $contentVersion) {
-            $contentVersion->setUuid($this->uuidGenerator->create());
-            $contentVersion->setCreated($now);
-            $contentVersion->setModified($now);
-
-            //TODO - set createdBy, modifiedBy
-
-            $this->saveContent($contentVersion);
-        }
-
-        $childDocs  = $this->getChildDocuments($copy);
-        foreach ($childDocs as $childDoc) {
-            $this->processCopiedDocument($childDoc);
+        $children           = $this->repository->getChildren($rootDoc, false, true);
+        /** @var $subTreeEntities Model\Entity[] */
+        $subTreeEntities    = array_merge(array($rootDoc), $children);
+        foreach ($subTreeEntities as $entity) {
+            if ($entity instanceof Model\Content\File && $entity->getMimeType() == 'text/html') {
+                /** @var $entity Model\Content\File */
+                /** @var $versionOriginal \Vivo\CMS\Model\Content */
+                $filename           = $entity->getFilename();
+                $html               = $this->repository->getResource($entity, $filename);
+                $html               = str_replace("[ref:$oldUuid]", "[ref:$newUuid]", $html);
+                $this->repository->saveResource($entity, $filename, $html);
+            }
         }
     }
 

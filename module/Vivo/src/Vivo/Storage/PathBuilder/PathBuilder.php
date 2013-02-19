@@ -125,6 +125,18 @@ class PathBuilder implements PathBuilderInterface
     }
 
     /**
+     * Returns trailing component of the path
+     * @param string $path
+     * @return string
+     */
+    public function basename($path)
+    {
+        $components = $this->getStoragePathComponents($path);
+        $basename   = array_pop($components);
+        return $basename;
+    }
+
+    /**
      * Returns true when the $path denotes an absolute path
      * @param string $path
      * @return boolean

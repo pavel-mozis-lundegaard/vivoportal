@@ -5,9 +5,9 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
 
 /**
- * CopyFactory
+ * MoveFactory
  */
-class CopyFactory implements FactoryInterface
+class MoveFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -18,7 +18,7 @@ class CopyFactory implements FactoryInterface
     {
         $documentApi        = $serviceLocator->get('Vivo\CMS\Api\Document');
         $pathBuilder        = $serviceLocator->get('path_builder');
-        $copy               = new Copy($documentApi, $pathBuilder);
-        return $copy;
+        $move               = new Move($documentApi, $pathBuilder);
+        return $move;
     }
 }

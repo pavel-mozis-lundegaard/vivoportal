@@ -48,4 +48,11 @@ interface PathBuilderInterface
      * @return string|null
      */
     public function dirname($path);
+
+    /**
+     * Returns trailing component of the path
+     * @param string $path
+     * @return string
+     */
+    public function basename($path);
 }

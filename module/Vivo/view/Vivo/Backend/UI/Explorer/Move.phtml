@@ -1,5 +1,9 @@
 <?php
+    $this->headScript()->appendFile('/.Vivo.resource/js/update-path.js');
+
     /** @var $entity \Vivo\CMS\Model\Entity */
     echo $this->escapeHtml($this->translate('Move')) . ' ' . $this->escapeHtml($entity->getPath());
+    $name   = $form->get('name');
+    $name->setAttribute('onkeyup', 'this.form.name_in_path.value = updatePath(this.form.name_in_path.value, this.value)');
     echo $this->vivoForm($form);
 ?>

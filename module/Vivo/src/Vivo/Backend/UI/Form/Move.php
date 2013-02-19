@@ -6,17 +6,17 @@ use Vivo\Form\Form;
 use Zend\InputFilter\InputFilterProviderInterface;
 
 /**
- * Copy
- * Copy document form
+ * Move
+ * Move document form
  */
-class Copy extends Form implements InputFilterProviderInterface
+class Move extends Form implements InputFilterProviderInterface
 {
     /**
      * Constructor
      */
     public function __construct()
     {
-        parent::__construct('copyDocument');
+        parent::__construct('moveDocument');
 
         $this->setAttribute('method', 'post');
         $this->add(array(
@@ -47,10 +47,17 @@ class Copy extends Form implements InputFilterProviderInterface
             ),
         ));
         $this->add(array(
+            'name'          => 'create_hyperlink',
+            'type'          => 'Vivo\Form\Element\Checkbox',
+            'options'       => array(
+                'label'         => 'Create hyperlink',
+            ),
+        ));
+        $this->add(array(
             'name'  => 'submit',
             'type'  => 'Vivo\Form\Element\Submit',
             'attributes'   => array(
-                'value'     => 'Copy',
+                'value'     => 'Submit',
             ),
         ));
     }

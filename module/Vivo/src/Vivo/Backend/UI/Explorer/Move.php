@@ -1,10 +1,11 @@
 <?php
-namespace Vivo\CMS\UI\Manager\Explorer;
+namespace Vivo\Backend\UI\Explorer;
 
 use Vivo\CMS\UI\AbstractForm;
-use Vivo\CMS\Api\CMS;
-
-use Zend\Form\Form as ZfForm;
+use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
+use Vivo\Backend\UI\Form\Move as MoveForm;
+use Vivo\Storage\PathBuilder\PathBuilderInterface;
+use Vivo\CMS\Model\Document;
 
 /**
  * Move
@@ -12,18 +13,26 @@ use Zend\Form\Form as ZfForm;
 class Move extends AbstractForm
 {
     /**
-     * CMS Api
-     * @var CMS
+     * Document API
+     * @var DocumentApiInterface
      */
-    protected $cms;
+    protected $documentApi;
+
+    /**
+     * Path Builder
+     * @var PathBuilderInterface
+     */
+    protected $pathBuilder;
 
     /**
      * Constructor
-     * @param \Vivo\CMS\Api\CMS $cms
+     * @param \Vivo\CMS\Api\DocumentInterface $documentApi
+     * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
      */
-    public function __construct(CMS $cms)
+    public function __construct(DocumentApiInterface $documentApi, PathBuilderInterface $pathBuilder)
     {
-        $this->cms  = $cms;
+        $this->documentApi  = $documentApi;
+        $this->pathBuilder  = $pathBuilder;
     }
 
     public function view()
@@ -35,89 +44,49 @@ class Move extends AbstractForm
     }
 
     /**
-     * Submit action
+     * Move action
      */
-    public function submit()
+    public function move()
     {
         $form   = $this->getForm();
         if ($form->isValid()) {
             $validData  = $form->getData();
-            \Zend\Debug\Debug::dump($validData);
             /** @var $explorer Explorer */
             $explorer   = $this->getParent();
-//            if ($validData['yes']) {
-                //Delete - and redirect
-//                $docParent  = $this->cms->getParent($explorer->getEntity());
-//                $this->cms->removeDocument($this->document);
-//                $explorer->setEntityByRelPath($docParent->getPath());
-//                $explorer->setEntity($docParent);
-//            }
-            //TODO - set Explorer current to viewer
-//            $explorer->setCurrent('viewer');
-//            $explorer->saveState();
+            //Move - and redirect
+            $doc        = $explorer->getEntity();
+            $movedDoc   = $this->documentApi->moveDocument($doc, $explorer->getSite(), $validData['path'],
+                $validData['name_in_path'], $validData['name'], (bool) $validData['create_hyperlink']);
+            $explorer->setEntity($movedDoc);
+            $explorer->setCurrent('editor');
 //            $this->redirector->redirect();
-
         }
 
     }
 
     /**
-     * Creates ZF form and returns it
+     * Creates form and returns it
      * Factory method
-     * @return ZfForm
+     * @return MoveForm
      */
     protected function doGetForm()
     {
-        $form   = new ZfForm();
+        $form   = new MoveForm();
         $form->setAttribute('action', $this->request->getUri()->getPath());
         $form->add(array(
             'name'  => 'act',
             'attributes'    => array(
                 'type'  => 'hidden',
-                'value' => $this->getPath('submit'),
+                'value' => $this->getPath('move'),
             ),
         ));
-        $form->add(array(
-            'name'          => 'path',
-            'attributes'    => array(
-                'type'          => 'text',
-            ),
-            'options'       => array(
-                'label'         => 'Path',
-            ),
-        ));
-        $form->add(array(
-            'name'          => 'name',
-            'attributes'    => array(
-                'type'          => 'text',
-            ),
-            'options'       => array(
-                'label'         => 'Name',
-            ),
-        ));
-        $form->add(array(
-            'name'          => 'name_in_path',
-            'attributes'    => array(
-                'type'          => 'text',
-            ),
-            'options'       => array(
-                'label'         => 'Name in path',
-            ),
-        ));
-        $form->add(array(
-            'name'          => 'create_hyperlink',
-            'type'          => 'Zend\Form\Element\Checkbox',
-            'options'       => array(
-                'label'         => 'Create hyperlink',
-            ),
-        ));
-        $form->add(array(
-            'name'  => 'submit',
-            'type'  => 'Zend\Form\Element\Submit',
-            'attributes'   => array(
-                'value'     => 'Submit',
-            ),
-        ));
+        /** @var $explorer Explorer */
+        $explorer   = $this->getParent();
+        /** @var $doc Document */
+        $doc        = $explorer->getEntity();
+        $parentPath = $this->pathBuilder->dirname($doc->getPath());
+        $form->get('path')->setValue($parentPath);
+        $form->get('name')->setValue($doc->getTitle());
         return $form;
     }
 }

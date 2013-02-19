@@ -254,7 +254,8 @@ return array(
             'db_table_gateway_provider' => 'Vivo\Service\DbTableGatewayProviderFactory',
             'workflow_factory'          => 'Vivo\CMS\Workflow\FactoryFactory',
             'Vivo\CMS\Api\Manager\Manager' => 'Vivo\CMS\Api\Manager\ManagerFactory',
-            'component_tree_controller' => 'Vivo\UI\ComponentTreeControllerFactory'
+            'component_tree_controller' => 'Vivo\UI\ComponentTreeControllerFactory',
+            'workflow_basic'            => 'Vivo\CMS\Workflow\BasicFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -265,6 +266,7 @@ return array(
             'Vivo\Util\Redirector'              => 'redirector',
             'Zend\View\Model\ViewModel'         => 'view_model',
             'Zend\Session\SessionManager'       => 'session_manager',
+            'Vivo\CMS\Workflow\Basic'           => 'workflow_basic',
         ),
         'shared' => array(
             'view_model' => false,

@@ -286,9 +286,37 @@ class Document implements DocumentInterface
     }
 
     /**
+     * @param Model\Document $document
+     * @return \Vivo\CMS\Model\ContentContainer
+     */
+    public function createContentContainer(Model\Document $document)
+    {
+        $containers = $this->getContentContainers($document);
+        $count = count($containers);
+
+        $order = 0;
+        foreach ($containers as $c) {
+            $order = max($order, $c->getOrder());
+        }
+        $order++;
+
+        $container = new Model\ContentContainer();
+        $container->setPath(sprintf('%s/Contents.%d', $document->getPath(), $count));
+        $container->setContainerName(sprintf('Content %d', $count));
+        $container->setOrder($order);
+
+        $container = $this->cms->prepareEntityForSaving($container);
+
+        $this->repository->saveEntity($container);
+        $this->repository->commit();
+
+        return $container;
+    }
+
+    /**
      * @param Model\ContentContainer $container
      * @param Model\Content $content
-     * @return \Model\Content
+     * @return \Vivo\CMS\Model\Content
      */
     public function createContent(Model\ContentContainer $container, Model\Content $content)
     {

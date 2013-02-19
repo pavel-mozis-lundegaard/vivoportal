@@ -51,10 +51,10 @@ return array(
         'available_contents' => array (
             'Vivo\CMS\Model\Content\File',
             'Vivo\CMS\Model\Content\Overview',
-            'Vivo\CMS\Model\Content\Link',
-            'Vivo\CMS\Model\Content\Hyperlink',
-            'Vivo\CMS\Model\Content\Component',
-            'Vivo\CMS\Model\Content\Layout',
+          //  'Vivo\CMS\Model\Content\Link',
+          //  'Vivo\CMS\Model\Content\Hyperlink',
+          //  'Vivo\CMS\Model\Content\Component',
+          //  'Vivo\CMS\Model\Content\Layout',
         ),
         'restrictions' => array (
             'document_type' => array (

@@ -4,6 +4,8 @@ namespace Vivo\Backend\UI\Explorer\Editor;
 use Vivo\UI\AbstractForm;
 use Vivo\UI\TabContainerItemInterface;
 use Vivo\Form\Form;
+use Vivo\CMS\Api;
+use Vivo\CMS\Model;
 
 class ContentTab extends AbstractForm implements TabContainerItemInterface
 {
@@ -11,24 +13,37 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
      * @var \Zend\ServiceManager\ServiceManager
      */
     private $sm;
+
     /**
      * @var \Vivo\CMS\Model\ContentContainer
      */
     private $contentContainer;
+
+    /**
+     * @var array
+     */
+    private $availableContents = array();
+
     /**
      * @var array
      */
     private $contents = array();
+
     /**
      * @var \Vivo\CMS\Api\Document
      */
     private $documentApi;
 
     /**
+     * @var \Vivo\CMS\AvailableContentsProvider
+     */
+    private $contentsProvider;
+
+    /**
      * @param \Zend\ServiceManager\ServiceManager $sm
      * @param \Vivo\CMS\Api\Document $documentApi
      */
-    public function __construct(\Zend\ServiceManager\ServiceManager $sm, \Vivo\CMS\Api\Document $documentApi)
+    public function __construct(\Zend\ServiceManager\ServiceManager $sm, Api\Document $documentApi)
     {
         $this->sm = $sm;
         $this->documentApi = $documentApi;
@@ -38,9 +53,17 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
     /**
      * @param \Vivo\CMS\Model\ContentContainer $contentContainer
      */
-    public function setContentContainer(\Vivo\CMS\Model\ContentContainer $contentContainer)
+    public function setContentContainer(Model\ContentContainer $contentContainer)
     {
         $this->contentContainer = $contentContainer;
+    }
+
+    /**
+     * @param array $contents
+     */
+    public function setAvailableContents(array $contents)
+    {
+        $this->availableContents = $contents;
     }
 
     public function init()
@@ -50,12 +73,18 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
         $this->doChangeVersion();
     }
 
+    public function initForm()
+    {
+        $this->loadContents();
+        $this->doChangeVersion();
+    }
+
     private function loadContents()
     {
         try {
             $this->contents = $this->documentApi->getContentVersions($this->contentContainer);
         }
-        catch(\Exception $e) {
+        catch(\Vivo\Repository\Exception\ExceptionInterface $e) {
             $this->contents = array();
         }
     }
@@ -68,12 +97,14 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
                 $k, $content->getState(), get_class($content), $content->getUuid());
         }
 
-        $options['NEW:Vivo\CMS\Model\Content\File'] = sprintf('[%s] %s', 'NEW', 'Vivo\CMS\Model\Content\File');
-        $options['NEW:Vivo\CMS\Model\Content\Overview'] = sprintf('[%s] %s', 'NEW', 'Vivo\CMS\Model\Content\Overview');
+        foreach ($this->availableContents as $ac) {
+            $options['NEW:'.$ac] = sprintf('[%s] %s', 'NEW', $ac);
+        }
 
         $values = array_keys($options);
 
-        $form = new Form('contentTabEditor');
+        $form = new Form('container-'.$this->contentContainer->getUuid());
+        $form->setWrapElements(true);
         $form->add(array(
                 'name' => 'version',
                 'type' => 'Vivo\Form\Element\Select',

@@ -100,7 +100,7 @@ class Component implements ComponentInterface
     {
         $parent = $this->parent;
         if ($className) {
-            while ($parent || $parent instanceof $className) {
+            while ($parent && !$parent instanceof $className) {
                 $parent = $parent->getParent();
             }
         }

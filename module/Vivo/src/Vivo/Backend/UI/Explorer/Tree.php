@@ -93,7 +93,7 @@ class Tree extends Component
      * @param string $expandedPath
      * @return \Vivo\Util\DataTree
      */
-    protected function getDocumentTree(Folder $rootFolder, $expandedPath = '' /*$maxDepth = 10, $maxItems = 20*/)
+    protected function getDocumentTree(Folder $rootFolder, $expandedPath = '', $maxItems = 5)
     {
         $que = new \SplQueue();
         $tree = new DataTree($rootFolder);
@@ -103,7 +103,9 @@ class Tree extends Component
         while(!$que->isEmpty()){
             /* @var $node  DataTree */
             $node = $que->pop();
+            $i = 0;
             foreach ($this->documentApi->getChildDocuments($node->getValue()) as $child) {
+                if (++$i > $maxItems) break;
                 $childNode = new DataTree($child);
                 $node->addChild($childNode);
                 if (strpos($expandedPath, $child->getPath()) !== false) {

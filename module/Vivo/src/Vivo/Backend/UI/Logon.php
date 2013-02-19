@@ -1,47 +1,66 @@
 <?php
 namespace Vivo\Backend\UI;
 
+use Vivo\Form\DomainLogon;
 use Vivo\Security\Manager\AbstractManager;
+use Vivo\UI\AbstractForm;
+use Vivo\Util\RedirectEvent;
 
-class Logon extends \Vivo\UI\AbstractForm
+/**
+ * Backend logon component
+ */
+class Logon extends AbstractForm
 {
+
+    /**
+     * @var AbstractManager
+     */
     protected $securityManager;
 
-    public function __construct(\Vivo\Security\Manager\AbstractManager $securityManager)
+    /**
+     * Constructor.
+     * @param AbstractManager $securityManager
+     */
+    public function __construct(AbstractManager $securityManager)
     {
         $this->securityManager = $securityManager;
     }
 
-    public function init()
-    {
-        parent::init();
-    }
-
+    /**
+     * Logon action.
+     */
     public function logon()
     {
         $form = $this->getForm();
         if ($form->isValid()) {
-            //Form is valid
             $validatedData = $form->getData();
             $result = $this->securityManager->authenticate(
                     $validatedData['logon']['domain'],
                     $validatedData['logon']['username'],
                     $validatedData['logon']['password']
                     );
+            if ($result) {
+                $this->events->trigger(new RedirectEvent());
+            }
         }
-
-        //$this->redirector->redirect();
     }
 
+    /**
+     * Logoff action.
+     */
     public function logoff()
     {
         $this->securityManager->removeUserPrincipal();
+        $this->events->trigger(new RedirectEvent());
     }
 
+    /**
+     * Creates form.
+     * @return DomainLogon
+     */
     protected function doGetForm()
     {
-        $form = new \Vivo\Form\Logon;
-        $fs = $form->get('logon');
+        $form = new DomainLogon();
         $form->add(array(
             'name' => 'act',
             'attributes' => array(
@@ -49,19 +68,13 @@ class Logon extends \Vivo\UI\AbstractForm
                 'value' => $this->getPath('logon'),
             ),
         ));
-
-        $fs->add(array('name' => 'domain',
-            'options' => array(
-                'label' => 'Domain',
-            ),
-            'attributes' => array(
-                'type' => 'text',
-//                'value'         => $this->getPath('logon'),
-            ),));
-
         return $form;
     }
 
+    /**
+     * Prepare view.
+     * @see
+     */
     public function view()
     {
         $this->view->user = $this->securityManager->getUserPrincipal();

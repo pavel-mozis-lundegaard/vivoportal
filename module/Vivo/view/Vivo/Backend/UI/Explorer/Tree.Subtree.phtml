@@ -1,0 +1,27 @@
+<ul>
+    <? $i = 0; ?>
+    <? foreach ($tree->getChildrenNodes() as $item): ?>
+        <? $document = $item->value; ?>
+        <li>
+            <? if ($document['expandable']): ?>
+                <i class="icon-plus"></i>
+            <? else: ?>
+                <i class="icon-minus"></i>
+            <? endif; ?>
+            <?= $this->actionLink('set', $document['document']->getTitle(), array($document['rel_path'])) ?>
+            <? if ($document['active']): ?><i class="icon-star"></i><? endif; ?>
+
+            <? if ($item->getChildrenNodes()): ?>
+                <?= $this->partial('Vivo\Backend\UI\Explorer\Tree:Subtree', array('tree' => $item)); ?>
+            <? endif; ?>
+        </li>
+        <? $i++ ?>
+    <? endforeach; ?>
+    <? if ($i < $tree->value['count']): ?>
+        <? $more = $tree->value['count'] - $i; ?>
+        <li>
+            <i class="icon-forward"></i>
+            <?= $this->actionLink('showMore', $more . ' ' . $this->translate('more ...'), array($document['parent_rel_path'])) ?>
+        </li>
+    <? endif; ?>
+</ul>

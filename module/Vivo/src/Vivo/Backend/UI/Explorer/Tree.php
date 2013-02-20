@@ -12,9 +12,9 @@ use Vivo\Util\DataTree;
 class Tree extends Component
 {
     /**
-     * @var EntityManager
+     * @var ExplorerInterface
      */
-    protected $entityManager;
+    protected $explorer;
 
     /**
      * @var Api\CMS
@@ -43,7 +43,7 @@ class Tree extends Component
      */
     protected function getSiteRoot()
     {
-        $site = $this->entityManager->getSite();
+        $site = $this->explorer->getSite();
         return $this->cmsApi->getSiteEntity('', $site);
     }
 
@@ -53,17 +53,17 @@ class Tree extends Component
     protected function refreshTree()
     {
         $rootDocument = $this->getSiteRoot();
-        $tree = $this->getDocumentTree($rootDocument, $this->entityManager->getEntity()->getPath());
-        $this->view->tree = new \RecursiveIteratorIterator($tree, \RecursiveIteratorIterator::SELF_FIRST);
+        $this->view->tree = $this->getDocumentTree($rootDocument,
+                $this->explorer->getEntity()->getPath());
     }
 
     /**
      *
-     * @param EntityManagerInterface $entityManager
+     * @param ExplorerInterface $explorer
      */
-    public function setEntityManager($entityManager)
+    public function setExplorer(ExplorerInterface $explorer)
     {
-        $this->entityManager = $entityManager;
+        $this->explorer = $explorer;
     }
 
     /**
@@ -72,7 +72,17 @@ class Tree extends Component
      */
     public function set($relPath)
     {
-        $this->entityManager->setEntityByRelPath($relPath);
+        $this->explorer->setEntityByRelPath($relPath);
+    }
+
+    /**
+     * Show
+     * @param type $relPath
+     */
+    public function showMore($relPath)
+    {
+        $this->explorer->setEntityByRelPath($relPath);
+        $this->explorer->setCurrent('browser');
     }
 
     /**
@@ -85,7 +95,6 @@ class Tree extends Component
         return parent::view();
     }
 
-
     /**
      * Returs tree of document using DataTree structure.
      *
@@ -93,8 +102,9 @@ class Tree extends Component
      * @param string $expandedPath
      * @return \Vivo\Util\DataTree
      */
-    protected function getDocumentTree(Folder $rootFolder, $expandedPath = '', $maxItems = 5)
+    protected function getDocumentTree(Folder $rootFolder, $expandedPath = '', $maxItems = 10)
     {
+
         $que = new \SplQueue();
         $tree = new DataTree($rootFolder);
         $root = new DataTree();
@@ -103,29 +113,36 @@ class Tree extends Component
         while(!$que->isEmpty()){
             /* @var $node  DataTree */
             $node = $que->pop();
-            $i = 0;
-            foreach ($this->documentApi->getChildDocuments($node->getValue()) as $child) {
-                if (++$i > $maxItems) break;
-                $childNode = new DataTree($child);
-                $node->addChild($childNode);
-                if (strpos($expandedPath, $child->getPath()) !== false) {
-                    $que->push($childNode);
-                }
-            }
-        }
 
-        $i = new \RecursiveIteratorIterator($root, \RecursiveIteratorIterator::SELF_FIRST);
-        foreach ($i as $node) {
-            //add document aditional information
+            $child = $node->value;
+            if (!$child) continue;
+            $children = $this->documentApi->getChildDocuments($child);
             $a = array ();
-            $a['document'] = $node->value;
+            $a['document'] = $child;
             $a['published'] = true;
             $a['content_type'] = '';
             $a['level'] = $node->getDeep();
-            $a['rel_path'] = $this->cmsApi->getEntityRelPath($node->value);
-            $a['active'] = $node->value->getPath() == $expandedPath;
-            $a['expandable'] = (boolean) count($this->documentApi->getChildDocuments($node->value));
+            $a['rel_path'] = $this->cmsApi->getEntityRelPath($child);
+            $a['active'] = $child->getPath() == $expandedPath;
+            $a['expandable'] = (boolean) count($children);
+            $a['count'] = count($children);
+
+            if ($node->getParent()->value['document']) {
+                $a['parent_rel_path'] = $this->cmsApi->getEntityRelPath(
+                        $node->getParent()->value['document']);
+            }
             $node->value = $a;
+            $i = 0;
+            if (strpos($expandedPath . '/', $child->getPath()) !== false) {
+                foreach ($children as $child) {
+                    if (++$i > $maxItems) {
+                        break;
+                    }
+                    $childNode = new DataTree($child);
+                    $node->addChild($childNode);
+                    $que->push($childNode);
+                }
+            }
         }
         return $root;
     }

@@ -102,14 +102,12 @@ class BackendController implements DispatchableInterface,
         $this->tree->saveState();
         $this->tree->done();
 
-        if (!$this->redirector->isRedirect()) {
-            $result = $this->tree->view();
-        }
-
 
         if($this->redirector->isRedirect()){
-            return $this->redirector->getResponse();
-        } elseif ($result instanceof ModelInterface) {
+            return $response;
+        }
+
+        if ($result instanceof ModelInterface) {
             $this->mvcEvent->setViewModel($result);
         } elseif ($result instanceof InputStreamInterface) {
             //skip rendering phase

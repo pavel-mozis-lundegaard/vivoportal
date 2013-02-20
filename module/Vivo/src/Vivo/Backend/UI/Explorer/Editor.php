@@ -178,8 +178,10 @@ class Editor extends AbstractForm
             if($success) {
                 $this->contentTab->removeAllComponents();
                 $this->init();
-                $selected = $this->contentTab->getSelectedComponent();
-                $selected->initForm();
+
+                foreach ($this->contentTab->getComponents() as $component) {
+                    $component->initForm();
+                }
 
                 $this->alert->addMessage('Saved...', Alert::TYPE_SUCCESS);
             }

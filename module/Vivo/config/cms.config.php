@@ -47,6 +47,35 @@ return array(
             'Vivo\CMS\Model\Content\Overview'   => 'Vivo\CMS\UI\Content\Editor\Overview',
         ),
     ),
+    'contents' => array (
+        'available_contents' => array (
+            'Vivo\CMS\Model\Content\File',
+            'Vivo\CMS\Model\Content\Overview',
+          //  'Vivo\CMS\Model\Content\Link',
+          //  'Vivo\CMS\Model\Content\Hyperlink',
+          //  'Vivo\CMS\Model\Content\Component',
+          //  'Vivo\CMS\Model\Content\Layout',
+        ),
+        'restrictions' => array (
+            'document_type' => array (
+                'Vivo\CMS\Model\Document' => array(
+                ),
+            ),
+            'document_path' => array (
+                '/Layouts' => array (
+                    'Vivo\CMS\Model\Content\Layout',
+                ),
+            ),
+            'user_role' => array (
+                'managers' => array (
+                ),
+            ),
+            'site' => array (
+               //Whitelist of allowed contents in current site.
+               //If empty all available contents are allowed.
+            ),
+        ),
+    ),
     'service_manager' => array (
         //configuration of service manager, services defined here should not override
         //services defined in Vivo config
@@ -81,6 +110,7 @@ return array(
             'Vivo\Backend\UI\Explorer\Delete'   => 'Vivo\Backend\UI\Explorer\DeleteFactory',
             'Vivo\Backend\UI\Explorer\Copy'     => 'Vivo\Backend\UI\Explorer\CopyFactory',
             'Vivo\Backend\UI\Explorer\Move'     => 'Vivo\Backend\UI\Explorer\MoveFactory',
+            'Vivo\Backend\UI\Explorer\Viewer'   => 'Vivo\Backend\UI\Explorer\ViewerFactory',
 
             //TODO: content editor factories
             'Vivo\CMS\UI\Content\Editor\File'     => 'Vivo\CMS\UI\Content\Editor\FileFactory',

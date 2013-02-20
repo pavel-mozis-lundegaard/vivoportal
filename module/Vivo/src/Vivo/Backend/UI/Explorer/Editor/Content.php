@@ -112,6 +112,12 @@ class Content extends AbstractForm
     public function save()
     {
         if ($this->getForm()->isValid()) {
+            if(!$this->contentContainer->getUuid()) {
+                $this->contentContainer = $this->documentApi->createContentContainer(
+                    $this->getParent('Vivo\Backend\UI\Explorer\Explorer')->getEntity()
+                );
+            }
+
             $this->contentEditor->save($this->contentContainer);
 
             return true;

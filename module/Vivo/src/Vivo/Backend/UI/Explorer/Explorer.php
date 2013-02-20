@@ -98,8 +98,6 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     public function init()
     {
         $this->loadEntity();
-        $this->createComponent();
-
         //attach events
         $this->siteSelector->getEventManager()
                 ->attach('setSite', array($this, 'onSiteChange'));
@@ -116,8 +114,7 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
         $this->entity = $state['entity'];
         $this->currentName = isset($state['current_name']) ?
                 $state['current_name'] : $this->currentName;
-//        $component = $this->serviceManager->get($this->explorerTabs[$this->currentName]);
-//        $this->addComponent($component, $this->currentName);
+        $this->createComponent();
     }
 
     /**
@@ -141,7 +138,6 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
         if($needInit) {
             $this->tree->setRoot($component);
             $this->tree->init();
-            $this->tree->loadState();
         }
     }
 

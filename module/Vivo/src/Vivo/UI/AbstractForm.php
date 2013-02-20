@@ -5,6 +5,8 @@ use Vivo\Service\Initializer\RequestAwareInterface;
 use Vivo\Service\Initializer\RedirectorAwareInterface;
 use Vivo\Util\Redirector;
 
+use Zend\EventManager\EventManagerAwareInterface;
+use Zend\EventManager\EventManagerInterface;
 use Zend\Form\FormInterface;
 use Zend\Form\Form as ZfForm;
 use Zend\Http\PhpEnvironment\Request;
@@ -14,7 +16,8 @@ use Zend\Stdlib\RequestInterface;
  * Form
  * Base abstract Vivo Form
  */
-abstract class AbstractForm extends ComponentContainer implements RequestAwareInterface, RedirectorAwareInterface
+abstract class AbstractForm extends ComponentContainer
+        implements RequestAwareInterface, RedirectorAwareInterface, EventManagerAwareInterface
 {
     /**
      * @var ZfForm
@@ -65,6 +68,13 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
      * @var int|null
      */
     protected $csrfTimeout          = 300;
+
+
+    /**
+     * Event Manager
+     * @var EventManagerInterface
+     */
+    protected $events;
 
     public function init()
     {
@@ -273,4 +283,23 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
         $parts          = explode('[', $arrayNotation);
         return $parts;
     }
+
+    /**
+     * Sets eventmanager
+     * @param EventManagerInterface $eventManager
+     */
+    public function setEventManager(EventManagerInterface $eventManager)
+    {
+        $this->events = $eventManager;
+    }
+
+    /**
+     * Returns eventmanager.
+     * @return EventManagerInterface
+     */
+    public function getEventManager()
+    {
+        return $this->events;
+    }
+
 }

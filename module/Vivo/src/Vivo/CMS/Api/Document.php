@@ -197,35 +197,6 @@ class Document implements DocumentInterface
         return null;
     }
 
-    /**
-     * Adds the submitted content container to the document
-     * Returns content container number
-     * @param \Vivo\CMS\Model\Document $document
-     * @param \Vivo\CMS\Model\ContentContainer $contentContainer
-     * @return integer
-     */
-    public function addContentContainer(Model\Document $document, Model\ContentContainer $contentContainer)
-    {
-        $containers = $this->getContentContainers($document);
-        //Get the highest container number
-        $highest    = 0;
-        foreach ($containers as $container) {
-            $basename   = $this->pathBuilder->basename($container->getPath());
-            $parts      = explode('.', $basename);
-            $num        = (int) array_pop($parts);
-            if ($num > $highest) {
-                $highest    = $num;
-            }
-        }
-        $newNum = $highest + 1;
-        $containerPathComponents    = array($document->getPath(), 'Contents.' . $newNum);
-        $containerPath              = $this->pathBuilder->buildStoragePath($containerPathComponents, true);
-        $contentContainer->setPath($containerPath);
-        $this->repository->saveEntity($contentContainer);
-        $this->repository->commit();
-        return $newNum;
-    }
-
     public function addDocumentContent(Model\Document $document, Model\Content $content, $index = 0)
     {
         $path           = $document->getPath();
@@ -315,6 +286,34 @@ class Document implements DocumentInterface
         $this->cmsApi->saveEntity($document, $options);
 
         return $document;
+    }
+
+    /**
+     * @param Model\Document $document
+     * @return \Vivo\CMS\Model\ContentContainer
+     */
+    public function createContentContainer(Model\Document $document)
+    {
+        $containers = $this->getContentContainers($document);
+        $count = count($containers);
+
+        $order = 0;
+        foreach ($containers as $c) {
+            $order = max($order, $c->getOrder());
+        }
+        $order++;
+
+        $container = new Model\ContentContainer();
+        $container->setPath(sprintf('%s/Contents.%d', $document->getPath(), $count));
+        $container->setContainerName(sprintf('Content %d', $count));
+        $container->setOrder($order);
+
+        $container = $this->cms->prepareEntityForSaving($container);
+
+        $this->repository->saveEntity($container);
+        $this->repository->commit();
+
+        return $container;
     }
 
     /**

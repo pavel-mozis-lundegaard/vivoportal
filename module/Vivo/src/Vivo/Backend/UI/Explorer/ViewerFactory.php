@@ -1,23 +1,22 @@
 <?php
-namespace Vivo\Service;
-
-use Vivo\Util\Redirector;
+namespace Vivo\Backend\UI\Explorer;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
 
 /**
- * CmsFactory
+ * Wiever factory.
  */
-class RedirectorFactory implements FactoryInterface
+class ViewerFactory implements FactoryInterface
 {
     /**
-     * Create service
+     * Create Viewer
      * @param ServiceLocatorInterface $serviceLocator
-     * @return mixed
+     * @return Viewer
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        return new Redirector($serviceLocator->get('application')->getMvcEvent());
+        $viewer = new Viewer($serviceLocator->get('Vivo\CMS\Api\CMS'));
+        return $viewer;
     }
 }

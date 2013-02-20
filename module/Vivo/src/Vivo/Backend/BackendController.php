@@ -1,24 +1,19 @@
 <?php
 namespace Vivo\Backend;
 
-use Zend\Stdlib\ArrayUtils;
-use Zend\ServiceManager\ServiceManager;
-use Zend\ServiceManager\ServiceManagerAwareInterface;
-use Vivo\CMS\UI\Root;
-use Vivo\UI\ComponentTreeController;
-
-use Vivo\CMS\ComponentFactory;
-use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Model\Site;
 use Vivo\Controller\Exception;
 use Vivo\IO\InputStreamInterface;
 use Vivo\SiteManager\Event\SiteEvent;
 use Vivo\UI\Component;
-use Vivo\UI\Exception\ExceptionInterface as UIException;
+use Vivo\UI\ComponentTreeController;
+use Vivo\Util\Redirector;
 
 use Zend\EventManager\EventInterface as Event;
-use Zend\Http\Response as HttpResponse;
 use Zend\Mvc\InjectApplicationEventInterface;
+use Zend\ServiceManager\ServiceManager;
+use Zend\ServiceManager\ServiceManagerAwareInterface;
+use Zend\Stdlib\ArrayUtils;
 use Zend\Stdlib\DispatchableInterface;
 use Zend\Stdlib\RequestInterface as Request;
 use Zend\Stdlib\ResponseInterface as Response;
@@ -34,20 +29,25 @@ class BackendController implements DispatchableInterface,
     /**
      * @var \Zend\Mvc\MvcEvent
      */
-    protected $event;
+    protected $mvcEvent;
 
     /**
      * @var SiteEvent
      */
-    private $siteEvent;
+    protected $siteEvent;
 
     /**
      * @var \Vivo\UI\ComponentTreeController
      */
-    private $tree;
+    protected $tree;
 
     /**
      *
+     * @var Redirector
+     */
+    protected $redirector;
+
+    /**
      * @var ServiceManager
      */
     protected $serviceManager;
@@ -85,8 +85,8 @@ class BackendController implements DispatchableInterface,
         $root->setMain($page);
 
         $this->tree->setRoot($root);
-
         $this->tree->loadState();
+
         if ($this->getRequest()->isXmlHttpRequest()) {
             $this->tree->init(); //replace by lazy init
             //if request is  ajax call, we use result of method
@@ -94,14 +94,23 @@ class BackendController implements DispatchableInterface,
         } else {
             $this->tree->init();
             $this->handleAction();
-            $result = $this->tree->view();
+            if (!$this->redirector->isRedirect()) {
+                $result = $this->tree->view();
+            }
         }
 
         $this->tree->saveState();
         $this->tree->done();
 
-        if ($result instanceof ModelInterface) {
-            $this->event->setViewModel($result);
+        if (!$this->redirector->isRedirect()) {
+            $result = $this->tree->view();
+        }
+
+
+        if($this->redirector->isRedirect()){
+            return $this->redirector->getResponse();
+        } elseif ($result instanceof ModelInterface) {
+            $this->mvcEvent->setViewModel($result);
         } elseif ($result instanceof InputStreamInterface) {
             //skip rendering phase
             $response->setInputStream($result);
@@ -164,7 +173,7 @@ class BackendController implements DispatchableInterface,
      */
     public function setEvent(Event $event)
     {
-        $this->event = $event;
+        $this->mvcEvent = $event;
     }
 
     /**
@@ -172,7 +181,7 @@ class BackendController implements DispatchableInterface,
      */
     public function getEvent()
     {
-        return $this->event;
+        return $this->mvcEvent;
     }
 
     /**
@@ -188,7 +197,7 @@ class BackendController implements DispatchableInterface,
      * @return \Zend\Stdlib\RequestInterface
      */
     public function getRequest() {
-        return $this->event->getRequest();
+        return $this->mvcEvent->getRequest();
     }
 
     public function setServiceManager(ServiceManager $serviceManager)
@@ -202,4 +211,12 @@ class BackendController implements DispatchableInterface,
         $this->sm = $sm;
     }
 
+    /**
+     * Sets redirector.
+     * @param \Vivo\Util\Redirector $redirector
+     */
+    public function setRedirector(Redirector $redirector)
+    {
+        $this->redirector = $redirector;
+    }
 }

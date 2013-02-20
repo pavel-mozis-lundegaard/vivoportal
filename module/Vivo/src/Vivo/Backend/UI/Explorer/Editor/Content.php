@@ -86,7 +86,7 @@ class Content extends AbstractForm
             $editor = $this->sm->create($editorClass);
             $editor->setContent($this->content);
 
-            $this->addComponent($editor, 'contentEditor');
+            $this->addComponent($editor, 'editorComponent');
         }
     }
 
@@ -118,7 +118,7 @@ class Content extends AbstractForm
                 );
             }
 
-            $this->contentEditor->save($this->contentContainer);
+            $this->editorComponent->save($this->contentContainer);
 
             return true;
         }

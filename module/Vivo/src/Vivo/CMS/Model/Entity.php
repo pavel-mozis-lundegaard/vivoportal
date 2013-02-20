@@ -112,15 +112,14 @@ class Entity implements PathInterface
      */
     public function getName()
     {
-        return (($pos = strrpos($this->path, '/')) !== false) ? substr(
-                        $this->path, $pos + 1) : '';
+        return (($pos = strrpos($this->path, '/')) !== false) ? substr($this->path, $pos + 1) : '';
     }
 
     /**
      * Sets datetime of creation.
      * @param \DateTime $date
      */
-    public function setCreated(\DateTime $date)
+    public function setCreated(\DateTime $date = null)
     {
         $this->created = $date;
     }
@@ -154,16 +153,16 @@ class Entity implements PathInterface
 
     /**
      * Set datetime of last modification.
-     * @param DateTime $date
+     * @param \DateTime $date
      */
-    public function setModified(\DateTime $date)
+    public function setModified(\DateTime $date = null)
     {
         $this->modified = $date;
     }
 
     /**
      * Returns datetime of last modification.
-     * @return DateTime
+     * @return \DateTime
      */
     public function getModified()
     {

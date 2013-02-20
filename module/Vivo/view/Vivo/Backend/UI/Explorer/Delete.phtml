@@ -6,7 +6,7 @@
 </h4>
 <?php
     if ($form->getMessages()) {
-        echo $this->escapeHtml($this->translate('An error occurred'));
+        echo $this->escapeHtml($this->translate('Form data is not valid'));
     }
     echo $this->vivoForm($form);
 ?>

@@ -396,7 +396,7 @@ class Document implements DocumentInterface
         $children   = $this->repository->getChildren($document);
         $result = array();
         foreach ($children as $child) {
-            if ($child instanceof Model\Document) {
+            if ($child instanceof Model\Folder) {
                 $result[] = $child;
             }
         }
@@ -622,5 +622,11 @@ class Document implements DocumentInterface
             $allVersions    = array_merge($allVersions, $versions);
         }
         return $allVersions;
+    }
+
+    public function getParentDocument(Model\Folder $folder)
+    {
+        $parent = $this->cmsApi->getParent($folder);
+        return ($parent instanceof Model\Folder)? $parent : null;
     }
 }

@@ -308,7 +308,7 @@ class Document implements DocumentInterface
         $container->setContainerName(sprintf('Content %d', $count));
         $container->setOrder($order);
 
-        $container = $this->cms->prepareEntityForSaving($container);
+        $container = $this->cmsApi->prepareEntityForSaving($container);
 
         $this->repository->saveEntity($container);
         $this->repository->commit();
@@ -496,17 +496,15 @@ class Document implements DocumentInterface
             $docClone->setTitle($docClone->getTitle() . ' HYPERLINK');
             $this->cmsApi->saveEntity($docClone);
             //Content container
-            $contentContainer   = new ContentContainer();
-            $contentContainer->setUuid($this->uuidGenerator->create());
-            $this->cmsApi->prepareEntityForSaving($contentContainer);
-            $containerNumber    = $this->addContentContainer($docClone, $contentContainer);
+            $contentContainer   = $this->createContentContainer($docClone);
+            $this->cmsApi->saveEntity($contentContainer);
             //Content - hyperlink
             $hyperlink  = new Hyperlink();
             $hyperlink->setUuid($this->uuidGenerator->create());
             $hyperlink->setUrl($this->cmsApi->getEntityRelPath($moved));
-            $this->addDocumentContent($docClone, $hyperlink, $containerNumber);
             $hyperlink->setState(WorkflowInterface::STATE_PUBLISHED);
-            $this->repository->saveEntity($hyperlink);
+            $this->createContent($contentContainer, $hyperlink);
+            $this->cmsApi->saveEntity($hyperlink);
         }
         $this->repository->commit();
         return $moved;

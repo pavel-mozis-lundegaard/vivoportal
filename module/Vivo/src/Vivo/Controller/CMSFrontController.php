@@ -125,6 +125,10 @@ class CMSFrontController implements DispatchableInterface,
         $this->tree->done();
 
 
+        if ($this->redirector->isRedirect()) {
+            return $response;
+        }
+
         if ($result instanceof ModelInterface) {
             $this->event->setViewModel($result);
         } elseif ($result instanceof InputStreamInterface) {
@@ -134,8 +138,6 @@ class CMSFrontController implements DispatchableInterface,
         } elseif (is_string($result)) {
             //skip rendering phase
             $response->setContent($result);
-            return $response;
-        } elseif($this->redirector->isRedirect()) {
             return $response;
         }
     }

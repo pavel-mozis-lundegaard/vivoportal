@@ -6,6 +6,7 @@ use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 use Vivo\CMS\Api\CMS;
 use Vivo\Backend\UI\Form\Delete as DeleteForm;
 use Vivo\Form\Form;
+use Vivo\Util\RedirectEvent;
 
 /**
  * Delete
@@ -58,7 +59,7 @@ class Delete extends AbstractForm
             $this->cmsApi->removeEntity($doc);
             $explorer->setEntity($docParent);
             $explorer->setCurrent('viewer');
-//            $this->redirector->redirect();
+            $this->events->trigger(new RedirectEvent());
         }
     }
 
@@ -71,7 +72,7 @@ class Delete extends AbstractForm
         /** @var $explorer Explorer */
         $explorer   = $this->getParent();
         $explorer->setCurrent('viewer');
-//        $this->redirector->redirect();
+        $this->events->trigger(new RedirectEvent());
     }
 
     /**

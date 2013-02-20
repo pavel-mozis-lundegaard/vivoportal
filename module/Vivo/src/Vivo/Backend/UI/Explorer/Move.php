@@ -6,6 +6,7 @@ use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 use Vivo\Backend\UI\Form\Move as MoveForm;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
 use Vivo\CMS\Model\Document;
+use Vivo\Util\RedirectEvent;
 
 /**
  * Move
@@ -59,7 +60,7 @@ class Move extends AbstractForm
                 $validData['name_in_path'], $validData['name'], (bool) $validData['create_hyperlink']);
             $explorer->setEntity($movedDoc);
             $explorer->setCurrent('editor');
-//            $this->redirector->redirect();
+            $this->events->trigger(new RedirectEvent());
         }
 
     }

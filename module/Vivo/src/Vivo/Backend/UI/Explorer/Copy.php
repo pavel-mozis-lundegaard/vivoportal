@@ -7,6 +7,7 @@ use Vivo\Backend\UI\Form\Copy as CopyForm;
 use Vivo\Form\Form;
 use Vivo\CMS\Model\Document;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
+use Vivo\Util\RedirectEvent;
 
 /**
  * Copy
@@ -60,7 +61,7 @@ class Copy extends AbstractForm
                                                    $validData['name_in_path'], $validData['name']);
             $explorer->setEntity($copiedDoc);
             $explorer->setCurrent('editor');
-//            $this->redirector->redirect();
+            $this->events->trigger(new RedirectEvent());
         }
     }
 

@@ -482,7 +482,6 @@ class Document implements DocumentInterface
                 sprintf("%s: Move from '%s' to '%s' failed", __METHOD__, $document->getPath(), $targetPath));
         }
         $moved->setTitle($title);
-        //TODO - get real username of the user copying the document
         $moveChildren       = $this->repository->getChildren($moved, false, true);
         /** @var $subTreeEntities Model\Entity[] */
         $subTreeEntities    = array_merge(array($moved), $moveChildren);

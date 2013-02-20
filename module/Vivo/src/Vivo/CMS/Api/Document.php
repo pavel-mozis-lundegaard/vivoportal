@@ -236,7 +236,7 @@ class Document implements DocumentInterface
     {
         $containers = $this->repository->getChildren($document, 'Vivo\CMS\Model\ContentContainer');
 
-        uasort($containers, function($a, $b) { /* @var $a \Vivo\CMS\Model\ContentContainer */
+        usort($containers, function($a, $b) { /* @var $a \Vivo\CMS\Model\ContentContainer */
             return $a->getOrder() > $b->getOrder();
         });
 

@@ -4,6 +4,7 @@ namespace Vivo\CMS\Api;
 use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Model;
 use Vivo\Repository\RepositoryInterface;
+use Vivo\Repository\Exception\EntityNotFoundException;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
 use Vivo\CMS\Workflow\Factory as WorkflowFactory;
 use Vivo\CMS\Workflow\WorkflowInterface;
@@ -292,18 +293,25 @@ class Document implements DocumentInterface
     public function createContentContainer(Model\Document $document)
     {
         $containers = $this->getContentContainers($document);
-        $count = count($containers);
+        $count = $id = count($containers);
+
+        try {
+            while (true) {
+                $path = sprintf('%s/Contents.%d', $document->getPath(), $id++);
+                $this->cms->getEntity($path);
+            }
+        }
+        catch (EntityNotFoundException $e) { }
 
         $order = 0;
         foreach ($containers as $c) {
             $order = max($order, $c->getOrder());
         }
-        $order++;
 
         $container = new Model\ContentContainer();
-        $container->setPath(sprintf('%s/Contents.%d', $document->getPath(), $count));
-        $container->setContainerName(sprintf('Content %d', $count));
-        $container->setOrder($order);
+        $container->setPath($path);
+        $container->setContainerName(sprintf('Content %d', $count + 1));
+        $container->setOrder($order + 1);
 
         $container = $this->cms->prepareEntityForSaving($container);
 

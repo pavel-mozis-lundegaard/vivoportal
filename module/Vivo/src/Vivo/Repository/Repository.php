@@ -192,6 +192,22 @@ class Repository implements RepositoryInterface
     }
 
     /**
+     * Returns if an entity exists in the repository at the given path
+     * @param string $path
+     * @return boolean
+     */
+    public function hasEntity($path)
+    {
+        try {
+            $this->getEntity($path);
+            $hasEntity  = true;
+        } catch (Exception\EntityNotFoundException $e) {
+            $hasEntity  = false;
+        }
+        return $hasEntity;
+    }
+
+    /**
      * Looks up an entity in cache and returns it
      * If the entity does not exist in cache or the cache is not configured, returns null
      * @param string $path
@@ -409,10 +425,14 @@ class Repository implements RepositoryInterface
      * Returns resource from storage
      * @param PathInterface $entity
      * @param string $name
+     * @throws Exception\InvalidArgumentException
      * @return string
      */
 	public function getResource(PathInterface $entity, $name)
 	{
+        if ($name == '' || is_null($name)) {
+            throw new Exception\InvalidArgumentException(sprintf("%s: Resource name cannot be empty", __METHOD__));
+        }
         $entityPath     = $this->getAndCheckPath($entity);
         $pathComponents = array($entityPath, $name);
         $path           = $this->pathBuilder->buildStoragePath($pathComponents, true);
@@ -454,25 +474,37 @@ class Repository implements RepositoryInterface
 	}
 
     /**
-     * Schedules entity for moving in the storage
+     * Moves entity
      * @param PathInterface $entity
      * @param string $target
+     * @return null|\Vivo\CMS\Model\Entity
      */
     public function moveEntity(PathInterface $entity, $target)
     {
-        //TODO - Implement this method
-        throw new \Exception(sprintf('%s not implemented!', __METHOD__));
+        $this->storage->move($entity->getPath(), $target);
+        if ($this->hasEntity($target)) {
+            $moved  = $this->getEntity($target);
+        } else {
+            $moved  = null;
+        }
+        return $moved;
     }
 
     /**
-     * Schedules entity for copying in storage
+     * Copies entity
      * @param PathInterface $entity
      * @param string $target
+     * @return null|\Vivo\CMS\Model\Entity
      */
     public function copyEntity(PathInterface $entity, $target)
     {
-        //TODO - Implement this method
-        throw new \Exception(sprintf('%s not implemented!', __METHOD__));
+        $this->storage->copy($entity->getPath(), $target);
+        if ($this->hasEntity($target)) {
+            $copy   = $this->getEntity($target);
+        } else {
+            $copy   = null;
+        }
+        return $copy;
     }
 
 	/**

@@ -107,6 +107,9 @@ return array(
             'Vivo\Backend\UI\Explorer\Editor\Content' => 'Vivo\Backend\UI\Explorer\Editor\ContentFactory',
             'Vivo\Backend\UI\Explorer\Editor\ContentTab' => 'Vivo\Backend\UI\Explorer\Editor\ContentTabFactory',
             'Vivo\Backend\UI\Explorer\Finder'   => 'Vivo\Backend\UI\Explorer\FinderFactory',
+            'Vivo\Backend\UI\Explorer\Delete'   => 'Vivo\Backend\UI\Explorer\DeleteFactory',
+            'Vivo\Backend\UI\Explorer\Copy'     => 'Vivo\Backend\UI\Explorer\CopyFactory',
+            'Vivo\Backend\UI\Explorer\Move'     => 'Vivo\Backend\UI\Explorer\MoveFactory',
             'Vivo\Backend\UI\Explorer\Viewer'   => 'Vivo\Backend\UI\Explorer\ViewerFactory',
 
             //TODO: content editor factories

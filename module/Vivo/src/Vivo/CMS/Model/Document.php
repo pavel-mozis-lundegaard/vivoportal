@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\CMS\Model;
 
+use DateTime;
+
 /**
  * The document represents a folder in tree. The document contains functions for working with content and sub-documents.
  */

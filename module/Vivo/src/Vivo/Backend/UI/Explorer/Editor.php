@@ -3,6 +3,7 @@ namespace Vivo\Backend\UI\Explorer;
 
 use Vivo\UI\AbstractForm;
 use Vivo\UI\Alert;
+use Vivo\Form\Fieldset;
 use Vivo\Backend\UI\Form\EntityEditor as EntityEditorForm;
 use Vivo\CMS\AvailableContentsProvider;
 use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
@@ -110,7 +111,17 @@ class Editor extends AbstractForm
     {
         $metadata = $this->metadataManager->getMetadata(get_class($this->entity));
         $action = $this->request->getUri()->getPath();
-        $form = new EntityEditorForm('document-'.$this->entity->getUuid(), $metadata);
+
+        $buttonsFieldset = new Fieldset('buttons');
+        $buttonsFieldset->add(array(
+            'name' => 'save',
+            'attributes' => array(
+                'type'  => 'submit',
+                'value' => 'Save',
+            ),
+        ));
+
+        $form = new EntityEditorForm('entity', $metadata);
         $form->setAttribute('action', $action);
         $form->add(array(
             'name' => 'act',
@@ -119,13 +130,7 @@ class Editor extends AbstractForm
                 'value' => $this->getPath('save'),
             ),
         ));
-        $form->add(array(
-            'name' => 'save',
-            'attributes' => array(
-                'type'  => 'submit',
-                'value' => 'Save',
-            ),
-        ));
+        $form->add($buttonsFieldset);
 
         return $form;
     }
@@ -173,8 +178,10 @@ class Editor extends AbstractForm
             if($success) {
                 $this->contentTab->removeAllComponents();
                 $this->init();
-                $selected = $this->contentTab->getSelectedComponent();
-                $selected->initForm();
+
+                foreach ($this->contentTab->getComponents() as $component) {
+                    $component->initForm();
+                }
 
                 $this->alert->addMessage('Saved...', Alert::TYPE_SUCCESS);
             }

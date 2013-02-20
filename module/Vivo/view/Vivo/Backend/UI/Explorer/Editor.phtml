@@ -1,6 +1,8 @@
 Editor<hr>
 <form action="<?=$form->getAttribute('action')?>" method="<?=$form->getAttribute('method')?>">
-    <?=$this->vivoForm($form, array('renderFormTag' => false))?>
-    <hr>
+    <?=$this->vivoFormFieldset($form->get('entity'))?>
     <?=$contentTab?>
+    <hr>
+    <?=$this->formRow($form->get('act'))?>
+    <?=$this->vivoFormFieldset($form->get('buttons'))?>
 </form>

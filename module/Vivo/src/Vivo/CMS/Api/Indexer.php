@@ -13,9 +13,10 @@ use Vivo\CMS\Model;
 use Vivo\CMS\Model\Site;
 use Vivo\CMS\Api\DocumentInterface as DocumentApi;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
-use Zend\EventManager\EventManagerInterface;
 use Vivo\Repository\EventInterface as RepositoryEventInterface;
 use Vivo\Indexer\Query\Term as TermQuery;
+
+use Zend\EventManager\EventManagerInterface;
 
 /**
  * Indexer

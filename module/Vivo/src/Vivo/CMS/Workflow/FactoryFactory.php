@@ -17,7 +17,7 @@ class FactoryFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $service        = new Factory();
+        $service        = new Factory($serviceLocator);
         return $service;
     }
 }

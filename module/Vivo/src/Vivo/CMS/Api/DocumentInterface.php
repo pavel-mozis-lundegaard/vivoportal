@@ -79,10 +79,27 @@ interface DocumentInterface
     public function getDocumentContents(Model\Document $document, $index/*, $state {PUBLISHED}*/);
 
     /**
-     * @param Model\Document $document
-     * @param string $target Path.
+     * Copies document to a new location
+     * @param \Vivo\CMS\Model\Document $document
+     * @param \Vivo\CMS\Model\Site $site
+     * @param string $targetUrl
+     * @param string $targetName
+     * @param string $title
+     * @return Model\Document
      */
-    public function moveDocument(Model\Document $document, $target);
+    public function copyDocument(Model\Document $document, Model\Site $site, $targetUrl, $targetName, $title);
+
+    /**
+     * @param Model\Document $document
+     * @param \Vivo\CMS\Model\Site $site
+     * @param string $targetUrl
+     * @param string $targetName
+     * @param string $title
+     * @param boolean $createHyperlink
+     * @return Model\Document
+     */
+    public function moveDocument(Model\Document $document, Model\Site $site, $targetUrl, $targetName, $title,
+                                 $createHyperlink);
 
     public function saveDocument(Model\Document $document/*, $parent = null*/);
 
@@ -98,12 +115,11 @@ interface DocumentInterface
     public function getAvailableStates(Model\Document $document);
 
     /**
-     * @deprecated Use self::getContentVersions
-     *
-     * @param Model\ContentContainer $container
-     * @return array <\Vivo\CMS\Model\Content>
+     * Returns number of contents the document has
+     * @param \Vivo\CMS\Model\Document $document
+     * @return integer
      */
-    public function getContents(Model\ContentContainer $container);
+    public function getContentCount(Model\Document $document);
 
     /**
      * @param Model\ContentContainer $container
@@ -116,4 +132,11 @@ interface DocumentInterface
      * @return \Vivo\CMS\Workflow\WorkflowInterface
      */
     public function getWorkflow(Model\Document $document);
+
+    /**
+     * Returns if the document has any child documents
+     * @param \Vivo\CMS\Model\Document $document
+     * @return boolean
+     */
+    public function hasChildDocuments(Model\Document $document);
 }

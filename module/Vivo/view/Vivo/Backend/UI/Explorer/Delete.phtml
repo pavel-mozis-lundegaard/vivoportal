@@ -1,0 +1,12 @@
+<h4>
+<?php
+    /** @var $entity \Vivo\CMS\Model\Entity */
+    echo $this->escapeHtml($this->translate('Delete')) . ' ' . $this->escapeHtml($entityRelPath);
+?>
+</h4>
+<?php
+    if ($form->getMessages()) {
+        echo $this->escapeHtml($this->translate('Form data is not valid'));
+    }
+    echo $this->vivoForm($form);
+?>

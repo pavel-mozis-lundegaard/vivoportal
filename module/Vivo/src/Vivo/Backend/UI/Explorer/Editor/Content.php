@@ -64,13 +64,8 @@ class Content extends AbstractForm
 
     public function init()
     {
-        $this->initEdior();
-
         parent::init();
-    }
 
-    protected function initEdior()
-    {
         if($this->content) {
             $form = $this->getForm();
             $form->bind($this->content);
@@ -86,7 +81,9 @@ class Content extends AbstractForm
             $editor = $this->sm->create($editorClass);
             $editor->setContent($this->content);
 
-            $this->addComponent($editor, 'contentEditor');
+            $this->addComponent($editor, 'editorComponent');
+
+            $editor->init();
         }
     }
 
@@ -118,7 +115,7 @@ class Content extends AbstractForm
                 );
             }
 
-            $this->contentEditor->save($this->contentContainer);
+            $this->editorComponent->save($this->contentContainer);
 
             return true;
         }

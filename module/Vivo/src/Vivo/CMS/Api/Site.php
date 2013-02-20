@@ -5,7 +5,7 @@ use Vivo\Repository\Repository;
 use Vivo\CMS\Model;
 use Vivo\CMS\Api\IndexerInterface as IndexerApiInterface;
 use Vivo\Indexer\QueryBuilder;
-use Vivo\Storage\PathBuilder\PathBuilder;
+use Vivo\Storage\PathBuilder\PathBuilderInterface;
 
 use Zend\Config;
 
@@ -49,12 +49,13 @@ class Site
      * @param Repository $repository
      * @param IndexerInterface $indexerApi
      * @param \Vivo\Indexer\QueryBuilder $queryBuilder
+     * @param PathBuilderInterface $pathBuilder
      */
     public function __construct(CMS $cmsApi,
                                 Repository $repository,
                                 IndexerApiInterface $indexerApi,
                                 QueryBuilder $queryBuilder,
-                                PathBuilder $pathBuilder)
+                                PathBuilderInterface $pathBuilder)
     {
         $this->cmsApi       = $cmsApi;
         $this->repository   = $repository;

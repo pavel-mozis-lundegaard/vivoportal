@@ -1,8 +1,13 @@
 <?php
     $this->headScript()->appendFile('/.Vivo.resource/js/update-path.js');
-
+?>
+<h4>
+    <?php
     /** @var $entity \Vivo\CMS\Model\Entity */
-    echo $this->escapeHtml($this->translate('Copy')) . ' ' . $this->escapeHtml($entity->getPath());
+    echo $this->escapeHtml($this->translate('Copy')) . ' ' . $this->escapeHtml($entityRelPath);
+    ?>
+</h4>
+<?php
     $name   = $form->get('name');
     $name->setAttribute('onkeyup', 'this.form.name_in_path.value = updatePath(this.form.name_in_path.value, this.value)');
     echo $this->vivoForm($form);

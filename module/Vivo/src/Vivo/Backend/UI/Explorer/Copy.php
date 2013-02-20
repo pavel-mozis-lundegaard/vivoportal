@@ -3,6 +3,7 @@ namespace Vivo\Backend\UI\Explorer;
 
 use Vivo\CMS\UI\AbstractForm;
 use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
+use Vivo\CMS\Api\CMS;
 use Vivo\Backend\UI\Form\Copy as CopyForm;
 use Vivo\Form\Form;
 use Vivo\CMS\Model\Document;
@@ -21,6 +22,12 @@ class Copy extends AbstractForm
     protected $documentApi;
 
     /**
+     * CMS API
+     * @var CMS
+     */
+    protected $cmsApi;
+
+    /**
      * Path builder
      * @var PathBuilderInterface
      */
@@ -28,11 +35,13 @@ class Copy extends AbstractForm
 
     /**
      * Constructor
+     * @param \Vivo\CMS\Api\CMS $cmsApi
      * @param \Vivo\CMS\Api\DocumentInterface $documentApi
      * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
      */
-    public function __construct(DocumentApiInterface $documentApi, PathBuilderInterface $pathBuilder)
+    public function __construct(CMS $cmsApi, DocumentApiInterface $documentApi, PathBuilderInterface $pathBuilder)
     {
+        $this->cmsApi       = $cmsApi;
         $this->documentApi  = $documentApi;
         $this->pathBuilder  = $pathBuilder;
     }
@@ -41,7 +50,9 @@ class Copy extends AbstractForm
     {
         /** @var $explorer Explorer */
         $explorer   = $this->getParent();
-        $this->getView()->entity = $explorer->getEntity();
+        $entity     = $explorer->getEntity();
+        $this->getView()->entity = $entity;
+        $this->getView()->entityRelPath = $this->cmsApi->getEntityRelPath($entity);
         return parent::view();
     }
 
@@ -85,9 +96,11 @@ class Copy extends AbstractForm
         $explorer   = $this->getParent();
         /** @var $doc Document */
         $doc        = $explorer->getEntity();
-        $parentPath = $this->pathBuilder->dirname($doc->getPath());
+        $relPath    = $this->cmsApi->getEntityRelPath($doc);
+        $path       = $this->pathBuilder->dirname($relPath);
+
         $basename   = $this->pathBuilder->basename($doc->getPath());
-        $form->get('path')->setValue($parentPath);
+        $form->get('path')->setValue($path);
         $form->get('name')->setValue($doc->getTitle() . ' COPY');
         $form->get('name_in_path')->setValue($basename . '-copy');
         return $form;

@@ -484,7 +484,6 @@ class Repository implements RepositoryInterface
         $this->storage->move($entity->getPath(), $target);
         if ($this->hasEntity($target)) {
             $moved  = $this->getEntity($target);
-//            $this->commit();
         } else {
             $moved  = null;
         }
@@ -502,7 +501,6 @@ class Repository implements RepositoryInterface
         $this->storage->copy($entity->getPath(), $target);
         if ($this->hasEntity($target)) {
             $copy   = $this->getEntity($target);
-//            $this->commit();
         } else {
             $copy   = null;
         }

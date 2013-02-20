@@ -43,9 +43,9 @@ interface PathBuilderInterface
 
     /**
      * Returns directory name for the given path
-     * If there is no parent directory for the given $path, returns null
+     * If there is no parent directory for the given $path, returns storage path separator
      * @param string $path
-     * @return string|null
+     * @return string
      */
     public function dirname($path);
 

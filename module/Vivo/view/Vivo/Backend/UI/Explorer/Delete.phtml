@@ -1,7 +1,7 @@
 <h4>
 <?php
     /** @var $entity \Vivo\CMS\Model\Entity */
-    echo $this->escapeHtml($this->translate('Delete')) . ' ' . $this->escapeHtml($entity->getPath()) . '?';
+    echo $this->escapeHtml($this->translate('Delete')) . ' ' . $this->escapeHtml($entityRelPath);
 ?>
 </h4>
 <?php
@@ -9,5 +9,4 @@
         echo $this->escapeHtml($this->translate('An error occurred'));
     }
     echo $this->vivoForm($form);
-    echo $this->actionLink('cancel', 'Do not delete');
 ?>

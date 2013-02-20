@@ -301,7 +301,7 @@ class Document implements DocumentInterface
         try {
             while (true) {
                 $path = sprintf('%s/Contents.%d', $document->getPath(), $id++);
-                $this->cms->getEntity($path);
+                $this->cmsApi->getEntity($path);
             }
         }
         catch (EntityNotFoundException $e) { }
@@ -553,7 +553,7 @@ class Document implements DocumentInterface
                 sprintf("%s: Copying from '%s' to '%s' failed", __METHOD__, $document->getPath(), $targetPath));
         }
         $copied->setTitle($title);
-        $oldUuid    = $copied->getUuid();
+        $oldUuidRoot        = $copied->getUuid();
         $now                = new DateTime();
         $copyChildren       = $this->repository->getChildren($copied, false, true);
         /** @var $subTreeEntities Model\Entity[] */
@@ -579,8 +579,8 @@ class Document implements DocumentInterface
                 $this->cmsApi->saveEntity($entity);
             }
         }
-        $newUuid    = $copied->getUuid();
-        $this->replaceUuidRefs($oldUuid, $newUuid, $copied);
+        $newUuidRoot    = $copied->getUuid();
+        $this->replaceUuidRefs($oldUuidRoot, $newUuidRoot, $copied);
         $this->repository->commit();
         return $copied;
     }
@@ -589,7 +589,7 @@ class Document implements DocumentInterface
      * Replaces UUIDs in a subtree
      * @param string $oldUuid
      * @param string $newUuid
-     * @param \Vivo\CMS\Model\Document $rootDoc
+     * @param Model\Document $rootDoc
      */
     public function replaceUuidRefs($oldUuid, $newUuid, Model\Document $rootDoc)
     {

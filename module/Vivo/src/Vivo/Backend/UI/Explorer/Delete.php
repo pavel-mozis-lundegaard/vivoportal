@@ -40,7 +40,9 @@ class Delete extends AbstractForm
     {
         /** @var $explorer Explorer */
         $explorer                   = $this->getParent();
-        $this->getView()->entity    = $explorer->getEntity();
+        $entity                     = $explorer->getEntity();
+        $this->getView()->entity    = $entity;
+        $this->getView()->entityRelPath = $this->cmsApi->getEntityRelPath($entity);
         return parent::view();
     }
 
@@ -61,18 +63,6 @@ class Delete extends AbstractForm
             $explorer->setCurrent('viewer');
             $this->events->trigger(new RedirectEvent());
         }
-    }
-
-    /**
-     * Cancel action
-     * Redirects to viewer
-     */
-    public function cancel()
-    {
-        /** @var $explorer Explorer */
-        $explorer   = $this->getParent();
-        $explorer->setCurrent('viewer');
-        $this->events->trigger(new RedirectEvent());
     }
 
     /**

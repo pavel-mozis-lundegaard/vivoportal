@@ -282,7 +282,8 @@ class Document implements DocumentInterface
      */
     public function createDocument(Model\Document $parent, Model\Document $document)
     {
-        $path = $this->pathBuilder->buildStoragePath(array($parent->getPath(), $document->getTitle()));
+        $titleLc    = mb_strtolower($document->getTitle());
+        $path = $this->pathBuilder->buildStoragePath(array($parent->getPath(), $titleLc));
 
         $document->setPath($path);
         $document = $this->cmsApi->prepareEntityForSaving($document);

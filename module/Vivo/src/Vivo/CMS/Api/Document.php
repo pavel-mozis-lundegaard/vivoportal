@@ -83,7 +83,7 @@ class Document implements DocumentInterface
         usort($containers,
             function (Model\ContentContainer $a, Model\ContentContainer $b)
             {
-                return $a->getOrder() < $b->getOrder();
+                return $a->getOrder() > $b->getOrder();
             });
         foreach ($containers as $container) {
             if ($content = $this->getPublishedContent($container)) {

@@ -350,18 +350,20 @@ class Document implements DocumentInterface
      */
     public function createContent(Model\ContentContainer $container, Model\Content $content)
     {
-        $versions = count($this->getContentVersions($container));
-
-        $path = $container->getPath().'/'.$versions;
-
+        $versions   = $this->getContentVersions($container);
+        $highest    = -1;
+        foreach ($versions as $version) {
+            $verNum = (int) $this->pathBuilder->basename($version->getPath());
+            if ($verNum > $highest) {
+                $highest = $verNum;
+            }
+        }
+        $path = $this->pathBuilder->buildStoragePath(array($container->getPath(), ++$highest));
         $content->setPath($path);
-
         $this->updateContentStates($container, $content);
         $content = $this->cmsApi->prepareEntityForSaving($content);
-
         $this->repository->saveEntity($content);
         $this->repository->commit();
-
         return $content;
     }
 

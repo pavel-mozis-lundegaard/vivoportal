@@ -54,6 +54,14 @@ class File extends AbstractForm implements EditorInterface
         $form = $this->getForm();
 
         if($form->isValid()) {
+
+            if (!$this->content->getMimeType()) {
+                $this->content->setMimeType('text/html');
+            }
+            if (!$this->content->getFilename()) {
+                $this->content->setFilename('resource.html');
+            }
+
             if($this->content->getUuid()) {
                 $this->documentApi->saveContent($this->content);
             }
@@ -63,7 +71,7 @@ class File extends AbstractForm implements EditorInterface
 
             $data = $form->get('resource')->getValue();
 
-            $this->cmsApi->saveResource($this->content, 'resource.html', $data);
+            $this->cmsApi->saveResource($this->content, $this->content->getFilename(), $data);
         }
     }
 

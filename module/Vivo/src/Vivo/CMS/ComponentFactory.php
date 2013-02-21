@@ -160,7 +160,7 @@ class ComponentFactory implements EventManagerAwareInterface
         }
 
         $layoutComponent->setMain($component);
-        $layoutPanels = $layoutComponent->getLayoutPanels();
+        $layoutPanels = $layoutComponent->getPanels();
 
         //document could override only panels that are defined in layout, other panels are ignored
         //TODO log warning when document tries to set panel that is not defined in layout

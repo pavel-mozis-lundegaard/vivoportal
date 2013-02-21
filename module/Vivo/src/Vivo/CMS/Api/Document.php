@@ -83,7 +83,7 @@ class Document implements DocumentInterface
         usort($containers,
             function (Model\ContentContainer $a, Model\ContentContainer $b)
             {
-                return $a->getOrder() < $b->getOrder();
+                return $a->getOrder() > $b->getOrder();
             });
         foreach ($containers as $container) {
             if ($content = $this->getPublishedContent($container)) {
@@ -273,6 +273,24 @@ class Document implements DocumentInterface
         $pathElements   = array($document->getPath(), 'Contents.', $index);
         $path           = $this->pathBuilder->buildStoragePath($pathElements, true);
         return $this->repository->getChildren(new Model\Entity($path));
+    }
+
+    /**
+     * @param Model\Document $parent
+     * @param Model\Document $document
+     * @return \Vivo\CMS\Model\Document
+     */
+    public function createDocument(Model\Document $parent, Model\Document $document)
+    {
+        $path = $this->pathBuilder->buildStoragePath(array($parent->getPath(), $document->getTitle()));
+
+        $document->setPath($path);
+        $document = $this->cmsApi->prepareEntityForSaving($document);
+
+        $this->repository->saveEntity($document);
+        $this->repository->commit();
+
+        return $document;
     }
 
     /**

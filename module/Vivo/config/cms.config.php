@@ -180,4 +180,22 @@ return array(
         //register output filters
         //'Vivo\Http\Filter\UpperCase',
     ),
+    'security_manager_simple'  => array(
+        //Define your options in your local.php config
+        'options'           => array(
+            //Security domain - if not set, the security domain of the active site will be used
+            'security_domain'   => 'VIVO',
+            'username'          => 'vivo.user',
+            'password'          => 'password',
+        ),
+    ),
+    'security_manager_db'  => array(
+        //Define your options in your local.php config
+        'options'           => array(
+            //'super_password'        => 'Vivo.super.Pwd.497',
+            'super_access_networks' => array(
+                //'127.0.0.1',
+            ),
+        ),
+    ),
 );

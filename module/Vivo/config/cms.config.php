@@ -55,7 +55,7 @@ return array(
           //  'Vivo\CMS\Model\Content\Link',
           //  'Vivo\CMS\Model\Content\Hyperlink',
           //  'Vivo\CMS\Model\Content\Component',
-          //  'Vivo\CMS\Model\Content\Layout',
+            'Vivo\CMS\Model\Content\Layout',
         ),
         'restrictions' => array (
             'document_type' => array (

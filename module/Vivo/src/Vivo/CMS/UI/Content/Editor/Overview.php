@@ -52,6 +52,7 @@ class Overview extends AbstractForm implements EditorInterface
     public function doGetForm()
     {
         $form = new Form('editor-'.$this->content->getUuid());
+        $form->setWrapElements(true);
         $form->setHydrator(new ClassMethodsHydrator(false));
         $form->setOptions(array('use_as_base_fieldset' => true));
         $form->add(array(

@@ -18,7 +18,8 @@ class DeleteFactory implements FactoryInterface
     {
         $cmsApi             = $serviceLocator->get('Vivo\CMS\Api\CMS');
         $documentApi        = $serviceLocator->get('Vivo\CMS\Api\Document');
-        $delete             = new Delete($cmsApi, $documentApi);
+        $alert              = $serviceLocator->get('Vivo\UI\Alert');
+        $delete             = new Delete($cmsApi, $documentApi, $alert);
         return $delete;
     }
 }

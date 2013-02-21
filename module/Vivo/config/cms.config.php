@@ -112,6 +112,7 @@ return array(
             'Vivo\Backend\UI\Explorer\Copy'     => 'Vivo\Backend\UI\Explorer\CopyFactory',
             'Vivo\Backend\UI\Explorer\Move'     => 'Vivo\Backend\UI\Explorer\MoveFactory',
             'Vivo\Backend\UI\Explorer\Viewer'   => 'Vivo\Backend\UI\Explorer\ViewerFactory',
+            'Vivo\Backend\UI\Explorer\Browser'   => 'Vivo\Backend\UI\Explorer\BrowserFactory',
 
             //TODO: content editor factories
             'Vivo\CMS\UI\Content\Editor\File'     => 'Vivo\CMS\UI\Content\Editor\FileFactory',

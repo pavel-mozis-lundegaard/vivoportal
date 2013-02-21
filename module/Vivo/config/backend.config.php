@@ -21,7 +21,8 @@ return array(
             'Vivo\UI\Ribbon\Tab'                => __DIR__.'/../view/Vivo/Backend/UI/Ribbon/Tab.phtml',
             'Vivo\UI\Ribbon\Group'              => __DIR__.'/../view/Vivo/Backend/UI/Ribbon/Group.phtml',
             'Vivo\UI\Ribbon\Item'               => __DIR__.'/../view/Vivo/Backend/UI/Ribbon/Item.phtml',
-
+            'Vivo\Backend\UI\Explorer\Tree'               => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Tree.phtml',
+            'Vivo\Backend\UI\Explorer\Tree:Subtree'       => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Tree.Subtree.phtml',
         ),
     ),
 

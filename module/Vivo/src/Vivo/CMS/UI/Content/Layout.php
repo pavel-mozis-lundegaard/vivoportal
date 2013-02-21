@@ -46,8 +46,8 @@ class Layout extends Component
         $this->view->setTemplate($filename);
     }
 
-    public function getLayoutPanels()
+    public function getPanels()
     {
-        return $this->content->getLayoutPanels();
+        return $this->content->getPanels();
     }
 }

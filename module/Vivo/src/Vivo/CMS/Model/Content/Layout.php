@@ -8,7 +8,6 @@ use Vivo\CMS\Model;
  */
 class Layout extends Model\Content
 {
-
     /**
      * @var array of paths of documents for layout panels
      */
@@ -27,8 +26,16 @@ class Layout extends Model\Content
      * Returns array of paths of documents.
      * @return array
      */
-    public function getLayoutPanels()
+    public function getPanels()
     {
         return $this->panels;
+    }
+
+    /**
+     * @param array $panels
+     */
+    public function setPanels(array $panels)
+    {
+        $this->panels = $panels;
     }
 }

@@ -6,6 +6,7 @@ use Vivo\UI\TabContainerItemInterface;
 use Vivo\Backend\UI\Form\ContentEditor as ContentEditorForm;
 use Vivo\CMS\Model;
 use Vivo\CMS\ComponentResolver;
+use Vivo\CMS\Exception\InvalidArgumentException;
 
 class Content extends AbstractForm
 {
@@ -74,16 +75,22 @@ class Content extends AbstractForm
                 $form->get('content')->get('state')->setValue('NEW');
             }
 
-            $resolver = new ComponentResolver($this->sm->get('cms_config'));
-            $editorClass = $resolver->resolve(get_class($this->content), ComponentResolver::EDITOR_COMPONENT);
+            try {
+                $resolver = new ComponentResolver($this->sm->get('cms_config'));
+                $editorClass = $resolver->resolve(get_class($this->content), ComponentResolver::EDITOR_COMPONENT);
 
-            /* @var $editor \Vivo\CMS\UI\Content\Editor\EditorInterface */
-            $editor = $this->sm->create($editorClass);
-            $editor->setContent($this->content);
+                /* @var $editor \Vivo\CMS\UI\Content\Editor\EditorInterface */
+                $editor = $this->sm->create($editorClass);
+                $editor->setContent($this->content);
 
-            $this->addComponent($editor, 'editorComponent');
+                $this->addComponent($editor, 'editorComponent');
 
-            $editor->init();
+                $editor->init();
+            }
+            catch(InvalidArgumentException $e)
+            {
+                // Could not determine editor_component class for model
+            }
         }
     }
 

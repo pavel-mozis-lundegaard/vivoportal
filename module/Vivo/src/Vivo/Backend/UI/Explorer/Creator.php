@@ -8,6 +8,7 @@ use Vivo\Backend\UI\Form\EntityEditor as EntityEditorForm;
 use Vivo\CMS\AvailableContentsProvider;
 use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 use Vivo\CMS\Model\ContentContainer;
+use Vivo\Util\RedirectEvent;
 
 class Creator extends Editor
 {
@@ -64,7 +65,10 @@ class Creator extends Editor
 
             $this->explorer->setEntity($this->entity);
 
-            parent::saveContents();
+            $this->saveContents();
+
+            $this->explorer->setCurrent('editor');
+            $this->events->trigger(new RedirectEvent());
         }
     }
 }

@@ -45,6 +45,7 @@ return array(
         'editor_component' => array (
             'Vivo\CMS\Model\Content\File'       => 'Vivo\CMS\UI\Content\Editor\File',
             'Vivo\CMS\Model\Content\Overview'   => 'Vivo\CMS\UI\Content\Editor\Overview',
+            'Vivo\CMS\Model\Content\Layout'     => 'Vivo\CMS\UI\Content\Editor\Layout',
         ),
     ),
     'contents' => array (
@@ -117,6 +118,7 @@ return array(
             //TODO: content editor factories
             'Vivo\CMS\UI\Content\Editor\File'     => 'Vivo\CMS\UI\Content\Editor\FileFactory',
             'Vivo\CMS\UI\Content\Editor\Overview' => 'Vivo\CMS\UI\Content\Editor\OverviewFactory',
+            'Vivo\CMS\UI\Content\Editor\Layout'   => 'Vivo\CMS\UI\Content\Editor\LayoutFactory',
         ),
         'aliases' => array(
         ),

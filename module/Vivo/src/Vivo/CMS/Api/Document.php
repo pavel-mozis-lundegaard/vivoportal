@@ -276,6 +276,24 @@ class Document implements DocumentInterface
     }
 
     /**
+     * @param Model\Document $parent
+     * @param Model\Document $document
+     * @return \Vivo\CMS\Model\Document
+     */
+    public function createDocument(Model\Document $parent, Model\Document $document)
+    {
+        $path = $this->pathBuilder->buildStoragePath(array($parent->getPath(), $document->getTitle()));
+
+        $document->setPath($path);
+        $document = $this->cmsApi->prepareEntityForSaving($document);
+
+        $this->repository->saveEntity($document);
+        $this->repository->commit();
+
+        return $document;
+    }
+
+    /**
      * @param Model\Document $document
      * @return Model\Document
      */

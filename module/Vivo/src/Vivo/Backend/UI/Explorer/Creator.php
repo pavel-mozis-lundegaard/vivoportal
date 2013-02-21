@@ -12,13 +12,13 @@ use Vivo\CMS\Model\ContentContainer;
 class Creator extends Editor
 {
     /**
-     * @var \Vivo\Backend\UI\Explorer\Explorer //TODO: ExplorerInterface
+     * @var \Vivo\Backend\UI\Explorer\ExplorerInterface
      */
     private $explorer;
 
     public function init()
     {
-        $this->explorer = $this->getParent('Vivo\Backend\UI\Explorer\Explorer'); //TODO: ExplorerInterface
+        $this->explorer = $this->getParent('Vivo\Backend\UI\Explorer\ExplorerInterface');
         $this->doCreate();
 
         parent::initForm();

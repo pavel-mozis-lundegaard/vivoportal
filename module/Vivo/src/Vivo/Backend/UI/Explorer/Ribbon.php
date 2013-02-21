@@ -32,6 +32,7 @@ class Ribbon extends \Vivo\UI\Ribbon implements EventManagerAwareInterface
         $tab->addGroup($group);
 
         $group = new Group('Structure');
+        $group->addItem(new Item('creator', 'Create', '', $this));
         $group->addItem(new Item('copy', 'Copy', '', $this));
         $group->addItem(new Item('move', 'Move', '', $this));
         $group->addItem(new Item('delete', 'Delete', '', $this));
@@ -44,8 +45,6 @@ class Ribbon extends \Vivo\UI\Ribbon implements EventManagerAwareInterface
         $group = new Group('Expert');
         $group->addItem(new Item('inspect', 'Inspect', '', $this));
         $tab->addGroup($group);
-
-
     }
 
     /**

@@ -155,7 +155,7 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
         $result = $this->contentEditor->save();
 
         if($result) {
-            // Reload version selecbox
+            // Reload version selectbox
             $value = $this->getForm()->get('version')->getValue();
             $this->resetForm();
             $this->loadContents();

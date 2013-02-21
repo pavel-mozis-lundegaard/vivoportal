@@ -65,14 +65,15 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
      * @var type
      */
     protected $explorerComponents = array(
-                'editor'    => 'Vivo\Backend\UI\Explorer\Editor',
-                'viewer'    => 'Vivo\Backend\UI\Explorer\Viewer',
-                'browser'   => 'Vivo\Backend\UI\Explorer\Browser',
-                'inspect'   => 'Vivo\Backend\UI\Explorer\Inspect',
-                'delete'    => 'Vivo\Backend\UI\Explorer\Delete',
-                'copy'      => 'Vivo\Backend\UI\Explorer\Copy',
-                'move'      => 'Vivo\Backend\UI\Explorer\Move',
-                );
+        'creator'   => 'Vivo\Backend\UI\Explorer\Creator',
+        'editor'    => 'Vivo\Backend\UI\Explorer\Editor',
+        'viewer'    => 'Vivo\Backend\UI\Explorer\Viewer',
+        'browser'   => 'Vivo\Backend\UI\Explorer\Browser',
+        'inspect'   => 'Vivo\Backend\UI\Explorer\Inspect',
+        'delete'    => 'Vivo\Backend\UI\Explorer\Delete',
+        'copy'      => 'Vivo\Backend\UI\Explorer\Copy',
+        'move'      => 'Vivo\Backend\UI\Explorer\Move',
+    );
 
     protected  $tree;
 
@@ -99,10 +100,8 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     {
         $this->loadEntity();
         //attach events
-        $this->siteSelector->getEventManager()
-                ->attach('setSite', array($this, 'onSiteChange'));
-        $this->ribbon->getEventManager()
-                ->attach('itemClick', array($this, 'onRibbonClick'));
+        $this->siteSelector->getEventManager()->attach('setSite', array($this, 'onSiteChange'));
+        $this->ribbon->getEventManager()->attach('itemClick', array($this, 'onRibbonClick'));
     }
 
     /**
@@ -228,8 +227,7 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
         $this->entity = $entity;
         //recreate component when antity is changed.
         $this->createComponent(true);
-        $this->eventManager
-                ->trigger(__FUNCTION__, $this, array('entity' => $entity));
+        $this->eventManager->trigger(__FUNCTION__, $this, array('entity' => $entity));
     }
 
     /**

@@ -5,9 +5,9 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
 
 /**
- * MoveFactory
+ * Browser factory
  */
-class MoveFactory implements FactoryInterface
+class BrowserFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -18,9 +18,6 @@ class MoveFactory implements FactoryInterface
     {
         $cmsApi             = $serviceLocator->get('Vivo\CMS\Api\CMS');
         $documentApi        = $serviceLocator->get('Vivo\CMS\Api\Document');
-        $pathBuilder        = $serviceLocator->get('path_builder');
-        $alert              = $serviceLocator->get('Vivo\UI\Alert');
-        $move               = new Move($cmsApi, $documentApi, $pathBuilder, $alert);
-        return $move;
+        return new Browser($cmsApi, $documentApi);
     }
 }

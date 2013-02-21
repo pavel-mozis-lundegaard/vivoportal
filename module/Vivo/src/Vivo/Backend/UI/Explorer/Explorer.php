@@ -21,7 +21,8 @@ use Zend\Stdlib\RequestInterface;
  * Explorer component.
  */
 class Explorer extends ComponentContainer implements EventManagerAwareInterface,
-        EntityManagerInterface, RequestAwareInterface, PersistableInterface
+        EntityManagerInterface, RequestAwareInterface, PersistableInterface,
+        ExplorerInterface
 {
     /**
      * Entity being explored.

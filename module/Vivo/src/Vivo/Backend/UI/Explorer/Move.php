@@ -8,11 +8,16 @@ use Vivo\Backend\UI\Form\Move as MoveForm;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
 use Vivo\CMS\Model\Document;
 use Vivo\Util\RedirectEvent;
+use Vivo\UI\Alert;
+use Vivo\Service\Initializer\TranslatorAwareInterface;
+
+use Zend\I18n\Translator\Translator;
+
 
 /**
  * Move
  */
-class Move extends AbstractForm
+class Move extends AbstractForm implements TranslatorAwareInterface
 {
     /**
      * CMS API
@@ -33,16 +38,31 @@ class Move extends AbstractForm
     protected $pathBuilder;
 
     /**
+     * Alert UI Component
+     * @var Alert
+     */
+    protected $alert;
+
+    /**
+     * Translator
+     * @var Translator
+     */
+    protected $translator;
+
+    /**
      * Constructor
      * @param \Vivo\CMS\Api\CMS $cmsApi
      * @param \Vivo\CMS\Api\DocumentInterface $documentApi
      * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
+     * @param \Vivo\UI\Alert $alert
      */
-    public function __construct(CMS $cmsApi, DocumentApiInterface $documentApi, PathBuilderInterface $pathBuilder)
+    public function __construct(CMS $cmsApi, DocumentApiInterface $documentApi, PathBuilderInterface $pathBuilder,
+                                Alert $alert)
     {
         $this->cmsApi       = $cmsApi;
         $this->documentApi  = $documentApi;
         $this->pathBuilder  = $pathBuilder;
+        $this->alert        = $alert;
     }
 
     public function view()
@@ -67,11 +87,19 @@ class Move extends AbstractForm
             $explorer   = $this->getParent();
             //Move - and redirect
             $doc        = $explorer->getEntity();
+            $docRelPath = $this->cmsApi->getEntityRelPath($doc);
             $movedDoc   = $this->documentApi->moveDocument($doc, $explorer->getSite(), $validData['path'],
                 $validData['name_in_path'], $validData['name'], (bool) $validData['create_hyperlink']);
+            $movedDocRelPath   = $this->cmsApi->getEntityRelPath($movedDoc);
             $explorer->setEntity($movedDoc);
             $explorer->setCurrent('editor');
+            $message = sprintf($this->translator->translate(
+                "Document at path '%s' has been moved to path '%s'"), $docRelPath, $movedDocRelPath);
+            $this->alert->addMessage($message, Alert::TYPE_SUCCESS);
             $this->events->trigger(new RedirectEvent());
+        } else {
+            $message = $this->translator->translate("Form data is not valid");
+            $this->alert->addMessage($message, Alert::TYPE_ERROR);
         }
 
     }
@@ -102,5 +130,14 @@ class Move extends AbstractForm
         $form->get('path')->setValue($path);
         $form->get('name')->setValue($doc->getTitle());
         return $form;
+    }
+
+    /**
+     * Injects translator
+     * @param \Zend\I18n\Translator\Translator $translator
+     */
+    public function setTranslator(Translator $translator)
+    {
+        $this->translator   = $translator;
     }
 }

@@ -9,11 +9,15 @@ use Vivo\Form\Form;
 use Vivo\CMS\Model\Document;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
 use Vivo\Util\RedirectEvent;
+use Vivo\UI\Alert;
+use Vivo\Service\Initializer\TranslatorAwareInterface;
+
+use Zend\I18n\Translator\Translator;
 
 /**
  * Copy
  */
-class Copy extends AbstractForm
+class Copy extends AbstractForm implements TranslatorAwareInterface
 {
     /**
      * Document API
@@ -34,16 +38,31 @@ class Copy extends AbstractForm
     protected $pathBuilder;
 
     /**
+     * Alert UI Component
+     * @var Alert
+     */
+    protected $alert;
+
+    /**
+     * Translator
+     * @var Translator
+     */
+    protected $translator;
+
+    /**
      * Constructor
      * @param \Vivo\CMS\Api\CMS $cmsApi
      * @param \Vivo\CMS\Api\DocumentInterface $documentApi
      * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
+     * @param \Vivo\UI\Alert $alert
      */
-    public function __construct(CMS $cmsApi, DocumentApiInterface $documentApi, PathBuilderInterface $pathBuilder)
+    public function __construct(CMS $cmsApi, DocumentApiInterface $documentApi, PathBuilderInterface $pathBuilder,
+                                Alert $alert)
     {
         $this->cmsApi       = $cmsApi;
         $this->documentApi  = $documentApi;
         $this->pathBuilder  = $pathBuilder;
+        $this->alert        = $alert;
     }
 
     public function view()
@@ -68,11 +87,19 @@ class Copy extends AbstractForm
             $explorer   = $this->getParent();
             //Copy - and redirect
             $doc        = $explorer->getEntity();
+            $docRelPath = $this->cmsApi->getEntityRelPath($doc);
             $copiedDoc  = $this->documentApi->copyDocument($doc, $explorer->getSite(), $validData['path'],
                                                    $validData['name_in_path'], $validData['name']);
+            $copiedDocRelPath   = $this->cmsApi->getEntityRelPath($copiedDoc);
             $explorer->setEntity($copiedDoc);
             $explorer->setCurrent('editor');
+            $message = sprintf($this->translator->translate(
+                "Document at path '%s' has been copied to path '%s'"), $docRelPath, $copiedDocRelPath);
+            $this->alert->addMessage($message, Alert::TYPE_SUCCESS);
             $this->events->trigger(new RedirectEvent());
+        } else {
+            $message = $this->translator->translate("Form data is not valid");
+            $this->alert->addMessage($message, Alert::TYPE_ERROR);
         }
     }
 
@@ -104,5 +131,14 @@ class Copy extends AbstractForm
         $form->get('name')->setValue($doc->getTitle() . ' COPY');
         $form->get('name_in_path')->setValue($basename . '-copy');
         return $form;
+    }
+
+    /**
+     * Injects translator
+     * @param \Zend\I18n\Translator\Translator $translator
+     */
+    public function setTranslator(Translator $translator)
+    {
+        $this->translator   = $translator;
     }
 }

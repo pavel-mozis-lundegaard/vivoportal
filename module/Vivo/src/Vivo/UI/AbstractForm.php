@@ -39,7 +39,7 @@ abstract class AbstractForm extends ComponentContainer
      * Has the data been loaded from request?
      * @var bool
      */
-    protected $dataLoaded           = false;
+    private $dataLoaded             = false;
 
     /**
      * When set to true, the form will be automatically prepared in view() method
@@ -69,6 +69,12 @@ abstract class AbstractForm extends ComponentContainer
      */
     protected $csrfTimeout          = 300;
 
+    /**
+     * If set to true, data will be reloaded from request every time the loadFromRequest() method is called
+     * Otherwise the data is not reloaded from request on subsequent calls to loadFromRequest()
+     * @var bool
+     */
+    protected $forceLoadFromRequest = true;
 
     /**
      * Event Manager
@@ -158,7 +164,7 @@ abstract class AbstractForm extends ComponentContainer
      */
     public function loadFromRequest()
     {
-        if ($this->dataLoaded) {
+        if ($this->dataLoaded && !$this->forceLoadFromRequest) {
             return;
         }
         $data   = $this->request->getQuery()->toArray();

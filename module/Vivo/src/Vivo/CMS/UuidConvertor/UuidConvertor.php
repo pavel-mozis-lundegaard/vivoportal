@@ -4,6 +4,10 @@ namespace Vivo\CMS\UuidConvertor;
 use Vivo\Indexer\IndexerInterface;
 use Vivo\Indexer\Term as IndexerTerm;
 use Vivo\Indexer\Query\Term as TermQuery;
+use Vivo\Repository\EventInterface as RepositoryEventInterface;
+use Vivo\CMS\Model;
+
+use Zend\EventManager\EventManagerInterface;
 
 /**
  * UuidConvertor
@@ -34,12 +38,15 @@ class UuidConvertor implements UuidConvertorInterface
 
     /**
      * Constructor
-     *
      * @param \Vivo\Indexer\IndexerInterface $indexer
+     * @param \Zend\EventManager\EventManagerInterface $repositoryEvents
      */
-    public function __construct(IndexerInterface $indexer)
+    public function __construct(IndexerInterface $indexer, EventManagerInterface $repositoryEvents = null)
     {
         $this->indexer  = $indexer;
+        if ($repositoryEvents) {
+            $repositoryEvents->attach(RepositoryEventInterface::EVENT_COMMIT, array($this, 'onRepositoryCommit'));
+        }
     }
 
     /**
@@ -136,6 +143,30 @@ class UuidConvertor implements UuidConvertorInterface
             $uuid   = $this->pathToUuid[$path];
             unset($this->pathToUuid[$path]);
             unset($this->uuidToPath[$uuid]);
+        }
+    }
+
+    /**
+     * Repository commit listener
+     * @param \Vivo\Repository\EventInterface $event
+     */
+    public function onRepositoryCommit(RepositoryEventInterface $event)
+    {
+        /** @var $deleteEntityPaths array */
+        $deleteEntityPaths  = $event->getParam('delete_entity_paths');
+        foreach ($deleteEntityPaths as $deleteEntityPath) {
+            $this->removeByPath($deleteEntityPath);
+        }
+        /** @var $saveEntities Model\Entity[] */
+        $saveEntities   = $event->getParam('save_entities');
+        foreach ($saveEntities as $entity) {
+            if ($entity->getPath()) {
+                $this->removeByPath($entity->getPath());
+            }
+            if ($entity->getUuid()) {
+                $this->removeByUuid($entity->getUuid());
+            }
+            $this->set($entity->getUuid(), $entity->getPath());
         }
     }
 }

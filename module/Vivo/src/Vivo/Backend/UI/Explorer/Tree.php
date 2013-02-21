@@ -133,7 +133,9 @@ class Tree extends Component
             }
             $node->value = $a;
             $i = 0;
-            if (strpos($expandedPath . '/', $child->getPath()) !== false) {
+            $expand = $expandedPath == $child->getPath() ||
+                    (strpos($expandedPath, $child->getPath(). '/') !== false);
+            if ($expand) {
                 foreach ($children as $child) {
                     if (++$i > $maxItems) {
                         break;

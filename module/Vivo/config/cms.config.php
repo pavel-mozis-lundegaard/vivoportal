@@ -114,6 +114,7 @@ return array(
             'Vivo\Backend\UI\Explorer\Move'     => 'Vivo\Backend\UI\Explorer\MoveFactory',
             'Vivo\Backend\UI\Explorer\Viewer'   => 'Vivo\Backend\UI\Explorer\ViewerFactory',
             'Vivo\Backend\UI\Explorer\Browser'   => 'Vivo\Backend\UI\Explorer\BrowserFactory',
+            'Vivo\Backend\UI\Logon'    => 'Vivo\Backend\UI\LogonFactory',
 
             //TODO: content editor factories
             'Vivo\CMS\UI\Content\Editor\File'     => 'Vivo\CMS\UI\Content\Editor\FileFactory',
@@ -178,5 +179,5 @@ return array(
     'output_filters' => array (
         //register output filters
         //'Vivo\Http\Filter\UpperCase',
-    )
+    ),
 );

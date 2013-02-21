@@ -2,7 +2,6 @@
 namespace Vivo\Backend;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
-use Zend\Mvc\Controller\ControllerManager;
 use Zend\ServiceManager\FactoryInterface;
 
 /**
@@ -17,8 +16,9 @@ class BackendControllerFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $bc = new BackendController();
         $sm = $serviceLocator->getServiceLocator();
+        $bc = new BackendController($sm->get('security_manager'));
+
         $siteEvent = $sm->get('site_event');
 
         //$ctc = new \Vivo\UI\ComponentTreeController($sm->get('session_manager'), $sm->get('request'));

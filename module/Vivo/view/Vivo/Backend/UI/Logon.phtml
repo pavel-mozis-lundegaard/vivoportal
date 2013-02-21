@@ -1,0 +1,8 @@
+
+<?if($user):?>
+    <?=$user->getName();?> &nbsp;
+
+<?=$this->actionLink('logoff', 'Logoff');?>
+<?else:?>
+    <?=$this->vivoForm($form);?>
+<? endif; ?>

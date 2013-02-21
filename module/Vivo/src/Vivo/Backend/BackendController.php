@@ -4,6 +4,7 @@ namespace Vivo\Backend;
 use Vivo\CMS\Model\Site;
 use Vivo\Controller\Exception;
 use Vivo\IO\InputStreamInterface;
+use Vivo\Security\Manager\AbstractManager;
 use Vivo\SiteManager\Event\SiteEvent;
 use Vivo\UI\Component;
 use Vivo\UI\ComponentTreeController;
@@ -53,6 +54,22 @@ class BackendController implements DispatchableInterface,
     protected $serviceManager;
 
     /**
+     * Security manager.
+     * @var AbstractManager
+     */
+    protected $securityManager;
+
+
+    /**
+     * Constructor.
+     * @param AbstractManager $securityManager
+     */
+    public function __construct(\Vivo\CMS\Security\Manager\AbstractManager $securityManager)
+    {
+        $this->securityManager = $securityManager;
+    }
+
+    /**
      * @param Site $site
      */
     public function setSiteEvent(SiteEvent $siteEvent)
@@ -81,7 +98,17 @@ class BackendController implements DispatchableInterface,
         $root = $sm->get('Vivo\CMS\UI\Root');
         $page = $sm->get('Vivo\UI\Page');
 
-        $page->setMain($sm->get('Vivo\Backend\UI\Backend'));
+
+         if ($this->securityManager->getUserPrincipal())
+         {
+             $page->setMain($sm->get('Vivo\Backend\UI\Backend'));
+         } else {
+             $page->setMain($sm->get('Vivo\Backend\UI\Logon'));
+         }
+
+
+
+
         $root->setMain($page);
 
         $this->tree->setRoot($root);

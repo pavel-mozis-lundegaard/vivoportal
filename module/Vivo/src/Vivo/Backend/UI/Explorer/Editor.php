@@ -9,6 +9,7 @@ use Vivo\CMS\AvailableContentsProvider;
 use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 use Vivo\CMS\Model\Document;
 use Vivo\CMS\Model\ContentContainer;
+use Vivo\Util\RedirectEvent;
 
 class Editor extends AbstractForm
 {
@@ -178,9 +179,9 @@ class Editor extends AbstractForm
 
         $success &= $this->saveContents();
 
-//         if($this->success) {
-//             $this->events->trigger(new RedirectEvent($redirUrl));
-//         }
+        if($success) {
+            $this->events->trigger(new RedirectEvent());
+        }
     }
 
     protected function saveContents()

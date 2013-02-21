@@ -79,6 +79,13 @@ interface DocumentInterface
     public function getDocumentContents(Model\Document $document, $index/*, $state {PUBLISHED}*/);
 
     /**
+     * @param Model\Document $parent
+     * @param Model\Document $document
+     * @return \Vivo\CMS\Model\Document
+     */
+    public function createDocument(Model\Document $parent, Model\Document $document);
+
+    /**
      * Copies document to a new location
      * @param \Vivo\CMS\Model\Document $document
      * @param \Vivo\CMS\Model\Site $site

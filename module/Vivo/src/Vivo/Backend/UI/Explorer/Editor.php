@@ -3,9 +3,11 @@ namespace Vivo\Backend\UI\Explorer;
 
 use Vivo\UI\AbstractForm;
 use Vivo\UI\Alert;
+use Vivo\Form\Fieldset;
 use Vivo\Backend\UI\Form\EntityEditor as EntityEditorForm;
 use Vivo\CMS\AvailableContentsProvider;
 use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
+use Vivo\CMS\Model\Document;
 use Vivo\CMS\Model\ContentContainer;
 
 class Editor extends AbstractForm
@@ -19,7 +21,7 @@ class Editor extends AbstractForm
      * Document API
      * @var DocumentApiInterface
      */
-    private $documentApi;
+    protected $documentApi;
 
     /**
      * @var \Vivo\Metadata\MetadataManager
@@ -32,9 +34,9 @@ class Editor extends AbstractForm
     private $availableContentsProvider;
 
     /**
-     * @var \Vivo\CMS\Model\Entity
+     * @var \Vivo\CMS\Model\Folder
      */
-    private $entity;
+    protected $entity;
 
     /**
      * @var array
@@ -83,13 +85,24 @@ class Editor extends AbstractForm
         $this->getForm()->bind($this->entity);
 
         parent::init();
+        $this->initForm();
+    }
 
+    protected function initForm()
+    {
         // Load avalilable contents
         $this->availableContents = $this->availableContentsProvider->getAvailableContents($this->entity);
 
         // Editor tabs
-        /* @var $contentContainer \Vivo\CMS\Model\ContentContainer */
-        $containers = $this->documentApi->getContentContainers($this->entity);
+        $containers = array();
+        if($this->entity instanceof Document) {
+            try {
+                $containers = $this->documentApi->getContentContainers($this->entity);
+            }
+            catch(\Vivo\Repository\Exception\PathNotSetException $e) {
+
+            }
+        }
         $count = count($containers);
         foreach ($containers as $index => $contentContainer) {
             $this->contentTab->addComponent($this->createContentTab($contentContainer), "content_$index");
@@ -110,7 +123,17 @@ class Editor extends AbstractForm
     {
         $metadata = $this->metadataManager->getMetadata(get_class($this->entity));
         $action = $this->request->getUri()->getPath();
-        $form = new EntityEditorForm('document-'.$this->entity->getUuid(), $metadata);
+
+        $buttonsFieldset = new Fieldset('buttons');
+        $buttonsFieldset->add(array(
+            'name' => 'save',
+            'attributes' => array(
+                'type'  => 'submit',
+                'value' => 'Save',
+            ),
+        ));
+
+        $form = new EntityEditorForm('entity', $metadata);
         $form->setAttribute('action', $action);
         $form->add(array(
             'name' => 'act',
@@ -119,13 +142,7 @@ class Editor extends AbstractForm
                 'value' => $this->getPath('save'),
             ),
         ));
-        $form->add(array(
-            'name' => 'save',
-            'attributes' => array(
-                'type'  => 'submit',
-                'value' => 'Save',
-            ),
-        ));
+        $form->add($buttonsFieldset);
 
         return $form;
     }
@@ -159,6 +176,17 @@ class Editor extends AbstractForm
             $success = false;
         }
 
+        $success &= $this->saveContents();
+
+//         if($this->success) {
+//             $this->events->trigger(new RedirectEvent($redirUrl));
+//         }
+    }
+
+    protected function saveContents()
+    {
+        $success = true;
+
         /* @var $component \Vivo\Backend\UI\Explorer\Editor\ContentTab */
         $component = $this->getComponent('contentTab')->getSelectedComponent();
 
@@ -173,8 +201,10 @@ class Editor extends AbstractForm
             if($success) {
                 $this->contentTab->removeAllComponents();
                 $this->init();
-                $selected = $this->contentTab->getSelectedComponent();
-                $selected->initForm();
+
+                foreach ($this->contentTab->getComponents() as $component) {
+                    $component->initForm();
+                }
 
                 $this->alert->addMessage('Saved...', Alert::TYPE_SUCCESS);
             }
@@ -183,8 +213,6 @@ class Editor extends AbstractForm
             }
         }
 
-//         if($this->success) {
-//             $this->events->trigger(new RedirectEvent($redirUrl));
-//         }
+        return $success;
     }
 }

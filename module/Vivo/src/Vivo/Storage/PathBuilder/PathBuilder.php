@@ -107,9 +107,9 @@ class PathBuilder implements PathBuilderInterface
 
     /**
      * Returns directory name for the given path
-     * If there is no parent directory for the given $path, returns null
+     * If there is no parent directory for the given $path, returns storage path separator
      * @param string $path
-     * @return string|null
+     * @return string
      */
     public function dirname($path)
     {
@@ -119,9 +119,21 @@ class PathBuilder implements PathBuilderInterface
             $absolute   = $this->isAbsolute($path);
             $dir        = $this->buildStoragePath($components, $absolute);
         } else {
-            $dir        = null;
+            $dir        = $this->getStoragePathSeparator();
         }
         return $dir;
+    }
+
+    /**
+     * Returns trailing component of the path
+     * @param string $path
+     * @return string
+     */
+    public function basename($path)
+    {
+        $components = $this->getStoragePathComponents($path);
+        $basename   = array_pop($components);
+        return $basename;
     }
 
     /**

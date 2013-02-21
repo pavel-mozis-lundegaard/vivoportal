@@ -3,6 +3,8 @@ namespace Vivo\CMS\Model;
 
 use Vivo\CMS\Model\Content\ProvideTemplateInterface;
 
+use \DateTime;
+
 /**
  * Base class for all Vivo contents models.
  * @todo remove content index functions
@@ -108,6 +110,6 @@ class Content extends Entity implements ProvideTemplateInterface
      */
     public function setTemplate($template)
     {
-        $this->template - $template;
+        $this->template = $template;
     }
 }

@@ -36,7 +36,7 @@ class DateTime extends ZendDateTime
     {
         return array(
             'name' => $this->getName(),
-            'required' => true,
+            'required' => false,
             'filters' => $this->getFilters(),
             'validators' => $this->getValidators(),
         );

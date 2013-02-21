@@ -2,7 +2,7 @@
 namespace Vivo\Backend\UI\Explorer;
 
 use Vivo\Backend\UI\EntityManagerInterface;
-use Vivo\Backend\Explorer\Exception\Exception;
+use Vivo\Backend\UI\Explorer\Exception\Exception;
 use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Model;
 use Vivo\Backend\UI\SiteSelector;
@@ -21,10 +21,11 @@ use Zend\Stdlib\RequestInterface;
  * Explorer component.
  */
 class Explorer extends ComponentContainer implements EventManagerAwareInterface,
-        EntityManagerInterface, RequestAwareInterface, PersistableInterface
+        EntityManagerInterface, RequestAwareInterface, PersistableInterface,
+        ExplorerInterface
 {
     /**
-     * Entity beeing explored.
+     * Entity being explored.
      * @var \Vivo\CMS\Model\Entity
      */
     protected $entity;
@@ -65,11 +66,15 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
      * @var type
      */
     protected $explorerComponents = array(
-                'editor' => 'Vivo\Backend\UI\Explorer\Editor',
-                'viewer' => 'Vivo\Backend\UI\Explorer\Viewer',
-                'browser' => 'Vivo\Backend\UI\Explorer\Browser',
-                'inspect' => 'Vivo\Backend\UI\Explorer\Inspect',
-                );
+        'creator'   => 'Vivo\Backend\UI\Explorer\Creator',
+        'editor'    => 'Vivo\Backend\UI\Explorer\Editor',
+        'viewer'    => 'Vivo\Backend\UI\Explorer\Viewer',
+        'browser'   => 'Vivo\Backend\UI\Explorer\Browser',
+        'inspect'   => 'Vivo\Backend\UI\Explorer\Inspect',
+        'delete'    => 'Vivo\Backend\UI\Explorer\Delete',
+        'copy'      => 'Vivo\Backend\UI\Explorer\Copy',
+        'move'      => 'Vivo\Backend\UI\Explorer\Move',
+    );
 
     protected  $tree;
 
@@ -96,10 +101,8 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     {
         $this->loadEntity();
         //attach events
-        $this->siteSelector->getEventManager()
-                ->attach('setSite', array($this, 'onSiteChange'));
-        $this->ribbon->getEventManager()
-                ->attach('itemClick', array($this, 'onRibbonClick'));
+        $this->siteSelector->getEventManager()->attach('setSite', array($this, 'onSiteChange'));
+        $this->ribbon->getEventManager()->attach('itemClick', array($this, 'onRibbonClick'));
     }
 
     /**
@@ -123,7 +126,7 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     {
         if (!isset($this->explorerComponents[$this->currentName])) {
             throw new Exception(
-                    sprintf('%s: Component for `%s` is not defined.',
+                    sprintf("%s: Component for '%s' is not defined",
                             __METHOD__, $this->currentName));
         }
 
@@ -225,8 +228,7 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
         $this->entity = $entity;
         //recreate component when antity is changed.
         $this->createComponent(true);
-        $this->eventManager
-                ->trigger(__FUNCTION__, $this, array('entity' => $entity));
+        $this->eventManager->trigger(__FUNCTION__, $this, array('entity' => $entity));
     }
 
     /**

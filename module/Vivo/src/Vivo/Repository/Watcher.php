@@ -1,7 +1,7 @@
 <?php
 namespace Vivo\Repository;
 
-use Vivo\CMS\Model\Entity;
+use Vivo\CMS\Model\PathInterface;
 use Vivo\Repository\Exception;
 
 /**
@@ -13,7 +13,7 @@ class Watcher
     /**
      * Array of all entities added so far
      * Keys are entity paths
-     * @var Entity[]
+     * @var PathInterface[]
      */
     protected $entities		    = array();
 
@@ -21,10 +21,10 @@ class Watcher
 
     /**
      * Adds an entity to the object watcher
-     * @param \Vivo\CMS\Model\Entity $entity
+     * @param \Vivo\CMS\Model\PathInterface $entity
      * @throws Exception\Exception
      */
-    public function add(Entity $entity) {
+    public function add(PathInterface $entity) {
         $path   = $entity->getPath();
         if (!$path) {
             throw new Exception\Exception(sprintf('%s: The entity (%s) has no path', __METHOD__, get_class($entity)));

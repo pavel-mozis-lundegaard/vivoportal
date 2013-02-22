@@ -9,9 +9,9 @@ use Vivo\CMS\Exception;
 use Vivo\CMS\UuidConvertor\UuidConvertorInterface;
 use Vivo\Repository\RepositoryInterface;
 use Vivo\Indexer\QueryBuilder;
-use Vivo\Repository\Exception\EntityNotFoundException;
 use Vivo\Uuid\GeneratorInterface as UuidGeneratorInterface;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
+use Vivo\Security\Manager\AbstractManager as AbstractSecurityManager;
 
 use DateTime;
 
@@ -53,6 +53,12 @@ class CMS
      * @var PathBuilderInterface
      */
     protected $pathBuilder;
+
+    /**
+     * Security Manager
+     * @var AbstractSecurityManager
+     */
+    protected $securityManager;
 
     /**
      * Construct
@@ -161,8 +167,8 @@ class CMS
      */
     public function prepareEntityForSaving(Model\Entity $entity)
     {
-        //TODO - retrieve a real username
-        $username       = '???';
+        $username       = $this->securityManager->getPrincipalDomain()
+                          . '\\' . $this->securityManager->getPrincipalUsername();
         $now            = new DateTime();
         $sanitizedPath  = $this->pathBuilder->sanitize($entity->getPath());
         $entity->setPath($sanitizedPath);
@@ -368,5 +374,14 @@ class CMS
             }
         }
         return $uuids;
+    }
+
+    /**
+     * Sets the security manager
+     * @param \Vivo\Security\Manager\AbstractManager $securityManager
+     */
+    public function setSecurityManager($securityManager)
+    {
+        $this->securityManager = $securityManager;
     }
 }

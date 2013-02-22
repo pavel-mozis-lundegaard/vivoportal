@@ -32,5 +32,9 @@ class DefaultInitializer implements InitializerInterface
         if ($instance instanceof TranslatorAwareInterface) {
             $instance->setTranslator($serviceLocator->get('translator'));
         }
+        //inject security manager
+        if ($instance instanceof SecurityManagerAwareInterface) {
+            $instance->setSecurityManager($serviceLocator->get('security_manager'));
+        }
     }
 }

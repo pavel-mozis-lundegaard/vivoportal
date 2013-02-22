@@ -177,7 +177,7 @@ class Editor extends AbstractForm
             $success = false;
         }
 
-        $success &= $this->saveContents();
+        $success = $success && $this->saveContents();
 
         if($success) {
             $this->events->trigger(new RedirectEvent());

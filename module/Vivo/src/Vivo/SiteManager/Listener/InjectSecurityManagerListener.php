@@ -3,17 +3,16 @@ namespace Vivo\SiteManager\Listener;
 
 use Vivo\SiteManager\Event\SiteEventInterface;
 use Vivo\SiteManager\Exception;
-use Vivo\Module\ResourceManager\ResourceManager as ModuleResourceManager;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\ServiceManager\ServiceManager;
-use Zend\Stdlib\ArrayUtils;
+use Zend\ServiceManager\ServiceLocatorInterface;
 
 /**
- * InjectModuleManagerListener
+ * InjectSecurityManagerListener
  */
-class InjectModuleManagerListener implements ListenerAggregateInterface
+class InjectSecurityManagerListener implements ListenerAggregateInterface
 {
     /**
      * @var \Zend\Stdlib\CallbackHandler[]
@@ -21,18 +20,18 @@ class InjectModuleManagerListener implements ListenerAggregateInterface
     protected $listeners = array();
 
     /**
-     * Module resource manager
-     * @var ModuleResourceManager
+     * Service Locator
+     * @var ServiceLocatorInterface
      */
-    protected $moduleResourceManager;
+    protected $serviceLocator;
 
     /**
      * Constructor
-     * @param \Vivo\Module\ResourceManager\ResourceManager $moduleResourceManager
+     * @param \Zend\ServiceManager\ServiceLocatorInterface $serviceLocator
      */
-    public function __construct(ModuleResourceManager $moduleResourceManager)
+    public function __construct(ServiceLocatorInterface $serviceLocator)
     {
-        $this->moduleResourceManager    = $moduleResourceManager;
+        $this->serviceLocator   = $serviceLocator;
     }
 
     /**
@@ -61,16 +60,15 @@ class InjectModuleManagerListener implements ListenerAggregateInterface
     }
 
     /**
-     * Listen to "load_modules.post" event and inject vivo module manager into the module resource manager
+     * Listen to "load_modules.post" event and inject security manager into CMS API
      * @param SiteEventInterface $e
      * @return void
      */
     public function onLoadModulesPost(SiteEventInterface $e)
     {
-        $moduleManager  = $e->getModuleManager();
-        if ($moduleManager) {
-            $this->moduleResourceManager->setModuleManager($moduleManager);
-//            $e->stopPropagation(true);
-        }
+        /** @var $cmsApi \Vivo\CMS\Api\CMS */
+        $cmsApi             = $this->serviceLocator->get('Vivo\CMS\Api\CMS');
+        $securityManager    = $this->serviceLocator->get('security_manager');
+        $cmsApi->setSecurityManager($securityManager);
     }
 }

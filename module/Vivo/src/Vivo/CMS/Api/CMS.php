@@ -67,21 +67,18 @@ class CMS
      * @param \Vivo\CMS\UuidConvertor\UuidConvertorInterface $uuidConvertor
      * @param \Vivo\Uuid\GeneratorInterface $uuidGenerator
      * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
-     * @param \Vivo\Security\Manager\AbstractManager $securityManager
      */
     public function __construct(RepositoryInterface $repository,
                                 QueryBuilder $qb,
                                 UuidConvertorInterface $uuidConvertor,
                                 UuidGeneratorInterface $uuidGenerator,
-                                PathBuilderInterface $pathBuilder,
-                                AbstractSecurityManager $securityManager)
+                                PathBuilderInterface $pathBuilder)
     {
         $this->repository       = $repository;
         $this->qb               = $qb;
         $this->uuidConvertor    = $uuidConvertor;
         $this->uuidGenerator    = $uuidGenerator;
         $this->pathBuilder      = $pathBuilder;
-        $this->securityManager  = $securityManager;
     }
 
     /**
@@ -170,7 +167,8 @@ class CMS
      */
     public function prepareEntityForSaving(Model\Entity $entity)
     {
-        $username       = $this->securityManager->getPrincipalUsername();
+        $username       = $this->securityManager->getPrincipalDomain()
+                          . '\\' . $this->securityManager->getPrincipalUsername();
         $now            = new DateTime();
         $sanitizedPath  = $this->pathBuilder->sanitize($entity->getPath());
         $entity->setPath($sanitizedPath);
@@ -376,5 +374,14 @@ class CMS
             }
         }
         return $uuids;
+    }
+
+    /**
+     * Sets the security manager
+     * @param \Vivo\Security\Manager\AbstractManager $securityManager
+     */
+    public function setSecurityManager($securityManager)
+    {
+        $this->securityManager = $securityManager;
     }
 }

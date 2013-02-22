@@ -1,7 +1,6 @@
 <?php
 namespace Vivo\SiteManager\Listener;
 
-use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Api\Site as SiteApi;
 use Vivo\SiteManager\Event\SiteEventInterface;
 use Vivo\SiteManager\Exception;

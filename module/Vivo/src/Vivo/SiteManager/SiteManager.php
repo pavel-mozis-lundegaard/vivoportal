@@ -7,11 +7,11 @@ use Vivo\SiteManager\Listener\SiteModelLoadListener;
 use Vivo\SiteManager\Listener\SiteConfigListener;
 use Vivo\SiteManager\Listener\LoadModulesListener;
 use Vivo\SiteManager\Listener\CollectModulesListener;
+use Vivo\SiteManager\Listener\InjectModuleManagerListener;
+use Vivo\SiteManager\Listener\InjectSecurityManagerListener;
 use Vivo\Module\ModuleManagerFactory;
 use Vivo\Module\StorageManager\StorageManager as ModuleStorageManager;
-use Vivo\SiteManager\Listener\InjectModuleManagerListener;
 use Vivo\Module\ResourceManager\ResourceManager as ModuleResourceManager;
-use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Api\Site as SiteApi;
 
 use Zend\EventManager\EventManagerInterface;
@@ -75,12 +75,6 @@ class SiteManager implements SiteManagerInterface,
     protected $moduleStorageManager;
 
     /**
-     * CMS object
-     * @var CMS
-     */
-    protected $cms;
-
-    /**
      * Site API
      * @var SiteApi
      */
@@ -105,7 +99,6 @@ class SiteManager implements SiteManagerInterface,
      * @param \Vivo\Module\ModuleManagerFactory $moduleManagerFactory
      * @param array $coreModules
      * @param \Vivo\Module\StorageManager\StorageManager $moduleStorageManager
-     * @param \Vivo\CMS\Api\CMS $cms
      * @param \Vivo\CMS\Api\Site $siteApi
      * @param \Zend\ServiceManager\ServiceManager $serviceManager
      * @param \Vivo\Module\ResourceManager\ResourceManager $moduleResourceManager
@@ -117,7 +110,6 @@ class SiteManager implements SiteManagerInterface,
                                 ModuleManagerFactory $moduleManagerFactory,
                                 array $coreModules,
                                 ModuleStorageManager $moduleStorageManager,
-                                CMS $cms,
                                 SiteApi $siteApi,
                                 ServiceManager $serviceManager,
                                 ModuleResourceManager $moduleResourceManager,
@@ -129,7 +121,6 @@ class SiteManager implements SiteManagerInterface,
         $this->moduleManagerFactory = $moduleManagerFactory;
         $this->coreModules          = $coreModules;
         $this->moduleStorageManager = $moduleStorageManager;
-        $this->cms                  = $cms;
         $this->siteApi              = $siteApi;
         $this->serviceManager       = $serviceManager;
         $this->moduleResourceManager    = $moduleResourceManager;
@@ -159,6 +150,9 @@ class SiteManager implements SiteManagerInterface,
         //Attach InjectModuleManagerListener
         $injectModuleManagerListener    = new InjectModuleManagerListener($this->moduleResourceManager);
         $injectModuleManagerListener->attach($this->events);
+        //Attach InjectSecurityManagerListener
+        $injectSecurityManagerListener  = new InjectSecurityManagerListener($this->serviceManager);
+        $injectSecurityManagerListener->attach($this->events);
     }
 
     /**

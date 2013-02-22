@@ -9,9 +9,9 @@ use Vivo\CMS\Exception;
 use Vivo\CMS\UuidConvertor\UuidConvertorInterface;
 use Vivo\Repository\RepositoryInterface;
 use Vivo\Indexer\QueryBuilder;
-use Vivo\Repository\Exception\EntityNotFoundException;
 use Vivo\Uuid\GeneratorInterface as UuidGeneratorInterface;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
+use Vivo\Security\Manager\AbstractManager as AbstractSecurityManager;
 
 use DateTime;
 
@@ -55,24 +55,33 @@ class CMS
     protected $pathBuilder;
 
     /**
+     * Security Manager
+     * @var AbstractSecurityManager
+     */
+    protected $securityManager;
+
+    /**
      * Construct
      * @param \Vivo\Repository\RepositoryInterface $repository
      * @param \Vivo\Indexer\QueryBuilder $qb
      * @param \Vivo\CMS\UuidConvertor\UuidConvertorInterface $uuidConvertor
      * @param \Vivo\Uuid\GeneratorInterface $uuidGenerator
      * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
+     * @param \Vivo\Security\Manager\AbstractManager $securityManager
      */
     public function __construct(RepositoryInterface $repository,
                                 QueryBuilder $qb,
                                 UuidConvertorInterface $uuidConvertor,
                                 UuidGeneratorInterface $uuidGenerator,
-                                PathBuilderInterface $pathBuilder)
+                                PathBuilderInterface $pathBuilder,
+                                AbstractSecurityManager $securityManager)
     {
         $this->repository       = $repository;
         $this->qb               = $qb;
         $this->uuidConvertor    = $uuidConvertor;
         $this->uuidGenerator    = $uuidGenerator;
         $this->pathBuilder      = $pathBuilder;
+        $this->securityManager  = $securityManager;
     }
 
     /**
@@ -161,8 +170,7 @@ class CMS
      */
     public function prepareEntityForSaving(Model\Entity $entity)
     {
-        //TODO - retrieve a real username
-        $username       = '???';
+        $username       = $this->securityManager->getPrincipalUsername();
         $now            = new DateTime();
         $sanitizedPath  = $this->pathBuilder->sanitize($entity->getPath());
         $entity->setPath($sanitizedPath);

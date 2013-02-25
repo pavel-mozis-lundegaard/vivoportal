@@ -93,6 +93,10 @@ return array(
                         'src' => '.Vivo.resource/bootstrap/js/bootstrap.js',
                         'type' => 'text/javascript',
                     ),
+                    array(
+                        'src' => '/.TinyMCE3_5_8.resource/js/tiny_mce.js',
+                        'type' => 'text/javascript',
+                    ),
                 ),
             'metas' => array (
 //                     array (

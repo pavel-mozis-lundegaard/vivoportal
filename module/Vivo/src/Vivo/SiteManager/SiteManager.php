@@ -5,10 +5,13 @@ use Vivo\SiteManager\Event\SiteEventInterface;
 use Vivo\SiteManager\Exception;
 use Vivo\SiteManager\Listener\SiteModelLoadListener;
 use Vivo\SiteManager\Listener\SiteConfigListener;
+use Vivo\SiteManager\Listener\BackendConfigListener;
 use Vivo\SiteManager\Listener\LoadModulesListener;
-use Vivo\SiteManager\Listener\CollectModulesListener;
+use Vivo\SiteManager\Listener\CollectSiteModulesListener;
+use Vivo\SiteManager\Listener\CollectBackendModulesListener;
 use Vivo\SiteManager\Listener\InjectModuleManagerListener;
 use Vivo\SiteManager\Listener\InjectSecurityManagerListener;
+use Vivo\SiteManager\Listener\ReconfigureForBackendListener;
 use Vivo\Module\ModuleManagerFactory;
 use Vivo\Module\StorageManager\StorageManager as ModuleStorageManager;
 use Vivo\Module\ResourceManager\ResourceManager as ModuleResourceManager;
@@ -136,23 +139,38 @@ class SiteManager implements SiteManagerInterface,
         $this->siteEvent->setRouteMatch($this->routeMatch);
 
         //Attach Site model load listener
-        $configListener         = new SiteModelLoadListener($this->routeParamHost, $this->siteApi);
-        $configListener->attach($this->events);
+        $listener   = new SiteModelLoadListener($this->routeParamHost, $this->siteApi);
+        $listener->attach($this->events);
         //Attach Site config listener
-        $configListener         = new SiteConfigListener($this->siteApi);
-        $configListener->attach($this->events);
-        //Attach Collect modules listener
-        $collectModulesListener = new CollectModulesListener($this->coreModules, $this->moduleStorageManager);
-        $collectModulesListener->attach($this->events);
+        $listener   = new SiteConfigListener($this->siteApi);
+        $listener->attach($this->events);
+        //Attach Collect site modules listener
+        $listener   = new CollectSiteModulesListener();
+        $listener->attach($this->events);
         //Attach Load modules listener
-        $loadModulesListener    = new LoadModulesListener($this->moduleManagerFactory, $this->serviceManager);
-        $loadModulesListener->attach($this->events);
+        $listener   = new LoadModulesListener($this->moduleManagerFactory,
+                                              $this->serviceManager,
+                                              $this->moduleStorageManager);
+        $listener->attach($this->events);
         //Attach InjectModuleManagerListener
-        $injectModuleManagerListener    = new InjectModuleManagerListener($this->moduleResourceManager);
-        $injectModuleManagerListener->attach($this->events);
+        $listener   = new InjectModuleManagerListener($this->moduleResourceManager);
+        $listener->attach($this->events);
         //Attach InjectSecurityManagerListener
-        $injectSecurityManagerListener  = new InjectSecurityManagerListener($this->serviceManager);
-        $injectSecurityManagerListener->attach($this->events);
+        $listener   = new InjectSecurityManagerListener($this->serviceManager);
+        $listener->attach($this->events);
+
+        $routeName  = $this->routeMatch->getMatchedRouteName();
+        if ((strpos($routeName, 'backend/') === 0) && ($routeName != 'backend/cms/query')) {
+            //Attach Backend config listener
+            $listener   = new BackendConfigListener();
+            $listener->attach($this->events);
+            //Attach Collect backend modules listener
+            $listener   = new CollectBackendModulesListener();
+            $listener->attach($this->events);
+            //Attach Reconfigure for backend listener
+            $listener   = new ReconfigureForBackendListener($this->serviceManager);
+            $listener->attach($this->events);
+        }
     }
 
     /**
@@ -160,6 +178,8 @@ class SiteManager implements SiteManagerInterface,
      */
     public function prepareSite()
     {
+        //Prime the siteEvent with the global modules
+        $this->siteEvent->setModules($this->coreModules);
         //Trigger events
         //Load the Site model
         $this->siteEvent->stopPropagation(false);

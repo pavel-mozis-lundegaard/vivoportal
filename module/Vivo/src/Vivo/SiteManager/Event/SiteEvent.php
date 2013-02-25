@@ -45,6 +45,12 @@ class SiteEvent extends Event implements SiteEventInterface
     protected $siteConfig   = array();
 
     /**
+     * Backend configuration
+     * @var array|ArrayAccess
+     */
+    protected $backendConfig    = array();
+
+    /**
      * RouteMatch object
      * @var RouteMatch
      */
@@ -102,7 +108,7 @@ class SiteEvent extends Event implements SiteEventInterface
     {
         if (!(is_array($config) || $config instanceof ArrayAccess)) {
             throw new Exception\InvalidArgumentException(
-                sprintf('%s: Config must be either an array or must implement ArrayAccess', __METHOD__));
+                sprintf('%s: Site config must be either an array or must implement ArrayAccess', __METHOD__));
         }
         $this->siteConfig = $config;
     }
@@ -114,6 +120,30 @@ class SiteEvent extends Event implements SiteEventInterface
     public function getSiteConfig()
     {
         return $this->siteConfig;
+    }
+
+    /**
+     * Sets the backend configuration
+     * @param array|\ArrayAccess $config
+     * @throws \Vivo\SiteManager\Exception\InvalidArgumentException
+     * @return void
+     */
+    public function setBackendConfig($config)
+    {
+        if (!(is_array($config) || $config instanceof ArrayAccess)) {
+            throw new Exception\InvalidArgumentException(
+                sprintf('%s: Backend config must be either an array or must implement ArrayAccess', __METHOD__));
+        }
+        $this->backendConfig    = $config;
+    }
+
+    /**
+     * Returns backend config
+     * @return array|\ArrayAccess|null
+     */
+    public function getBackendConfig()
+    {
+        return $this->backendConfig;
     }
 
     /**

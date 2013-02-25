@@ -9,28 +9,14 @@ use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
 
 /**
- * SiteConfigListener
+ * BackendConfigListener
  */
-class SiteConfigListener implements ListenerAggregateInterface
+class BackendConfigListener implements ListenerAggregateInterface
 {
     /**
      * @var \Zend\Stdlib\CallbackHandler[]
      */
     protected $listeners = array();
-
-    /**
-     * @var SiteApi
-     */
-    protected $siteApi;
-
-    /**
-     * Constructor
-     * @param \Vivo\CMS\Api\Site $siteApi
-     */
-    public function __construct(SiteApi $siteApi)
-    {
-        $this->siteApi = $siteApi;
-    }
 
     /**
      * Attach to an event manager
@@ -57,17 +43,13 @@ class SiteConfigListener implements ListenerAggregateInterface
     }
 
     /**
-     * Listen to "config" event, get Site configuration and store it into the SiteEvent
+     * Listen to "config" event, if Backend ctrl is starting get Backend configuration and store it into the SiteEvent
      * @param SiteEventInterface $e
      * @return void
      */
     public function onConfig(SiteEventInterface $e)
     {
-        $siteModel  = $e->getSite();
-        if ($siteModel) {
-            $siteConfig = $this->siteApi->getSiteConfig($siteModel);
-            $e->setSiteConfig($siteConfig);
-//            $e->stopPropagation(true);
-        }
+        $config = include __DIR__ . "/../../../../config/backend.config.php";
+        $e->setBackendConfig($config);
     }
 }

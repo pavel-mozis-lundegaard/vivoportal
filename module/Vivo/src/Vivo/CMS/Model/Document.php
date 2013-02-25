@@ -281,7 +281,7 @@ class Document extends Folder
 
     public function getPublished()
     {
-        return $this->published();
+        return $this->published;
     }
 
     public function setPublished(\DateTime $published)

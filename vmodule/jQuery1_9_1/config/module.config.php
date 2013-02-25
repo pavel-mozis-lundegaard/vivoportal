@@ -9,7 +9,7 @@ return array(
         'Vivo\UI\Page' => array (
             'scripts' => array (
                 array(
-                    'src' => '/.jQuery1_9_1.resource/js/jquery.js',
+                    'src' => '.jQuery1_9_1.resource/js/jquery.js',
                     'type' => 'text/javascript',
                 ),
             ),

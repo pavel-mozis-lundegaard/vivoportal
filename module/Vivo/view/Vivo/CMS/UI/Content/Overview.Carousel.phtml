@@ -1,0 +1,34 @@
+<?
+$this->headLink()->prependStylesheet('/.Vivo.resource/css/front-Overview.Carousel.css');
+?>
+<div class="OverviewCarousel">
+  <? if(count($children)) : ?>
+  <div id="myCarousel" class="carousel slide">
+      <ol class="carousel-indicators">
+        <? foreach($children as $key => $child) : ?>
+        <li data-target="#myCarousel" data-slide-to="<?=$key?>" class="<? if($key == 0): ?>active<? endif; ?>"></li>
+        <? endforeach; ?>
+      </ol>
+    <div class="carousel-inner">
+      <? foreach($children as $key => $child) : ?>
+      <div class="item <? if($key == 0): ?>active<? endif; ?>">
+        <? if($child->getImage()) : ?>
+          <img src="<?=$this->resource($child->getImage(), $child) ?>" alt="" />
+        <? endif; ?>
+        <div class="container">
+          <div class="carousel-caption">
+            <h3><?=$child->getTitle();?></h3>
+            <? if ($child->getDescription()): ?>
+              <p class="lead"><?= htmlspecialchars($child->getDescription()); ?></p>
+            <? endif; ?>
+            <a class="btn btn-large btn-primary" href="#">More</a>
+          </div>
+        </div>
+      </div>
+      <? endforeach; ?>
+    </div>
+    <a class="left carousel-control" href="#myCarousel" data-slide="prev">&lsaquo;</a>
+    <a class="right carousel-control" href="#myCarousel" data-slide="next">&rsaquo;</a>
+  </div><!-- /.carousel -->
+  <? endif; ?>
+</div>

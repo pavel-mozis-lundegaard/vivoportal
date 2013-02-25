@@ -17,10 +17,15 @@ class CmsFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $repository             = $serviceLocator->get('repository');
-        $indexer                = $serviceLocator->get('indexer');
-        $indexerHelper          = $serviceLocator->get('indexer_helper');
         $qb                     = $serviceLocator->get('indexer_query_builder');
-        $cms                    = new \Vivo\CMS\Api\CMS($repository, $indexer, $indexerHelper, $qb);
+        $uuidConvertor          = $serviceLocator->get('uuid_convertor');
+        $uuidGenerator          = $serviceLocator->get('uuid_generator');
+        $pathBuilder            = $serviceLocator->get('path_builder');
+        $cms                    = new \Vivo\CMS\Api\CMS($repository,
+                                                        $qb,
+                                                        $uuidConvertor,
+                                                        $uuidGenerator,
+                                                        $pathBuilder);
         return $cms;
     }
 }

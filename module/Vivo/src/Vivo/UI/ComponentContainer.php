@@ -4,7 +4,6 @@ namespace Vivo\UI;
 use Vivo\UI\Exception\ComponentNotExists;
 
 use Zend\View\Model\ModelInterface;
-use Zend\View\Model\ViewModel;
 
 /**
  * @todo implement ArrayAccess?
@@ -17,20 +16,6 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
      * @var array of ComponentInterface
      */
     protected $components = array();
-
-    public function init()
-    {
-        foreach ($this->components as $name => $component) {
-            $component->init();
-        }
-    }
-
-    public function done()
-    {
-        foreach ($this->components as $name => $component) {
-            $component->done();
-        }
-    }
 
     public function __get($name)
     {
@@ -89,8 +74,15 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
                 "Component `$name` doesn't exist in container `"
                     . $this->getPath() . "`.");
         }
-        $this->getComponent($name)->setParent(null);
+        $this->getComponent($name)->setParent(null, null);
         unset($this->components[$name]);
+    }
+
+    public function removeAllComponents()
+    {
+        foreach (array_keys($this->components) as $name) {
+            $this->removeComponent($name);
+        }
     }
 
     /**

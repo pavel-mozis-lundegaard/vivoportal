@@ -1,7 +1,9 @@
 <?php
-Vivo\CMS\Workflow
+namespace Vivo\CMS\Workflow\Exception;
 
 /**
- * @author miroslav.hajek
+ * ExceptionInterface
  */
-interface ExceptionInterface { }
+interface ExceptionInterface
+{
+}

@@ -1,7 +1,7 @@
 <?php
 namespace Vivo\Repository;
 
-use Vivo\CMS\Model\Entity;
+use Vivo\CMS\Model\PathInterface;
 use Vivo\Repository\Exception;
 
 /**
@@ -13,84 +13,46 @@ class Watcher
     /**
      * Array of all entities added so far
      * Keys are entity paths
-     * @var Entity[]
+     * @var PathInterface[]
      */
     protected $entities		    = array();
-
-    /**
-     * Array map uuid => path
-     * @var string[]
-     */
-    protected $uuidToPathMap    = array();
 
     /* ********************************** METHODS *********************************** */
 
     /**
      * Adds an entity to the object watcher
-     * @param \Vivo\CMS\Model\Entity $entity
+     * @param \Vivo\CMS\Model\PathInterface $entity
      * @throws Exception\Exception
      */
-    public function add(Entity $entity) {
-        $uuid	= $entity->getUuid();
-        if (!$uuid) {
-            throw new Exception\Exception(sprintf('%s: The entity (%s) has no UUID', __METHOD__, get_class($entity)));
-        }
+    public function add(PathInterface $entity) {
         $path   = $entity->getPath();
         if (!$path) {
             throw new Exception\Exception(sprintf('%s: The entity (%s) has no path', __METHOD__, get_class($entity)));
         }
         $this->entities[$path]      = $entity;
-        $this->uuidToPathMap[$uuid] = $path;
     }
 
     /**
-     * Removes entity from the watcher by UUID
-     * @param string $uuid
-     */
-    public function removeByUuid($uuid) {
-        if(array_key_exists($uuid, $this->uuidToPathMap)) {
-            $path   = $this->uuidToPathMap[$uuid];
-            $this->removeByPath($path);
-        }
-    }
-
-    /**
-     * Removes entity from the watcher by path
+     * Removes entity from the watcher
      * @param string $path
      */
-    public function removeByPath($path) {
-        $uuid   = array_search($path, $this->uuidToPathMap);
-        if ($uuid !== false) {
-            unset($this->uuidToPathMap[$uuid]);
-        }
+    public function remove($path) {
         if (array_key_exists($path, $this->entities)) {
             unset($this->entities[$path]);
         }
     }
 
     /**
-     * Returns entity by UUID if it already exists in the watcher, otherwise returns null
-     * @param string $uuid
-     * @return null|\Vivo\CMS\Model\Entity
-     */
-    public function getByUuid($uuid) {
-        $entity	    = null;
-        if (array_key_exists($uuid, $this->uuidToPathMap)) {
-            $path   = $this->uuidToPathMap[$uuid];
-            $entity = $this->getByPath($path);
-        }
-        return $entity;
-    }
-
-    /**
-     * Returns entity by path if it already exists in the watcher, otherwise returns null
+     * Returns an entity from watcher
+     * If there is no entity under this path, returns null
      * @param string $path
      * @return null|\Vivo\CMS\Model\Entity
      */
-    public function getByPath($path) {
-        $entity	    = null;
-        if(array_key_exists($path, $this->entities)) {
+    public function get($path) {
+        if (array_key_exists($path, $this->entities)) {
             $entity = $this->entities[$path];
+        } else {
+            $entity = null;
         }
         return $entity;
     }

@@ -1,12 +1,13 @@
 <?php
 namespace Vivo\CMS\Model;
 
+use DateTime;
+
 /**
  * Base class for all CMS entities.
  */
-class Entity
+class Entity implements PathInterface
 {
-
     /**
      * Universally Unique Identifier (UUID) of the entity instance.
      * Value is set when entity is being instantiated. Never set or change value of this property.
@@ -98,13 +99,11 @@ class Entity
 
     /**
      * Gets entity path.
-     * @param string $subpath Subpath will be added to the end.
      * @return string
-     * @todo what to do with subpath param?
      */
-    public function getPath(/*$subpath = ''*/)
+    public function getPath()
     {
-        return $this->path/*.($subpath ? "/$subpath" : '')*/;
+        return $this->path;
     }
 
     /**
@@ -113,15 +112,14 @@ class Entity
      */
     public function getName()
     {
-        return (($pos = strrpos($this->path, '/')) !== false) ? substr(
-                        $this->path, $pos + 1) : '';
+        return (($pos = strrpos($this->path, '/')) !== false) ? substr($this->path, $pos + 1) : '';
     }
 
     /**
      * Sets datetime of creation.
      * @param \DateTime $date
      */
-    public function setCreated(\DateTime $date)
+    public function setCreated(\DateTime $date = null)
     {
         $this->created = $date;
     }
@@ -155,16 +153,16 @@ class Entity
 
     /**
      * Set datetime of last modification.
-     * @param DateTime $date
+     * @param \DateTime $date
      */
-    public function setModified(\DateTime $date)
+    public function setModified(\DateTime $date = null)
     {
         $this->modified = $date;
     }
 
     /**
      * Returns datetime of last modification.
-     * @return DateTime
+     * @return \DateTime
      */
     public function getModified()
     {
@@ -194,8 +192,7 @@ class Entity
      */
     public function __toString()
     {
-        return get_class($this) . '{uuid: ' . $this->uuid . ', path: '
-                . $this->path . '}';
+        return get_class($this) . '{uuid: ' . $this->uuid . ', path: ' . $this->path . '}';
     }
 
     /**
@@ -217,42 +214,6 @@ class Entity
      */
     public function getTextContent($field_names = array())
     {
-        $text = "[self:{$this->uuid}]";
-        $field_names = array_unique($field_names);
-        foreach ($field_names as $name) {
-            $value = $this->$name;
-            $type = is_object($value) ? get_class($value) : gettype($value);
-            if ($value && ($converter = Converter\Factory::get($type, false)))
-                $text .= ' ' . $converter->convert('string', $value, 'en_US');
-        }
-        return $text;
+
     }
-
-    public function getSearchable() {
-        return $this->searchable;
-    }
-
-    public function setSearchable($searchable) {
-        $this->searchable = $searchable;
-    }
-
-    /**
-     * Compares if this content is logically equivalent to another content.
-     * This implementation compares only properties defined via $FIELDS.
-     * @param Vivo\CMS\Model\Entity $entity
-     * @return bool
-     * @todo refactor
-     */
-    // 	public function equals($entity) {
-    // 		$this_class = get_class($this);
-    // 		$content_class = get_class($entity);
-    // 		if ($this_class != $content_class)
-    // 			return false;
-    //@todo: musim mit pristup k field descriptorum :/
-    // 		foreach (Entity::$FIELDS[$this_class] as $name => $descriptor)
-    // 			if ($descriptor['comparable'] && ($this->$name != $entity->$name))
-    // 				return false;
-    // 		return true;
-    // 	}
-
 }

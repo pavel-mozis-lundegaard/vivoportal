@@ -1,0 +1,8 @@
+<?
+$form->get('version')
+    ->setAttribute('style', 'width:100%')
+    ->setAttribute('onchange',
+        sprintf('this.form.act.value = "%s"; this.form.submit();', $this->action('changeVersion')));
+?>
+<?=$this->vivoForm($form, array('renderFormTag' => false))?>
+<?=$contentEditor?>

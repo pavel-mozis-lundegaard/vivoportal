@@ -31,10 +31,10 @@ class IndexerFieldHelperFactory implements FactoryInterface
         }
         $metadataManager    = $serviceLocator->get('metadata_manager');
         $pathBuilder        = $serviceLocator->get('path_builder');
-        $fieldHelper        = new \Vivo\Indexer\FieldHelper($metadataManager,
-                                                            $pathBuilder,
-                                                            $defaultIndexingOptions,
-                                                            $presets);
+        $fieldHelper        = new \Vivo\CMS\Indexer\FieldHelper($metadataManager,
+                                                                $pathBuilder,
+                                                                $defaultIndexingOptions,
+                                                                $presets);
         return $fieldHelper;
     }
 }

@@ -3,37 +3,38 @@ namespace Vivo\CMS\Workflow;
 
 use Vivo\CMS;
 
+use Zend\ServiceManager\ServiceManager;
+
 /**
- * Workflow factory.
- *
- * @author tzajicek
+ * Factory
+ * Workflow factory
  */
-class Factory {
+class Factory
+{
+    /**
+     * Service Manager
+     * @var ServiceManager
+     */
+    protected $sm;
 
-	/**
-	 * @var array
-	 */
-	public static $workflows = array();
+    /**
+     * Constructor
+     * @param \Zend\ServiceManager\ServiceManager $sm
+     */
+    public function __construct(ServiceManager $sm)
+    {
+        $this->sm       = $sm;
+    }
 
-	/**
-	 * Private constructor function to prevent external instantiation.
-	 */
-	private function __construct() { }
-
-	/**
-	 * @param string Workflow name
-	 * @return Vivo\CMS\Workflow
-	 */
-	public static function get($type) {
-		return self::$workflows[$type];
-	}
-
-	/**
-	 * @param Vivo\CMS\Workflow $workflow
-	 */
-	public static function add($workflow) {
-		self::$workflows[get_class($workflow)] = $workflow;
-	}
-
+    /**
+     * Creates and returns a workflow instance
+     * @param string $name Workflow name
+     * @return WorkflowInterface
+     * @throws Exception\InvalidArgumentException
+     */
+    public function get($name)
+    {
+        $workflow   = $this->sm->get($name);
+        return $workflow;
+    }
 }
-

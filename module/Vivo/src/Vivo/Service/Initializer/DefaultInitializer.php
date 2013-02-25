@@ -28,5 +28,13 @@ class DefaultInitializer implements InitializerInterface
         if ($instance instanceof SiteEventAwareInterface) {
             $instance->setSiteEvent($serviceLocator->get('site_event'));
         }
+        //inject translator
+        if ($instance instanceof TranslatorAwareInterface) {
+            $instance->setTranslator($serviceLocator->get('translator'));
+        }
+        //inject security manager
+        if ($instance instanceof SecurityManagerAwareInterface) {
+            $instance->setSecurityManager($serviceLocator->get('security_manager'));
+        }
     }
 }

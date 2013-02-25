@@ -12,6 +12,19 @@
  */
 
 return array(
+    'router' => array(
+        'routes' => array(
+            'backend' => array (
+                'options' => array (
+                    'hosts' => array (
+                        //array of backend hostnames
+                        'backend.v2',
+                    ),
+                ),
+            ),
+        ),
+    ),
+
     'db_service'    => array(
         'abstract_factory'  => array(
             'pdo'       => array(

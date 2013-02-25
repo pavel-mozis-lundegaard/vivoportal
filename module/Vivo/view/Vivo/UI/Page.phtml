@@ -10,6 +10,7 @@
 
 	<head>
 
+<base href="<?php echo $this->basePath(); ?>/" />
 	<? foreach ($metas as $element): ?>
 	<meta<? foreach ($element as $name => $value) echo " $name=\"".htmlspecialchars($value).'"' ?> />
 	<? endforeach ?>
@@ -33,7 +34,7 @@
     <?= $this->headScript()?>
     <script src="<?= $this->resource('js/swiper/1.8.5/idangerous.swiper.js','Vivo')?>"></script>
     <script src="<?= $this->resource('js/front-Overview.CarouselTouch.js','Vivo')?>"></script>
-    
+
 
   </body>
 </html>

@@ -1,9 +1,9 @@
 <?php
 namespace Vivo\SiteManager\Listener;
 
+use Vivo\CMS\Api\Site as SiteApi;
 use Vivo\SiteManager\Event\SiteEventInterface;
 use Vivo\SiteManager\Exception;
-use Vivo\CMS\Api\CMS;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
@@ -19,18 +19,17 @@ class SiteConfigListener implements ListenerAggregateInterface
     protected $listeners = array();
 
     /**
-     * CMS object
-     * @var CMS
+     * @var SiteApi
      */
-    protected $cms;
+    protected $siteApi;
 
     /**
      * Constructor
-     * @param \Vivo\CMS\Api\CMS $cms
+     * @param \Vivo\CMS\Api\Site $siteApi
      */
-    public function __construct(CMS $cms)
+    public function __construct(SiteApi $siteApi)
     {
-        $this->cms  = $cms;
+        $this->siteApi = $siteApi;
     }
 
     /**
@@ -66,7 +65,7 @@ class SiteConfigListener implements ListenerAggregateInterface
     {
         $siteModel  = $e->getSite();
         if ($siteModel) {
-            $siteConfig = $this->cms->getSiteConfig($siteModel);
+            $siteConfig = $this->siteApi->getSiteConfig($siteModel);
             $e->setSiteConfig($siteConfig);
             $e->stopPropagation(true);
         }

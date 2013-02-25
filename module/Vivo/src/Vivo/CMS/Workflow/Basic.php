@@ -1,15 +1,12 @@
 <?php
 namespace Vivo\CMS\Workflow;
 
-// use Vivo\CMS;
-
 /**
- * Basic workflow implementation (default or the one and only if you like).
- *
- * @author miroslav.hajek
+ * TODO - to be refactored
+ * Basic workflow implementation (default or the one and only if you like)
  */
-class Basic extends AbstractWorkflow {
-
+class Basic implements WorkflowInterface
+{
 	/**
 	 * Associative array where keys are workflow states and values are all groups.
 	 * @var array

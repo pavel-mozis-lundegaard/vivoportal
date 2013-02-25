@@ -34,6 +34,7 @@ return array(
             'Vivo\UI\Ribbon\Tab'                => __DIR__.'/../view/Vivo/UI/Ribbon/Tab.phtml',
             'Vivo\UI\Ribbon\Group'              => __DIR__.'/../view/Vivo/UI/Ribbon/Group.phtml',
             'Vivo\UI\Ribbon\Item'               => __DIR__.'/../view/Vivo/UI/Ribbon/Item.phtml',
+
         ),
         'custom_templates' => array (
             // custom selectable templates
@@ -62,7 +63,38 @@ return array(
             'Vivo\CMS\Model\Content\Logon'      => 'Vivo\CMS\UI\Content\Logon',
         ),
         'editor_component' => array (
-
+            'Vivo\CMS\Model\Content\File'       => 'Vivo\CMS\UI\Content\Editor\File',
+            'Vivo\CMS\Model\Content\Overview'   => 'Vivo\CMS\UI\Content\Editor\Overview',
+            'Vivo\CMS\Model\Content\Layout'     => 'Vivo\CMS\UI\Content\Editor\Layout',
+        ),
+    ),
+    'contents' => array (
+        'available_contents' => array (
+            'Vivo\CMS\Model\Content\File',
+            'Vivo\CMS\Model\Content\Overview',
+          //  'Vivo\CMS\Model\Content\Link',
+          //  'Vivo\CMS\Model\Content\Hyperlink',
+          //  'Vivo\CMS\Model\Content\Component',
+            'Vivo\CMS\Model\Content\Layout',
+        ),
+        'restrictions' => array (
+            'document_type' => array (
+                'Vivo\CMS\Model\Document' => array(
+                ),
+            ),
+            'document_path' => array (
+                '/Layouts' => array (
+                    'Vivo\CMS\Model\Content\Layout',
+                ),
+            ),
+            'user_role' => array (
+                'managers' => array (
+                ),
+            ),
+            'site' => array (
+               //Whitelist of allowed contents in current site.
+               //If empty all available contents are allowed.
+            ),
         ),
     ),
     'service_manager' => array (
@@ -73,6 +105,7 @@ return array(
             'Vivo\CMS\UI\Root'              => 'Vivo\CMS\UI\Root',
             'Vivo\UI\ComponentContainer'    => 'Vivo\UI\ComponentContainer',
             'Vivo\UI\TabContainer'          => 'Vivo\UI\TabContainer',
+            'Vivo\CMS\UI\Manager\Explorer\Ribbon'  => 'Vivo\CMS\UI\Manager\Explorer\Ribbon',
             'layout_empty_panel'            => 'Vivo\UI\Text',
         ),
         'factories' => array (
@@ -82,9 +115,31 @@ return array(
             'Vivo\CMS\UI\Content\Overview'  => 'Vivo\CMS\Service\UI\Content\OverviewFactory',
             'Vivo\CMS\UI\Content\Logon'     => 'Vivo\CMS\Service\UI\Content\LogonFactory',
             'Vivo\UI\Page'                  => 'Vivo\Service\UI\PageFactory',
-
+            'Vivo\UI\Alert'                 => 'Vivo\UI\AlertFactory',
             'security_manager'              => 'Vivo\Service\SimpleSecurityManagerFactory',
 //            'security_manager'              => 'Vivo\Service\DbSecurityManagerFactory',
+
+            //backend
+            //TODO move to own config
+            'Vivo\Backend\UI\Backend'           => 'Vivo\Backend\UI\BackendFactory',
+            'Vivo\Backend\UI\SiteSelector'      => 'Vivo\Backend\UI\SiteSelectorFactory',
+            'Vivo\Backend\UI\Explorer\Explorer' => 'Vivo\Backend\UI\Explorer\ExplorerFactory',
+            'Vivo\Backend\UI\Explorer\Editor'   => 'Vivo\Backend\UI\Explorer\EditorFactory',
+            'Vivo\Backend\UI\Explorer\Editor\Content' => 'Vivo\Backend\UI\Explorer\Editor\ContentFactory',
+            'Vivo\Backend\UI\Explorer\Editor\ContentTab' => 'Vivo\Backend\UI\Explorer\Editor\ContentTabFactory',
+            'Vivo\Backend\UI\Explorer\Finder'   => 'Vivo\Backend\UI\Explorer\FinderFactory',
+            'Vivo\Backend\UI\Explorer\Delete'   => 'Vivo\Backend\UI\Explorer\DeleteFactory',
+            'Vivo\Backend\UI\Explorer\Creator'  => 'Vivo\Backend\UI\Explorer\CreatorFactory',
+            'Vivo\Backend\UI\Explorer\Copy'     => 'Vivo\Backend\UI\Explorer\CopyFactory',
+            'Vivo\Backend\UI\Explorer\Move'     => 'Vivo\Backend\UI\Explorer\MoveFactory',
+            'Vivo\Backend\UI\Explorer\Viewer'   => 'Vivo\Backend\UI\Explorer\ViewerFactory',
+            'Vivo\Backend\UI\Explorer\Browser'   => 'Vivo\Backend\UI\Explorer\BrowserFactory',
+            'Vivo\Backend\UI\Logon'    => 'Vivo\Backend\UI\LogonFactory',
+
+            //TODO: content editor factories
+            'Vivo\CMS\UI\Content\Editor\File'     => 'Vivo\CMS\UI\Content\Editor\FileFactory',
+            'Vivo\CMS\UI\Content\Editor\Overview' => 'Vivo\CMS\UI\Content\Editor\OverviewFactory',
+            'Vivo\CMS\UI\Content\Editor\Layout'   => 'Vivo\CMS\UI\Content\Editor\LayoutFactory',
         ),
         'aliases' => array(
         ),
@@ -168,5 +223,23 @@ return array(
     'output_filters' => array (
         //register output filters
         //'Vivo\Http\Filter\UpperCase',
-    )
+    ),
+    'security_manager_simple'  => array(
+        //Define your options in your local.php config
+        'options'           => array(
+            //Security domain - if not set, the security domain of the active site will be used
+            'security_domain'   => 'VIVO',
+            'username'          => 'vivo.user',
+            'password'          => 'password',
+        ),
+    ),
+    'security_manager_db'  => array(
+        //Define your options in your local.php config
+        'options'           => array(
+            //'super_password'        => 'Vivo.super.Pwd.497',
+            'super_access_networks' => array(
+                //'127.0.0.1',
+            ),
+        ),
+    ),
 );

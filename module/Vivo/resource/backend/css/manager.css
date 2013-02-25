@@ -1,0 +1,25 @@
+@CHARSET "UTF-8";
+
+.row-fluid {
+	border-width:1px;
+        border-color: #EEEEEE;
+        border-style: solid;
+        border-top: none;
+}
+
+.navbar .brand {
+    margin-left: 0px;
+}
+.navbar {
+    margin-bottom: 0px;
+}
+.alert {
+    margin-bottom: 0px;
+}
+ul {
+	list-style-type: none;
+}
+
+.tree {
+    margin-left: -30px;
+}

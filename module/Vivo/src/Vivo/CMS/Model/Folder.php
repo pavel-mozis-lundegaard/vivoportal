@@ -116,16 +116,8 @@ class Folder extends Entity
         return $this->allowListing;
     }
 
-    public function setAllowListing($allowListing) {
-        $this->allowListing = $allowListing;
-    }
-
     public function getPosition() {
         return $this->position;
-    }
-
-    public function setPosition($position) {
-        $this->position = $position;
     }
 
     public function getSorting() {
@@ -142,6 +134,22 @@ class Folder extends Entity
 
     public function setSecurity(Security $security) {
         $this->security = $security;
+    }
+
+    /**
+     * @param int $position
+     */
+    public function setPosition($position)
+    {
+        $this->position = $position;
+    }
+
+    /**
+     * @param bool allowListing
+     */
+    public function setAllowListing($allowListing = true)
+    {
+        $this->allowListing = (bool)$allowListing;
     }
 
     /**

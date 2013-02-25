@@ -28,6 +28,13 @@ interface PathBuilderInterface
     public function getStoragePathComponents($path);
 
     /**
+     * Returns sanitized path (trimmed, no double separators, etc.)
+     * @param string $path
+     * @return string
+     */
+    public function sanitize($path);
+
+    /**
      * Returns true when the $path denotes an absolute path
      * @param string $path
      * @return boolean
@@ -36,9 +43,16 @@ interface PathBuilderInterface
 
     /**
      * Returns directory name for the given path
-     * If there is no parent directory for the given $path, returns null
+     * If there is no parent directory for the given $path, returns storage path separator
      * @param string $path
-     * @return string|null
+     * @return string
      */
     public function dirname($path);
+
+    /**
+     * Returns trailing component of the path
+     * @param string $path
+     * @return string
+     */
+    public function basename($path);
 }

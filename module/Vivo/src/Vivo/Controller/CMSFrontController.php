@@ -54,6 +54,12 @@ class CMSFrontController implements DispatchableInterface,
     private $tree;
 
     /**
+     *
+     * @var \Vivo\Util\Redirector
+     */
+    protected $redirector;
+
+    /**
      * @param ComponentFactory $componentFactory
      */
     public function setComponentFactory(ComponentFactory $componentFactory)
@@ -95,7 +101,7 @@ class CMSFrontController implements DispatchableInterface,
         //TODO: redirects based on document properties(https, $document->url etc.)
 
         $documentPath = $this->event->getRouteMatch()->getParam('path');
-        $document = $this->cms->getSiteDocument($documentPath, $this->siteEvent->getSite());
+        $document = $this->cms->getSiteEntity($documentPath, $this->siteEvent->getSite());
 
         //create ui component tree
         $root = $this->componentFactory->getRootComponent($document);
@@ -110,11 +116,18 @@ class CMSFrontController implements DispatchableInterface,
         } else {
             $this->tree->init();
             $this->handleAction();
-            $result = $this->tree->view();
+            if (!$this->redirector->isRedirect()) {
+                $result = $this->tree->view();
+            }
         }
 
         $this->tree->saveState();
         $this->tree->done();
+
+
+        if ($this->redirector->isRedirect()) {
+            return $response;
+        }
 
         if ($result instanceof ModelInterface) {
             $this->event->setViewModel($result);
@@ -192,4 +205,24 @@ class CMSFrontController implements DispatchableInterface,
     public function getRequest() {
         return $this->event->getRequest();
     }
+
+    /**
+     * Returns redirector.
+     * @return Redirector
+     */
+    public function getRedirector()
+    {
+        return $this->redirector;
+    }
+
+    /**
+     * Sets redirector.
+     * @param \Vivo\Util\Redirector $redirector
+     */
+    public function setRedirector(\Vivo\Util\Redirector $redirector)
+    {
+        $this->redirector = $redirector;
+    }
+
+
 }

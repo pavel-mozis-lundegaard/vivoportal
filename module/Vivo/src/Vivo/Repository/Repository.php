@@ -1,29 +1,18 @@
 <?php
 namespace Vivo\Repository;
 
-use Vivo;
-use Vivo\CMS;
-use Vivo\CMS\Model;
+use Vivo\CMS\Model\Entity;
+use Vivo\CMS\Model\PathInterface;
 use Vivo\Storage;
-use Vivo\Indexer\IndexerInterface;
-use Vivo\Repository\UuidConvertor\UuidConvertorInterface;
 use Vivo\Repository\Watcher;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
-use Vivo\Indexer\QueryBuilder;
-
 use Vivo\IO;
 use Vivo\Storage\StorageInterface;
-use Vivo\Uuid\GeneratorInterface as UuidGenerator;
 use Vivo\IO\IOUtil;
-use Vivo\Repository\Exception;
-use Vivo\Repository\IndexerHelper;
-use Vivo\Indexer\Query\QueryInterface;
-use Vivo\Indexer\Query\Term as TermQuery;
-use Vivo\Indexer\Query\Parser\ParserInterface as QueryParser;
-use Vivo\Indexer\QueryParams;
 
 use Zend\Serializer\Adapter\AdapterInterface as Serializer;
 use Zend\Cache\Storage\StorageInterface as Cache;
+use Zend\EventManager\EventManagerInterface;
 
 /**
  * Repository class provides methods to work with CMS repository.
@@ -33,34 +22,27 @@ use Zend\Cache\Storage\StorageInterface as Cache;
  */
 class Repository implements RepositoryInterface
 {
+    /**
+     * Entity object filename
+     */
+    const ENTITY_FILENAME = 'Entity.object';
 
-	const ENTITY_FILENAME = 'Entity.object';
-
-	const UUID_PATTERN = '[\d\w]{32}';
-
-//	const URL_PATTERN = '\/[\w\d\-\/\.]+\/';
+    /**
+     * Event manager
+     * @var EventManagerInterface
+     */
+    protected $events;
 
 	/**
 	 * @var \Vivo\Storage\StorageInterface
 	 */
 	private $storage;
 
-	/**
-	 * @var \Vivo\Indexer\IndexerInterface
-	 */
-	private $indexer;
-
     /**
-     * Indexer helper
-     * @var IndexerHelper
+     * Path in storage where temp files can be created
+     * @var string
      */
-    protected $indexerHelper;
-
-    /**
-     * UUID Convertor
-     * @var UuidConvertorInterface
-     */
-    protected $uuidConvertor;
+    protected $tmpPathInStorage = '/_tmp';
 
     /**
      * Object watcher
@@ -72,18 +54,6 @@ class Repository implements RepositoryInterface
 	 * @var Serializer
 	 */
 	private $serializer;
-
-    /**
-     * QueryBuilder
-     * @var QueryBuilder
-     */
-    protected $queryBuilder;
-
-    /**
-     * Indexer query parser
-     * @var QueryParser
-     */
-    protected $queryParser;
 
     /**
      * The cache for objects of the model
@@ -99,25 +69,13 @@ class Repository implements RepositoryInterface
     protected $pathBuilder;
 
     /**
-     * @var UuidGenerator
-     */
-    protected $uuidGenerator;
-
-    /**
      * @var IOUtil
      */
     protected $ioUtil;
 
     /**
      * List of entities that are prepared to be persisted
-     * array(
-     *  array(
-     *      'entity'    => $entity,
-     *      'options'   => array of entity options
-     *  ),
-     *  ...
-     * )
-     * @var array
+     * @var PathInterface[]
      */
     protected $saveEntities         = array();
 
@@ -142,13 +100,13 @@ class Repository implements RepositoryInterface
     protected $copyFiles            = array();
 
     /**
-     * List of entities prepared for deletion
-     * @var Model\Entity[]
+     * List of paths of entities prepared for deletion
+     * @var string[]
      */
-    protected $deleteEntities       = array();
+    protected $deleteEntityPaths    = array();
 
     /**
-     * List of paths that are prepared to be deleted
+     * List of resource paths that are prepared to be deleted
      * @var string[]
      */
     protected $deletePaths          = array();
@@ -171,28 +129,18 @@ class Repository implements RepositoryInterface
      * Constructor
      * @param \Vivo\Storage\StorageInterface $storage
      * @param \Zend\Cache\Storage\StorageInterface $cache
-     * @param \Vivo\Indexer\IndexerInterface $indexer
-     * @param IndexerHelper $indexerHelper
      * @param \Zend\Serializer\Adapter\AdapterInterface $serializer
-     * @param UuidConvertor\UuidConvertorInterface $uuidConvertor
      * @param Watcher $watcher
-     * @param \Vivo\Uuid\GeneratorInterface $uuidGenerator
      * @param \Vivo\IO\IOUtil $ioUtil
-     * @param \Vivo\Indexer\QueryBuilder $queryBuilder
-     * @param \Vivo\Indexer\Query\Parser\ParserInterface $queryParser
+     * @param \Zend\EventManager\EventManagerInterface $events
      * @throws Exception\Exception
      */
     public function __construct(Storage\StorageInterface $storage,
                                 Cache $cache = null,
-                                IndexerInterface $indexer,
-                                IndexerHelper $indexerHelper,
                                 Serializer $serializer,
-                                UuidConvertorInterface $uuidConvertor,
                                 Watcher $watcher,
-                                UuidGenerator $uuidGenerator,
                                 IOUtil $ioUtil,
-                                QueryBuilder $queryBuilder,
-                                QueryParser $queryParser)
+                                EventManagerInterface $events)
 	{
         if ($cache) {
             //Check that cache supports all required data types
@@ -207,91 +155,56 @@ class Repository implements RepositoryInterface
         }
 		$this->storage          = $storage;
         $this->cache            = $cache;
-		$this->indexer          = $indexer;
-        $this->indexerHelper    = $indexerHelper;
 		$this->serializer       = $serializer;
-        $this->uuidConvertor    = $uuidConvertor;
         $this->watcher          = $watcher;
-        $this->uuidGenerator    = $uuidGenerator;
         $this->ioUtil           = $ioUtil;
         $this->pathBuilder      = $this->storage->getPathBuilder();
-        $this->queryBuilder     = $queryBuilder;
-        $this->queryParser      = $queryParser;
+        $this->events           = $events;
 	}
 
     /**
-     * Returns entity from repository
-     * @param string $ident Entity identification (path, UUID or symbolic reference)
+     * Returns entity identified by path
+     * When the entity is not found, throws an exception
+     * @param string $path Entity path
+     * @return \Vivo\CMS\Model\Entity|null
      * @throws Exception\EntityNotFoundException
-     * @return null|\Vivo\CMS\Model\Entity
      */
-    public function getEntity($ident)
+    public function getEntity($path)
     {
-        $uuid   = $this->getUuidFromEntityIdent($ident);
-        if ($uuid) {
-            //$ident is UUID
-            $path   = null;
-        } else {
-            //$ident is path
-            $path   = $ident;
-        }
+        $path       = $this->pathBuilder->sanitize($path);
         //Get entity from watcher
-        if (is_null($path)) {
-            $entity = $this->watcher->getByUuid($uuid);
-        } else {
-            $entity = $this->watcher->getByPath($path);
-        }
+        $entity     = $this->watcher->get($path);
         if ($entity) {
             return $entity;
         }
-        //We need path for the rest, so try to obtain it
-        if (is_null($path)) {
-            //Get path from UUID
-            $path   = $this->uuidConvertor->getPath($uuid);
+        //Get entity from cache
+        $entity = $this->getEntityFromCache($path);
+        if ($entity) {
+            return $entity;
         }
-        if (!is_null($path)) {
-            //Get entity from cache
-            $entity = $this->getEntityFromCache($path);
-            if ($entity) {
-                return $entity;
-            }
-            //Get the entity from storage
-            $entity = $this->getEntityFromStorage($path);
-            if ($entity) {
-                return $entity;
-            }
+        //Get the entity from storage
+        $entity = $this->getEntityFromStorage($path);
+        if ($entity) {
+            return $entity;
         }
         throw new Exception\EntityNotFoundException(
-            sprintf("%s: Entity with ident '%s' not found", __METHOD__, $ident));
+            sprintf("%s: No entity found at path '%s'", __METHOD__, $path));
     }
 
     /**
-     * Returns array of entities returned by the specified indexer query
-     * @param QueryInterface|string $spec
-     * @param QueryParams|array|null $queryParams Either a QueryParams object or an array specifying the params
-     * @return Model\Entity[]
+     * Returns if an entity exists in the repository at the given path
+     * @param string $path
+     * @return boolean
      */
-    public function getEntities($spec, $queryParams = null)
+    public function hasEntity($path)
     {
-        if (is_string($spec)) {
-            //Parse string query to Query object
-            $spec   = $this->queryParser->stringToQuery($spec);
+        try {
+            $this->getEntity($path);
+            $hasEntity  = true;
+        } catch (Exception\EntityNotFoundException $e) {
+            $hasEntity  = false;
         }
-        $result     = $this->indexer->find($spec, $queryParams);
-        $hits       = $result->getHits();
-        $entities   = array();
-        /** @var $hit \Vivo\Indexer\QueryHit */
-        foreach ($hits as $hit) {
-            $doc    = $hit->getDocument();
-            $ident  = $doc->getFieldValue('\\path');
-            try {
-                $entity = $this->getEntity($ident);
-                $entities[] = $entity;
-            } catch (Exception\EntityNotFoundException $e) {
-                //Entity not found
-            }
-        }
-        return $entities;
+        return $hasEntity;
     }
 
     /**
@@ -302,6 +215,7 @@ class Repository implements RepositoryInterface
      */
     protected function getEntityFromCache($path)
     {
+        $path       = $this->pathBuilder->sanitize($path);
         if ($this->cache) {
             $cacheSuccess   = null;
             $entity         = $this->cache->getItem($path, $cacheSuccess);
@@ -323,20 +237,22 @@ class Repository implements RepositoryInterface
      */
     public function getEntityFromStorage($path)
     {
+        $path           = $this->pathBuilder->sanitize($path);
         $pathComponents = array($path, self::ENTITY_FILENAME);
         $fullPath       = $this->pathBuilder->buildStoragePath($pathComponents, true);
         if (!$this->storage->isObject($fullPath)) {
             return null;
         }
         $entitySer      = $this->storage->get($fullPath);
-        $entity         = $this->serializer->unserialize($entitySer);
         /* @var $entity \Vivo\CMS\Model\Entity */
-        $entity->setPath($path); // set volatile path property of entity instance
+        $entity         = $this->serializer->unserialize($entitySer);
+        //Set volatile path property of entity instance
+        $entity->setPath($path);
         //Store entity to watcher
         $this->watcher->add($entity);
         //Store entity to cache
         if ($this->cache) {
-            $this->cache->setItem($entity->getUuid(), $entity);
+            $this->cache->setItem($path, $entity);
         }
         return $entity;
     }
@@ -344,12 +260,13 @@ class Repository implements RepositoryInterface
 	/**
      * Returns parent folder
      * If there is no parent folder (ie this is a root), returns null
-	 * @param \Vivo\CMS\Model\Folder $folder
-	 * @return \Vivo\CMS\Model\Folder
+	 * @param PathInterface $folder
+	 * @return \Vivo\CMS\Model\Entity
 	 */
-	public function getParent(Model\Folder $folder)
+	public function getParent(PathInterface $folder)
 	{
-        $pathElements       = $this->pathBuilder->getStoragePathComponents($folder->getPath());
+        $path               = $this->getAndCheckPath($folder);
+        $pathElements       = $this->pathBuilder->getStoragePathComponents($path);
         if (count($pathElements) == 0) {
             //$folder is a root folder
             return null;
@@ -361,18 +278,18 @@ class Repository implements RepositoryInterface
 	}
 
     /**
-     * Return subdocuments
+     * Returns children of an entity
      * When $deep == true, returns descendants rather than children
-     * @param \Vivo\CMS\Model\Entity $entity
+     * @param PathInterface $entity
      * @param bool|string $className
      * @param bool $deep
      * @return \Vivo\CMS\Model\Entity[]
      */
-    public function getChildren(Model\Entity $entity, $className = false, $deep = false)
+    public function getChildren(PathInterface $entity, $className = false, $deep = false)
 	{
 		$children       = array();
 		$descendants    = array();
-		$path           = $entity->getPath();
+		$path           = $this->getAndCheckPath($entity);
 		//TODO: tady se zamyslet, zda neskenovat podle tridy i obsahy
 		//if (is_subclass_of($class_name, 'Vivo\Cms\Model\Content')) {
 		//	$names = $this->storage->scan("$path/Contents");
@@ -381,7 +298,6 @@ class Repository implements RepositoryInterface
 			$names = $this->storage->scan($path);
 		//}
 		sort($names); // sort it in a natural way
-
 		foreach ($names as $name) {
             $childPath = $this->pathBuilder->buildStoragePath(array($path, $name), true);
             if (!$this->storage->isObject($childPath)) {
@@ -426,12 +342,12 @@ class Repository implements RepositoryInterface
 
 	/**
      * Returns true when the folder has children
-	 * @param Model\Folder $folder
+	 * @param PathInterface $folder
 	 * @return bool
 	 */
-	public function hasChildren(Model\Folder $folder)
+	public function hasChildren(PathInterface $folder)
 	{
-		$path = $folder->getPath();
+		$path = $this->getAndCheckPath($folder);
 		foreach ($this->storage->scan($path) as $name) {
             $pathElements   = array($path, $name, self::ENTITY_FILENAME);
             $childPath      = $this->pathBuilder->buildStoragePath($pathElements);
@@ -443,82 +359,82 @@ class Repository implements RepositoryInterface
 	}
 
     /**
-     * Saves entity state to repository.
-     * Changes become persistent when commit method is called within request.
-     * @param \Vivo\CMS\Model\Entity $entity Entity to save
-     * @param array $options Entity options
-     * @throws Exception\Exception
-     * @return \Vivo\CMS\Model\Entity
+     * Saves entity to repository
+     * Changes become persistent when commit method is called within request
+     * @param \Vivo\CMS\Model\PathInterface $entity
+     * @return mixed|\Vivo\CMS\Model\PathInterface
+     * @throws Exception\InvalidPathException
      */
-	public function saveEntity(Model\Entity $entity, array $options = array())
+    public function saveEntity(PathInterface $entity)
 	{
-        $entityPath = $entity->getPath();
-		if (!$entityPath) {
-			throw new Exception\Exception(
-                sprintf("%s: Entity with UUID = '%s' has no path set", __METHOD__, $entity->getUuid()));
-		}
-		//@todo: tohle nemelo by vyhazovat exception, misto zmeny path? - nema tohle resit jina metoda,
-        //treba pathValidator; pak asi entitu ani nevracet
-        //TODO - possible collisions, PathValidator or revise the path validation in general
-		$path   = '';
-		$len    = strlen($entityPath);
-		for ($i = 0; $i < $len; $i++) {
-			$path .= (stripos('abcdefghijklmnopqrstuvwxyz0123456789-_/.', $entityPath{$i}) !== false)
-					? $entityPath{$i} : '-';
-		}
-		$entity->setPath($path);
-        $this->saveEntities[$path]  = array('entity' => $entity, 'options' => $options);
+        $entityPath = $this->getAndCheckPath($entity);
+        $sanitized  = $this->pathBuilder->sanitize($entityPath);
+        if ($entityPath != $sanitized) {
+            throw new Exception\InvalidPathException(
+                sprintf("%s: Invalid path '%s', expected '%s'", __METHOD__, $entityPath, $sanitized));
+        }
+        $this->saveEntities[$entityPath]    = $entity;
         return $entity;
 	}
 
     /**
      * Adds a stream to the list of streams to be saved
-     * @param \Vivo\CMS\Model\Entity $entity
+     * @param PathInterface $entity
      * @param string $name
      * @param \Vivo\IO\InputStreamInterface $stream
      * @return void
      */
-    public function writeResource(Model\Entity $entity, $name, \Vivo\IO\InputStreamInterface $stream)
+    public function writeResource(PathInterface $entity, $name, \Vivo\IO\InputStreamInterface $stream)
 	{
-        $pathComponents             = array($entity->getPath(), $name);
+        $entityPath                 = $this->getAndCheckPath($entity);
+        $pathComponents             = array($entityPath, $name);
 		$path                       = $this->pathBuilder->buildStoragePath($pathComponents, true);
         $this->saveStreams[$path]   = $stream;
 	}
 
     /**
      * Adds an entity resource (data) to the list of resources to be saved
-     * @param \Vivo\CMS\Model\Entity $entity
+     * @param PathInterface $entity
      * @param string $name Name of resource
      * @param string $data
      */
-    public function saveResource(Model\Entity $entity, $name, $data)
+    public function saveResource(PathInterface $entity, $name, $data)
 	{
-        $pathComponents         = array($entity->getPath(), $name);
+        $entityPath             = $this->getAndCheckPath($entity);
+        $pathComponents         = array($entityPath, $name);
         $path                   = $this->pathBuilder->buildStoragePath($pathComponents, true);
         $this->saveData[$path]  = $data;
 	}
 
 	/**
-	 * @param \Vivo\CMS\Model\Entity $entity
+     * Returns an input stream for reading from the resource
+	 * @param PathInterface $entity
 	 * @param string $name Resource file name.
 	 * @return \Vivo\IO\InputStreamInterface
 	 */
-	public function readResource(Model\Entity $entity, $name)
+	public function readResource(PathInterface $entity, $name)
 	{
-        $pathComponents = array($entity->getPath(), $name);
+        $entityPath     = $this->getAndCheckPath($entity);
+        $pathComponents = array($entityPath, $name);
         $path           = $this->pathBuilder->buildStoragePath($pathComponents, true);
         $stream         = $this->storage->read($path);
 		return $stream;
 	}
 
-	/**
-	 * @param \Vivo\CMS\Model\Entity $entity
-	 * @param string $name
-	 * @return string
-	 */
-	public function getResource(Model\Entity $entity, $name)
+    /**
+     * Returns resource from storage
+     * @param PathInterface $entity
+     * @param string $name
+     * @throws Exception\InvalidArgumentException
+     * @return string
+     */
+	public function getResource(PathInterface $entity, $name)
 	{
-        $pathComponents = array($entity->getPath(), $name);
+        if ($name == '' || is_null($name)) {
+            throw new Exception\InvalidArgumentException(sprintf("%s: Resource name cannot be empty", __METHOD__));
+        }
+        $entityPath     = $this->getAndCheckPath($entity);
+        $pathComponents = array($entityPath, $name);
         $path           = $this->pathBuilder->buildStoragePath($pathComponents, true);
         $data           = $this->storage->get($path);
 		return $data;
@@ -526,41 +442,70 @@ class Repository implements RepositoryInterface
 
     /**
      * Adds an entity to the list of entities to be deleted
-     * @param \Vivo\CMS\Model\Entity $entity
+     * @param PathInterface $entity
      */
-    public function deleteEntity(Model\Entity $entity)
+    public function deleteEntity(PathInterface $entity)
 	{
-		//TODO - check that the entity is empty
-        $this->deleteEntities[]     = $entity;
+        $path   = $this->getAndCheckPath($entity);
+        $this->deleteEntityByPath($path);
 	}
 
     /**
+     * Deletes entity by path
+     * @param string $path
+     */
+    public function deleteEntityByPath($path)
+    {
+        $path                   = $this->pathBuilder->sanitize($path);
+        $this->deleteEntityPaths[] = $path;
+    }
+
+    /**
      * Adds an entity's resource to the list of resources to be deleted
-     * @param \Vivo\CMS\Model\Entity $entity
+     * @param PathInterface $entity
      * @param string $name Name of the resource
      */
-    public function deleteResource(Model\Entity $entity, $name)
+    public function deleteResource(PathInterface $entity, $name)
 	{
-        $pathComponents         = array($entity->getPath(), $name);
+        $entityPath             = $this->getAndCheckPath($entity);
+        $pathComponents         = array($entityPath, $name);
         $path                   = $this->pathBuilder->buildStoragePath($pathComponents, true);
         $this->deletePaths[]    = $path;
 	}
 
-	/**
-	 * @todo
-	 *
-	 * @param Vivo\CMS\Model\Entity $entity
-	 * @param string $target Target path.
-	 */
-	public function moveEntity(Model\Entity $entity, $target) { }
+    /**
+     * Moves entity
+     * @param PathInterface $entity
+     * @param string $target
+     * @return null|\Vivo\CMS\Model\Entity
+     */
+    public function moveEntity(PathInterface $entity, $target)
+    {
+        $this->storage->move($entity->getPath(), $target);
+        if ($this->hasEntity($target)) {
+            $moved  = $this->getEntity($target);
+        } else {
+            $moved  = null;
+        }
+        return $moved;
+    }
 
-	/**
-	 * @todo
-	 *
-	 * @param Vivo\CMS\Model\Entity $entity
-	 * @param string $target Target path.
-	 */
-	public function copyEntity(Model\Entity $entity, $target) { }
+    /**
+     * Copies entity
+     * @param PathInterface $entity
+     * @param string $target
+     * @return null|\Vivo\CMS\Model\Entity
+     */
+    public function copyEntity(PathInterface $entity, $target)
+    {
+        $this->storage->copy($entity->getPath(), $target);
+        if ($this->hasEntity($target)) {
+            $copy   = $this->getEntity($target);
+        } else {
+            $copy   = null;
+        }
+        return $copy;
+    }
 
 	/**
 	 * @param string $path Source path.
@@ -587,11 +532,11 @@ class Repository implements RepositoryInterface
 // 		return $targetEntity;
 // 	}
 
-	/**
-	 * @param string $path Source path.
-	 * @param string $target Destination path.
-	 * @throws Vivo\CMS\Exception 500, Recursive operation
-	 */
+//	/**
+//	 * @param string $path Source path.
+//	 * @param string $target Destination path.
+//	 * @throws Vivo\CMS\Exception 500, Recursive operation
+//	 */
 // 	function copy($path, $target) {
 // 		if (strpos($target, "$path/") === 0)
 // 			throw new CMS\Exception(500, 'recursive_operation', array($path, $target));
@@ -613,9 +558,9 @@ class Repository implements RepositoryInterface
 // 		return $entity;
 // 	}
 
-	/**
-	 * @param Vivo\CMS\Model\Entity $entity
-	 */
+//	/**
+//	 * @param Vivo\CMS\Model\Entity $entity
+//	 */
     /*
 	private function copy_entity($entity) {
 		$entity->uuid = CMS\Model\Entity::create_uuid();
@@ -640,12 +585,14 @@ class Repository implements RepositoryInterface
     */
 
     /**
+     * Returns descendants of a specific path from storage
      * @param string $path
-     * @return Model\Entity[]
+     * @return Entity[]
      */
     public function getDescendantsFromStorage($path)
     {
-        /** @var $descendants Model\Entity[] */
+        $path           = $this->pathBuilder->sanitize($path);
+        /** @var $descendants Entity[] */
         $descendants    = array();
         $names = $this->storage->scan($path);
         foreach ($names as $name) {
@@ -681,44 +628,24 @@ class Repository implements RepositoryInterface
     public function commit()
     {
         try {
-            //Open indexer transaction
-            $this->indexer->begin();
-
             //Delete - Phase 1 (move to temp files)
             //a) Entities
-            foreach ($this->deleteEntities as $entity) {
-                $path                       = $entity->getPath();
-                //TODO - check the path is not null!
-                $tmpPath                    = $this->pathBuilder->buildStoragePath(array(uniqid('del-')), true);
+            foreach ($this->deleteEntityPaths as $path) {
+                $tmpPath                    = $this->pathBuilder->buildStoragePath(
+                                                    array($this->tmpPathInStorage, uniqid('del-')), true);
                 $this->tmpDelFiles[$path]   = $tmpPath;
                 $this->storage->move($path, $tmpPath);
             }
             //b) Resources
             foreach ($this->deletePaths as $path) {
-                $tmpPath                    = $this->pathBuilder->buildStoragePath(array(uniqid('del-')), true);
+                $tmpPath                    = $this->pathBuilder->buildStoragePath(
+                                                    array($this->tmpPathInStorage, uniqid('del-')), true);
                 $this->tmpDelFiles[$path]   = $tmpPath;
                 $this->storage->move($path, $tmpPath);
             }
             //Save - Phase 1 (serialize entities and files into temp files)
             //a) Entity
-            $now = new \DateTime();
-            foreach ($this->saveEntities as $entitySpec) {
-                /** @var $entity Model\Entity */
-                $entity         = $entitySpec['entity'];
-                $entityOptions  = $entitySpec['options'];
-                if (!$entity->getCreated() instanceof \DateTime) {
-                    $entity->setCreated($now);
-                }
-                if (!$entity->getCreatedBy()) {
-                    //TODO - what to do when an entity does not have its creator set?
-                    //$entity->setCreatedBy($username);
-                }
-                if(!$entity->getUuid()) {
-                    $entity->setUuid($this->uuidGenerator->create());
-                }
-                $entity->setModified($now);
-                //TODO - set entity modifier
-                //$entity->setModifiedBy($username);
+            foreach ($this->saveEntities as $entity) {
                 $pathElements           = array($entity->getPath(), self::ENTITY_FILENAME);
                 $path                   = $this->pathBuilder->buildStoragePath($pathElements, true);
                 $tmpPath                = $path . '.' . uniqid('tmp-');
@@ -739,7 +666,9 @@ class Repository implements RepositoryInterface
                 $output                 = $this->storage->write($tmpPath);
                 $this->ioUtil->copy($stream, $output, 1024);
             }
+
             //Delete - Phase 2 (delete the temp files) - this is done in removeTempFiles
+
             //Save Phase 2 (rename temp files to real ones)
             foreach ($this->tmpFiles as $path => $tmpPath) {
                 if (!$this->storage->move($tmpPath, $path)) {
@@ -748,51 +677,39 @@ class Repository implements RepositoryInterface
                 }
             }
 
-            //The actual commit is successfully done, now process references to entities in Watcher, Cache, Indexer, etc
+            //The actual commit is successfully done, now process references to entities in Watcher, Cache, etc
 
-            //Delete entities from Watcher, Cache and Indexer, remove cached results from UuidConverter
- 			foreach ($this->deleteEntities as $entity) {
-                $uuid   = $entity->getUuid();
-                if ($uuid) {
-                    //Watcher
-                    $this->watcher->removeByUuid($uuid);
-                    //Cache
-                    if ($this->cache) {
-                        $this->cache->removeItem($uuid);
-                    }
-                    //UuidConvertor
-                    $this->uuidConvertor->removeByUuid($uuid);
+            //Delete entities from Watcher and Cache
+ 			foreach ($this->deleteEntityPaths as $path) {
+                $this->watcher->remove($path);
+                if ($this->cache) {
+                    $this->cache->removeItem($path);
                 }
-                //Indexer
-                $delQuery   = $this->indexerHelper->buildTreeQuery($entity);
-                $this->indexer->delete($delQuery);
  			}
-            //Save entities to Watcher, Cache and Indexer, update cached results in UuidConverter
- 			foreach ($this->saveEntities as $entitySpec) {
-                 /** @var $entity Model\Entity */
-                 $entity         = $entitySpec['entity'];
-                 $entityOptions  = $entitySpec['options'];
-                 //Watcher
+            //Save entities to Watcher and Cache
+ 			foreach ($this->saveEntities as $entity) {
+                //Watcher
                 $this->watcher->add($entity);
                 //Cache
                 if ($this->cache) {
-                    $this->cache->setItem($entity->getUuid(), $entity);
+                    $this->cache->setItem($entity->getPath(), $entity);
                 }
-                //Indexer - remove old doc & insert new one
-                $entityTerm = $this->indexerHelper->buildEntityTerm($entity);
-                $delQuery   = new TermQuery($entityTerm);
-                $entityDoc  = $this->indexerHelper->createDocument($entity, $entityOptions);
-                $this->indexer->delete($delQuery);
-                $this->indexer->addDocument($entityDoc);
-                //UuidConvertor
-                $this->uuidConvertor->set($entity->getUuid(), $entity->getPath());
             }
-
+            //Trigger commit event
+            $eventParams    = array(
+                'copy_files'            => $this->copyFiles,
+                'delete_paths'          => $this->deletePaths,
+                'delete_entity_paths'   => $this->deleteEntityPaths,
+                'save_data'             => $this->saveData,
+                'save_entities'         => $this->saveEntities,
+                'save_streams'          => $this->saveStreams,
+                'tmp_del_files'         => $this->tmpDelFiles,
+                'tmp_files'             => $this->tmpFiles,
+            );
+            $event          = new Event(EventInterface::EVENT_COMMIT, $this, $eventParams);
+            $this->events->trigger($event);
             //Clean-up after commit
             $this->reset();
-
-            //Commit changes to index
-            $this->indexer->commit();
         } catch (\Exception $e) {
             $this->rollback();
             throw $e;
@@ -807,7 +724,7 @@ class Repository implements RepositoryInterface
     {
         $this->copyFiles            = array();
         $this->deletePaths          = array();
-        $this->deleteEntities       = array();
+        $this->deleteEntityPaths       = array();
         $this->saveData             = array();
         $this->saveEntities         = array();
         $this->saveStreams          = array();
@@ -819,8 +736,6 @@ class Repository implements RepositoryInterface
      */
     public function rollback()
     {
-        //Rollback indexer changes
-        $this->indexer->rollback();
         //Move back everything that was moved during Delete Phase 1
         foreach ($this->tmpDelFiles as $path => $tmpPath) {
             try {
@@ -863,63 +778,17 @@ class Repository implements RepositoryInterface
     }
 
     /**
-     * If $ident represents UUID or a symbolic reference, returns corresponding UUID, otherwise null
-     * @param string $ident
-     * @return null|string
+     * Retrieves and returns entity path, if path is not set, throws an exception
+     * @param PathInterface $entity
+     * @return string
+     * @throws Exception\PathNotSetException
      */
-    protected function getUuidFromEntityIdent($ident)
+    protected function getAndCheckPath(PathInterface $entity)
     {
-        if (preg_match('/^'.self::UUID_PATTERN.'$/i', $ident)) {
-            //UUID
-            $uuid   = $ident;
-            $uuid   = strtoupper($uuid);
-        } elseif (preg_match('/^\[ref:('.self::UUID_PATTERN.')\]$/i', $ident, $matches)) {
-            //Symbolic reference in [ref:uuid] format
-            $uuid   = $matches[1];
-            $uuid = strtoupper($uuid);
-        } else {
-            //The ident is not a UUID
-            $uuid   = null;
+        $path   = $entity->getPath();
+        if (!$path) {
+            throw new Exception\PathNotSetException(sprintf("%s: Entity has no path set", __METHOD__));
         }
-        return $uuid;
-    }
-
-    /**
-     * Returns an array of duplicate uuids
-     * array(
-     *  'uuid1' => array(
-     *      'path1',
-     *      'path2',
-     *  ),
-     *  'uuid2' => array(
-     *      'path3',
-     *      'path4',
-     *  ),
-     * )
-     * @param string $path
-     * @return array
-     */
-    public function getDuplicateUuids($path)
-    {
-        $uuids          = array();
-        $descendants    = $this->getDescendantsFromStorage($path);
-        $me             = $this->getEntityFromStorage($path);
-        if ($me) {
-            $descendants[]  = $me;
-        }
-        /** @var $descendant Model\Entity */
-        foreach ($descendants as $descendant) {
-            $uuid   = $descendant->getUuid();
-            if (!array_key_exists($uuid, $uuids)) {
-                $uuids[$uuid]   = array();
-            }
-            $uuids[$uuid][]  = $descendant->getPath();
-        }
-        foreach ($uuids as $uuid => $paths) {
-            if (count($paths) == 1) {
-                unset($uuids[$uuid]);
-            }
-        }
-        return $uuids;
+        return $path;
     }
 }

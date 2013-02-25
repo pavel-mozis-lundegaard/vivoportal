@@ -2,6 +2,7 @@
 namespace Vivo\CMS;
 
 use Vivo\CMS\Api\CMS;
+use Vivo\CMS\Api\Document as DocumentApi;
 use Vivo\CMS\Exception\Exception;
 use Vivo\CMS\Exception\LogicException;
 use Vivo\CMS\Model\Content;
@@ -30,6 +31,12 @@ class ComponentFactory implements EventManagerAwareInterface
     private $cms;
 
     /**
+     * Document API
+     * @var DocumentApi
+     */
+    protected $documentApi;
+
+    /**
      * @var \Zend\Di\Di
      */
     private $di;
@@ -51,16 +58,20 @@ class ComponentFactory implements EventManagerAwareInterface
     private $eventManager;
 
     /**
-     * @param CMS $cms
-     * @param Di $di
+     * Constructor
+     * @param \Zend\ServiceManager\ServiceManager $sm
+     * @param \Zend\Di\Di $di
+     * @param Api\CMS $cms
+     * @param Api\Document $documentApi
+     * @param Model\Site $site
      */
-    public function __construct(ServiceManager $sm, Di $di, CMS $cms,
-            Site $site)
+    public function __construct(ServiceManager $sm, Di $di, CMS $cms, DocumentApi $documentApi, Site $site)
     {
-        $this->cms = $cms;
-        $this->sm = $sm;
-        $this->di = $di;
-        $this->site = $site;
+        $this->cms          = $cms;
+        $this->sm           = $sm;
+        $this->di           = $di;
+        $this->documentApi  = $documentApi;
+        $this->site         = $site;
     }
 
     /**
@@ -92,7 +103,7 @@ class ComponentFactory implements EventManagerAwareInterface
      */
     public function getFrontComponent(Document $document, $parameters = array())
     {
-        $contents = $this->cms->getPublishedContents($document);
+        $contents = $this->documentApi->getPublishedContents($document);
 
         if (count($contents) > 1) {
             $frontComponent = $this
@@ -118,12 +129,13 @@ class ComponentFactory implements EventManagerAwareInterface
 
         if (!isset($parameters['noLayout']) || !$parameters['noLayout'] == true) {
             if ($layoutPath = $document->getLayout()) {
-                $layout = $this->cms->getSiteDocument($layoutPath, $this->site);
+                $layout = $this->cms->getSiteEntity($layoutPath, $this->site);
                 $panels = $this->getDocumentLayoutPanels($document);
                 $frontComponent = $this
                         ->applyLayout($layout, $frontComponent, $panels);
             }
         }
+
         return $frontComponent;
     }
 
@@ -148,7 +160,7 @@ class ComponentFactory implements EventManagerAwareInterface
         }
 
         $layoutComponent->setMain($component);
-        $layoutPanels = $layoutComponent->getLayoutPanels();
+        $layoutPanels = $layoutComponent->getPanels();
 
         //document could override only panels that are defined in layout, other panels are ignored
         //TODO log warning when document tries to set panel that is not defined in layout
@@ -172,7 +184,7 @@ class ComponentFactory implements EventManagerAwareInterface
                 $panelComponent = $this->createComponent('layout_empty_panel');
 
             } else {
-                $panelDocument = $this->cms->getSiteDocument($path, $this->site);
+                $panelDocument = $this->cms->getSiteEntity($path, $this->site);
                 $panelComponent = $this->getFrontComponent($panelDocument);
             }
             $layoutComponent->addComponent($panelComponent, $name);
@@ -219,8 +231,7 @@ class ComponentFactory implements EventManagerAwareInterface
             Document $document)
     {
         if ($content instanceof \Vivo\CMS\Model\Content\Link) {
-            $linkedDocument = $this->cms
-                    ->getSiteDocument($content->getRelPath(), $this->site);
+            $linkedDocument = $this->cms->getSiteEntity($content->getRelPath(), $this->site);
             return $this
                     ->getFrontComponent($linkedDocument,
                             array('noLayout' => true));

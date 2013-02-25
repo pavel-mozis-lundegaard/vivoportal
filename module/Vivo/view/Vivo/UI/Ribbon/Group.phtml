@@ -1,6 +1,6 @@
 <div class="panel">
-	<span><?=$title/*=Vivo\Util\Messages::get($this->title)*/?></span>
-	<?foreach ($components as $name):?>
+	<span><?=$this->translate($label)?></span>
+	<?foreach ($container['components'] as $name):?>
 		<div class="button">
 			<?=${$name}?>
 		</div>

@@ -1,0 +1,17 @@
+Creator<hr>
+<form action="<?=$form->getAttribute('action')?>" method="<?=$form->getAttribute('method')?>">
+    <?
+        $type = $form->get('__type')
+            ->setAttribute('style', 'width:100%')
+            ->setAttribute('onchange',
+                sprintf('this.form.act.value = "%s"; this.form.submit();', $this->action('create')));
+
+        echo $this->formRow($type);
+    ?>
+    <hr>
+    <?=$this->vivoFormFieldset($form->get('entity'))?>
+    <?=$contentTab?>
+    <hr>
+    <?=$this->formRow($form->get('act'))?>
+    <?=$this->vivoFormFieldset($form->get('buttons'))?>
+</form>

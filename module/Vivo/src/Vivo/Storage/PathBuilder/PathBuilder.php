@@ -16,6 +16,12 @@ class PathBuilder implements PathBuilderInterface
     protected $separator;
 
     /**
+     * Character used to replace illegal path characters
+     * @var string
+     */
+    protected $replacementChar    = '-';
+
+    /**
      * Constructor
      * @param string $separator Path components separator
      * @throws \Vivo\Storage\Exception\InvalidArgumentException
@@ -47,15 +53,17 @@ class PathBuilder implements PathBuilderInterface
     public function buildStoragePath(array $elements, $absolute = true)
     {
         $components = array();
+        $separator  = $this->getStoragePathSeparator();
         //Get atomic components
-        foreach ($elements as $key => $element) {
+        foreach ($elements as $element) {
             $elementComponents  = $this->getStoragePathComponents($element);
             $components         = array_merge($components, $elementComponents);
         }
-        $path   = implode($this->getStoragePathSeparator(), $components);
+        $path   = implode($separator, $components);
         if ($absolute) {
-            $path    = $this->getStoragePathSeparator() . $path;
+            $path    = $separator . $path;
         }
+        $path   = $this->removeIllegalCharacters($path);
         return $path;
     }
 
@@ -80,10 +88,28 @@ class PathBuilder implements PathBuilderInterface
     }
 
     /**
-     * Returns directory name for the given path
-     * If there is no parent directory for the given $path, returns null
+     * Returns sanitized path (trimmed, no double separators, etc.)
      * @param string $path
-     * @return string|null
+     * @return string
+     */
+    public function sanitize($path)
+    {
+        $absolute   = $this->isAbsolute($path);
+        $components = $this->getStoragePathComponents($path);
+        $separator  = $this->getStoragePathSeparator();
+        $sanitized  = implode($separator, $components);
+        if ($absolute) {
+            $sanitized  = $separator . $sanitized;
+        }
+        $sanitized  = $this->removeIllegalCharacters($sanitized);
+        return  $sanitized;
+    }
+
+    /**
+     * Returns directory name for the given path
+     * If there is no parent directory for the given $path, returns storage path separator
+     * @param string $path
+     * @return string
      */
     public function dirname($path)
     {
@@ -93,9 +119,21 @@ class PathBuilder implements PathBuilderInterface
             $absolute   = $this->isAbsolute($path);
             $dir        = $this->buildStoragePath($components, $absolute);
         } else {
-            $dir        = null;
+            $dir        = $this->getStoragePathSeparator();
         }
         return $dir;
+    }
+
+    /**
+     * Returns trailing component of the path
+     * @param string $path
+     * @return string
+     */
+    public function basename($path)
+    {
+        $components = $this->getStoragePathComponents($path);
+        $basename   = array_pop($components);
+        return $basename;
     }
 
     /**
@@ -105,7 +143,24 @@ class PathBuilder implements PathBuilderInterface
      */
     public function isAbsolute($path)
     {
+        $path       = trim($path);
         $firstChar  = substr($path, 0, 1);
         return $firstChar == $this->getStoragePathSeparator();
+    }
+
+    /**
+     * Returns $path with all illegal characters removed and replaced with replacement character
+     * @param string $path
+     * @return string
+     */
+    protected function removeIllegalCharacters($path)
+    {
+        $cleaned            = '';
+        $len                = strlen($path);
+        for ($i = 0; $i < $len; $i++) {
+            $cleaned    .= (stripos('abcdefghijklmnopqrstuvwxyz0123456789-_/.', $path{$i}) !== false)
+                            ? $path[$i] : $this->replacementChar;
+        }
+        return $cleaned;
     }
 }

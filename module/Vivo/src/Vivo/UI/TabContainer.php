@@ -38,12 +38,29 @@ class TabContainer extends ComponentContainer implements PersistableInterface
         return $selectedComponent;
     }
 
+    public function addComponent(ComponentInterface $component, $name)
+    {
+        parent::addComponent($component, $name);
+
+        if($this->selected == null) {
+            $this->select($name);
+        }
+    }
+
     /**
      * @return string
      */
     public function getSelected()
     {
         return $this->selected;
+    }
+
+    /**
+     * @return \Vivo\UI\Component
+     */
+    public function getSelectedComponent()
+    {
+        return parent::getComponent($this->selected);
     }
 
     /**

@@ -5,6 +5,8 @@ use Vivo\Service\Initializer\RequestAwareInterface;
 use Vivo\Service\Initializer\RedirectorAwareInterface;
 use Vivo\Util\Redirector;
 
+use Zend\EventManager\EventManagerAwareInterface;
+use Zend\EventManager\EventManagerInterface;
 use Zend\Form\FormInterface;
 use Zend\Form\Form as ZfForm;
 use Zend\Http\PhpEnvironment\Request;
@@ -14,7 +16,8 @@ use Zend\Stdlib\RequestInterface;
  * Form
  * Base abstract Vivo Form
  */
-abstract class AbstractForm extends ComponentContainer implements RequestAwareInterface, RedirectorAwareInterface
+abstract class AbstractForm extends ComponentContainer
+        implements RequestAwareInterface, RedirectorAwareInterface, EventManagerAwareInterface
 {
     /**
      * @var ZfForm
@@ -36,7 +39,7 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
      * Has the data been loaded from request?
      * @var bool
      */
-    protected $dataLoaded           = false;
+    private $dataLoaded             = false;
 
     /**
      * When set to true, the form will be automatically prepared in view() method
@@ -65,6 +68,19 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
      * @var int|null
      */
     protected $csrfTimeout          = 300;
+
+    /**
+     * If set to true, data will be reloaded from request every time the loadFromRequest() method is called
+     * Otherwise the data is not reloaded from request on subsequent calls to loadFromRequest()
+     * @var bool
+     */
+    protected $forceLoadFromRequest = true;
+
+    /**
+     * Event Manager
+     * @var EventManagerInterface
+     */
+    protected $events;
 
     public function init()
     {
@@ -115,6 +131,11 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
         return $this->form;
     }
 
+    protected function resetForm()
+    {
+        $this->form = null;
+    }
+
     /**
      * Creates ZF form and returns it
      * Factory method
@@ -143,7 +164,7 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
      */
     public function loadFromRequest()
     {
-        if ($this->dataLoaded) {
+        if ($this->dataLoaded && !$this->forceLoadFromRequest) {
             return;
         }
         $data   = $this->request->getQuery()->toArray();
@@ -268,4 +289,23 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
         $parts          = explode('[', $arrayNotation);
         return $parts;
     }
+
+    /**
+     * Sets eventmanager
+     * @param EventManagerInterface $eventManager
+     */
+    public function setEventManager(EventManagerInterface $eventManager)
+    {
+        $this->events = $eventManager;
+    }
+
+    /**
+     * Returns eventmanager.
+     * @return EventManagerInterface
+     */
+    public function getEventManager()
+    {
+        return $this->events;
+    }
+
 }

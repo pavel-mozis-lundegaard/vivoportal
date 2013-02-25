@@ -7,11 +7,12 @@ use Vivo\SiteManager\Listener\SiteModelLoadListener;
 use Vivo\SiteManager\Listener\SiteConfigListener;
 use Vivo\SiteManager\Listener\LoadModulesListener;
 use Vivo\SiteManager\Listener\CollectModulesListener;
+use Vivo\SiteManager\Listener\InjectModuleManagerListener;
+use Vivo\SiteManager\Listener\InjectSecurityManagerListener;
 use Vivo\Module\ModuleManagerFactory;
 use Vivo\Module\StorageManager\StorageManager as ModuleStorageManager;
-use Vivo\SiteManager\Listener\InjectModuleManagerListener;
 use Vivo\Module\ResourceManager\ResourceManager as ModuleResourceManager;
-use Vivo\CMS\Api\CMS;
+use Vivo\CMS\Api\Site as SiteApi;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManagerAwareInterface;
@@ -74,10 +75,10 @@ class SiteManager implements SiteManagerInterface,
     protected $moduleStorageManager;
 
     /**
-     * CMS object
-     * @var CMS
+     * Site API
+     * @var SiteApi
      */
-    protected $cms;
+    protected $siteApi;
 
     /**
      * Application's service manager
@@ -98,7 +99,7 @@ class SiteManager implements SiteManagerInterface,
      * @param \Vivo\Module\ModuleManagerFactory $moduleManagerFactory
      * @param array $coreModules
      * @param \Vivo\Module\StorageManager\StorageManager $moduleStorageManager
-     * @param \Vivo\CMS\Api\CMS $cms
+     * @param \Vivo\CMS\Api\Site $siteApi
      * @param \Zend\ServiceManager\ServiceManager $serviceManager
      * @param \Vivo\Module\ResourceManager\ResourceManager $moduleResourceManager
      * @param \Zend\Mvc\Router\RouteMatch $routeMatch
@@ -109,7 +110,7 @@ class SiteManager implements SiteManagerInterface,
                                 ModuleManagerFactory $moduleManagerFactory,
                                 array $coreModules,
                                 ModuleStorageManager $moduleStorageManager,
-                                CMS $cms,
+                                SiteApi $siteApi,
                                 ServiceManager $serviceManager,
                                 ModuleResourceManager $moduleResourceManager,
                                 RouteMatch $routeMatch = null)
@@ -120,7 +121,7 @@ class SiteManager implements SiteManagerInterface,
         $this->moduleManagerFactory = $moduleManagerFactory;
         $this->coreModules          = $coreModules;
         $this->moduleStorageManager = $moduleStorageManager;
-        $this->cms                  = $cms;
+        $this->siteApi              = $siteApi;
         $this->serviceManager       = $serviceManager;
         $this->moduleResourceManager    = $moduleResourceManager;
         $this->setRouteMatch($routeMatch);
@@ -135,10 +136,10 @@ class SiteManager implements SiteManagerInterface,
         $this->siteEvent->setRouteMatch($this->routeMatch);
 
         //Attach Site model load listener
-        $configListener         = new SiteModelLoadListener($this->routeParamHost, $this->cms);
+        $configListener         = new SiteModelLoadListener($this->routeParamHost, $this->siteApi);
         $configListener->attach($this->events);
         //Attach Site config listener
-        $configListener         = new SiteConfigListener($this->cms);
+        $configListener         = new SiteConfigListener($this->siteApi);
         $configListener->attach($this->events);
         //Attach Collect modules listener
         $collectModulesListener = new CollectModulesListener($this->coreModules, $this->moduleStorageManager);
@@ -149,6 +150,9 @@ class SiteManager implements SiteManagerInterface,
         //Attach InjectModuleManagerListener
         $injectModuleManagerListener    = new InjectModuleManagerListener($this->moduleResourceManager);
         $injectModuleManagerListener->attach($this->events);
+        //Attach InjectSecurityManagerListener
+        $injectSecurityManagerListener  = new InjectSecurityManagerListener($this->serviceManager);
+        $injectSecurityManagerListener->attach($this->events);
     }
 
     /**

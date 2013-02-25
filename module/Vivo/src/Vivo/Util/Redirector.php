@@ -1,40 +1,108 @@
 <?php
 namespace Vivo\Util;
 
-use Zend\Http\Response;
-use Zend\Mvc\MvcEvent;
+use Zend\EventManager\SharedEventManagerAwareInterface;
+use Zend\EventManager\SharedEventManagerInterface;
+use Zend\Http\PhpEnvironment\Response;
+use Zend\Http\Request;
 
 /**
- * Util class for redirecting.
+ * Redirector listens on shared event manager for redirect events and modify
+ * response headers to invoke redirect.
  *
+ * Only the first redirect event is processed, other events are ignored.
+ * Redirect could be perfomed immediately, but it isn't common case.
+ * Usually we want to finish dispatching current request.
  */
-class Redirector
+class Redirector implements SharedEventManagerAwareInterface
 {
-    protected $event;
+    /**
+     * @var boolean
+     */
+    protected $redirect = false;
 
     /**
-     * Constructor
-     * @param MvcEvent $event
+     * @var Response
      */
-    public function __construct(MvcEvent $event)
+    protected $response;
+
+    /**
+     * @var Request
+     */
+    protected $request;
+
+    /**
+     * Shared event manager.
+     * @var SharedEventManagerInterface
+     */
+    protected $sharedEventManager;
+
+    /**
+     * Constructor.
+     * @param \Zend\Http\Request $request
+     * @param \Zend\Http\PhpEnvironment\Response $response
+     */
+    public function __construct(Request $request, Response $response)
     {
-        $this->event = $event;
+        $this->response = $response;
+        $this->request = $request;
     }
 
     /**
-     * Redirect to specified url.
-     * @param string $url
-     * @param string $statusCode
+     * Whather current request will be redirected.
+     * @return boolean
      */
-    public function redirect($url = null, $statusCode = null) {
-        if (!$url) {
-            $url = $this->event->getRequest()->getUri()->getPath();
+    public function isRedirect()
+    {
+        return $this->redirect;
+    }
+
+    /**
+     * Callback for redirect events.
+     *
+     * Modify response header for redirection.
+     * @param \Vivo\Util\RedirectEvent $event
+     * @return boolean Whether event was processed.
+     */
+    public function redirect(RedirectEvent $event)
+    {
+        if ($this->redirect == true) {
+            return false;
         }
-        /* @var $response \Zend\Http\Response */
-        $response = $this->event->getResponse();
-        $response->setStatusCode($statusCode ?: Response::STATUS_CODE_302);
-        $response->getHeaders()->addHeaderLine('Location', $url);
-        $response->sendHeaders();
-        die();
+
+        $this->redirect = true;
+        if (!$url = $event->getUrl()) {
+            $url = $this->request->getUri()->getPath();
+        }
+        $this->response->setStatusCode($event->getParam('status_code') ?: Response::STATUS_CODE_302);
+        $this->response->getHeaders()->addHeaderLine('Location', $url);
+        if($event->getParam('immediately')) {
+            $this->response->sendHeaders();
+            die();
+        }
+        return true;
+    }
+
+    /**
+     * Sets shared event manager and attach listener to redirect event.
+     * @param \Zend\EventManager\SharedEventManagerInterface $sharedEventManager
+     */
+    public function setSharedManager(SharedEventManagerInterface $sharedEventManager)
+    {
+        $this->sharedEventManager = $sharedEventManager;
+        $this->sharedEventManager->attach('*', RedirectEvent::EVENT_REDIRECT, array($this, 'redirect'));
+    }
+
+    /**
+     * Unsets shared event manager.
+     */
+    public function unsetSharedManager()
+    {
+        $this->sharedEventManager = null;
+        //TODO detach listener
+    }
+
+    public function getSharedManager()
+    {
     }
 }

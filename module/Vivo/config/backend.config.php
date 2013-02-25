@@ -77,20 +77,20 @@ return array(
                 'links' => array (
                     array(
                         'rel'  => 'stylesheet',
-                        'href' => '.Vivo.resource/bootstrap/css/bootstrap.css',
+                        'href' => '.Bootstrap2_3_0.resource/css/bootstrap.css',
                         'type' => 'text/css',
                         'media' => 'screen'
                     ),
                     array(
-                            'rel'  => 'stylesheet',
-                            'href' => '.Vivo.resource/backend/css/manager.css',
-                            'type' => 'text/css',
-                            'media' => 'screen'
+                        'rel'  => 'stylesheet',
+                        'href' => '.Vivo.resource/backend/css/manager.css',
+                        'type' => 'text/css',
+                        'media' => 'screen'
                     ),
             ),
                 'scripts' => array (
                     array(
-                        'src' => '.Vivo.resource/bootstrap/js/bootstrap.js',
+                        'src' => '.Bootstrap2_3_0.resource/js/bootstrap.js',
                         'type' => 'text/javascript',
                     ),
                     array(
@@ -117,5 +117,14 @@ return array(
     'output_filters' => array (
         //register output filters
         //'Vivo\Http\Filter\UpperCase',
-    )
+    ),
+    //Backend config
+    'backend'       => array(
+        //Backend modules
+        'modules'       => array(
+            'Bootstrap2_3_0'    => array(
+                'enabled'           => true,
+            ),
+        ),
+    ),
 );

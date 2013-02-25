@@ -91,8 +91,6 @@ class BackendController implements DispatchableInterface,
                             __METHOD__ , $this->siteEvent->getHost()));
         }
 
-        $this->loadBackendConfig();
-
         $sm = $this->sm;
         /* @var $page \Vivo\UI\Page */
         $root = $sm->get('Vivo\CMS\UI\Root');
@@ -170,28 +168,6 @@ class BackendController implements DispatchableInterface,
         $path = implode(Component::COMPONENT_SEPARATOR, $parts);
         return $this->tree->invokeAction($path, $action, $params);
     }
-
-    public function loadBackendConfig()
-    {
-        $config = include __DIR__."/../../../config/backend.config.php";
-
-        $cmsConfig = $this->sm->get('cms_config');
-        unset($cmsConfig['ui']);
-        $cmsConfig = ArrayUtils::merge($cmsConfig, $config);
-
-
-        $this->sm->setAllowOverride(true);
-        $this->sm->setService('cms_config', $cmsConfig);
-        $this->sm->setAllowOverride(false);
-
-        //reconfigure template resolver
-        $this->sm->get('template_resolver')->configure($cmsConfig['templates']);
-
-        //TODO reconfigure service manager
-
-        return $config;
-    }
-
 
     /**
      * @param Event $event

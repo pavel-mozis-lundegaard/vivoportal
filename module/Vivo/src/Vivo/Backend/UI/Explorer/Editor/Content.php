@@ -11,21 +11,30 @@ use Vivo\CMS\Exception\InvalidArgumentException;
 class Content extends AbstractForm
 {
     /**
+     * @var \Vivo\Backend\UI\Explorer\ExplorerInterface
+     */
+    private $explorer;
+
+    /**
      * @var \Zend\ServiceManager\ServiceManager
      */
     private $sm;
+
     /**
      * @var \Vivo\CMS\Api\Document
      */
     private $documentApi;
+
     /**
      * @var \Vivo\Metadata\MetadataManager
      */
     private $metadataManager;
+
     /**
      * @var \Vivo\CMS\Model\ContentContainer
      */
     private $contentContainer;
+
     /**
      * @var \Vivo\CMS\Model\Content
      */
@@ -66,6 +75,8 @@ class Content extends AbstractForm
     public function init()
     {
         parent::init();
+
+        $this->explorer = $this->getParent('Vivo\Backend\UI\Explorer\ExplorerInterface');
 
         if($this->content) {
             $form = $this->getForm();
@@ -117,9 +128,7 @@ class Content extends AbstractForm
     {
         if ($this->getForm()->isValid()) {
             if(!$this->contentContainer->getUuid()) {
-                $this->contentContainer = $this->documentApi->createContentContainer(
-                    $this->getParent('Vivo\Backend\UI\Explorer\Explorer')->getEntity()
-                );
+                $this->contentContainer = $this->documentApi->createContentContainer($this->explorer->getEntity());
             }
 
             $this->editorComponent->save($this->contentContainer);

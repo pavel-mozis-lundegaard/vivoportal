@@ -69,6 +69,19 @@ interface SiteEventInterface extends EventInterface
     public function getSiteConfig();
 
     /**
+     * Sets the backend configuration
+     * @param array|\ArrayAccess $config
+     * @return void
+     */
+    public function setBackendConfig($config);
+
+    /**
+     * Returns backend config
+     * @return array|\ArrayAccess|null
+     */
+    public function getBackendConfig();
+
+    /**
      * Sets the module names required by this Site
      * @param array $modules
      */

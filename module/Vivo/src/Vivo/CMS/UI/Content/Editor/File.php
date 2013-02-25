@@ -84,10 +84,13 @@ class File extends AbstractForm implements EditorInterface
         $form->add(array(
             'name' => 'resource',
             'type' => 'Vivo\Form\Element\Textarea',
+            'attributes'    => array(
+                'class'         => 'wysiwyg-editor',
+                'rows' => 10,
+                'cols' => 30,
+            ),
             'options' => array(
                 'label' => 'resource',
-                'rows' => 10,
-                'cols' => 5,
             ),
         ));
 

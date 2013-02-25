@@ -87,14 +87,18 @@ return array(
                         'type' => 'text/css',
                         'media' => 'screen'
                     ),
-            ),
+                ),
                 'scripts' => array (
                     array(
                         'src' => '.Bootstrap2_3_0.resource/js/bootstrap.js',
                         'type' => 'text/javascript',
                     ),
                     array(
-                        'src' => '/.TinyMCE3_5_8.resource/js/tiny_mce.js',
+                        'src' => '/.TinyMCE3_5_8.resource/js/tiny_mce/tiny_mce.js',
+                        'type' => 'text/javascript',
+                    ),
+                    array(
+                        'src' => '/.TinyMCE3_5_8.resource/js/init_specific_textareas.js',
                         'type' => 'text/javascript',
                     ),
                 ),
@@ -123,6 +127,9 @@ return array(
         //Backend modules
         'modules'       => array(
             'Bootstrap2_3_0'    => array(
+                'enabled'           => true,
+            ),
+            'TinyMCE3_5_8'      => array(
                 'enabled'           => true,
             ),
         ),

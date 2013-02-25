@@ -177,7 +177,7 @@ class Editor extends AbstractForm
             $success = false;
         }
 
-        $success &= $this->saveContents();
+        $success = $success && $this->saveContents();
 
         if($success) {
             $this->events->trigger(new RedirectEvent());
@@ -192,7 +192,7 @@ class Editor extends AbstractForm
         $component = $this->getComponent('contentTab')->getSelectedComponent();
 
         try {
-            $success &= $component->save();
+            $success = $success && $component->save();
         }
         catch(\Exception $e) {
             throw $e;

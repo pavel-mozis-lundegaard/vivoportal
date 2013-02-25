@@ -6,3 +6,5 @@
 # Todo: Move theese modules to own repositories.
 !/Bootstrap2_3_0/
 !Bootstrap2_3_0/*
+!/jQuery1_9_1/
+!jQuery1_9_1/*

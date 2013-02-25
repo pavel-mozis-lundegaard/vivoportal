@@ -1,0 +1,22 @@
+<div class="OverviewThumb">
+<? if(count($children)) : ?>
+		<ul class="thumbnails">
+		<? foreach($children as $child) : ?>
+			<li class="span3">
+				<a class="thumbnail" href="<?=$this->document($child)?>">
+					<div class="row-fluid">
+						<? if($child->getImage()) : ?>
+						<img src="<?=$this->resource($child->getImage(), $child) ?>" alt="" />
+						<? endif; ?>
+						<div class="span12 caption">
+							<strong><?=$child->getTitle();?></strong>
+						</div>
+					</div>
+				</a>
+			</li>
+		<? endforeach; ?>
+		</ul>
+	<? endif; ?>
+	</div>
+</div>
+

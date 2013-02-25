@@ -1,6 +1,6 @@
 <div class="Overview">
 <? if(count($children)) : ?>
-	<ul>
+	<ul class="nav nav-list">
 	<? foreach($children as $child) : ?>
 		<li><a href="<?=$this->document($child)?>"><?=$child->getTitle();?></a></li>
 	<? endforeach; ?>

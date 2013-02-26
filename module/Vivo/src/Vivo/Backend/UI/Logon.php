@@ -4,6 +4,7 @@ namespace Vivo\Backend\UI;
 use Vivo\Form\DomainLogon;
 use Vivo\Security\Manager\AbstractManager;
 use Vivo\UI\AbstractForm;
+use Vivo\UI\Alert;
 use Vivo\Util\RedirectEvent;
 
 /**
@@ -11,11 +12,15 @@ use Vivo\Util\RedirectEvent;
  */
 class Logon extends AbstractForm
 {
-
     /**
      * @var AbstractManager
      */
     protected $securityManager;
+
+    /**
+     * @var \Vivo\UI\Alert
+     */
+    private $alert;
 
     /**
      * Constructor.
@@ -24,6 +29,11 @@ class Logon extends AbstractForm
     public function __construct(AbstractManager $securityManager)
     {
         $this->securityManager = $securityManager;
+    }
+
+    public function setAlert(Alert $alert)
+    {
+        $this->alert = $alert;
     }
 
     /**
@@ -39,8 +49,17 @@ class Logon extends AbstractForm
                     $validatedData['logon']['username'],
                     $validatedData['logon']['password']
                     );
+
             if ($result) {
                 $this->events->trigger(new RedirectEvent());
+            }
+            else {
+                if($this->alert) {
+                    $this->alert->addMessage(
+                        'Unable to login (wrong username or password or account is not active or no longer valid)',
+                        Alert::TYPE_ERROR
+                    );
+                }
             }
         }
     }
@@ -52,6 +71,10 @@ class Logon extends AbstractForm
     {
         $this->securityManager->removeUserPrincipal();
         $this->events->trigger(new RedirectEvent());
+
+        if($this->alert) {
+            $this->alert->addMessage('You have been logged out of the system', Alert::TYPE_SUCCESS);
+        }
     }
 
     /**

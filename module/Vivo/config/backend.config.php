@@ -18,6 +18,7 @@ return array(
             'Vivo\Backend\UI\Explorer\Explorer'             => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Explorer.phtml',
             'Vivo\Backend\UI\Explorer\Delete'               => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Delete.phtml',
             'Vivo\Backend\UI\Explorer\Finder'               => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Finder.phtml',
+            'Vivo\Backend\UI\Explorer\Inspect'                 => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Inspect.phtml',
             'Vivo\Backend\UI\Explorer\Move'                 => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Move.phtml',
             'Vivo\Backend\UI\Explorer\Tree'                 => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Tree.phtml',
             'Vivo\Backend\UI\Explorer\Tree:Subtree'         => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Tree.Subtree.phtml',

@@ -4,7 +4,7 @@
 	}
 
 	foreach ($scripts as $script) {
-	    $this->headScript()->append($script);
+	    $this->headScript()->prepend($script);
 	}
 	?><?=$this->doctype($doctype);?>
 

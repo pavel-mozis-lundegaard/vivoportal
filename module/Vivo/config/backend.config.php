@@ -132,6 +132,9 @@ return array(
             'TinyMCE3_5_8'      => array(
                 'enabled'           => true,
             ),
+            'TinyMCE3_5_6_Vivo'      => array(
+                'enabled'           => true,
+            ),
         ),
     ),
 );

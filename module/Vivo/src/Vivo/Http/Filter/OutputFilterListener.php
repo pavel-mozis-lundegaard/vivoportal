@@ -62,6 +62,9 @@ class OutputFilterListener implements ListenerAggregateInterface,
      */
     public function attachOutputFilters(MvcEvent $e)
     {
+        if (!$this->serviceLocator->get('response') instanceof \Vivo\Http\StreamResponse) {
+            return;
+        }
         //TODO: move config key outside this class
         $config = $this->serviceLocator->get('config');
         if (isset($config['cms']['output_filters']) &&

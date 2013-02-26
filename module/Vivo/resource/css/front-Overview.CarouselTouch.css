@@ -1,0 +1,67 @@
+.OverviewCarouselTouch {
+  /*horizontal*/
+
+  /*vertical*/
+
+}
+.OverviewCarouselTouch .swiper-container {
+  background: #000;
+  text-align: center;
+}
+.OverviewCarouselTouch .swiper-container,
+.OverviewCarouselTouch .swiper-slide {
+  width: 100%;
+  height: 600px;
+}
+.OverviewCarouselTouch .swiper-slide img {
+  width: 100%;
+  height: auto;
+}
+.OverviewCarouselTouch .swiper-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 15px;
+  background: #333333;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  text-align: left;
+}
+.OverviewCarouselTouch .pagination .swiper-pagination-switch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 10px;
+  background: #999;
+  box-shadow: 0px 1px 2px #555 inset;
+  margin: 0 3px;
+}
+.OverviewCarouselTouch .pagination .swiper-active-switch {
+  background: #fff;
+}
+.OverviewCarouselTouch .pagination {
+  position: absolute;
+  z-index: 20;
+  left: 10px;
+  top: 10px;
+  margin: 0;
+}
+.OverviewCarouselTouch .pagination-v .swiper-pagination-switch {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 10px;
+  background: #999;
+  box-shadow: 0px 1px 2px #555 inset;
+  margin: 3px 0;
+}
+.OverviewCarouselTouch .pagination-v .swiper-active-switch {
+  background: #fff;
+}
+.OverviewCarouselTouch .pagination-v {
+  position: absolute;
+  z-index: 20;
+  left: 10px;
+  top: 10px;
+}

@@ -1,7 +1,6 @@
 <?php
 namespace Vivo\SiteManager\Listener;
 
-use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Api\Site as SiteApi;
 use Vivo\SiteManager\Event\SiteEventInterface;
 use Vivo\SiteManager\Exception;
@@ -68,7 +67,7 @@ class SiteConfigListener implements ListenerAggregateInterface
         if ($siteModel) {
             $siteConfig = $this->siteApi->getSiteConfig($siteModel);
             $e->setSiteConfig($siteConfig);
-            $e->stopPropagation(true);
+//            $e->stopPropagation(true);
         }
     }
 }

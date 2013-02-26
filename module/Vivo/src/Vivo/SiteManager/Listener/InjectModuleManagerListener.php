@@ -70,7 +70,7 @@ class InjectModuleManagerListener implements ListenerAggregateInterface
         $moduleManager  = $e->getModuleManager();
         if ($moduleManager) {
             $this->moduleResourceManager->setModuleManager($moduleManager);
-            $e->stopPropagation(true);
+//            $e->stopPropagation(true);
         }
     }
 }

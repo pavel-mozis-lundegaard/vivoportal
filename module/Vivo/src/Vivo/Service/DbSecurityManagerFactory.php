@@ -16,11 +16,11 @@ class DbSecurityManagerFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $config                 = $serviceLocator->get('config');
+        $cmsConfig              = $serviceLocator->get('cms_config');
         $sessionManager         = $serviceLocator->get('session_manager');
         $dbTableGatewayProvider = $serviceLocator->get('db_table_gateway_provider');
-        if (isset($config['cms']['security_manager_db']['options'])) {
-            $options    = $config['cms']['security_manager_db']['options'];
+        if (isset($cmsConfig['security_manager_db']['options'])) {
+            $options    = $cmsConfig['security_manager_db']['options'];
         } else {
             $options    = array();
         }

@@ -1,9 +1,0 @@
-<? if(count($children)) : ?>
-	<ul class="overviewDescription">
-	<? foreach($children as $child) : ?>
-		<li><a href="<?=$this->document($child)?>"><?=$child->getTitle();?></a>
-            <p><?= htmlspecialchars($child->getDescription()); ?></p>
-        </li>
-		<? endforeach; ?>
-	</ul>
-<? endif; ?>

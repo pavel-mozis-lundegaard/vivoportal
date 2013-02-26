@@ -21,7 +21,11 @@ class DocumentFactory implements FactoryInterface
         $pathBuilder        = $serviceLocator->get('path_builder');
         $workflowFactory    = $serviceLocator->get('workflow_factory');
         $uuidGenerator      = $serviceLocator->get('uuid_generator');
-        $api                = new Document($cms, $repository, $pathBuilder, $workflowFactory, $uuidGenerator);
+        $api                = new Document($cms,
+                                           $repository,
+                                           $pathBuilder,
+                                           $workflowFactory,
+                                           $uuidGenerator);
         return $api;
     }
 }

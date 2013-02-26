@@ -4,6 +4,7 @@ namespace Vivo\SiteManager\Listener;
 use Vivo\SiteManager\Event\SiteEventInterface;
 use Vivo\SiteManager\Exception;
 use Vivo\Module\ModuleManagerFactory;
+use Vivo\Module\StorageManager\StorageManager as ModuleStorageManager;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
@@ -35,14 +36,24 @@ class LoadModulesListener implements ListenerAggregateInterface
     protected $serviceManager;
 
     /**
+     * Module Storage Manager
+     * @var ModuleStorageManager
+     */
+    protected $moduleStorageManager;
+
+    /**
      * Constructor
      * @param \Vivo\Module\ModuleManagerFactory $moduleManagerFactory
      * @param \Zend\ServiceManager\ServiceManager $sm
+     * @param ModuleStorageManager $moduleStorageManager
      */
-    public function __construct(ModuleManagerFactory $moduleManagerFactory, ServiceManager $sm)
+    public function __construct(ModuleManagerFactory $moduleManagerFactory,
+                                ServiceManager $sm,
+                                ModuleStorageManager $moduleStorageManager)
     {
         $this->moduleManagerFactory = $moduleManagerFactory;
         $this->serviceManager       = $sm;
+        $this->moduleStorageManager = $moduleStorageManager;
     }
 
     /**
@@ -76,7 +87,8 @@ class LoadModulesListener implements ListenerAggregateInterface
      */
     public function onLoadModules(SiteEventInterface $e)
     {
-        $moduleNames = $e->getModules();
+        $moduleNames    = $e->getModules();
+        $this->addMissingDependencies($moduleNames);
         //Create module manager
         $moduleManager  = $this->moduleManagerFactory->getModuleManager($moduleNames);
         $e->setModuleManager($moduleManager);
@@ -91,17 +103,16 @@ class LoadModulesListener implements ListenerAggregateInterface
         //Merge site config into the modules config and use it as site config
         $siteConfig = ArrayUtils::merge($modulesConfig, $siteConfig);
         $e->setSiteConfig($siteConfig);
-        //Merge site config into the main config's 'vivo' namespace
-        //TODO rename Vivoconfig na CMS config
+        //Merge site config into the main config's 'cms' namespace
         $mainConfig = $this->serviceManager->get('config');
         $cmsConfig = $mainConfig['cms'];
         $cmsConfig = ArrayUtils::merge($cmsConfig, $siteConfig);
-        $mainConfig['cms'] = $cmsConfig;
+        //Set 'cms' namespace in the main config to an empty array - the CMS config is accessible via cms_config service
+        $mainConfig['cms'] = array();
         $this->serviceManager->setService('config', $mainConfig);
         $this->serviceManager->setService('cms_config', $cmsConfig);
         //Prepare Vivo service manager
         $this->initializeVivoServiceManager($cmsConfig);
-
         $e->stopPropagation(true);
     }
 
@@ -116,5 +127,38 @@ class LoadModulesListener implements ListenerAggregateInterface
         $di = $this->serviceManager->get('di');
         $di->configure(new DiConfig($cmsConfig['di']));
         $smConfig->configureServiceManager($this->serviceManager);
+    }
+
+    /**
+     * Adds missing dependencies to the list of modules
+     * @param array $modules
+     */
+    protected function addMissingDependencies(array &$modules)
+    {
+        reset($modules);
+        while ($module = current($modules)) {
+            $dependencies   = $this->getModuleDependencies($module);
+            foreach ($dependencies as $dependency) {
+                $modules[]  = $dependency;
+            }
+            next($modules);
+        }
+    }
+
+    /**
+     * Returns an array of module names - dependencies of $module
+     * If there are no dependencies, returns an empty array
+     * @param string $module
+     * @return array
+     */
+    protected function getModuleDependencies($module)
+    {
+        $moduleInfo = $this->moduleStorageManager->getModuleInfo($module);
+        if (isset($moduleInfo['descriptor']['require'])) {
+            $dependencies   = array_keys($moduleInfo['descriptor']['require']);
+        } else {
+            $dependencies   = array();
+        }
+        return $dependencies;
     }
 }

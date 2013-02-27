@@ -198,15 +198,17 @@ class Editor extends AbstractForm
             throw $e;
         }
 
+        if($success) {
+            $this->contentTab->removeAllComponents();
+            $this->init();
+
+            foreach ($this->contentTab->getComponents() as $component) {
+                $component->initForm();
+            }
+        }
+
         if($this->alert) {
             if($success) {
-                $this->contentTab->removeAllComponents();
-                $this->init();
-
-                foreach ($this->contentTab->getComponents() as $component) {
-                    $component->initForm();
-                }
-
                 $this->alert->addMessage('Saved...', Alert::TYPE_SUCCESS);
             }
             else {

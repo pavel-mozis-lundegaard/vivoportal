@@ -329,6 +329,7 @@ return array(
             'action_url'        => 'Vivo\View\Helper\ActionUrl',
             'vivoform'          => 'Vivo\View\Helper\VivoForm',
             'vivoformfieldset'  => 'Vivo\View\Helper\VivoFormFieldset',
+            'tiny_mce'          => 'Vivo\View\Helper\TinyMce',
           //  'url' => 'Vivo\View\Helper\Url',
         ),
     ),

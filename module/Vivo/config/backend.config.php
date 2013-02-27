@@ -93,14 +93,6 @@ return array(
                         'src' => '.Bootstrap2_3_0.resource/js/bootstrap.js',
                         'type' => 'text/javascript',
                     ),
-                    array(
-                        'src' => '/.TinyMCE3_5_8.resource/js/tiny_mce/tiny_mce.js',
-                        'type' => 'text/javascript',
-                    ),
-                    array(
-                        'src' => '/.TinyMCE3_5_8.resource/js/init_specific_textareas.js',
-                        'type' => 'text/javascript',
-                    ),
                 ),
             'metas' => array (
 //                     array (
@@ -129,7 +121,7 @@ return array(
             'Bootstrap2_3_0'    => array(
                 'enabled'           => true,
             ),
-            'TinyMCE3_5_8'      => array(
+            'TinyMCE3_5_6_Vivo' => array(
                 'enabled'           => true,
             ),
         ),

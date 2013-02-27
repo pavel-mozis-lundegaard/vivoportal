@@ -257,6 +257,7 @@ return array(
             'workflow_basic'            => 'Vivo\CMS\Workflow\BasicFactory',
             'component_tree_controller' => 'Vivo\UI\ComponentTreeControllerFactory',
             'Vivo\CMS\AvailableContentsProvider' => 'Vivo\CMS\AvailableContentsProviderFactory',
+            'Vivo\Metadata\Provider\SelectableTemplatesProvider' => 'Vivo\Metadata\Provider\SelectableTemplatesProviderFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',

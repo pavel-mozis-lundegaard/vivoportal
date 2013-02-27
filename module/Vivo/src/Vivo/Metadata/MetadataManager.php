@@ -153,13 +153,13 @@ class MetadataManager
             elseif (strpos($value, '\\')) {
                 if(class_exists($value) && is_subclass_of($value, 'Vivo\Metadata\MetadataValueProviderInterface')) {
                     /** @var $provider MetadataValueProviderInterface */
-                    $provider = new $value($this->serviceManager);
+                    $provider = $this->serviceManager->get($value);
                     $value    = $provider->getValue($entityClass);
                 }
                 else {
                     throw new Exception\DescriptiorException(
                         sprintf('Metadata value provider \'%s\' defined in metadata %s::%s is not an instance of '
-                            .'Vivo\Metadata\MetadataValueProviderInterface', $value, get_class($entityClass), $key)
+                            .'Vivo\Metadata\MetadataValueProviderInterface', $value, $entityClass, $key)
                     );
                 }
             }

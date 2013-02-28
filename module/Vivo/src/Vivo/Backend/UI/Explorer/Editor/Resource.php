@@ -74,7 +74,7 @@ class Resource extends AbstractForm
     }
 
     /**
-     * @return boolean
+     * Saves new resource.
      */
     public function save()
     {
@@ -89,18 +89,32 @@ class Resource extends AbstractForm
                 $data = $form->getData();
                 $data = $data['resource'];
 
-//                 print_r($data);
+                $fileName = strtolower($data['tmp_name']);
+                $fileExt = strtolower(pathinfo($data['name'], PATHINFO_EXTENSION));
+                $name = sprintf('%s.%s', $fileName, $fileExt);
 
-                $name = strtolower(md5($data['tmp_name'].microtime()));
-                $ext = strtolower(pathinfo($data['name'], PATHINFO_EXTENSION));
+                if($this->cmsApi->getResource($this->entity, $name)) {
 
-                $this->cmsApi->saveResource($this->entity, sprintf('%s.%s', $name, $ext), file_get_contents($data['tmp_name']));
+                    return;
+                }
+
+                $this->cmsApi->saveResource($this->entity, $name, file_get_contents($data['tmp_name']));
 
                 $this->events->trigger(new RedirectEvent());
             }
 
             $form->get('resource')->setValue('');
         }
+    }
+
+    /**
+     * Delete.
+     *
+     * @param string $name Resource name.
+     */
+    public function delete($name)
+    {
+        $this->cmsApi->removeResource($this->entity, $name);
     }
 
     public function view()

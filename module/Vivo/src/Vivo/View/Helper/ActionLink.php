@@ -17,9 +17,9 @@ class ActionLink extends AbstractHelper
 
         $act = $component['path'] . Component::COMPONENT_SEPARATOR . $action;
         $urlHelper = $this->getView()->plugin('url');
-        $url = $urlHelper(null,
-                array('act' => $act, 'args' => $params), $reuseMatchedParams);
-        $link = "<a href='$url'>$body</a>";
+        $url = $urlHelper(null, array('act' => $act, 'args' => $params), $reuseMatchedParams);
+        $link = "<a href=\"$url\">$body</a>";
+
         return $link;
     }
 }

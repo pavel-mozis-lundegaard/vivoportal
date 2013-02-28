@@ -89,6 +89,13 @@ interface RepositoryInterface extends TransactionalInterface
     public function deleteResource(PathInterface $entity, $name);
 
     /**
+     *
+     * @param PathInterface $entity
+     * @return array
+     */
+    public function scanResources(PathInterface $entity);
+
+    /**
      * Returns resource from storage
      * @param PathInterface $entity
      * @param string $name

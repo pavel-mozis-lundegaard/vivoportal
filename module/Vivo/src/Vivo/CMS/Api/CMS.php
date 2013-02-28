@@ -266,6 +266,16 @@ class CMS
         return $this->repository->scanResources($entity);
     }
 
+    /**
+     * @param Model\Entity $entity
+     * @param string $name
+     */
+    public function removeResource(Model\Entity $entity, $name)
+    {
+        $this->repository->deleteResource($entity, $name);
+        $this->repository->commit();
+    }
+
     public function getEntityUrl(Model\Entity $entity)
     {
         //TODO - implement using PathBuilder

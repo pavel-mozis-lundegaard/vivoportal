@@ -215,13 +215,15 @@ class LocalFileSystemStorage extends AbstractStorage {
 	 */
 	public function copy($path, $target) {
 		$count = 0;
-		//$this->mkdir($target);
+
 		if (is_dir($this->getFsPath($path))) {
 			$this->mkdir($target);
 			foreach ($this->scan($path) as $name) {
 				$count += $this->copy("$path/$name", "$target/$name");
 			}
 		} else {
+			$dirName = $this->pathBuilder->dirname($target);
+			$this->mkdir($dirName);
 			$count += copy($this->getFsPath($path), $this->getFsPath($target));
 		}
 		return $count;

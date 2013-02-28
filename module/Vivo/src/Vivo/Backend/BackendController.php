@@ -14,7 +14,6 @@ use Zend\EventManager\EventInterface as Event;
 use Zend\Mvc\InjectApplicationEventInterface;
 use Zend\ServiceManager\ServiceManager;
 use Zend\ServiceManager\ServiceManagerAwareInterface;
-use Zend\Stdlib\ArrayUtils;
 use Zend\Stdlib\DispatchableInterface;
 use Zend\Stdlib\RequestInterface as Request;
 use Zend\Stdlib\ResponseInterface as Response;
@@ -61,6 +60,13 @@ class BackendController implements DispatchableInterface,
 
 
     /**
+     *
+     * @var ModuleResolver
+     */
+    protected $moduleResolver;
+
+
+    /**
      * Constructor.
      * @param AbstractManager $securityManager
      */
@@ -92,23 +98,21 @@ class BackendController implements DispatchableInterface,
         }
 
         $sm = $this->sm;
-        /* @var $page \Vivo\UI\Page */
+
+        //Create UI component tree for backend.
         $root = $sm->get('Vivo\CMS\UI\Root');
         $page = $sm->get('Vivo\UI\Page');
-
-
-         if ($this->securityManager->getUserPrincipal())
-         {
-             $page->setMain($sm->get('Vivo\Backend\UI\Backend'));
-         } else {
-             $page->setMain($sm->get('Vivo\Backend\UI\Logon'));
-         }
-
-
-
-
+        if (!$this->securityManager->getUserPrincipal()) {
+            $page->setMain($this->sm->get('Vivo\Backend\UI\Logon'));
+        } else {
+            $backend = $this->sm->get('Vivo\Backend\UI\Backend');
+            $moduleName = $this->mvcEvent->getRouteMatch()->getParam('module');
+            $backend->setModuleComponent($this->moduleResolver->createComponent($moduleName));
+            $page->setMain($backend);
+        }
         $root->setMain($page);
 
+        // Perform tree operations
         $this->tree->setRoot($root);
         $this->tree->loadState();
 
@@ -123,15 +127,13 @@ class BackendController implements DispatchableInterface,
                 $result = $this->tree->view();
             }
         }
-
         $this->tree->saveState();
         $this->tree->done();
 
-
+        // Return response
         if($this->redirector->isRedirect()){
             return $response;
         }
-
         if ($result instanceof ModelInterface) {
             $this->mvcEvent->setViewModel($result);
         } elseif ($result instanceof InputStreamInterface) {
@@ -219,5 +221,26 @@ class BackendController implements DispatchableInterface,
     public function setRedirector(Redirector $redirector)
     {
         $this->redirector = $redirector;
+    }
+
+    public function getModuleResolver()
+    {
+        return $this->moduleResolver;
+    }
+
+    public function setModuleResolver(ModuleResolver $moduleResolver)
+    {
+        $this->moduleResolver = $moduleResolver;
+    }
+
+    /**
+     * Method creates UI component for backend plugin.
+     * @return Component
+     */
+    protected function createModuleComponent()
+    {
+        $moduleName = $this->mvcEvent->getRouteMatch()->getParam('module');
+        $component = $this->sm->create($this->moduleResolver->getModuleClass($moduleName));
+        return $component;
     }
 }

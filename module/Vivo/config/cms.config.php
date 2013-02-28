@@ -97,6 +97,10 @@ return array(
             ),
         ),
     ),
+    'backend' => array (
+        'plugins' =>  array (
+        ),
+    ),
     'service_manager' => array (
         //configuration of service manager, services defined here should not override
         //services defined in Vivo config
@@ -135,6 +139,7 @@ return array(
             'Vivo\Backend\UI\Explorer\Viewer'   => 'Vivo\Backend\UI\Explorer\ViewerFactory',
             'Vivo\Backend\UI\Explorer\Browser'   => 'Vivo\Backend\UI\Explorer\BrowserFactory',
             'Vivo\Backend\UI\Logon'    => 'Vivo\Backend\UI\LogonFactory',
+            'Vivo\Backend\ModuleResolver'    => 'Vivo\Backend\ModuleResolverFactory',
 
             //TODO: content editor factories
             'Vivo\CMS\UI\Content\Editor\File'     => 'Vivo\CMS\UI\Content\Editor\FileFactory',

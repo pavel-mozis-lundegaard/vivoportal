@@ -116,7 +116,28 @@ return array(
     ),
     //Backend config
     'backend'       => array(
-        //Backend modules
+        'plugins' => array (
+            'explorer' => array (
+                'name' => 'explorer',
+                'title' => 'Explorer',
+                'componentClass' => 'Vivo\Backend\UI\Explorer\Explorer',
+                'icon'  => '.Vivo.resource/backend/img/icons/48x48/explorer.png',
+            ),
+            'site' => array (
+                'name' => 'site',
+                'title' => 'Site',
+                'componentClass' => 'Vivo\CMS\UI\Blank',
+                'icon'  => '.Vivo.resource/backend/img/icons/48x48/site.png',
+            ),
+            'blank' => array (
+                'name' => 'blank',
+                'title' => 'Blank',
+                'componentClass' => 'Vivo\CMS\UI\Blank',
+                'icon'  => '.Vivo.resource/backend/img/icon/explorer.png',
+            ),
+        ),
+
+    //Backend modules
         'modules'       => array(
             'Bootstrap2_3_0'    => array(
                 'enabled'           => true,

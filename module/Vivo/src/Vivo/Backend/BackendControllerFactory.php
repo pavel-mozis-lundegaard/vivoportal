@@ -22,6 +22,8 @@ class BackendControllerFactory implements FactoryInterface
         $siteEvent = $sm->get('site_event');
 
         //$ctc = new \Vivo\UI\ComponentTreeController($sm->get('session_manager'), $sm->get('request'));
+        $bc->setModuleResolver($sm->get('Vivo\Backend\ModuleResolver'));
+
         $bc->setComponentTreeController($sm->get('Vivo\UI\ComponentTreeController'));
         $bc->setSiteEvent($siteEvent);
         $bc->setRedirector($sm->get('redirector'));

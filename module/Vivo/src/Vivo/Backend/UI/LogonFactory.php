@@ -16,12 +16,7 @@ class LogonFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $sm = $serviceLocator->get('service_manager');
-        $alert = $sm->get('Vivo\UI\Alert');
-
-        $logon = new Logon($sm->get('security_manager'));
-        $logon->setAlert($alert);
-
+        $logon = new Logon($serviceLocator->get('security_manager'));
         return $logon;
     }
 }

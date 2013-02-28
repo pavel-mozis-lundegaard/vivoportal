@@ -12,9 +12,12 @@ class ResourceFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $cmsApi = $serviceLocator->get('Vivo\CMS\Api\CMS');
+        $sm = $serviceLocator->get('service_manager');
+        $cmsApi = $sm->get('Vivo\CMS\Api\CMS');
+        $alert = $sm->get('Vivo\UI\Alert');
 
         $component = new Resource($cmsApi);
+        $component->setAlert($alert);
 
         return $component;
     }

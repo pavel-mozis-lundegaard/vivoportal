@@ -2,6 +2,7 @@
 namespace Vivo\Backend\UI\Explorer\Editor;
 
 use Vivo\UI\AbstractForm;
+use Vivo\UI\Alert;
 use Vivo\Form\Form;
 use Vivo\CMS\Model;
 use Vivo\Util\RedirectEvent;
@@ -24,6 +25,11 @@ class Resource extends AbstractForm
     private $resources = array();
 
     /**
+     * @var \Vivo\UI\Alert
+     */
+    private $alert;
+
+    /**
      * @param \Vivo\CMS\Api\CMS $cmsApi
      */
     public function __construct(\Vivo\CMS\Api\CMS $cmsApi)
@@ -41,6 +47,25 @@ class Resource extends AbstractForm
     public function setEntity(Model\Entity $entity)
     {
         $this->entity = $entity;
+    }
+
+    /**
+     * @param \Vivo\UI\Alert $alert
+     */
+    public function setAlert(Alert $alert)
+    {
+        $this->alert = $alert;
+    }
+
+    /**
+     * @param string $message
+     * @param string $type
+     */
+    private function addAlertMessage($message, $type)
+    {
+        if($this->alert) {
+            $this->alert->addMessage($message, $type);
+        }
     }
 
     protected function doGetForm()
@@ -89,16 +114,25 @@ class Resource extends AbstractForm
                 $data = $form->getData();
                 $data = $data['resource'];
 
-                $fileName = strtolower($data['tmp_name']);
-                $fileExt = strtolower(pathinfo($data['name'], PATHINFO_EXTENSION));
-                $name = sprintf('%s.%s', $fileName, $fileExt);
+                //TODO: replace ýžřčš -> - in file name
+                $name = strtolower($data['name']);
 
-                if($this->cmsApi->getResource($this->entity, $name)) {
-
-                    return;
+                try {
+                    $this->cmsApi->getResource($this->entity, $name);
+                    $exists = true;
+                }
+                catch (\Vivo\Storage\Exception\IOException $e) {
+                    // File not exists
+                    $exists = false;
                 }
 
-                $this->cmsApi->saveResource($this->entity, $name, file_get_contents($data['tmp_name']));
+                if($exists) {
+                    $this->addAlertMessage(sprintf('Resource \'%s\' already exists', $name), Alert::TYPE_WARNING);
+                }
+                else {
+                    $this->cmsApi->saveResource($this->entity, $name, file_get_contents($data['tmp_name']));
+                    $this->addAlertMessage('Upload ok', Alert::TYPE_SUCCESS);
+                }
 
                 $this->events->trigger(new RedirectEvent());
             }

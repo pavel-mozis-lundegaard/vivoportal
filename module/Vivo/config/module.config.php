@@ -71,6 +71,18 @@ return array(
                     ),
                 ),
                 'child_routes' => array(
+                    //route for everithing else on backend hostname - controller redirects
+                    'other' => array(
+                        'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'may_terminate' => true,
+                        'options' => array(
+                            'regex'    => '.*',
+                            'spec'    => '/',
+                            'defaults' => array(
+                                'controller' => 'backend_controller',
+                            ),
+                        ),
+                    ),
                     //default backend route
                     //@example http://<backendhost>/
                     'default' => array (
@@ -82,9 +94,7 @@ return array(
                                 'controller' => 'backend_controller',
                             ),
                         ),
-
                     ),
-
                     //route for backend modules
                     //@example http://<backendhost>/<sitehost>/<moduleName>/
                     'modules' => array(
@@ -93,27 +103,6 @@ return array(
                         'options' => array(
                             'regex'    => '/(?<host>.+?)/(?<module>.+?)/(?<path>.*)',
                             'spec'    => '/%host%/%module%/%path%',
-                            'defaults' => array(
-                                'controller' => 'backend_controller',
-                                'path'   => '',
-                                'module' => 'explorer',
-                                'host' => '',
-                            ),
-                        ),
-                        'child_routes' => array(
-                                'query' => array(
-                                        'type' => 'Query',
-                                ),
-                        ),
-                    ),
-                    //route for modules without site context (system modules)
-                    //@example http://<backendhost>/system/<moduleName>/
-                    'system' => array (
-                        'type' => 'Zend\Mvc\Router\Http\Regex',
-                        'may_terminate' => false,
-                        'options' => array(
-                            'regex'    => '/system/(?<module>.+?)/(?<path>.*)',
-                            'spec'    => '/system/%module%/%path%',
                             'defaults' => array(
                                 'controller' => 'backend_controller',
                                 'path'   => '',
@@ -258,6 +247,7 @@ return array(
             'component_tree_controller' => 'Vivo\UI\ComponentTreeControllerFactory',
             'Vivo\CMS\AvailableContentsProvider' => 'Vivo\CMS\AvailableContentsProviderFactory',
             'Vivo\Metadata\Provider\SelectableTemplatesProvider' => 'Vivo\Metadata\Provider\SelectableTemplatesProviderFactory',
+            'Vivo\Util\UrlHelper'   =>  'Vivo\Util\UrlHelperFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',

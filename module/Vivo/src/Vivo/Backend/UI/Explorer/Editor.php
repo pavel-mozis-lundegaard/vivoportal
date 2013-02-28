@@ -85,6 +85,11 @@ class Editor extends AbstractForm
 
         $this->getForm()->bind($this->entity);
 
+        try {
+            $this->getComponent('resourceEditor')->setEntity($this->entity);
+        }
+        catch (\Vivo\UI\Exception\ComponentNotExists $e) { }
+
         parent::init();
         $this->initForm();
     }
@@ -118,6 +123,14 @@ class Editor extends AbstractForm
     public function setTabContainer(\Vivo\UI\TabContainer $tab)
     {
         $this->addComponent($tab, 'contentTab');
+    }
+
+    /**
+     * @param \Vivo\Backend\UI\Explorer\Editor\Resource $editor
+     */
+    public function setResourceEditor(Editor\Resource $editor)
+    {
+        $this->addComponent($editor, 'resourceEditor');
     }
 
     protected function doGetForm()

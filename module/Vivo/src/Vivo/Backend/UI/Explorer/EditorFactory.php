@@ -23,7 +23,8 @@ class EditorFactory implements FactoryInterface
         $alert            = $sm->get('Vivo\UI\Alert');
 
         $editor = new Editor($sm, $metadataManager, $documentApi, $provider);
-        $editor->setTabContainer($sm->create('Vivo\UI\TabContainer'), 'contentTab');
+        $editor->setTabContainer($sm->create('Vivo\UI\TabContainer'));
+        $editor->setResourceEditor($sm->create('Vivo\Backend\UI\Explorer\Editor\Resource'));
         $editor->setAlert($alert);
 
         return $editor;

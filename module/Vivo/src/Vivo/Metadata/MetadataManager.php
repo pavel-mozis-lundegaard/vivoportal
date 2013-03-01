@@ -151,7 +151,7 @@ class MetadataManager
             }
             elseif (strpos($value, '\\')) {
                 if(class_exists($value)) {
-                    if(PHP_VERSION_ID > 50307 && is_subclass_of($value, 'Vivo\Metadata\MetadataValueProviderInterface')) {
+                    if(PHP_VERSION_ID >= 50307 && is_subclass_of($value, 'Vivo\Metadata\MetadataValueProviderInterface')) {
                         /** @var $provider MetadataValueProviderInterface */
                         $provider = $this->serviceManager->get($value);
                         $value    = $provider->getValue($entityClass);

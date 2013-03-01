@@ -143,7 +143,6 @@ class MetadataManager
      *
      * @param string $entityClass
      * @param array $config
-     * @throws Exception\DescriptiorException
      */
     private function applyProvider($entityClass, &$config) {
         foreach ($config as $key => &$value) {
@@ -151,16 +150,19 @@ class MetadataManager
                 $this->applyProvider($entityClass, $value);
             }
             elseif (strpos($value, '\\')) {
-                if(class_exists($value) && is_subclass_of($value, 'Vivo\Metadata\MetadataValueProviderInterface')) {
-                    /** @var $provider MetadataValueProviderInterface */
-                    $provider = new $value($this->serviceManager);
-                    $value    = $provider->getValue($entityClass);
-                }
-                else {
-                    throw new Exception\DescriptiorException(
-                        sprintf('Metadata value provider \'%s\' defined in metadata %s::%s is not an instance of '
-                            .'Vivo\Metadata\MetadataValueProviderInterface', $value, get_class($entityClass), $key)
-                    );
+                if(class_exists($value)) {
+                    if(PHP_VERSION_ID >= 50307 && is_subclass_of($value, 'Vivo\Metadata\MetadataValueProviderInterface')) {
+                        /** @var $provider MetadataValueProviderInterface */
+                        $provider = $this->serviceManager->get($value);
+                        $value    = $provider->getValue($entityClass);
+                    }
+                    else {
+                        // Old php version fix 5.3.7
+                        $provider = $this->serviceManager->get($value);
+                        if($provider instanceof MetadataValueProviderInterface) {
+                            $value = $provider->getValue($entityClass);
+                        }
+                    }
                 }
             }
         }

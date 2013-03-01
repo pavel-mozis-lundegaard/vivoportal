@@ -1,7 +1,6 @@
 <?php
 namespace Vivo\Backend\UI\Explorer;
 
-use Vivo\Backend\UI\EntityManagerInterface;
 use Vivo\Backend\UI\Explorer\Exception\Exception;
 use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Model;
@@ -9,7 +8,6 @@ use Vivo\Backend\UI\SiteSelector;
 use Vivo\Service\Initializer\RequestAwareInterface;
 use Vivo\UI\ComponentContainer;
 use Vivo\UI\PersistableInterface;
-
 
 use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
@@ -21,8 +19,7 @@ use Zend\Stdlib\RequestInterface;
  * Explorer component.
  */
 class Explorer extends ComponentContainer implements EventManagerAwareInterface,
-        EntityManagerInterface, RequestAwareInterface, PersistableInterface,
-        ExplorerInterface
+        RequestAwareInterface, PersistableInterface, ExplorerInterface
 {
     /**
      * Entity being explored.
@@ -233,7 +230,7 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
 
     /**
      * (non-PHPdoc)
-     * @see \Vivo\Backend\UI\Explorer\EntityManagerInterface::setEntityByRelPath()
+     * @see \Vivo\Backend\UI\Explorer\ExplorerInterface::setEntityByRelPath()
      */
     public function setEntityByRelPath($relPath)
     {

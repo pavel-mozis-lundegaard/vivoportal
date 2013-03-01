@@ -29,9 +29,6 @@ class EntityEditor extends Fieldset
             if(!empty($attrs['label'])) {
                 $options['label'] = $attrs['label'];
             }
-//             else {
-//                 $options['label'] = $name;
-//             }
             if(!empty($attrs['description'])) {
                 $options['description'] = $attrs['description'];
             }

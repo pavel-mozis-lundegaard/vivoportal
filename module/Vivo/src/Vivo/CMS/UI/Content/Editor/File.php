@@ -77,7 +77,7 @@ class File extends AbstractForm implements EditorInterface
 
     public function doGetForm()
     {
-        $form = new Form('editor-'.$this->content->getUuid());
+        $form = new Form('editor-' . $this->content->getUuid());
         $form->setWrapElements(true);
         $form->setHydrator(new ClassMethodsHydrator(false));
         $form->setOptions(array('use_as_base_fieldset' => true));
@@ -85,9 +85,9 @@ class File extends AbstractForm implements EditorInterface
             'name' => 'resource',
             'type' => 'Vivo\Form\Element\Textarea',
             'attributes'    => array(
-                'class'         => 'wysiwyg-editor',
-                'rows' => 10,
-                'cols' => 30,
+                'rows'  => 10,
+                'cols'  => 30,
+                'id'    => 'content-resource-' . $this->content->getUuid(),
             ),
             'options' => array(
                 'label' => 'resource',

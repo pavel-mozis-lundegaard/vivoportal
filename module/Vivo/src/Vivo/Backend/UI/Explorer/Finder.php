@@ -12,18 +12,14 @@ class Finder extends Component implements TranslatorAwareInterface
 {
 
     /**
-     * @var EntityManagerInterface
+     * @var ExplorerInterface
      */
-    protected $entityManager;
+    protected $explorer;
 
     /**
      * @var \Vivo\CMS\Model\Entity
      */
     protected $entity;
-    /**
-     * (non-PHPdoc)
-     * @see \Vivo\UI\Component::init()
-     */
 
     /**
      * @var Translator
@@ -33,7 +29,7 @@ class Finder extends Component implements TranslatorAwareInterface
 
     public function init()
     {
-        $this->entity = $this->entityManager->getEntity();
+        $this->entity = $this->explorer->getEntity();
     }
 
     /**
@@ -52,7 +48,7 @@ class Finder extends Component implements TranslatorAwareInterface
     public function set($relPath)
     {
         try {
-            $this->entityManager->setEntityByRelPath($relPath);
+            $this->explorer->setEntityByRelPath($relPath);
         } catch (EntityNotFoundException $e) {
             //TODO translate message
 
@@ -62,13 +58,10 @@ class Finder extends Component implements TranslatorAwareInterface
         }
     }
 
-    /**
-     * @param EntityManagerInterface $entityManager
-     */
-    public function setEntityManager($entityManager)
+    public function setExplorer(ExplorerInterface $explorer)
     {
-        $this->entityManager = $entityManager;
-        $this->entityManager->getEventManager()->attach('setEntity', array ($this, 'onEntityChange'));
+        $this->explorer = $explorer;
+        $this->explorer->getEventManager()->attach('setEntity', array ($this, 'onEntityChange'));
     }
 
     /**

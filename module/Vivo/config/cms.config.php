@@ -34,6 +34,11 @@ return array(
             'Vivo\UI\Ribbon\Tab'                => __DIR__.'/../view/Vivo/UI/Ribbon/Tab.phtml',
             'Vivo\UI\Ribbon\Group'              => __DIR__.'/../view/Vivo/UI/Ribbon/Group.phtml',
             'Vivo\UI\Ribbon\Item'               => __DIR__.'/../view/Vivo/UI/Ribbon/Item.phtml',
+            'Vivo\UI\Alert'                     => __DIR__.'/../view/Vivo/UI/Alert.phtml',
+
+            'Vivo\CMS\UI\Content\Editor\File' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File.phtml',
+            'Vivo\CMS\UI\Content\Editor\Layout' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Layout.phtml',
+            'Vivo\CMS\UI\Content\Editor\Overview' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Overview.phtml',
 
         ),
         'custom_templates' => array (

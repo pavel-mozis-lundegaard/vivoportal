@@ -140,7 +140,7 @@ return array(
                     'resource' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
-                            'regex'    => '/(?<host>.+)/view/\.(?<source>.+)\.(?<type>.+?)/(?<path>.+)',
+                            'regex'    => '/(?<host>.+)/view/\.(?<source>.+?)\.(?<type>.+?)/(?<path>.+)',
                             'spec'    => '/%host%/view/.%source%.%type%/%path%',
                             'defaults' => array(
                                 'controller' => 'resource_front_controller',
@@ -168,7 +168,7 @@ return array(
                     'backend_resource' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
-                            'regex'    => '/\.(?<source>.+)\.(?<type>.+?)/(?<path>.+)',
+                            'regex'    => '/\.(?<source>.+?)\.(?<type>.+?)/(?<path>.+)',
                             'spec'    => '/.%source%.%type%/%path%',
                             'defaults' => array(
                                 'controller' => 'resource_front_controller',
@@ -296,7 +296,7 @@ return array(
     ),
     'view_manager' => array(
         'display_not_found_reason' => true,
-        'display_exceptions'       => true,
+        'display_exceptions'       => false,
         'doctype'                  => 'HTML5',
         'not_found_template'       => 'error/404',
         'exception_template'       => 'error/index',

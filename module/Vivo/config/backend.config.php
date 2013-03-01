@@ -89,6 +89,12 @@ return array(
                     // ),
                     array(
                             'rel'  => 'stylesheet',
+                            'href' => '.Vivo.resource/backend/css/jquery-ui-vivo.css',
+                            'type' => 'text/css',
+                            'media' => 'screen'
+                    ),
+                    array(
+                            'rel'  => 'stylesheet',
                             'href' => '.Vivo.resource/backend/css/manager.css',
                             'type' => 'text/css',
                             'media' => 'screen'
@@ -105,6 +111,10 @@ return array(
                     ),
                     array(
                         'src' => '/.Vivo.resource/backend/js/manager.js',
+                        'type' => 'text/javascript',
+                    ),
+                     array(
+                        'src' => '/.Vivo.resource/backend/js/jquery-ui.js',
                         'type' => 'text/javascript',
                     ),
                     array(

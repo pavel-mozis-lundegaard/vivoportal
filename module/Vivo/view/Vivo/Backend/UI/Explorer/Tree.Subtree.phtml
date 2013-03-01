@@ -31,7 +31,7 @@
 					<? if ($document['published']): ?>
 					<span class="published"></span>
 					<? endif; ?>            
-				<a href="<?= htmlspecialchars($this->actionUrl('set')) ?>" class="<?=$cur_status?>-a<?=($document['active']) ? ' active' : ''?>" title="<?=$document['rel_path']?>">
+				<a href="<?= htmlspecialchars($this->actionUrl('set', array($document['rel_path']))) ?>" class="<?=$cur_status?>-a<?=($document['active']) ? ' active' : ''?>" title="<?=$document['rel_path']?>">
 					<?if ($document['document'] instanceof \Vivo\CMS\Model\Folder && ! $document['document'] instanceof \Vivo\CMS\Model\Document) :?>
 						<span><b><?=htmlspecialchars($title)?></b></span>
 					<?else:?>

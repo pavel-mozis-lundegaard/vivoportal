@@ -136,6 +136,8 @@ class Item extends UI\Component implements UI\TabContainerItemInterface, UI\Ribb
         $this->getView()->icon = $this->getIcon();
         $this->getView()->enabled = $this->isEnabled();
         $this->getView()->label = $this->label;
+        $this->getView()->visible = $this->isVisible();
+        $this->getView()->active = $this->isActive();
         return parent::view();
     }
 }

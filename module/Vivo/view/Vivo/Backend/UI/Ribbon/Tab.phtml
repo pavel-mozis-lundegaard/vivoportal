@@ -1,11 +1,3 @@
-<div class="btn-toolbar">
-    <? foreach ($components as $name): ?>
-    <div class="btn-group">
-        <?= ${$name} ?>
-    </div>
-        <? endforeach ?>
-</div>
-
 <? foreach ($components as $name): ?>
 <div id="ribbon-tab-<?=$name?>" class="tab-content">
 	<?= ${$name} ?>

@@ -1,4 +1,14 @@
-<a rel="table" href="<?= $this->actionUrl('click') ?>"
-   <? if (!$enabled): ?> class="disabled"<? endif ?> title="<?= $label ?>">
-    <img src="<?=$this->resource('backend/img/icons/24x24/' . $component['name'] . '.png','Vivo');?>" title="<?= $label ?>" alt="<?= $this->translate($label) ?>" />
-</a>
+<? 
+if ($visible): 	
+	if (!$enabled):?>
+		<a data-rel="table" href="#" class="disabled"  title="<?= $this->translate($label) ?>">
+			<img src="<?=$this->resource('backend/img/icons/24x24/' . $component['name'] . '.png','Vivo');?>?bw=1" alt="<?= $this->translate($label) ?>" />
+			<span><?= $this->translate($label) ?></span>
+		</a>
+	<?else:?>
+		<a href="<?=$this->actionURL('invoke')?>"  title="<?= $this->translate($label) ?>" class="<?=$active ? 'active' : ''?>">
+			<img src="<?=$this->resource('backend/img/icons/24x24/' . $component['name'] . '.png','Vivo');?>" alt="<?= $this->translate($label) ?>" />
+			<span><?= $this->translate($label) ?></span>
+		</a>
+	<?endif;
+endif; ?>

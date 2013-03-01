@@ -12,7 +12,17 @@ $(document).ready(function() {
 
 	checkHeight();
 		
-	startclock();	
+	startclock();
+
+	//manager logout window
+	$(window).resize(function() {shadowWindow("#logoutDialog", ".manager_content");});
+	shadowWindow("#logoutDialog", ".manager_content");
+	
+	$('.browsersTrigger').click(function(){
+		$(this).toggleClass('open');
+		$('.saveButtons.browsers').toggle();
+		shadowWindow("#logoutDialog", ".manager_content", false);
+	})	
 });
 
 function action() {
@@ -188,16 +198,16 @@ function initTreeMenu(elm) {
 function treeMenu(_path, act) {
 	if (act) {//show new subtree
 		//show preloader
-		$("#cont-" + _path).after(
+		$("#cont-" + container).after(
 				$(document.createElement("span"))
 				.attr("class",  "preloader")
 				.text(" ")
 		);
 		//get new html content
-		var htmlContent = action($("#treeMenu").attr("data-rel"), 'viewSubTree', _path);
+		var htmlContent = action($("#treeMenu").attr("rel"), 'viewSubTree', _path, level, pos, _hash);
 		
 		//add html content
-		$("#cont-" + _path).after(htmlContent);
+		$("#cont-"+level+"-"+pos+"-"+_hash).after(htmlContent);
 		//temp hide html content
 		$("#sub-"+parseInt(parseInt(level) + 1)+"-"+pos+"-"+_hash).hide();
 		//begin hiding preloader
@@ -258,4 +268,37 @@ function openTree(_path) {
 	var htmlContent = action($("#treeMenu").attr("rel"), 'view');
 	$(".treeViewContIn").html(htmlContent);
 	initTreeMenu('#treeMenu');
+}
+
+//--move window shadow
+function shadowWindow(_idWindow, _containment, center) {
+
+	if (typeof containment == "undefined") containment = "";
+	var center = (typeof center == "undefined") ? true : center;
+
+	if (center) {
+		$(_idWindow).css({
+			"top" : ($(window).height() - $("#header").height() - $("#footer").height() - $(".main_message").height() - $(_idWindow).height())/2,
+			"left" : ($(window).width() - $(".manager_panel").width() - $(_idWindow).width())/2
+		});
+	}
+
+	$(_idWindow).draggable({
+		containment: _containment,
+		handle : _idWindow + "-header",
+		start : function(event, ui) {
+			$(_idWindow + "-shadow").css({"width" : $(_idWindow).width(), "height" : $(_idWindow).height(), "top" : $(_idWindow).css("top"), "left" : $(_idWindow).css("left")}).show();
+		},
+		drag: function(event, ui) {
+			$(_idWindow + "-shadow").hide();
+			//$(_idWindow + "-shadow").css({"width" : $(_idWindow).width(), "height" : $(_idWindow).height(), "top" : $(_idWindow).css("top"), "left" : $(_idWindow).css("left")}).show();
+		},
+		stop: function(event, ui) {
+			$(_idWindow + "-shadow").show();
+			$(_idWindow + "-shadow").css({"width" : $(_idWindow).width(), "height" : $(_idWindow).height(), "top" : $(_idWindow).css("top"), "left" : $(_idWindow).css("left")}).show();
+		}
+	});
+
+	$(_idWindow + "-header").css({"cursor" : "move"});
+	$(_idWindow + "-shadow").css({"width" : $(_idWindow).width(), "height" : $(_idWindow).height(), "top" : $(_idWindow).css("top"), "left" : $(_idWindow).css("left")}).show();
 }

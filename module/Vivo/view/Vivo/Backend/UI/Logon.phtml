@@ -1,8 +1,13 @@
+<a href="<?=$this->actionUrl('logoff');?>" class="user-logout"><span>X</span></a>
 
-<?if($user):?>
-    <?=$user->getName();?> &nbsp;
 
-<?=$this->actionLink('logoff', 'Logoff');?>
-<?else:?>
-    <?=$this->vivoForm($form);?>
-<? endif; ?>
+<div class="user">
+	<div class="user-icon">
+		<?if ($user):?>
+			<a href="" title="<?/*=$user->domain.'\\'.$user->username*/?>"><?/*=$user->fullname ? $user->fullname : $user->domain.'\\'.$user->username*/?><?=$user->getName();?></a>
+		<?else:?>
+			<?=$this->translate('Not logged in');?>
+			<?/*=$this->vivoForm($form);*/?>
+		<?endif?>
+	</div>
+</div>

@@ -1,27 +1,57 @@
-<ul>
-    <? $i = 0; ?>
-    <? foreach ($tree->getChildrenNodes() as $item): ?>
-        <? $document = $item->value; ?>
-        <li>
-            <? if ($document['expandable']): ?>
-                <i class="icon-plus"></i>
-            <? else: ?>
-                <i class="icon-minus"></i>
-            <? endif; ?>
-            <?= $this->actionLink('set', $document['document']->getTitle(), array($document['rel_path'])) ?>
-            <? if ($document['active']): ?><i class="icon-star"></i><? endif; ?>
+<?
+	$root = $tree->getChildrenNodes();
+	$master_level = $tree->getDeep();
+	//print_r($root);
+?>
+<ul <?=($master_level != 0) ? "class=sub-".$tree->value['rel_path'] : "" ?>>
+	<? $i = 0; ?>
+	<? foreach ($root as $item): ?>
+		<?
+			$document = $item->value;
 
-            <? if ($item->getChildrenNodes()): ?>
-                <?= $this->partial('Vivo\Backend\UI\Explorer\Tree:Subtree', array('tree' => $item)); ?>
-            <? endif; ?>
-        </li>
-        <? $i++ ?>
-    <? endforeach; ?>
-    <? if ($i < $tree->value['count']): ?>
-        <? $more = $tree->value['count'] - $i; ?>
-        <li>
-            <i class="icon-forward"></i>
-            <?= $this->actionLink('showMore', $more . ' ' . $this->translate('more ...'), array($document['parent_rel_path'])) ?>
-        </li>
-    <? endif; ?>
+			$last = ($i == $tree->value['count'] - 1);
+			$li_class = array();
+			$cur_status = "normal";
+			if ($document['expandable']) $li_class[] = $cur_status = "expandable";
+			if ($last) $li_class[] = ($document['expandable']) ? "last-".$cur_status : "last";
+			if (($document['level'] == 1 && $i == 0)) $li_class[] = "root";
+			if (!count($li_class)) $li_class[] = "normal";
+
+			$title = $document['document']->getTitle();
+
+
+		?>
+		<li class="<?=implode(' ', $li_class);?>"  id="li-<?=$document['rel_path']?>">
+			<? if ($document['expandable'] && $document['level'] > 1): ?>
+				<div class="hitarea <?=$cur_status?>-hitarea<?=($last) ? " last-$cur_status-hitarea" : ''?>" id="tree-<?=$document['rel_path']?>"></div>
+			<? endif; ?>
+						
+			<span class="<?=($document['expandable'])?'folder':'file'?>" id="cont-<?=$document['rel_path']?>">
+				<img src="<?= $this->resource('backend/img/icons/16x16/File.png','Vivo')?>" alt="" />
+					<? if ($document['published']): ?>
+					<span class="published"></span>
+					<? endif; ?>            
+				<a href="<?= htmlspecialchars($this->actionUrl('set')) ?>" class="<?=$cur_status?>-a<?=($document['active']) ? ' active' : ''?>" title="<?=$document['rel_path']?>">
+					<?if ($document['document'] instanceof \Vivo\CMS\Model\Folder && ! $document['document'] instanceof \Vivo\CMS\Model\Document) :?>
+						<span><b><?=htmlspecialchars($title)?></b></span>
+					<?else:?>
+						<span><?=htmlspecialchars($title)?></span>
+					<?endif?>
+				</a>
+			</span>
+
+
+			<? if ($item->getChildrenNodes()): ?>
+				<?= $this->partial('Vivo\Backend\UI\Explorer\Tree:Subtree', array('tree' => $item)); ?>
+			<? endif; ?>
+		</li>
+		<? $i++ ?>
+	<? endforeach; ?>
+	<? if ($i < $tree->value['count']): ?>
+		<? $more = $tree->value['count'] - $i; ?>
+		<li class="last">
+			<span class="folder">
+			<a href="<?= $this->actionUrl('showMore', array($document['parent_rel_path']))?>" class="more expandable-a"><span><?=$this->translate('more')?></span></a>	
+		</li>
+	<? endif; ?>
 </ul>

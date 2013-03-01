@@ -1,14 +1,23 @@
-<div class="container-fluid">
-    <div class="row-fluid">
-        <div class="span12"><?=$headerBar ?></div>
-    </div>
-        <div class="row-fluid">
-            <div class="span1"><?=$modulesPanel ?></div>
-            <div class="span11"><?=$module ?></div>
-        </div>
+<div id="loader">loading</div>
+<div id="wrapper">
 
-    <div class="row-fluid">
-        <div class="span12"><?=$footerBar ?></div>
+    <?=$headerBar ?>
+
+    <div class="manager_panel">
+        <?=$modulesPanel ?>
+    </div>
+    
+    <div class="manager_content">
+        <?=$module ?>
+        <div class="clear"></div>
+    </div>
+
+    <div class="clear"></div>
+
+    <div id="footer">
+        <?=$footerBar ?>
     </div>
 </div>
-
+<noscript>
+    <p class="noscript">Pro správné fungování je nutné mít zapnutý JavaScript!<br /><br />JavaScript must be enabled!</p>
+</noscript>

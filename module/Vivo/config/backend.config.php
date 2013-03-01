@@ -5,6 +5,7 @@
 return array(
     'templates' => array (
         'template_map' => array(
+            'Vivo\UI\Page'                                  => __DIR__.'/../view/Vivo/Backend/UI/Page.phtml',
             'Vivo\UI\Ribbon\Tab'                            => __DIR__.'/../view/Vivo/Backend/UI/Ribbon/Tab.phtml',
             'Vivo\UI\Ribbon\Group'                          => __DIR__.'/../view/Vivo/Backend/UI/Ribbon/Group.phtml',
             'Vivo\UI\Ribbon\Item'                           => __DIR__.'/../view/Vivo/Backend/UI/Ribbon/Item.phtml',
@@ -80,12 +81,12 @@ return array(
         'Vivo\UI\Page' => array (
             'doctype' => 'HTML5',
                 'links' => array (
-                    array(
-                        'rel'  => 'stylesheet',
-                        'href' => '.Vivo.resource/bootstrap/css/bootstrap.css',
-                        'type' => 'text/css',
-                        'media' => 'screen'
-                    ),
+                    // array(
+                    //     'rel'  => 'stylesheet',
+                    //     'href' => '.Vivo.resource/bootstrap/css/bootstrap.css',
+                    //     'type' => 'text/css',
+                    //     'media' => 'screen'
+                    // ),
                     array(
                             'rel'  => 'stylesheet',
                             'href' => '.Vivo.resource/backend/css/manager.css',
@@ -94,24 +95,37 @@ return array(
                     ),
             ),
                 'scripts' => array (
+                    // array(
+                    //     'src' => '.Vivo.resource/bootstrap/js/bootstrap.js',
+                    //     'type' => 'text/javascript',
+                    // ),
                     array(
-                        'src' => '.Vivo.resource/bootstrap/js/bootstrap.js',
+                        'src' => '/.Vivo.resource/backend/js/finder.js',
                         'type' => 'text/javascript',
                     ),
+                    array(
+                        'src' => '/.Vivo.resource/backend/js/manager.js',
+                        'type' => 'text/javascript',
+                    ),
+                    array(
+                        'src' => '/.Vivo.resource/js/jquery.js',
+                        'type' => 'text/javascript',
+                    ),
+                    
                 ),
             'metas' => array (
 //                     array (
 //                         'name' => 'Robots',
 //                         'content' => 'INDEX,FOLLOW',
 //                     ),
-//                     array (
-//                         'charset' => 'UTF-8',
-//                     ),
-                array (
-                    'http-equiv' => 'Content-Type',
-                    'content' => 'text/html',
-                    'charset' => 'utf-8',
-                ),
+                     array (
+                         'charset' => 'UTF-8',
+                     ),
+                // array (
+                //     'http-equiv' => 'Content-Type',
+                //     'content' => 'text/html',
+                //     'charset' => 'utf-8',
+                // ),
             ),
         ),
     ),

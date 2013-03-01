@@ -34,6 +34,11 @@ return array(
             'Vivo\UI\Ribbon\Tab'                => __DIR__.'/../view/Vivo/UI/Ribbon/Tab.phtml',
             'Vivo\UI\Ribbon\Group'              => __DIR__.'/../view/Vivo/UI/Ribbon/Group.phtml',
             'Vivo\UI\Ribbon\Item'               => __DIR__.'/../view/Vivo/UI/Ribbon/Item.phtml',
+            'Vivo\UI\Alert'                     => __DIR__.'/../view/Vivo/UI/Alert.phtml',
+
+            'Vivo\CMS\UI\Content\Editor\File' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File.phtml',
+            'Vivo\CMS\UI\Content\Editor\Layout' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Layout.phtml',
+            'Vivo\CMS\UI\Content\Editor\Overview' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Overview.phtml',
 
         ),
         'custom_templates' => array (
@@ -97,6 +102,10 @@ return array(
             ),
         ),
     ),
+    'backend' => array (
+        'plugins' =>  array (
+        ),
+    ),
     'service_manager' => array (
         //configuration of service manager, services defined here should not override
         //services defined in Vivo config
@@ -135,6 +144,7 @@ return array(
             'Vivo\Backend\UI\Explorer\Viewer'   => 'Vivo\Backend\UI\Explorer\ViewerFactory',
             'Vivo\Backend\UI\Explorer\Browser'   => 'Vivo\Backend\UI\Explorer\BrowserFactory',
             'Vivo\Backend\UI\Logon'    => 'Vivo\Backend\UI\LogonFactory',
+            'Vivo\Backend\ModuleResolver'    => 'Vivo\Backend\ModuleResolverFactory',
 
             //TODO: content editor factories
             'Vivo\CMS\UI\Content\Editor\File'     => 'Vivo\CMS\UI\Content\Editor\FileFactory',

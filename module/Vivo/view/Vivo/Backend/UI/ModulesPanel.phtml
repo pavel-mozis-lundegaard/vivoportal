@@ -1,4 +1,9 @@
 <ul class="nav nav-tabs nav-stacked">
-<li><a href="<?=$this->url(null, array('module'=>'explorer'))?>"><?=$this->translate('Explorer')?></a></li>
-<li><a href="<?=$this->url(null, array('module'=>'sample'))?>"><?=$this->translate('Sample')?></a></li>
+    <?foreach ($modules as $module):?>
+    <li>
+        <a href="<?=$this->url(null, array('module'=>$module['name']))?>">
+            <img src="<?=$module['icon']?>" alt="<?=$this->translate($module['title'])?>"/>
+            </a>
+    </li>
+    <?endforeach;?>
 </ul>

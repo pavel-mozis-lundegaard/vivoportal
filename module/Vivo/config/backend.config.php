@@ -5,62 +5,36 @@
 return array(
     'templates' => array (
         'template_map' => array(
-            'Vivo\UI\Page'                      => __DIR__.'/../view/Vivo/UI/Page.phtml',
-            'Vivo\CMS\UI\Content\Layout'        => __DIR__.'/../view/Vivo/CMS/UI/Content/Layout.phtml',
-            'Vivo\CMS\UI\Content\File:html'     => __DIR__.'/../view/Vivo/CMS/UI/Content/File.html.phtml',
-            'Vivo\CMS\UI\Content\File:plain'    => __DIR__.'/../view/Vivo/CMS/UI/Content/File.plain.phtml',
-            'Vivo\CMS\UI\Content\File:flash'    => __DIR__.'/../view/Vivo/CMS/UI/Content/File.flash.phtml',
-            'Vivo\CMS\UI\Content\File:image'    => __DIR__.'/../view/Vivo/CMS/UI/Content/File.image.phtml',
-            'Vivo\CMS\UI\Content\File'          => __DIR__.'/../view/Vivo/CMS/UI/Content/File.phtml',
-            'Vivo\CMS\UI\Content\Overview'      => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.phtml',
-            'Vivo\CMS\UI\Content\Overview:Description' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.Description.phtml',
-            'Vivo\CMS\UI\Content\Logon'         => __DIR__.'/../view/Vivo/CMS/UI/Content/Logon.phtml',
-            'Vivo\UI\ComponentContainer'        => __DIR__.'/../view/Vivo/UI/ComponentContainer.phtml',
-            'Vivo\UI\TabContainer'              => __DIR__.'/../view/Vivo/UI/TabContainer.phtml',
-            'Vivo\UI\Ribbon'                    => __DIR__.'/../view/Vivo/UI/TabContainer.phtml',
-            'Vivo\UI\Ribbon\Tab'                => __DIR__.'/../view/Vivo/Backend/UI/Ribbon/Tab.phtml',
-            'Vivo\UI\Ribbon\Group'              => __DIR__.'/../view/Vivo/Backend/UI/Ribbon/Group.phtml',
-            'Vivo\UI\Ribbon\Item'               => __DIR__.'/../view/Vivo/Backend/UI/Ribbon/Item.phtml',
-            'Vivo\Backend\UI\Explorer\Tree'               => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Tree.phtml',
-            'Vivo\Backend\UI\Explorer\Tree:Subtree'       => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Tree.Subtree.phtml',
+            'Vivo\UI\Ribbon\Tab'                            => __DIR__.'/../view/Vivo/Backend/UI/Ribbon/Tab.phtml',
+            'Vivo\UI\Ribbon\Group'                          => __DIR__.'/../view/Vivo/Backend/UI/Ribbon/Group.phtml',
+            'Vivo\UI\Ribbon\Item'                           => __DIR__.'/../view/Vivo/Backend/UI/Ribbon/Item.phtml',
+            'Vivo\Backend\UI\Backend'                       => __DIR__.'/../view/Vivo/Backend/UI/Backend.phtml',
+            'Vivo\Backend\UI\Explorer\Browser'              => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Browser.phtml',
+            'Vivo\Backend\UI\Explorer\Copy'                 => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Copy.phtml',
+            'Vivo\Backend\UI\Explorer\Creator'              => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Creator.phtml',
+            'Vivo\Backend\UI\Explorer\Editor'               => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Editor.phtml',
+            'Vivo\Backend\UI\Explorer\Editor\Content'       => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Editor/Content.phtml',
+            'Vivo\Backend\UI\Explorer\Editor\ContentTab'    => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Editor/ContentTab.phtml',
+            'Vivo\Backend\UI\Explorer\Explorer'             => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Explorer.phtml',
+            'Vivo\Backend\UI\Explorer\Delete'               => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Delete.phtml',
+            'Vivo\Backend\UI\Explorer\Finder'               => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Finder.phtml',
+            'Vivo\Backend\UI\Explorer\Inspect'                 => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Inspect.phtml',
+            'Vivo\Backend\UI\Explorer\Move'                 => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Move.phtml',
+            'Vivo\Backend\UI\Explorer\Tree'                 => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Tree.phtml',
+            'Vivo\Backend\UI\Explorer\Tree:Subtree'         => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Tree.Subtree.phtml',
+            'Vivo\Backend\UI\Explorer\Viewer'               => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Viewer.phtml',
+            'Vivo\Backend\UI\FooterBar'                     => __DIR__.'/../view/Vivo/Backend/UI/FooterBar.phtml',
+            'Vivo\Backend\UI\HeaderBar'                     => __DIR__.'/../view/Vivo/Backend/UI/HeaderBar.phtml',
+            'Vivo\Backend\UI\Logon'                         => __DIR__.'/../view/Vivo/Backend/UI/Logon.phtml',
+            'Vivo\Backend\UI\ModulesPanel'                  => __DIR__.'/../view/Vivo/Backend/UI/ModulesPanel.phtml',
+            'Vivo\Backend\UI\SiteSelector'                  => __DIR__.'/../view/Vivo/Backend/UI/SiteSelector.phtml',
         ),
     ),
 
-    'component_mapping' => array (
-        'front_component' => array (
-        ),
-        'editor_component' => array (
-
-        ),
-    ),
     'service_manager' => array (
-        //configuration of service manager, services defined here should not override
-        //services defined in Vivo config
         'invokables' => array (
-            'Vivo\CMS\UI\Blank'             => 'Vivo\CMS\UI\Blank',
-            'Vivo\CMS\UI\Root'              => 'Vivo\CMS\UI\Root',
-            'Vivo\UI\ComponentContainer'    => 'Vivo\UI\ComponentContainer',
-            'Vivo\UI\TabContainer'          => 'Vivo\UI\TabContainer',
-            'Vivo\CMS\UI\Manager\Explorer\Ribbon'  => 'Vivo\CMS\UI\Manager\Explorer\Ribbon',
-            'layout_empty_panel'            => 'Vivo\UI\Text',
         ),
         'factories' => array (
-            'Vivo\CMS\UI\Content\File'      => 'Vivo\CMS\Service\UI\Content\FileFactory',
-            'Vivo\CMS\UI\Content\Hyperlink' => 'Vivo\CMS\Service\UI\Content\HyperlinkFactory',
-            'Vivo\CMS\UI\Content\Layout'    => 'Vivo\CMS\Service\UI\Content\LayoutFactory',
-            'Vivo\CMS\UI\Content\Overview'  => 'Vivo\CMS\Service\UI\Content\OverviewFactory',
-            'Vivo\CMS\UI\Content\Logon'     => 'Vivo\CMS\Service\UI\Content\LogonFactory',
-            'Vivo\CMS\UI\Manager\Explorer\Explorer'  => 'Vivo\CMS\UI\Manager\Explorer\ExplorerFactory',
-            'Vivo\CMS\UI\Manager\Explorer\Editor'  => 'Vivo\CMS\UI\Manager\Explorer\EditorFactory',
-            'Vivo\UI\Page'                  => 'Vivo\Service\UI\PageFactory',
-            'Vivo\UI\Alert'                  => 'Vivo\UI\AlertFactory',
-            'security_manager'              => 'Vivo\Service\SimpleSecurityManagerFactory',
-//            'security_manager'              => 'Vivo\Service\DbSecurityManagerFactory',
-
-        //backend
-        //TODO move to own config
-            'Vivo\Backend\UI\Backend'    => 'Vivo\Backend\UI\BackendFactory',
-            'Vivo\Backend\UI\Explorer\Explorer'    => 'Vivo\Backend\UI\Explorer\ExplorerFactory',
         ),
         'aliases' => array(
         ),
@@ -93,14 +67,6 @@ return array(
                         'src' => '.Bootstrap2_3_0.resource/js/bootstrap.js',
                         'type' => 'text/javascript',
                     ),
-                    array(
-                        'src' => '/.TinyMCE3_5_8.resource/js/tiny_mce/tiny_mce.js',
-                        'type' => 'text/javascript',
-                    ),
-                    array(
-                        'src' => '/.TinyMCE3_5_8.resource/js/init_specific_textareas.js',
-                        'type' => 'text/javascript',
-                    ),
                 ),
             'metas' => array (
 //                     array (
@@ -124,12 +90,33 @@ return array(
     ),
     //Backend config
     'backend'       => array(
-        //Backend modules
+        'plugins' => array (
+            'explorer' => array (
+                'name' => 'explorer',
+                'title' => 'Explorer',
+                'componentClass' => 'Vivo\Backend\UI\Explorer\Explorer',
+                'icon'  => '.Vivo.resource/backend/img/icons/48x48/explorer.png',
+            ),
+            'site' => array (
+                'name' => 'site',
+                'title' => 'Site',
+                'componentClass' => 'Vivo\CMS\UI\Blank',
+                'icon'  => '.Vivo.resource/backend/img/icons/48x48/site.png',
+            ),
+            'blank' => array (
+                'name' => 'blank',
+                'title' => 'Blank',
+                'componentClass' => 'Vivo\CMS\UI\Blank',
+                'icon'  => '.Vivo.resource/backend/img/icon/explorer.png',
+            ),
+        ),
+
+    //Backend modules
         'modules'       => array(
             'Bootstrap2_3_0'    => array(
                 'enabled'           => true,
             ),
-            'TinyMCE3_5_8'      => array(
+            'TinyMCE3_5_6_Vivo' => array(
                 'enabled'           => true,
             ),
         ),

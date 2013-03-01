@@ -1,3 +1,8 @@
+<?if (isset($logonError)):?>
+<div class="alert alert-error">
+<?=$this->translate($logonError)?>
+</div>
+<?endif?>
 
 <?if($user):?>
     <?=$user->getName();?> &nbsp;

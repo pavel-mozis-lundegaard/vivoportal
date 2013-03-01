@@ -1,13 +1,13 @@
 <?php
-namespace Vivo\Backend\UI;
+namespace Vivo\Metadata\Provider;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
 
 /**
- * LogonFactory
+ * Factory for CMSFrontController
  */
-class LogonFactory implements FactoryInterface
+class SelectableTemplatesProviderFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -16,7 +16,7 @@ class LogonFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $logon = new Logon($serviceLocator->get('security_manager'));
-        return $logon;
+        $config = $serviceLocator->get('cms_config');
+        return new SelectableTemplatesProvider($config['templates']);
     }
 }

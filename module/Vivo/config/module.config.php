@@ -71,6 +71,18 @@ return array(
                     ),
                 ),
                 'child_routes' => array(
+                    //route for everithing else on backend hostname - controller redirects
+                    'other' => array(
+                        'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'may_terminate' => true,
+                        'options' => array(
+                            'regex'    => '.*',
+                            'spec'    => '/',
+                            'defaults' => array(
+                                'controller' => 'backend_controller',
+                            ),
+                        ),
+                    ),
                     //default backend route
                     //@example http://<backendhost>/
                     'default' => array (
@@ -82,9 +94,7 @@ return array(
                                 'controller' => 'backend_controller',
                             ),
                         ),
-
                     ),
-
                     //route for backend modules
                     //@example http://<backendhost>/<sitehost>/<moduleName>/
                     'modules' => array(
@@ -93,27 +103,6 @@ return array(
                         'options' => array(
                             'regex'    => '/(?<host>.+?)/(?<module>.+?)/(?<path>.*)',
                             'spec'    => '/%host%/%module%/%path%',
-                            'defaults' => array(
-                                'controller' => 'backend_controller',
-                                'path'   => '',
-                                'module' => 'explorer',
-                                'host' => '',
-                            ),
-                        ),
-                        'child_routes' => array(
-                                'query' => array(
-                                        'type' => 'Query',
-                                ),
-                        ),
-                    ),
-                    //route for modules without site context (system modules)
-                    //@example http://<backendhost>/system/<moduleName>/
-                    'system' => array (
-                        'type' => 'Zend\Mvc\Router\Http\Regex',
-                        'may_terminate' => false,
-                        'options' => array(
-                            'regex'    => '/system/(?<module>.+?)/(?<path>.*)',
-                            'spec'    => '/system/%module%/%path%',
                             'defaults' => array(
                                 'controller' => 'backend_controller',
                                 'path'   => '',
@@ -151,7 +140,7 @@ return array(
                     'resource' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
-                            'regex'    => '/(?<host>.+)/view/\.(?<source>.+)\.(?<type>.+?)/(?<path>.+)',
+                            'regex'    => '/(?<host>.+)/view/\.(?<source>.+?)\.(?<type>.+?)/(?<path>.+)',
                             'spec'    => '/%host%/view/.%source%.%type%/%path%',
                             'defaults' => array(
                                 'controller' => 'resource_front_controller',
@@ -179,7 +168,7 @@ return array(
                     'backend_resource' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
-                            'regex'    => '/\.(?<source>.+)\.(?<type>.+?)/(?<path>.+)',
+                            'regex'    => '/\.(?<source>.+?)\.(?<type>.+?)/(?<path>.+)',
                             'spec'    => '/.%source%.%type%/%path%',
                             'defaults' => array(
                                 'controller' => 'resource_front_controller',
@@ -257,6 +246,8 @@ return array(
             'workflow_basic'            => 'Vivo\CMS\Workflow\BasicFactory',
             'component_tree_controller' => 'Vivo\UI\ComponentTreeControllerFactory',
             'Vivo\CMS\AvailableContentsProvider' => 'Vivo\CMS\AvailableContentsProviderFactory',
+            'Vivo\Metadata\Provider\SelectableTemplatesProvider' => 'Vivo\Metadata\Provider\SelectableTemplatesProviderFactory',
+            'Vivo\Util\UrlHelper'   =>  'Vivo\Util\UrlHelperFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -305,7 +296,7 @@ return array(
     ),
     'view_manager' => array(
         'display_not_found_reason' => true,
-        'display_exceptions'       => true,
+        'display_exceptions'       => false,
         'doctype'                  => 'HTML5',
         'not_found_template'       => 'error/404',
         'exception_template'       => 'error/index',
@@ -329,6 +320,7 @@ return array(
             'action_url'        => 'Vivo\View\Helper\ActionUrl',
             'vivoform'          => 'Vivo\View\Helper\VivoForm',
             'vivoformfieldset'  => 'Vivo\View\Helper\VivoFormFieldset',
+            'tiny_mce'          => 'Vivo\View\Helper\TinyMce',
           //  'url' => 'Vivo\View\Helper\Url',
         ),
     ),

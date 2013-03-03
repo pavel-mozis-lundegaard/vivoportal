@@ -16,8 +16,8 @@ return array(
                     'cms' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
-                            'regex'    => '/((?<path>.*)/)?',
-                            'spec'    => '/%path%/',
+                            'regex'    => '(?<path>/.*)',
+                            'spec'    => '%path%',
                             'defaults' => array(
                                 'controller' => 'cms_front_controller',
                                 'path' => '',
@@ -122,8 +122,8 @@ return array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'may_terminate' => false,
                         'options' => array(
-                            'regex'    => '/(?<host>.*)/view/((?<path>.*)/)?',
-                            'spec'    => '/%host%/view/%path%/',
+                            'regex'    => '/(?<host>.*)/view(?<path>/.*)?',
+                            'spec'    => '/%host%/view%path%',
                             'defaults' => array(
                                 'controller' => 'cms_front_controller',
                                 'path'   => '',

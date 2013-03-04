@@ -245,7 +245,13 @@ class Repository implements RepositoryInterface
         }
         $entitySer      = $this->storage->get($fullPath);
         /* @var $entity \Vivo\CMS\Model\Entity */
-        $entity         = $this->serializer->unserialize($entitySer);
+        try {
+            $entity         = $this->serializer->unserialize($entitySer);
+        } catch (\Exception $e) {
+            throw new Exception\Exception(
+                    sprintf("%s: Can't unserialize entity with path `%s`.", __METHOD__, $fullPath),null, $e);
+        }
+
         //Set volatile path property of entity instance
         $entity->setPath($path);
         //Store entity to watcher

@@ -147,7 +147,7 @@ class Editor extends AbstractForm
     protected function doGetForm()
     {
         $metadata = $this->metadataManager->getMetadata(get_class($this->entity));
-        $lookupData = $this->lookupDataManager->getLookupData($metadata, $this->entity);
+        $lookupData = $this->lookupDataManager->injectLookupData($metadata, $this->entity);
         $action = $this->request->getUri()->getPath();
 
         $buttonsFieldset = new Fieldset('buttons');
@@ -156,10 +156,11 @@ class Editor extends AbstractForm
             'attributes' => array(
                 'type'  => 'submit',
                 'value' => 'Save',
+                'class' => 'btn',
             ),
         ));
 
-        $form = new EntityEditorForm('entity', $metadata, $lookupData);
+        $form = new EntityEditorForm('entity', $lookupData);
         $form->setAttribute('action', $action);
         $form->add(array(
             'name' => 'act',

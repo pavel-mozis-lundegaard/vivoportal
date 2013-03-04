@@ -11,16 +11,16 @@ use Zend\ServiceManager\ServiceManager;
 class LookupDataManager
 {
     /**
-     * Name of the metadata key containing the LookupDataProvider class name
-     * @var string
-     */
-    protected $metadataKey  = 'lookup';
-
-    /**
      * Service Manager
      * @var ServiceManager
      */
     protected $serviceManager;
+
+    /**
+     * Local cache
+     * @var array
+     */
+    private $metadata;
 
     /**
      * Constructor
@@ -32,44 +32,50 @@ class LookupDataManager
     }
 
     /**
-     * Returns lookup data for an entity
+     * Returns data for an entity
      * @param array $metadata
      * @param \Vivo\CMS\Model\Entity $entity
      * @return array
-     * @throws Exception\InvalidArgumentException
      */
-    public function getLookupData(array $metadata, Entity $entity)
+    public function injectLookupData(array $metadata, Entity $entity)
     {
-        $lookupData = array();
-        foreach ($metadata as $property => $propertyMetadata) {
-            $lookupData[$property]  = array();
-            if (array_key_exists($this->metadataKey, $propertyMetadata)) {
-                $providerClass  = $propertyMetadata[$this->metadataKey];
-                if (!class_exists($providerClass)) {
-                    throw new Exception\InvalidArgumentException(
-                        sprintf("%s: Lookup data provider class '%s' does not exist", __METHOD__, $providerClass));
-                }
-                if (PHP_VERSION_ID >= 50307) {
-                    //PHP version with correct implementation of is_subclass_of
-                    if (!is_subclass_of($providerClass, 'Vivo\LookupData\LookupDataProviderInterface')) {
-                        throw new Exception\InvalidArgumentException(
-                            sprintf("%s: Lookup data provider class '%s' must implement "
-                                    . "'Vivo\\LookupData\\LookupDataProviderInterface'", __METHOD__, $providerClass));
-                    }
-                    $provider   = $this->serviceManager->get($providerClass);
-                } else {
-                    //Old php version fix 5.3.7
-                    $provider   = $this->serviceManager->get($providerClass);
-                    if (!($provider instanceof \Vivo\LookupData\LookupDataProviderInterface)) {
-                        throw new Exception\InvalidArgumentException(
-                            sprintf("%s: Lookup data provider class '%s' must implement "
-                                . "'Vivo\\LookupData\\LookupDataProviderInterface'", __METHOD__, $providerClass));
+        $this->metadata = $metadata;
 
+        foreach ($metadata as $property => $data) {
+            $metadata[$property] = $this->getData($property, $data, $entity);
+        }
+
+        return $metadata;
+    }
+
+    /**
+     * @param string $propertyName
+     * @param array $metadata
+     * @param \Vivo\CMS\Model\Entity $entity
+     * @return array
+     */
+    private function getData($propertyName, array &$metadata, Entity $entity)
+    {
+        foreach ($metadata as $key => &$value) {
+            if(is_array($value)) {
+                $this->getData($propertyName, $value, $entity);
+            }
+            elseif (strpos($value, '\\') && class_exists($value)) {
+                if (PHP_VERSION_ID >= 50307 && is_subclass_of($value, 'Vivo\LookupData\LookupDataProviderInterface')) {
+                    /* @var $provider LookupDataProviderInterface */
+                    $provider = $this->serviceManager->get($value);
+                    $value    = $provider->getLookupData($propertyName, $this->metadata[$propertyName], $entity);
+                }
+                else {
+                    //Old php version fix 5.3.7
+                    $provider = $this->serviceManager->get($value);
+                    if ($provider instanceof LookupDataProviderInterface) {
+                        $value = $provider->getLookupData($propertyName, $this->metadata[$propertyName], $entity);
                     }
                 }
-                $lookupData[$property]  = $provider->getLookupData($property, $propertyMetadata, $entity);
-            };
+            }
         }
-        return $lookupData;
+
+        return $metadata;
     }
 }

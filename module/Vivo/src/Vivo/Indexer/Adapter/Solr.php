@@ -129,6 +129,7 @@ class Solr implements AdapterInterface
      * If there are no documents found, returns an empty array
      * @param \Vivo\Indexer\Query\QueryInterface $query
      * @param \Vivo\Indexer\QueryParams|null $queryParams
+     * @throws Exception\SolrServiceException
      * @return Result
      */
     public function find(Query\QueryInterface $query, QueryParams $queryParams = null)
@@ -165,10 +166,19 @@ class Solr implements AdapterInterface
             $sort   = implode(', ', $sortConds);
             $solrParams['sort'] = $sort;
         }
-        $solrResult = $this->solrService->search($solrQuery,
-                                                 $queryParams->getStartOffset(),
-                                                 $queryParams->getPageSize(),
-                                                 $solrParams);
+        try {
+            $solrResult = $this->solrService->search($solrQuery,
+                                                     $queryParams->getStartOffset(),
+                                                     $queryParams->getPageSize(),
+                                                     $solrParams);
+        } catch (\Exception $e) {
+            $ourException   = new Exception\SolrServiceException(
+                sprintf("%s: Solr service threw an exception", __METHOD__),
+                0,
+                $e
+            );
+            throw $ourException;
+        }
         $totalHits  = $solrResult->response->numFound;
         $resultSize = count($solrResult->response->docs);
         $hits           = array();
@@ -188,12 +198,22 @@ class Solr implements AdapterInterface
      * Finds and returns a document by its ID
      * If the document is not found, returns null
      * @param string $docId
+     * @throws Exception\SolrServiceException
      * @return Document|null
      */
     public function findById($docId)
     {
         $solrQuery  = sprintf('%s:"%s"', $this->idField, $docId);
-        $solrResult = $this->solrService->search($solrQuery, 0, 1);
+        try {
+            $solrResult = $this->solrService->search($solrQuery, 0, 1);
+        } catch (\Exception $e) {
+            $ourException   = new Exception\SolrServiceException(
+                sprintf("%s: Solr service threw an exception", __METHOD__),
+                0,
+                $e
+            );
+            throw $ourException;
+        }
         if ($solrResult->response->numFound) {
             //Document found
             $solrDoc    = $solrResult->response->docs[0];
@@ -247,11 +267,21 @@ class Solr implements AdapterInterface
 
     /**
      * Optimizes the index
+     * @throws Exception\SolrServiceException
      * @return void
      */
     public function optimize()
     {
-        $this->solrService->optimize();
+        try {
+            $this->solrService->optimize();
+        } catch (\Exception $e) {
+            $ourException   = new Exception\SolrServiceException(
+                sprintf("%s: Solr service threw an exception", __METHOD__),
+                0,
+                $e
+            );
+            throw $ourException;
+        }
     }
 
     /**
@@ -279,16 +309,43 @@ class Solr implements AdapterInterface
         //Delete documents
         if ($this->deleteAllDocs) {
             //Delete all docs
-            $this->solrService->deleteByQuery('*:*');
+            try {
+                $this->solrService->deleteByQuery('*:*');
+            } catch (\Exception $e) {
+                $ourException   = new Exception\SolrServiceException(
+                    sprintf("%s: Solr service threw an exception", __METHOD__),
+                    0,
+                    $e
+                );
+                throw $ourException;
+            }
         } else {
             //Delete by query
             foreach ($this->deleteQueries as $deleteQuery) {
                 $solrQuery  = $this->buildSolrQuery($deleteQuery);
-                $this->solrService->deleteByQuery($solrQuery);
+                try {
+                    $this->solrService->deleteByQuery($solrQuery);
+                } catch (\Exception $e) {
+                    $ourException   = new Exception\SolrServiceException(
+                        sprintf("%s: Solr service threw an exception", __METHOD__),
+                        0,
+                        $e
+                    );
+                    throw $ourException;
+                }
             }
             //Delete specific docs
             foreach ($this->deleteIds as $deleteId) {
-                $this->solrService->deleteById($deleteId);
+                try {
+                    $this->solrService->deleteById($deleteId);
+                } catch (\Exception $e) {
+                    $ourException   = new Exception\SolrServiceException(
+                        sprintf("%s: Solr service threw an exception", __METHOD__),
+                        0,
+                        $e
+                    );
+                    throw $ourException;
+                }
             }
         }
         //Add documents
@@ -298,10 +355,28 @@ class Solr implements AdapterInterface
                 //Doc ID is set, add it to the Solr document
                 $solrDoc->addField($this->idField, $addDoc->getDocId());
             }
-            $this->solrService->addDocument($solrDoc);
+            try {
+                $this->solrService->addDocument($solrDoc);
+            } catch (\Exception $e) {
+                $ourException   = new Exception\SolrServiceException(
+                    sprintf("%s: Solr service threw an exception", __METHOD__),
+                    0,
+                    $e
+                );
+                throw $ourException;
+            }
         }
         //Commit changes
-        $this->solrService->commit();
+        try {
+            $this->solrService->commit();
+        } catch (\Exception $e) {
+            $ourException   = new Exception\SolrServiceException(
+                sprintf("%s: Solr service threw an exception", __METHOD__),
+                0,
+                $e
+            );
+            throw $ourException;
+        }
         //Reset the transaction
         $this->resetTransaction();
     }
@@ -357,7 +432,7 @@ class Solr implements AdapterInterface
             //Boolean NOT query
             /* @var $query Query\BooleanNot */
             $positiveQuery  = $this->buildSolrQuery($query->getQuery());
-            $solrQuery      = sprintf('(NOT %s)', $positiveQuery);
+            $solrQuery      = sprintf('NOT (%s)', $positiveQuery);
         } elseif ($query instanceof Query\RangeInterface) {
             //Range query
             /* @var $query Query\RangeInterface */

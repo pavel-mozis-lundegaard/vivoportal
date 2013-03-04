@@ -85,6 +85,7 @@ class Resource extends AbstractForm
             'attributes' => array(
                 'type'  => 'submit',
                 'value' => 'Save',
+                'class' => 'btn',
             ),
         ));
         $form->add(array(

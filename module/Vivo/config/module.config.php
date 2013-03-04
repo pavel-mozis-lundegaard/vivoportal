@@ -16,8 +16,8 @@ return array(
                     'cms' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
-                            'regex'    => '/((?<path>.*)/)?',
-                            'spec'    => '/%path%/',
+                            'regex'    => '(?<path>/.*)',
+                            'spec'    => '%path%',
                             'defaults' => array(
                                 'controller' => 'cms_front_controller',
                                 'path' => '',
@@ -122,8 +122,8 @@ return array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'may_terminate' => false,
                         'options' => array(
-                            'regex'    => '/(?<host>.*)/view/((?<path>.*)/)?',
-                            'spec'    => '/%host%/view/%path%/',
+                            'regex'    => '/(?<host>.*)/view(?<path>/.*)?',
+                            'spec'    => '/%host%/view%path%',
                             'defaults' => array(
                                 'controller' => 'cms_front_controller',
                                 'path'   => '',
@@ -233,6 +233,7 @@ return array(
             'indexer_query_parser'      => 'Vivo\Service\IndexerQueryParserFactory',
             'module_name_resolver'      => 'Vivo\Service\ModuleNameResolverFactory',
             'metadata_manager'          => 'Vivo\Service\MetadataManagerFactory',
+            'lookup_data_manager'       => 'Vivo\LookupData\LookupDataManagerFactory',
             'redirector'                => 'Vivo\Util\RedirectorFactory',
             'logger'                    => 'Vivo\Service\LoggerFactory',
             'default_log'               => 'Vivo\Service\LogFileWriterFactory',

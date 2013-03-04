@@ -79,6 +79,13 @@ class UrlHelper
         }
 
         $options['name'] = $route;
-        return $this->router->assemble($params, $options);
+        if (!isset($params['host']))
+            $params['host'] =  $this->routeMatch->getParam('host');
+        if (!isset($params['path']))
+            $params['path'] = $this->routeMatch->getParam('path');
+
+        $url = $this->router->assemble($params, $options);
+        $url = str_replace('%2F', '/', $url);
+        return $url;
     }
 }

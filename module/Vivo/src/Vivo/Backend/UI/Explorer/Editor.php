@@ -10,6 +10,7 @@ use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 use Vivo\CMS\Model\Document;
 use Vivo\CMS\Model\ContentContainer;
 use Vivo\Util\RedirectEvent;
+use Vivo\LookupData\LookupDataManager;
 
 class Editor extends AbstractForm
 {
@@ -28,6 +29,11 @@ class Editor extends AbstractForm
      * @var \Vivo\Metadata\MetadataManager
      */
     private $metadataManager;
+
+    /**
+     * @var LookupDataManager
+     */
+    protected $lookupDataManager;
 
     /**
      * @var \Vivo\CMS\AvailableContentsProvider
@@ -55,18 +61,23 @@ class Editor extends AbstractForm
     protected $autoAddCsrf = false;
 
     /**
+     * Constructor
      * @param \Zend\ServiceManager\ServiceManager $sm
      * @param \Vivo\Metadata\MetadataManager $metadataManager
+     * @param \Vivo\LookupData\LookupDataManager $lookupDataManager
      * @param \Vivo\CMS\Api\DocumentInterface $documentApi
+     * @param \Vivo\CMS\AvailableContentsProvider $availableContentsProvider
      */
     public function __construct(
         \Zend\ServiceManager\ServiceManager $sm,
         \Vivo\Metadata\MetadataManager $metadataManager,
+        LookupDataManager $lookupDataManager,
         DocumentApiInterface $documentApi,
         AvailableContentsProvider $availableContentsProvider)
     {
         $this->sm = $sm;
         $this->metadataManager = $metadataManager;
+        $this->lookupDataManager    = $lookupDataManager;
         $this->documentApi = $documentApi;
         $this->availableContentsProvider = $availableContentsProvider;
     }
@@ -136,6 +147,7 @@ class Editor extends AbstractForm
     protected function doGetForm()
     {
         $metadata = $this->metadataManager->getMetadata(get_class($this->entity));
+        $lookupData = $this->lookupDataManager->getLookupData($metadata, $this->entity);
         $action = $this->request->getUri()->getPath();
 
         $buttonsFieldset = new Fieldset('buttons');
@@ -147,7 +159,7 @@ class Editor extends AbstractForm
             ),
         ));
 
-        $form = new EntityEditorForm('entity', $metadata);
+        $form = new EntityEditorForm('entity', $metadata, $lookupData);
         $form->setAttribute('action', $action);
         $form->add(array(
             'name' => 'act',

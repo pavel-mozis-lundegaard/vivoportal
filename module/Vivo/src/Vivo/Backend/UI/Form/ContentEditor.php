@@ -25,7 +25,7 @@ class ContentEditor extends Form
         $this->setAttribute('method', 'post');
 
         // Fieldset
-        $fieldset = new EntityEditorFieldset('content', $metadata);
+        $fieldset = new EntityEditorFieldset('content', $metadata, array());
         $fieldset->setHydrator(new ClassMethodsHydrator(false));
         $fieldset->setOptions(array('use_as_base_fieldset' => true));
         $fieldset->add(array(

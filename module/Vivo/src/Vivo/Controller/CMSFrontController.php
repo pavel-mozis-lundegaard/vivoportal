@@ -1,113 +1,147 @@
 <?php
 namespace Vivo\Controller;
 
-use Vivo\UI\ComponentTreeController;
-
-use Vivo\CMS\ComponentFactory;
 use Vivo\CMS\Api\CMS;
-use Vivo\CMS\Model\Site;
+use Vivo\CMS\ComponentFactory;
+use Vivo\CMS\Event\CMSEvent;
+use Vivo\CMS\Model;
 use Vivo\Controller\Exception;
 use Vivo\IO\InputStreamInterface;
 use Vivo\SiteManager\Event\SiteEvent;
 use Vivo\UI\Component;
-use Vivo\UI\Exception\ExceptionInterface as UIException;
-use Vivo\UI\TreeUtil;
+use Vivo\UI\ComponentTreeController;
+use Vivo\Util\RedirectEvent;
+use Vivo\Util\Redirector;
+use Vivo\Util\UrlHelper;
 
 use Zend\EventManager\EventInterface as Event;
-use Zend\Http\Response as HttpResponse;
+use Zend\EventManager\EventManagerAwareInterface;
+use Zend\EventManager\EventManagerInterface;
 use Zend\Mvc\InjectApplicationEventInterface;
+use Zend\Mvc\MvcEvent;
+use Zend\ServiceManager\ServiceLocatorAwareInterface;
+use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\DispatchableInterface;
+use Zend\Stdlib\RequestInterface;
 use Zend\Stdlib\RequestInterface as Request;
 use Zend\Stdlib\ResponseInterface as Response;
 use Zend\View\Model\ModelInterface;
 
 /**
- * The front controller which is responsible for dispatching all requests for documents and files in CMS repository.
+ * The front controller which is responsible for dispatching all requests for documents in CMS repository.
  */
 class CMSFrontController implements DispatchableInterface,
-    InjectApplicationEventInterface
+    InjectApplicationEventInterface, EventManagerAwareInterface,
+        ServiceLocatorAwareInterface
+
 {
 
     /**
-     * @var \Zend\Mvc\MvcEvent
+     * @var MvcEvent
      */
-    protected $event;
+    protected $mvcEvent;
 
     /**
-     * @var \Vivo\CMS\Api\CMS
+     * @var CMSEvent
      */
-    private $cms;
+    protected $cmsEvent;
 
     /**
      * @var SiteEvent
      */
-    private $siteEvent;
+    protected $siteEvent;
 
     /**
-     * @var \Vivo\CMS\ComponentFactory
+     * @var EventManagerInterface
      */
-    private $componentFactory;
+    protected $events;
 
     /**
-     * @var \Vivo\UI\ComponentTreeController
+     * @var CMS
      */
-    private $tree;
+    protected $cmsApi;
 
     /**
-     *
-     * @var \Vivo\Util\Redirector
+     * @var ComponentFactory
+     */
+    protected $componentFactory;
+
+    /**
+     * @var ComponentTreeController
+     */
+    protected $tree;
+
+    /**
+     * @var Redirector
      */
     protected $redirector;
 
     /**
-     * @param ComponentFactory $componentFactory
+     * @var \Zend\Http\PhpEnvironment\Request
      */
-    public function setComponentFactory(ComponentFactory $componentFactory)
+    protected $request;
+
+    /**
+     * @var ServiceManager
+     */
+    protected $serviceManager;
+
+    /**
+     * @var UrlHelper
+     */
+    protected $urlHelper;
+
+    /**
+     * Attaches default listeners.
+     */
+    public function attachListeners()
     {
-        $this->componentFactory = $componentFactory;
+        $this->events->attachAggregate($this->serviceManager->get('Vivo\CMS\FetchDocumentListener'), 100);
+        $this->events->attachAggregate($this->serviceManager->get('Vivo\CMS\FetchDocumentByUrlListener'), 200);
     }
 
     /**
-     * @param CMS $cms
-     */
-    public function setCMS(CMS $cms)
-    {
-        $this->cms = $cms;
-    }
-
-    /**
-     * @param Site $site
-     */
-    public function setSiteEvent(SiteEvent $siteEvent)
-    {
-        $this->siteEvent = $siteEvent;
-    }
-
-    /**
-     * Dispatches CMS request
+     * Dispatches CMS request.
      * @param Request $request
      * @param Response $response
      * @todo should we render UI in controller dispatch action?
      */
     public function dispatch(Request $request, Response $response = null)
     {
+        $this->request = $request;
+        $this->attachListeners();
+
         if (!$this->siteEvent->getSite()) {
             throw new Exception\SiteNotFoundException(
                     sprintf("%s: Site not found for hostname '%s'.",
                             __METHOD__ , $this->siteEvent->getHost()));
         }
 
-        //TODO: add exception when document doesn't exist
-        //TODO: redirects based on document properties(https, $document->url etc.)
+        //fetch document
+        $eventResult = $this->events->trigger(CMSEvent::EVENT_FETCH_DOCUMENT, $this->getCmsEvent(),
+            function ($result) {
+            return ($result instanceof \Vivo\CMS\Model\Document);
+        });
 
-        $documentPath = $this->event->getRouteMatch()->getParam('path');
-        $document = $this->cms->getSiteEntity($documentPath, $this->siteEvent->getSite());
+        $document = $eventResult->last();
+        if (!$document) {
+            throw new \Exception(sprintf('%s: Document for requested path `%s` can not be fetched.',
+                        __METHOD__,
+                        $this->cmsEvent->getRequestedPath()),
+                    \Zend\Http\Response::STATUS_CODE_404);
+        }
+
+        //perform redirects
+        $this->performRedirects($document);
+        if ($this->redirector->isRedirect()){
+            return $response;
+        }
 
         //create ui component tree
         $root = $this->componentFactory->getRootComponent($document);
 
+        //perform tree operations
         $this->tree->setRoot($root);
-
         $this->tree->loadState();
         if ($this->getRequest()->isXmlHttpRequest()) {
             $this->tree->init(); //replace by lazy init
@@ -128,9 +162,8 @@ class CMSFrontController implements DispatchableInterface,
         if ($this->redirector->isRedirect()) {
             return $response;
         }
-
         if ($result instanceof ModelInterface) {
-            $this->event->setViewModel($result);
+            $this->mvcEvent->setViewModel($result);
         } elseif ($result instanceof InputStreamInterface) {
             //skip rendering phase
             $response->setInputStream($result);
@@ -139,6 +172,41 @@ class CMSFrontController implements DispatchableInterface,
             //skip rendering phase
             $response->setContent($result);
             return $response;
+        }
+    }
+
+    /**
+     * Performs redirects based on document properties.
+     * @param Model\Document $document
+     * @return null
+     */
+    protected function performRedirects(Model\Document $document)
+    {
+        //redirect secured documents to https
+        if ($document->getSecured() && $this->request->getUri()->getScheme() !== 'https') {
+            $uri = clone $this->request->getUri();
+            $uri->setScheme('https');
+            $uri->setPort(null);
+            $this->events->trigger(new RedirectEvent((string) $uri));
+            return;
+        }
+
+        //redirect document with specific url
+        if ($document->getUrl()) {
+            if ($document->getUrlPrecedence() == true) {
+                if($document->getUrl() != $this->cmsEvent->getRequestedPath()) {
+                    $url = $this->urlHelper->fromRoute(null, array('path' => $document->getUrl()));
+                    $this->events->trigger(new RedirectEvent($url));
+                    return;
+                }
+            } else {
+                if ($document->getUrl() == $this->cmsEvent->getRequestedPath()) {
+                    $path = $this->cmsApi->getEntityRelPath($document);
+                    $url = $this->urlHelper->fromRoute(null, array('path' => $path));
+                    $this->events->trigger(new RedirectEvent($url));
+                    return;
+                }
+            }
         }
     }
 
@@ -167,28 +235,61 @@ class CMSFrontController implements DispatchableInterface,
     }
 
     /**
-     * @param Event $event
+     * Returns CMS event, or creates it if not exists.
+     * @return CMSEvent
      */
-    public function setEvent(Event $event)
+    public function getCmsEvent()
     {
-        $this->event = $event;
+        if (!$this->cmsEvent) {
+            $this->cmsEvent = new CMSEvent();
+            $this->cmsEvent->setSite($this->siteEvent->getSite());
+            $path = $this->mvcEvent->getRouteMatch()->getParam('path');
+            $this->cmsEvent->setRequestedPath($path);
+            $this->serviceManager->get('service_manager')->setService('cms_event', $this->cmsEvent);
+        }
+        return $this->cmsEvent;
     }
 
     /**
-     * @return \Zend\Mvc\MvcEvent
+     * @param Event $event
+     */
+    public function setEvent(Event $mvcEvent)
+    {
+        $this->mvcEvent = $mvcEvent;
+    }
+
+    /**
+     * @return MvcEvent
      */
     public function getEvent()
     {
-        return $this->event;
+        return $this->mvcEvent;
     }
 
     /**
-     * @param TreeUtil $treeUtil
+     * @param ComponentFactory $componentFactory
      */
-    public function setTreeUtil(TreeUtil $treeUtil)
+    public function setComponentFactory(ComponentFactory $componentFactory)
     {
-        $this->treeUtil = $treeUtil;
+        $this->componentFactory = $componentFactory;
     }
+
+    /**
+     * @param CMS $cms
+     */
+    public function setCMS(CMS $cmsApi)
+    {
+        $this->cmsApi = $cmsApi;
+    }
+
+    /**
+     * @param SiteEvent $site
+     */
+    public function setSiteEvent(SiteEvent $siteEvent)
+    {
+        $this->siteEvent = $siteEvent;
+    }
+
 
     /**
      * Sets ComponentTreeController
@@ -200,10 +301,28 @@ class CMSFrontController implements DispatchableInterface,
     }
 
     /**
-     * @return \Zend\Stdlib\RequestInterface
+     * @return RequestInterface
      */
     public function getRequest() {
-        return $this->event->getRequest();
+        return $this->mvcEvent->getRequest();
+    }
+
+    /**
+     * @return EventManagerInterface
+     */
+    public function getEventManager()
+    {
+       return $this->events;
+    }
+
+    /**
+     * Sets event manager
+     * @param EventManagerInterface $eventManager
+     */
+    public function setEventManager(EventManagerInterface $eventManager)
+    {
+        $this->events = $eventManager;
+        $this->events->addIdentifiers(__CLASS__);
     }
 
     /**
@@ -216,13 +335,40 @@ class CMSFrontController implements DispatchableInterface,
     }
 
     /**
-     * Sets redirector.
-     * @param \Vivo\Util\Redirector $redirector
+     * Inject redirector.
+     * @param Redirector $redirector
      */
-    public function setRedirector(\Vivo\Util\Redirector $redirector)
+    public function setRedirector(Redirector $redirector)
     {
         $this->redirector = $redirector;
     }
 
+    /**
+     *
+     * @return ServiceManager
+     */
+    public function getServiceLocator()
+    {
+        return $this->serviceManager;
+    }
 
+    /**
+     * Inject Service Manager.
+     * @param \Zend\ServiceManager\ServiceLocatorInterface $serviceLocator
+     */
+    public function setServiceLocator(\Zend\ServiceManager\ServiceLocatorInterface $serviceLocator)
+    {
+        if ($serviceLocator instanceof ServiceManager) {
+            $this->serviceManager = $serviceLocator;
+        }
+    }
+
+    /**
+     * Inject UrlHelper.
+     * @param UrlHelper $urlHelper
+     */
+    public function setUrlHelper (UrlHelper $urlHelper)
+    {
+        $this->urlHelper = $urlHelper;
+    }
 }

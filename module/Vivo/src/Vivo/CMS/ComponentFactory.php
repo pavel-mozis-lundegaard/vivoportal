@@ -246,7 +246,10 @@ class ComponentFactory implements EventManagerAwareInterface
             $component->setDocument($document);
         }
         if ($content instanceof Content\ProvideTemplateInterface) {
-            $component->getView()->setTemplate($content->getTemplate());
+            if (\Vivo\Metadata\Provider\SelectableTemplatesProvider::DEFAULT_TEMPLATE != $content->getTemplate()){
+                //TODO remove using of DEFAULT_TEMPLATE constant, use empty string instead.
+                $component->getView()->setTemplate($content->getTemplate());
+            }
         }
         return $component;
     }

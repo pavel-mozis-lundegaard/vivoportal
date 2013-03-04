@@ -16,8 +16,7 @@ class LogonFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $sm = $serviceLocator->get('service_manager');
-        $logon = new Logon($sm->get('security_manager'));
+        $logon = new Logon($serviceLocator->get('security_manager'));
         return $logon;
     }
 }

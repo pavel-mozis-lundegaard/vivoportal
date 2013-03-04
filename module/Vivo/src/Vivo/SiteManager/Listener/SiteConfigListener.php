@@ -67,7 +67,7 @@ class SiteConfigListener implements ListenerAggregateInterface
         if ($siteModel) {
             $siteConfig = $this->siteApi->getSiteConfig($siteModel);
             $e->setSiteConfig($siteConfig);
-            $e->stopPropagation(true);
+//            $e->stopPropagation(true);
         }
     }
 }

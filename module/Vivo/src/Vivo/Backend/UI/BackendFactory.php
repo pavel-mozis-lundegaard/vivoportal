@@ -17,15 +17,14 @@ class BackendFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $backend = new Backend();
+
         $sm = $serviceLocator->get('service_manager');
 
+        $backend = new Backend($sm->get('application')->getMvcEvent()->getRouteMatch(), $sm);
         $headerBar = $sm->get('Vivo\Backend\UI\HeaderBar');
-
         $headerBar->addComponent($sm->get('Vivo\Backend\UI\SiteSelector'), 'siteSelector');
         $headerBar->addComponent($sm->get('Vivo\UI\Alert'), 'alert');
         $headerBar->addComponent($sm->get('Vivo\Backend\UI\Logon'), 'logon');
-
 
 
 

@@ -66,9 +66,9 @@ class OutputFilterListener implements ListenerAggregateInterface,
             return;
         }
         //TODO: move config key outside this class
-        $config = $this->serviceLocator->get('config');
-        if (isset($config['cms']['output_filters']) &&
-                is_array($filters = $config['cms']['output_filters']))
+        $cmsConfig  = $this->serviceLocator->get('cms_config');
+        if (isset($cmsConfig['output_filters']) &&
+                is_array($filters = $cmsConfig['output_filters']))
         {
             foreach ($filters as $outputFilter) {
                 try {

@@ -30,7 +30,7 @@ class Viewer extends Component
     public function view()
     {
         $entity = $this->getParent()->getEntity();
-        $this->getView()->entityPath = trim($this->cmsApi->getEntityRelPath($entity),'/');
+        $this->getView()->entityPath = $this->cmsApi->getEntityRelPath($entity);
         return parent::view();
     }
 }

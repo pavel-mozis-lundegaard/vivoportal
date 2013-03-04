@@ -11,7 +11,6 @@ use Vivo\Util\RedirectEvent;
  */
 class Logon extends AbstractForm
 {
-
     /**
      * @var AbstractManager
      */
@@ -39,8 +38,11 @@ class Logon extends AbstractForm
                     $validatedData['logon']['username'],
                     $validatedData['logon']['password']
                     );
+
             if ($result) {
                 $this->events->trigger(new RedirectEvent());
+            } else {
+                $this->view->logonError = 'Unable to login (wrong username or password or account is not active or no longer valid)';
             }
         }
     }
@@ -73,7 +75,6 @@ class Logon extends AbstractForm
 
     /**
      * Prepare view.
-     * @see
      */
     public function view()
     {

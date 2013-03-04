@@ -34,7 +34,7 @@ class Document extends AbstractHelper
 
     public function __invoke(Model\Document $document)
     {
-        $entityUrl = $this->cmsApi->getEntityUrl($document);
+        $entityUrl = $this->cmsApi->getEntityRelPath($document);
         $urlHelper = $this->getView()->plugin('url');
         $url = $urlHelper(null, array('path' => $entityUrl), false);
 

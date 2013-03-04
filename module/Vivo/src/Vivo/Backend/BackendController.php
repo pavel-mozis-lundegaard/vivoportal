@@ -1,21 +1,24 @@
 <?php
 namespace Vivo\Backend;
 
-use Vivo\CMS\Model\Site;
-use Vivo\Controller\Exception;
+use Vivo\Backend\ModuleResolver;
+use Vivo\CMS\Api;
+use Vivo\CMS\Security\Manager\AbstractManager;
 use Vivo\IO\InputStreamInterface;
-use Vivo\Security\Manager\AbstractManager;
 use Vivo\SiteManager\Event\SiteEvent;
 use Vivo\UI\Component;
 use Vivo\UI\ComponentTreeController;
+use Vivo\Util\RedirectEvent;
 use Vivo\Util\Redirector;
+use Vivo\Util\UrlHelper;
 
 use Zend\EventManager\EventInterface as Event;
 use Zend\Mvc\InjectApplicationEventInterface;
+use Zend\Mvc\MvcEvent;
 use Zend\ServiceManager\ServiceManager;
 use Zend\ServiceManager\ServiceManagerAwareInterface;
-use Zend\Stdlib\ArrayUtils;
 use Zend\Stdlib\DispatchableInterface;
+use Zend\Stdlib\RequestInterface;
 use Zend\Stdlib\RequestInterface as Request;
 use Zend\Stdlib\ResponseInterface as Response;
 use Zend\View\Model\ModelInterface;
@@ -28,7 +31,7 @@ class BackendController implements DispatchableInterface,
 {
 
     /**
-     * @var \Zend\Mvc\MvcEvent
+     * @var MvcEvent
      */
     protected $mvcEvent;
 
@@ -38,7 +41,7 @@ class BackendController implements DispatchableInterface,
     protected $siteEvent;
 
     /**
-     * @var \Vivo\UI\ComponentTreeController
+     * @var ComponentTreeController
      */
     protected $tree;
 
@@ -59,18 +62,33 @@ class BackendController implements DispatchableInterface,
      */
     protected $securityManager;
 
+    /**
+     *
+     * @var ModuleResolver
+     */
+    protected $moduleResolver;
+
+    /**
+     * @var UrlHelper
+     */
+    protected $urlHelper;
+
+    /**
+     * @var Api\Site
+     */
+    protected $siteApi;
 
     /**
      * Constructor.
      * @param AbstractManager $securityManager
      */
-    public function __construct(\Vivo\CMS\Security\Manager\AbstractManager $securityManager)
+    public function __construct(AbstractManager $securityManager)
     {
         $this->securityManager = $securityManager;
     }
 
     /**
-     * @param Site $site
+     * @param SiteEvent $site
      */
     public function setSiteEvent(SiteEvent $siteEvent)
     {
@@ -78,39 +96,43 @@ class BackendController implements DispatchableInterface,
     }
 
     /**
-     * Dispatches CMS request
+     * Dispatches backend request
      * @param Request $request
      * @param Response $response
      * @todo should we render UI in controller dispatch action?
      */
     public function dispatch(Request $request, Response $response = null)
     {
-        if (!$this->siteEvent->getSite()) {
-            throw new Exception\SiteNotFoundException(
-                    sprintf("%s: Site not found for hostname '%s'.",
-                            __METHOD__ , $this->siteEvent->getHost()));
-        }
-
-        $this->loadBackendConfig();
 
         $sm = $this->sm;
-        /* @var $page \Vivo\UI\Page */
+
+        //redirect bad backend urls
+        $host = $this->mvcEvent->getRouteMatch()->getParam('host');
+        if ($this->securityManager->getUserPrincipal()) {
+            if ($this->mvcEvent->getRouteMatch()->getMatchedRouteName() == 'backend/other'
+                || $this->mvcEvent->getRouteMatch()->getMatchedRouteName() == 'backend/default'
+                || !$this->mvcEvent->getRouteMatch()->getParam('module')
+                || !$host) {
+                $url = $this->urlHelper->fromRoute('backend/modules/query', array('host' => $host?:$this->getDefaultHost()));
+                $this->redirector->redirect(new RedirectEvent($url));
+                return $response;
+            }
+        }
+
+        //Create UI component tree for backend.
         $root = $sm->get('Vivo\CMS\UI\Root');
         $page = $sm->get('Vivo\UI\Page');
-
-
-         if ($this->securityManager->getUserPrincipal())
-         {
-             $page->setMain($sm->get('Vivo\Backend\UI\Backend'));
-         } else {
-             $page->setMain($sm->get('Vivo\Backend\UI\Logon'));
-         }
-
-
-
-
+        if (!$this->securityManager->getUserPrincipal()) {
+            $page->setMain($this->sm->get('Vivo\Backend\UI\Logon'));
+        } else {
+            $backend = $this->sm->get('Vivo\Backend\UI\Backend');
+            $moduleName = $this->mvcEvent->getRouteMatch()->getParam('module');
+            $backend->setModuleComponent($this->moduleResolver->createComponent($moduleName));
+            $page->setMain($backend);
+        }
         $root->setMain($page);
 
+        // Perform tree operations
         $this->tree->setRoot($root);
         $this->tree->loadState();
 
@@ -125,15 +147,13 @@ class BackendController implements DispatchableInterface,
                 $result = $this->tree->view();
             }
         }
-
         $this->tree->saveState();
         $this->tree->done();
 
-
+        // Return response
         if($this->redirector->isRedirect()){
             return $response;
         }
-
         if ($result instanceof ModelInterface) {
             $this->mvcEvent->setViewModel($result);
         } elseif ($result instanceof InputStreamInterface) {
@@ -148,12 +168,21 @@ class BackendController implements DispatchableInterface,
     }
 
     /**
+     * Returns hostname of site.
+     * @return string
+     */
+    public function getDefaultHost()
+    {
+        $sites = $this->siteApi->getManageableSites();
+        $hosts = reset($sites)->getHosts();
+        return reset($hosts);
+    }
+
+    /**
      * Handles action on component.
      */
     protected function handleAction()
     {
-        //TODO is a better way how to obtain params?
-        //TODO create router for asembling and matching path of action
         $request = $this->getRequest();
         if (!$action = $request->getQuery('act')) {
             if (!$action = $request->getPost('act')) {
@@ -171,28 +200,6 @@ class BackendController implements DispatchableInterface,
         return $this->tree->invokeAction($path, $action, $params);
     }
 
-    public function loadBackendConfig()
-    {
-        $config = include __DIR__."/../../../config/backend.config.php";
-
-        $cmsConfig = $this->sm->get('cms_config');
-        unset($cmsConfig['ui']);
-        $cmsConfig = ArrayUtils::merge($cmsConfig, $config);
-
-
-        $this->sm->setAllowOverride(true);
-        $this->sm->setService('cms_config', $cmsConfig);
-        $this->sm->setAllowOverride(false);
-
-        //reconfigure template resolver
-        $this->sm->get('template_resolver')->configure($cmsConfig['templates']);
-
-        //TODO reconfigure service manager
-
-        return $config;
-    }
-
-
     /**
      * @param Event $event
      */
@@ -202,7 +209,7 @@ class BackendController implements DispatchableInterface,
     }
 
     /**
-     * @return \Zend\Mvc\MvcEvent
+     * @return MvcEvent
      */
     public function getEvent()
     {
@@ -219,7 +226,7 @@ class BackendController implements DispatchableInterface,
     }
 
     /**
-     * @return \Zend\Stdlib\RequestInterface
+     * @return RequestInterface
      */
     public function getRequest() {
         return $this->mvcEvent->getRequest();
@@ -238,10 +245,37 @@ class BackendController implements DispatchableInterface,
 
     /**
      * Sets redirector.
-     * @param \Vivo\Util\Redirector $redirector
+     * @param Redirector $redirector
      */
     public function setRedirector(Redirector $redirector)
     {
         $this->redirector = $redirector;
+    }
+
+    /**
+     * Inject ModuleResolver
+     * @param ModuleResolver $moduleResolver
+     */
+    public function setModuleResolver(ModuleResolver $moduleResolver)
+    {
+        $this->moduleResolver = $moduleResolver;
+    }
+
+    /**
+     * Inject urlHelper.
+     * @param UrlHelper $urlHelper
+     */
+    public function setUrlHelper(UrlHelper $urlHelper)
+    {
+        $this->urlHelper = $urlHelper;
+    }
+
+    /**
+     *
+     * @param Api\Site $siteApi
+     */
+    public function setSiteApi(Api\Site $siteApi)
+    {
+        $this->siteApi = $siteApi;
     }
 }

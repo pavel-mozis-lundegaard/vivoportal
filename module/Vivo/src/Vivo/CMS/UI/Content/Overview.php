@@ -114,6 +114,8 @@ class Overview extends Component
         $query .= ' AND \publishedContents:"*"';  // search only documents with published content
         if ($criteria) {
             $query .= " AND ($criteria)";
+        } else {
+            $query .= ' AND NOT \path:"' . $path . '/*/*" '; //exlude sub-documents
         }
         return $query;
     }

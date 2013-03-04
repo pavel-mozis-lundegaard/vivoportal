@@ -28,6 +28,7 @@ class CMSFrontControllerFactory implements FactoryInterface
         $fc->setCMS($sm->get('Vivo\CMS\Api\CMS'));
         $fc->setSiteEvent($siteEvent);
         $fc->setRedirector($sm->get('redirector'));
+        $fc->setUrlHelper($sm->get('Vivo\Util\UrlHelper'));
         return $fc;
     }
 }

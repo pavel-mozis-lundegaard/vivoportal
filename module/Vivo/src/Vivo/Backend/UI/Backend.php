@@ -1,13 +1,22 @@
 <?php
 namespace Vivo\Backend\UI;
 
-use Vivo\UI\Text;
 use Vivo\UI\ComponentContainer;
 
-class Backend extends ComponentContainer{
+class Backend extends ComponentContainer
+{
 
-    public function __construct()
+    protected $routeMatch;
+
+    protected $sm;
+
+
+    protected $modules = array (
+            'explorer' => 'Vivo\Backend\UI\Explorer\Explorer',
+        );
+
+    public function setModuleComponent($component)
     {
-        $this->addComponent(new Text('test'), 'text');
+        $this->addComponent($component, 'module');
     }
 }

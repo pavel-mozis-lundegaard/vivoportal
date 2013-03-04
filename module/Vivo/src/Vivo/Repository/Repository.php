@@ -422,6 +422,27 @@ class Repository implements RepositoryInterface
 	}
 
     /**
+     * @param PathInterface $entity
+     * @return array
+     */
+    public function scanResources(PathInterface $entity)
+    {
+        $entityPath = $entity->getPath();
+
+        $resources = array();
+        $names = $this->storage->scan($entityPath);
+
+        foreach ($names as $name) {
+            $path = $this->pathBuilder->buildStoragePath(array($entityPath, $name));
+            if($name != self::ENTITY_FILENAME && $this->storage->isObject($path)) {
+                $resources[] = $name;
+            }
+        }
+
+        return $resources;
+    }
+
+    /**
      * Returns resource from storage
      * @param PathInterface $entity
      * @param string $name

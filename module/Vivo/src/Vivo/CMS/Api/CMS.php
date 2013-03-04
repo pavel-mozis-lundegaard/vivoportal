@@ -256,6 +256,26 @@ class CMS
         return $this->repository->getResource($entity, $resourcePath);
     }
 
+    /**
+     * Returns all resource names without entity object.
+     * @param Model\Entity $entity
+     * @return array
+     */
+    public function scanResources(Model\Entity $entity)
+    {
+        return $this->repository->scanResources($entity);
+    }
+
+    /**
+     * @param Model\Entity $entity
+     * @param string $name
+     */
+    public function removeResource(Model\Entity $entity, $name)
+    {
+        $this->repository->deleteResource($entity, $name);
+        $this->repository->commit();
+    }
+
     public function getEntityUrl(Model\Entity $entity)
     {
         //TODO - implement using PathBuilder

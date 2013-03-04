@@ -1,3 +1,9 @@
+<?if (isset($logonError)):?>
+	<div class="alert alert-error">
+	<?=$this->translate($logonError)?>
+	</div>
+<?endif?>
+
 <?if ($user):?>
 <a href="<?=$this->actionUrl('logoff');?>" class="user-logout"><span>X</span></a>
 <div class="user">

@@ -6,7 +6,7 @@ if ($visible):
 			<span><?= $this->translate($label) ?></span>
 		</a>
 	<?else:?>
-		<a href="<?=$this->actionURL('invoke')?>"  title="<?= $this->translate($label) ?>" class="<?=$active ? 'active' : ''?>">
+		<a href="<?=$this->actionUrl('click')?>"  title="<?= $this->translate($label) ?>" class="<?=$active ? 'active' : ''?>">
 			<img src="<?=$this->resource('backend/img/icons/24x24/' . $component['name'] . '.png','Vivo');?>" alt="<?= $this->translate($label) ?>" />
 			<span><?= $this->translate($label) ?></span>
 		</a>

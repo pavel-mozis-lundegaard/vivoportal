@@ -32,41 +32,10 @@ return array(
         ),
     ),
 
-    'component_mapping' => array (
-        'front_component' => array (
-        ),
-        'editor_component' => array (
-
-        ),
-    ),
     'service_manager' => array (
-        //configuration of service manager, services defined here should not override
-        //services defined in Vivo config
         'invokables' => array (
-            'Vivo\CMS\UI\Blank'             => 'Vivo\CMS\UI\Blank',
-            'Vivo\CMS\UI\Root'              => 'Vivo\CMS\UI\Root',
-            'Vivo\UI\ComponentContainer'    => 'Vivo\UI\ComponentContainer',
-            'Vivo\UI\TabContainer'          => 'Vivo\UI\TabContainer',
-            'Vivo\CMS\UI\Manager\Explorer\Ribbon'  => 'Vivo\CMS\UI\Manager\Explorer\Ribbon',
-            'layout_empty_panel'            => 'Vivo\UI\Text',
         ),
         'factories' => array (
-            'Vivo\CMS\UI\Content\File'      => 'Vivo\CMS\Service\UI\Content\FileFactory',
-            'Vivo\CMS\UI\Content\Hyperlink' => 'Vivo\CMS\Service\UI\Content\HyperlinkFactory',
-            'Vivo\CMS\UI\Content\Layout'    => 'Vivo\CMS\Service\UI\Content\LayoutFactory',
-            'Vivo\CMS\UI\Content\Overview'  => 'Vivo\CMS\Service\UI\Content\OverviewFactory',
-            'Vivo\CMS\UI\Content\Logon'     => 'Vivo\CMS\Service\UI\Content\LogonFactory',
-            'Vivo\CMS\UI\Manager\Explorer\Explorer'  => 'Vivo\CMS\UI\Manager\Explorer\ExplorerFactory',
-            'Vivo\CMS\UI\Manager\Explorer\Editor'  => 'Vivo\CMS\UI\Manager\Explorer\EditorFactory',
-            'Vivo\UI\Page'                  => 'Vivo\Service\UI\PageFactory',
-            'Vivo\UI\Alert'                  => 'Vivo\UI\AlertFactory',
-            'security_manager'              => 'Vivo\Service\SimpleSecurityManagerFactory',
-//            'security_manager'              => 'Vivo\Service\DbSecurityManagerFactory',
-
-        //backend
-        //TODO move to own config
-            'Vivo\Backend\UI\Backend'    => 'Vivo\Backend\UI\BackendFactory',
-            'Vivo\Backend\UI\Explorer\Explorer'    => 'Vivo\Backend\UI\Explorer\ExplorerFactory',
         ),
         'aliases' => array(
         ),
@@ -94,34 +63,33 @@ return array(
                             'media' => 'screen'
                     ),
                     array(
-                            'rel'  => 'stylesheet',
-                            'href' => '.Vivo.resource/backend/css/manager.css',
-                            'type' => 'text/css',
-                            'media' => 'screen'
+                        'rel'  => 'stylesheet',
+                        'href' => '.Vivo.resource/backend/css/manager.css',
+                        'type' => 'text/css',
+                        'media' => 'screen'
                     ),
-            ),
+                ),
                 'scripts' => array (
                     // array(
                     //     'src' => '.Vivo.resource/bootstrap/js/bootstrap.js',
                     //     'type' => 'text/javascript',
                     // ),
                     array(
-                        'src' => '/.Vivo.resource/backend/js/finder.js',
-                        'type' => 'text/javascript',
-                    ),
-                    array(
-                        'src' => '/.Vivo.resource/backend/js/manager.js',
+                        'src' => '.Vivo.resource/js/jquery.js',
                         'type' => 'text/javascript',
                     ),
                      array(
-                        'src' => '/.Vivo.resource/backend/js/jquery-ui.js',
+                        'src' => '.Vivo.resource/backend/js/jquery-ui.js',
                         'type' => 'text/javascript',
                     ),
                     array(
-                        'src' => '/.Vivo.resource/js/jquery.js',
+                        'src' => '.Vivo.resource/backend/js/manager.js',
                         'type' => 'text/javascript',
                     ),
-                    
+                    array(
+                        'src' => '.Vivo.resource/backend/js/finder.js',
+                        'type' => 'text/javascript',
+                    ),
                 ),
             'metas' => array (
 //                     array (
@@ -136,6 +104,43 @@ return array(
                 //     'content' => 'text/html',
                 //     'charset' => 'utf-8',
                 // ),
+            ),
+        ),
+    ),
+    'output_filters' => array (
+        //register output filters
+        //'Vivo\Http\Filter\UpperCase',
+    ),
+    //Backend config
+    'backend'       => array(
+        'plugins' => array (
+            'explorer' => array (
+                'name' => 'explorer',
+                'title' => 'Explorer',
+                'componentClass' => 'Vivo\Backend\UI\Explorer\Explorer',
+                'icon'  => '.Vivo.resource/backend/img/icons/24x24/explorer.png',
+            ),
+            'site' => array (
+                'name' => 'site',
+                'title' => 'Site',
+                'componentClass' => 'Vivo\CMS\UI\Blank',
+                'icon'  => '.Vivo.resource/backend/img/icons/24x24/site.png',
+            ),
+            'blank' => array (
+                'name' => 'blank',
+                'title' => 'Blank',
+                'componentClass' => 'Vivo\CMS\UI\Blank',
+                'icon'  => '.Vivo.resource/backend/img/icons/24x24/explorer.png',
+            ),
+        ),
+
+    //Backend modules
+        'modules'       => array(
+            'Bootstrap2_3_0'    => array(
+                'enabled'           => true,
+            ),
+            'TinyMCE3_5_6_Vivo' => array(
+                'enabled'           => true,
             ),
         ),
     ),

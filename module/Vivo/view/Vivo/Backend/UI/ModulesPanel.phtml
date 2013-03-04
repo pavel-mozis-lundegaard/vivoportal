@@ -1,4 +1,9 @@
 <ul>
-	<li class="selected"><a href="<?=$this->url(null, array('module'=>'explorer'))?>" title="<?=$this->translate('Explorer')?>"><img src="<?= $this->resource('backend/img/icons/24x24/explorer.png','Vivo')?>" alt=""></a></li>
-	<li><a href="<?=$this->url(null, array('module'=>'sample'))?>" title="<?=$this->translate('Sample')?>"><img src="<?= $this->resource('backend/img/icons/24x24/explorer.png','Vivo')?>" alt=""></a></li>
+	<?foreach ($modules as $module):?>
+	<li class="selected">
+		<a href="<?=$this->url(null, array('module'=>$module['name']))?>" title="<?=$this->translate($module['title'])?>">
+			<img src="<?=$module['icon']?>" alt="<?=$this->translate($module['title'])?>"/>
+		</a>
+	</li>
+	<?endforeach;?>
 </ul>

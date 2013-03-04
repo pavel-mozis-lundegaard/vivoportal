@@ -15,15 +15,16 @@ class EntityEditor extends Form
      *
      * @param string $name Form and fieldset name.
      * @param array $metadata
+     * @param array $lookupData
      */
-    public function __construct($name, array $metadata)
+    public function __construct($name, array $metadata, array $lookupData)
     {
         parent::__construct($name);
 
         $this->setAttribute('method', 'post');
 
         // Fieldset
-        $fieldset = new EntityEditorFieldset($name, $metadata);
+        $fieldset = new EntityEditorFieldset($name, $metadata, $lookupData);
         $fieldset->setHydrator(new ClassMethodsHydrator(false));
         $fieldset->setOptions(array('use_as_base_fieldset' => true));
 

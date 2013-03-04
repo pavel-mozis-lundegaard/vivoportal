@@ -32,10 +32,6 @@ class EntityEditor extends Fieldset
             if(!empty($attrs['description'])) {
                 $options['description'] = $attrs['description'];
             }
-            //FIXME:
-            if(!empty($attrs['important'])) {
-                $options['class'] = 'important';
-            }
 
             // Attributes
             $attributes = array();

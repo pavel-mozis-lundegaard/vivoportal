@@ -13,8 +13,9 @@ class EntityEditor extends Fieldset
      *
      * @param string $name Fieldset name.
      * @param array $metadata
+     * @param array $lookupData
      */
-    public function __construct($name, array $metadata)
+    public function __construct($name, array $metadata, array $lookupData)
     {
         parent::__construct($name);
 

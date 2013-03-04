@@ -210,7 +210,7 @@ class Page extends ComponentContainer
             $data->attributes = $script;
             $scripts[] = $data;
         }
-        $this->view->scripts = $scripts;
+        $this->view->scripts = array_reverse($scripts);
 
         $this->view->metas = $this->metas;
         $this->view->doctype = $this->doctype;

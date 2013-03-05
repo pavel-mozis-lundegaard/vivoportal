@@ -233,6 +233,7 @@ return array(
             'indexer_query_parser'      => 'Vivo\Service\IndexerQueryParserFactory',
             'module_name_resolver'      => 'Vivo\Service\ModuleNameResolverFactory',
             'metadata_manager'          => 'Vivo\Service\MetadataManagerFactory',
+            'lookup_data_manager'       => 'Vivo\LookupData\LookupDataManagerFactory',
             'redirector'                => 'Vivo\Util\RedirectorFactory',
             'logger'                    => 'Vivo\Service\LoggerFactory',
             'default_log'               => 'Vivo\Service\LogFileWriterFactory',

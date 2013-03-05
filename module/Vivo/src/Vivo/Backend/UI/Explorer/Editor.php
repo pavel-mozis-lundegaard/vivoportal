@@ -96,6 +96,11 @@ class Editor extends AbstractForm
 
         $this->getForm()->bind($this->entity);
 
+        try {
+            $this->getComponent('resourceEditor')->setEntity($this->entity);
+        }
+        catch (\Vivo\UI\Exception\ComponentNotExists $e) { }
+
         parent::init();
         $this->initForm();
     }
@@ -131,21 +136,31 @@ class Editor extends AbstractForm
         $this->addComponent($tab, 'contentTab');
     }
 
+    /**
+     * @param \Vivo\Backend\UI\Explorer\Editor\Resource $editor
+     */
+    public function setResourceEditor(Editor\Resource $editor)
+    {
+        $this->addComponent($editor, 'resourceEditor');
+    }
+
     protected function doGetForm()
     {
         $metadata = $this->metadataManager->getMetadata(get_class($this->entity));
-        $lookupData = $this->lookupDataManager->getLookupData($metadata, $this->entity);
+        $lookupData = $this->lookupDataManager->injectLookupData($metadata, $this->entity);
         $action = $this->request->getUri()->getPath();
+
         $buttonsFieldset = new Fieldset('buttons');
         $buttonsFieldset->add(array(
             'name' => 'save',
             'attributes' => array(
                 'type'  => 'submit',
                 'value' => 'Save',
+                'class' => 'btn',
             ),
         ));
 
-        $form = new EntityEditorForm('entity', $metadata, $lookupData);
+        $form = new EntityEditorForm('entity', $lookupData);
         $form->setAttribute('action', $action);
         $form->add(array(
             'name' => 'act',

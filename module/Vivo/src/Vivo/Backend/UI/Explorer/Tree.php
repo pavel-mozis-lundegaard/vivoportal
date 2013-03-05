@@ -48,17 +48,7 @@ class Tree extends Component
     }
 
     /**
-     * Creates document tree and set it to view.
-     */
-    protected function refreshTree()
-    {
-        $rootDocument = $this->getSiteRoot();
-        $this->view->tree = $this->getDocumentTree($rootDocument,
-                $this->explorer->getEntity()->getPath());
-    }
-
-    /**
-     *
+     * Inject Explorer.
      * @param ExplorerInterface $explorer
      */
     public function setExplorer(ExplorerInterface $explorer)
@@ -67,7 +57,7 @@ class Tree extends Component
     }
 
     /**
-     *
+     * Change entity beeing browsed.
      * @param string $relPath
      */
     public function set($relPath)
@@ -76,8 +66,8 @@ class Tree extends Component
     }
 
     /**
-     * Show
-     * @param type $relPath
+     * Show browser with opened path.
+     * @param string $relPath
      */
     public function showMore($relPath)
     {
@@ -91,8 +81,24 @@ class Tree extends Component
      */
     public function view()
     {
-        $this->refreshTree();
+        $this->view->tree = $this->getDocumentTree($this->getSiteRoot(), $this->explorer->getEntity()->getPath());
         return parent::view();
+    }
+
+    /**
+     * Action for get subtree by AJAX.
+     * @param string $relPath
+     * @return \Zend\View\Model\ViewModel
+     */
+    public function getSubtree($relPath)
+    {
+        $view = new \Zend\View\Model\ViewModel();
+        $view->setTemplate(__CLASS__.':Subtree');
+         $folder = $this->cmsApi->getSiteEntity($relPath, $this->explorer->getSite());
+        $tree = $this->getDocumentTree($folder, $folder->getPath());
+        $nodes = $tree->getChildrenNodes();
+        $view->tree = reset($nodes);
+        return $view;
     }
 
     /**
@@ -104,7 +110,6 @@ class Tree extends Component
      */
     protected function getDocumentTree(Folder $rootFolder, $expandedPath = '', $maxItems = 10)
     {
-
         $que = new \SplQueue();
         $tree = new DataTree($rootFolder);
         $root = new DataTree();
@@ -127,7 +132,7 @@ class Tree extends Component
             $a['expandable'] = (boolean) count($children);
             $a['count'] = count($children);
 
-            if ($node->getParent()->value['document']) {
+            if ($node->getParent() && isset($node->getParent()->value['document'])) {
                 $a['parent_rel_path'] = $this->cmsApi->getEntityRelPath(
                         $node->getParent()->value['document']);
             }

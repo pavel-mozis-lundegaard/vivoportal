@@ -12,14 +12,13 @@ class EntityEditor extends Fieldset
      * Constructor.
      *
      * @param string $name Fieldset name.
-     * @param array $metadata
      * @param array $lookupData
      */
-    public function __construct($name, array $metadata, array $lookupData)
+    public function __construct($name, array $lookupData)
     {
         parent::__construct($name);
 
-        foreach ($metadata as $name => $attrs) {
+        foreach ($lookupData as $name => $attrs) {
             if(!isset($attrs['field_type'])) {
                 continue;
             }
@@ -33,12 +32,10 @@ class EntityEditor extends Fieldset
             if(!empty($attrs['description'])) {
                 $options['description'] = $attrs['description'];
             }
-            if(!empty($attrs['important'])) {
-                $options['class'] = 'important';
-            }
 
             // Attributes
             $attributes = array();
+            $attributes['id'] = $name;
 
             if(!empty($attrs['options']) && is_array($attrs['options'])) {
                 $attributes['options'] = $attrs['options'];

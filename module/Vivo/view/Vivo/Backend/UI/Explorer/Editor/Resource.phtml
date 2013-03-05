@@ -1,0 +1,4 @@
+<? foreach ($resources as $i => $resource) : ?>
+    <?=++$i?>. <?=$resource?> <a href="<?=$this->actionUrl('delete', array('name'=>$resource))?>" title="Delete?">X</a><br>
+<? endforeach; ?>
+<?=$this->vivoForm($form)?>

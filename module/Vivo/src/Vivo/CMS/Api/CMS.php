@@ -248,12 +248,12 @@ class CMS
     /**
      * Returns content of entity resource.
      * @param Model\Entity $entity
-     * @param string $resourcePath
+     * @param string $name
      * @return string
      */
-    public function getResource(Model\Entity $entity, $resourcePath)
+    public function getResource(Model\Entity $entity, $name)
     {
-        return $this->repository->getResource($entity, $resourcePath);
+        return $this->repository->getResource($entity, $name);
     }
 
     /**

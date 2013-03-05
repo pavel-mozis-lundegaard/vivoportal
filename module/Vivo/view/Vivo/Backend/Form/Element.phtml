@@ -1,0 +1,10 @@
+<?
+/*
+ * @param \Vivo\Form\Element $element
+ */
+echo $this->formRow($element);
+$desc = $element->getOption('description');
+if($desc) {
+    echo sprintf('<div class="hint" id="%s_hint">%s</div>', $element->getAttribute('id'), htmlspecialchars($desc));
+}
+?>

@@ -1,18 +1,38 @@
+var action_param = "act";
+
 //onload
 $(document).ready(function() {
 	$("#loader").hide();
 	$("#wrapper").show();
-	jQuery(document)
-		.ajaxStart(function() {
-		$("#loader").show();
-	})
-		.ajaxSuccess(function() {
-		$("#loader").hide();
+
+	$.ajaxSetup({
+		url: window.location.pathname,
+		type: "POST"
 	});
 
+	//alert(window.location.pathname);
+
+	jQuery(document)
+	.ajaxStart(function() {
+		$("#loader").show();
+	})
+	.ajaxSuccess(function() {
+		$("#loader").hide();
+	})
+	.ajaxError(function(event, jqxhr, settings, exception) {
+		$("#loader").hide();
+		alert("Ajax error ...\n" + exception);
+	});
+
+		
+
 	checkHeight();
+	$(window).resize(function() {checkHeight();});
 		
 	startclock();
+
+	//init treemenu
+	initTreeMenu('#treeMenu');
 
 	//manager logout window
 	$(window).resize(function() {shadowWindow("#logoutDialog", ".manager_content");});
@@ -25,9 +45,85 @@ $(document).ready(function() {
 	})	
 });
 
-function action() {
-	console.log("TODO action ...");
-	return false;
+$.fn.dropShadow = function() {
+	console.log("TODO shadows ...");
+	return $(this);
+}
+
+$.fn.removeShadow = function() {
+	console.log("TODO shadows ...");
+	return $(this);
+}
+
+function prepareActionData(act) {
+	var data = action_param + '=' + act;
+	for (var i = 1; i < arguments.length; i++) 
+	    data += '&args[]=' + encodeURIComponent(arguments[i]);  
+	return data;
+}
+
+function action(act) {
+
+	//console.log("TODO action ...");
+	//return false;
+
+	if (typeof act ==='function' && typeof jQuery ==='function') {//first argument is callback 
+		//jQuery.post( url [, data ] [, success(data, textStatus, jqXHR) ] [, dataType ] )
+		jQuery.post(window.location.pathname, {async: 1, act: arguments[1], args:  jQuery.makeArray(arguments).slice(2)}, act, 'json');
+		return;
+	}
+
+	if (typeof act === 'string' && typeof jQuery ==='function') {
+		var data = prepareActionData(act, arguments);
+	}
+
+	var beforeSend = function() {},
+	error = function() {},
+	success = function() {},
+	complete = function() {},
+	return_complete = true;
+
+	if (typeof act === 'object' && typeof jQuery ==='function') {
+		if (typeof act.beforeSend === "function") {
+			beforeSend = act.beforeSend;
+		}
+		if (typeof act.error === "function") {
+			error = act.error;
+		}
+		if (typeof act.success === "function") {
+			success = act.success;
+		}
+		if (typeof act.complete === "function") {
+			complete = act.complete;
+		}
+		return_complete = false;
+		var data = act.data || "";
+	}
+
+	var result;
+	
+	$.ajax({
+		data: data,
+		beforeSend: function(jqXHR, settings) {
+			beforeSend(jqXHR, settings);
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			error(jqXHR, textStatus, errorThrown);
+		},		
+		success: function(res, textStatus, jqXHR) {
+			success(res, textStatus, jqXHR);
+			result = res;
+		 },
+		 complete: function(jqXHR, textStatus) {
+		 	//complete(jqXHR, textStatus);
+			//console.log(jqXHR.responseText)
+		  	//eval('result = ' + jqXHR.responseText);
+		 }
+	})
+	
+	if (return_complete) {
+		return result;        
+	}                                 
 }
 
 //--build layout
@@ -183,82 +279,93 @@ function initTreeMenu(elm) {
    		e.cancelBubble = true;
 
    		var _this = $(this);
- 		var _path = _this.attr("id").substring(5);
-		var _params = _this.attr("id");
+ 		var _path = _this.attr("data-path");
+		var _params = _this.attr("id").substring(5);
 		
 		if (_this.hasClass("expandable-hitarea")) {
-			treeMenu(_path, 1);
+			treeMenu(_path, elm, _params, 1);
 		} else {
-			treeMenu(_path, 0);
+			treeMenu(_path, elm, _params, 0);
 		}
 	});
 }
 
 //vykreslovani tree menu + preloader
-function treeMenu(_path, act) {
+function treeMenu(_path, root, _params, act) {
 	if (act) {//show new subtree
 		//show preloader
-		$("#cont-" + container).after(
+		$("#cont-" + _params).after(
 				$(document.createElement("span"))
 				.attr("class",  "preloader")
 				.text(" ")
 		);
 		//get new html content
-		var htmlContent = action($("#treeMenu").attr("rel"), 'viewSubTree', _path, level, pos, _hash);
-		
-		//add html content
-		$("#cont-"+level+"-"+pos+"-"+_hash).after(htmlContent);
-		//temp hide html content
-		$("#sub-"+parseInt(parseInt(level) + 1)+"-"+pos+"-"+_hash).hide();
-		//begin hiding preloader
-		$("#li-"+level+"-"+pos+"-"+_hash+" span.preloader").slideUp("fast");
-		//show new html content / new subtree menu and call callback
-		$("#sub-"+parseInt(parseInt(level) + 1)+"-"+pos+"-"+_hash).slideDown("fast", function() {
-			//init action for new html content/new subtree menu
-			initTreeMenu('#sub-' + +parseInt(parseInt(level) + 1)+"-"+pos+"-"+_hash);
-			//destruct preloader
-			$("#li-"+level+"-"+pos+"-"+_hash+" span.preloader").remove();
-			//check hitcher
-			checkHeight();
+		//var htmlContent = action($(root).attr("data-action"), _path);
+		action({
+			data: prepareActionData($("#treeMenu").attr("data-action"), [_path]),
+			error: function() {
+				$(root).find(".preloader").remove();
+			},
+			success: function(res) {
+				if (res) {
+					//add html content
+					$("#cont-"+_params).after(res);
+					//temp hide html content
+					$("#sub-"+_params).hide();
+					//begin hiding preloader
+					$("#li-"+_params+" span.preloader").slideUp("fast");
+					//show new html content / new subtree menu and call callback
+					$("#sub-"+_params).slideDown("fast", function() {
+						//init action for new html content/new subtree menu
+						initTreeMenu('#sub-' + _params);
+						//destruct preloader
+						$("#li-"+_params+" span.preloader").remove();
+						//check hitcher
+						checkHeight();
+					});
+					//switch expand and collaps classes
+					$("#tree-"+_params).removeClass("expandable-hitarea").addClass("collapsable-hitarea");
+					$("#li-"+_params).removeClass("expandable").addClass("collapsable");
+
+					if ($("#tree-"+_params).hasClass("last-expandable-hitarea")) {
+						$("#tree-"+_params).removeClass("last-expandable-hitarea").addClass("last-collapsable-hitarea");
+					}
+					else if ($("#tree-"+_params).hasClass("last-collapsable-hitarea")) {
+						$("#tree-"+_params).removeClass("last-collapsable-hitarea").addClass("last-expandable-hitarea");
+					}
+
+					if ($("#li-"+_params).hasClass("last-expandable")) {
+						$("#li-"+_params).removeClass("last-expandable").addClass("last-collapsable");
+					}
+					 else if ($("#li-"+_params).hasClass("last-collapsable")) {
+						$("#li-"+_params).removeClass("last-collapsable").addClass("last-expandable");
+					}
+				}
+			},
+			complete: function(jqXHR, textStatus) {
+			}
 		});
-		//switch expand and collaps classes
-		$("#tree-"+level+"-"+pos+"-"+_hash).removeClass("expandable-hitarea").addClass("collapsable-hitarea");
-		$("#li-"+level+"-"+pos+"-"+_hash).removeClass("expandable").addClass("collapsable");
-
-		if ($("#tree-"+level+"-"+pos+"-"+_hash).hasClass("last-expandable-hitarea")) {
-			$("#tree-"+level+"-"+pos+"-"+_hash).removeClass("last-expandable-hitarea").addClass("last-collapsable-hitarea");
-		}
-		else if ($("#tree-"+level+"-"+pos+"-"+_hash).hasClass("last-collapsable-hitarea")) {
-			$("#tree-"+level+"-"+pos+"-"+_hash).removeClass("last-collapsable-hitarea").addClass("last-expandable-hitarea");
-		}
-
-		if ($("#li-"+level+"-"+pos+"-"+_hash).hasClass("last-expandable")) {
-			$("#li-"+level+"-"+pos+"-"+_hash).removeClass("last-expandable").addClass("last-collapsable");
-		}
-		 else if ($("#li-"+level+"-"+pos+"-"+_hash).hasClass("last-collapsable")) {
-			$("#li-"+level+"-"+pos+"-"+_hash).removeClass("last-collapsable").addClass("last-expandable");
-		}
 	} else { //destruct subtree
-		$("#sub-"+parseInt(parseInt(level) + 1)+"-"+pos+"-"+_hash).slideUp("fast", function() {
+		$("#sub-"+_params).slideUp("fast", function() {
 			$(this).remove();
 			//check hitcher
 			checkHeight();
 		});
-		$("#tree-"+level+"-"+pos+"-"+_hash).addClass("expandable-hitarea").removeClass("collapsable-hitarea");
-		$("#li-"+level+"-"+pos+"-"+_hash).addClass("expandable").removeClass("collapsable");
+		$("#tree-"+_params).addClass("expandable-hitarea").removeClass("collapsable-hitarea");
+		$("#li-"+_params).addClass("expandable").removeClass("collapsable");
 
-		if ($("#tree-"+level+"-"+pos+"-"+_hash).hasClass("last-expandable-hitarea")) {
-			$("#tree-"+level+"-"+pos+"-"+_hash).removeClass("last-expandable-hitarea").addClass("last-collapsable-hitarea");
+		if ($("#tree-"+_params).hasClass("last-expandable-hitarea")) {
+			$("#tree-"+_params).removeClass("last-expandable-hitarea").addClass("last-collapsable-hitarea");
 		}
-		else if ($("#tree-"+level+"-"+pos+"-"+_hash).hasClass("last-collapsable-hitarea")) {
-			$("#tree-"+level+"-"+pos+"-"+_hash).removeClass("last-collapsable-hitarea").addClass("last-expandable-hitarea");
+		else if ($("#tree-"+_params).hasClass("last-collapsable-hitarea")) {
+			$("#tree-"+_params).removeClass("last-collapsable-hitarea").addClass("last-expandable-hitarea");
 		}
 
-		if ($("#li-"+level+"-"+pos+"-"+_hash).hasClass("last-expandable")) {
-			$("#li-"+level+"-"+pos+"-"+_hash).removeClass("last-expandable").addClass("last-collapsable");
+		if ($("#li-"+_params).hasClass("last-expandable")) {
+			$("#li-"+_params).removeClass("last-expandable").addClass("last-collapsable");
 		}
-		else if ($("#li-"+level+"-"+pos+"-"+_hash).hasClass("last-collapsable")) {
-			$("#li-"+level+"-"+pos+"-"+_hash).removeClass("last-collapsable").addClass("last-expandable");
+		else if ($("#li-"+_params).hasClass("last-collapsable")) {
+			$("#li-"+_params).removeClass("last-collapsable").addClass("last-expandable");
 		}
 	}
 }

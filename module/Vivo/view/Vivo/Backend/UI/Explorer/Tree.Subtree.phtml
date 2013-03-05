@@ -3,7 +3,7 @@
 	$master_level = $tree->getDeep();
 	//print_r($root);
 ?>
-<ul <?=($master_level != 0) ? "class=sub-".$tree->value['rel_path'] : "" ?>>
+<ul <?=($master_level != 0) ? "id=sub-".$tree->value['document']->getUuid() : "" ?>>
 	<? $i = 0; ?>
 	<? foreach ($root as $item): ?>
 		<?
@@ -21,12 +21,12 @@
 
 
 		?>
-		<li class="<?=implode(' ', $li_class);?>"  id="li-<?=$document['rel_path']?>">
+		<li class="<?=implode(' ', $li_class);?>"  id="li-<?=$document['document']->getUuid();?>">
 			<? if ($document['expandable'] && $document['level'] > 1): ?>
-				<div class="hitarea <?=$cur_status?>-hitarea<?=($last) ? " last-$cur_status-hitarea" : ''?>" id="tree-<?=$document['rel_path']?>"></div>
+				<div class="hitarea <?=$cur_status?>-hitarea<?=($last) ? " last-$cur_status-hitarea" : ''?>" id="tree-<?=$document['document']->getUuid();?>" data-path="<?=$document['rel_path']?>"></div>
 			<? endif; ?>
 						
-			<span class="<?=($document['expandable'])?'folder':'file'?>" id="cont-<?=$document['rel_path']?>">
+			<span class="<?=($document['expandable'])?'folder':'file'?>" id="cont-<?=$document['document']->getUuid();?>">
 				<img src="<?= $this->resource('backend/img/icons/16x16/File.png','Vivo')?>" alt="" />
 					<? if ($document['published']): ?>
 					<span class="published"></span>

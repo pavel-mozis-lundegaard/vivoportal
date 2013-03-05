@@ -1,7 +1,7 @@
 <?
 foreach ($form->get('content')->getElements() as $name=>$element) {
     if($name != 'state') {
-        echo $this->formRow($element);
+        echo $this->partial('Vivo\Backend\Form\Element', array('element'=>$element));
     }
 }
 ?>

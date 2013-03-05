@@ -35,6 +35,7 @@ class EntityEditor extends Fieldset
 
             // Attributes
             $attributes = array();
+            $attributes['id'] = $name;
 
             if(!empty($attrs['options']) && is_array($attrs['options'])) {
                 $attributes['options'] = $attrs['options'];

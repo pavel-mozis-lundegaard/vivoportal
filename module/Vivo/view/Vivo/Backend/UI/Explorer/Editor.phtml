@@ -1,6 +1,12 @@
 Editor<hr>
 <form action="<?=$form->getAttribute('action')?>" method="<?=$form->getAttribute('method')?>">
-    <?=$this->vivoFormFieldset($form->get('entity'))?>
+    <fieldset>
+    <?
+    foreach ($form->get('entity')->getElements() as $element) {
+        echo $this->partial('Vivo\Backend\Form\Element', array('element'=>$element));
+    }
+    ?>
+    </fieldset>
     <?=$contentTab?>
     <hr>
     <?=$this->formRow($form->get('act'))?>

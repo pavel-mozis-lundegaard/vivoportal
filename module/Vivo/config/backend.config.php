@@ -30,6 +30,7 @@ return array(
             'Vivo\Backend\UI\ModulesPanel'                  => __DIR__.'/../view/Vivo/Backend/UI/ModulesPanel.phtml',
             'Vivo\Backend\UI\SiteSelector'                  => __DIR__.'/../view/Vivo/Backend/UI/SiteSelector.phtml',
             'Vivo\Backend\Form\Element'                     => __DIR__.'/../view/Vivo/Backend/Form/Element.phtml',
+            'Vivo\Backend\UI\Explorer\Editor\Resource'      => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Editor/Resource.phtml',
         ),
     ),
 

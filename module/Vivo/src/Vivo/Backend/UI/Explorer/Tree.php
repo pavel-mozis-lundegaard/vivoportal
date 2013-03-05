@@ -129,6 +129,7 @@ class Tree extends Component
             $a['level'] = $node->getDeep();
             $a['rel_path'] = $this->cmsApi->getEntityRelPath($child);
             $a['active'] = $child->getPath() == $expandedPath;
+            $a['active_path'] = (strpos($expandedPath, $child->getPath()) !== false);
             $a['expandable'] = (boolean) count($children);
             $a['count'] = count($children);
 

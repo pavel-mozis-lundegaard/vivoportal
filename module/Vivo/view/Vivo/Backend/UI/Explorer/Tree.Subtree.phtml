@@ -12,7 +12,7 @@
 			$last = ($i == $tree->value['count'] - 1);
 			$li_class = array();
 			$cur_status = "normal";
-			if ($document['expandable']) $li_class[] = $cur_status = "expandable";
+			if ($document['expandable']) $li_class[] = $cur_status = $document['active_path'] ? "collapsable" : "expandable";
 			if ($last) $li_class[] = ($document['expandable']) ? "last-".$cur_status : "last";
 			if (($document['level'] == 1 && $i == 0)) $li_class[] = "root";
 			if (!count($li_class)) $li_class[] = "normal";

@@ -491,7 +491,7 @@ body.manager a:hover {
 .manager .manager_panel {
 	float: left;
 	width: 43px;
-	background: #e6edf4 url("../img/manager/default/manager_panel_background.png") top left repeat-y;
+	background: #e6edf4;// url("../img/manager/default/manager_panel_background.png") top left repeat-y;
 	border-right: 1px #434d58 solid;
 	border-top: 1px #95abbf solid;
 	border-left: 1px #e9ebed solid;
@@ -534,7 +534,8 @@ body.manager a:hover {
 .manager .manager_content {
 	/*background: @background-color-content;*/
 	margin-left: 45px;
-	background: url("../img/manager/default/bgrnd.png") top left repeat-x;
+	background: #b2c9d0; //url("../img/manager/default/bgrnd.png") top left repeat-x;
+	.background-image(~"linear-gradient(top, #536f79 -2%, #b1c9cf 102%)"); // gradient overlay
 	height: 100%;
 }
 
@@ -575,7 +576,9 @@ body.manager a:hover {
 	height: 37px;
 	padding-right: 23px;
 	border-bottom: 1px #8b9baa solid;
-	background: #e0ebf8 url("../img/manager/default/explorer/finder_background.gif") top left repeat-x;
+	background: #e6effa;// url("../img/manager/default/explorer/finder_background.gif") top left repeat-x;
+	.background-image(~"linear-gradient(bottom, #dfebf7 0%, #f7f9fd 100%)"); // gradient overlay
+	.box-shadow(~"inset 0 -1px 1px #b1c7de");
 	z-index: 500;
 }
 
@@ -1162,7 +1165,7 @@ body.manager a:hover {
 
 .manager #finder .finderHolder {
 	padding: 4px;
-	background: url("../img/manager/default/explorer/finder_holder_background.gif") 0px 1px no-repeat;
+	//background: url("../img/manager/default/explorer/finder_holder_background.gif") 0px 1px no-repeat;
 }
 
 .manager #finder .finderHolder .path_root {
@@ -2319,6 +2322,7 @@ a img { border: none; }
 	position: absolute;
 	top: 100px;
 	left: 100px;
+	.box-shadow(~"0 0 25px rgba(0,0,0,.65)"); // drop shadow
 }
 
 .manager #logoutDialog .logoutDialogHeader {
@@ -2369,7 +2373,8 @@ a img { border: none; }
 
 .manager #logoutDialog .browsers {display: none;}
 .manager #logoutDialog .browsers td {
-	background: #fff url(../img/manager/default/browsers_td_background.png) 0 0 repeat-x;
+	background: #fff;// url(../img/manager/default/browsers_td_background.png) 0 0 repeat-x;
+	.background-image(~"linear-gradient(bottom, #fdfdff 0%, #f7f9fd 100%)"); // gradient overlay
 	padding-bottom: 5px;
 	text-align: justify;
 	font-size: 12px;

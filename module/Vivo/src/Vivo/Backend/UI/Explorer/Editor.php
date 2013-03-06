@@ -3,14 +3,15 @@ namespace Vivo\Backend\UI\Explorer;
 
 use Vivo\UI\AbstractForm;
 use Vivo\UI\Alert;
-use Vivo\Form\Fieldset;
-use Vivo\Backend\UI\Form\EntityEditor as EntityEditorForm;
+use Vivo\Form;
+use Vivo\Backend\UI\Form\Fieldset\EntityEditor as EntityEditorFieldset;
 use Vivo\CMS\AvailableContentsProvider;
 use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 use Vivo\CMS\Model\Document;
 use Vivo\CMS\Model\ContentContainer;
 use Vivo\Util\RedirectEvent;
 use Vivo\LookupData\LookupDataManager;
+use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
 
 class Editor extends AbstractForm
 {
@@ -150,7 +151,13 @@ class Editor extends AbstractForm
         $lookupData = $this->lookupDataManager->injectLookupData($metadata, $this->entity);
         $action = $this->request->getUri()->getPath();
 
-        $buttonsFieldset = new Fieldset('buttons');
+        // Entity fieldset
+        $editorFieldset = new EntityEditorFieldset('entity', $lookupData);
+        $editorFieldset->setHydrator(new ClassMethodsHydrator(false));
+        $editorFieldset->setOptions(array('use_as_base_fieldset' => true));
+
+        // Buttons
+        $buttonsFieldset = new Form\Fieldset('buttons');
         $buttonsFieldset->add(array(
             'name' => 'save',
             'attributes' => array(
@@ -160,8 +167,9 @@ class Editor extends AbstractForm
             ),
         ));
 
-        $form = new EntityEditorForm('entity', $lookupData);
+        $form = new Form\Form('entity');
         $form->setAttribute('action', $action);
+        $form->setAttribute('method', 'post');
         $form->add(array(
             'name' => 'act',
             'attributes' => array(
@@ -169,6 +177,8 @@ class Editor extends AbstractForm
                 'value' => $this->getPath('save'),
             ),
         ));
+
+        $form->add($editorFieldset);
         $form->add($buttonsFieldset);
 
         return $form;

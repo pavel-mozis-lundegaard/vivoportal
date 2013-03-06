@@ -39,12 +39,22 @@ interface DocumentInterface
     public function publishContent(Model\Content $content);
 
     /**
+     * @return array
+     */
+    public function getWorkflowStates();
+
+    /**
+     * @return array
+     */
+    public function getWorkflowAvailableStates();
+
+    /**
      * Sets a workflow state to the content
      * @param Model\Content $content
      * @param string $state
      * @throws \Vivo\CMS\Exception\InvalidArgumentException
      */
-    public function setState(Model\Content $content, $state);
+    public function setWorkflowState(Model\Content $content, $state);
 
     /**
      * Returns document for the given content
@@ -108,7 +118,7 @@ interface DocumentInterface
     public function moveDocument(Model\Document $document, Model\Site $site, $targetUrl, $targetName, $title,
                                  $createHyperlink);
 
-    public function saveDocument(Model\Document $document/*, $parent = null*/);
+    public function saveDocument(Model\Document $document);
 
     /**
      * Returns child documents.
@@ -116,10 +126,6 @@ interface DocumentInterface
      * @return Model\Document[]
      */
     public function getChildDocuments(Model\Folder $document);
-
-    public function getAllStates(Model\Document $document);
-
-    public function getAvailableStates(Model\Document $document);
 
     /**
      * Returns number of contents the document has
@@ -135,15 +141,14 @@ interface DocumentInterface
     public function getContentVersions(Model\ContentContainer $container);
 
     /**
-     * @param Model\Document $document
-     * @return \Vivo\CMS\Workflow\WorkflowInterface
-     */
-    public function getWorkflow(Model\Document $document);
-
-    /**
      * Returns if the document has any child documents
      * @param \Vivo\CMS\Model\Document $document
      * @return boolean
      */
     public function hasChildDocuments(Model\Document $document);
+
+    /**
+     * @return array
+     */
+    public function getAvailableLanguages();
 }

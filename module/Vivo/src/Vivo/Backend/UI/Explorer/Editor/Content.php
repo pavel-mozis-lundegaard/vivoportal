@@ -2,11 +2,12 @@
 namespace Vivo\Backend\UI\Explorer\Editor;
 
 use Vivo\UI\AbstractForm;
-use Vivo\UI\TabContainerItemInterface;
-use Vivo\Backend\UI\Form\ContentEditor as ContentEditorForm;
+use Vivo\Form\Form;
+use Vivo\Backend\UI\Form\Fieldset\EntityEditor;
 use Vivo\CMS\Model;
 use Vivo\CMS\ComponentResolver;
 use Vivo\CMS\Exception\InvalidArgumentException;
+use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
 
 class Content extends AbstractForm
 {
@@ -116,7 +117,28 @@ class Content extends AbstractForm
             $metadata = array();
         }
 
-        $form = new ContentEditorForm('content-'.$id, $metadata);
+        // Available workflow states
+        $states = array();
+        foreach ($this->documentApi->getWorkflowStates() as $state => $groups) {
+            $states[$state] = ucfirst(strtolower($state));
+        }
+
+        // Fieldset
+        $fieldset = new EntityEditor('content', $metadata);
+        $fieldset->setHydrator(new ClassMethodsHydrator(false));
+        $fieldset->setOptions(array('use_as_base_fieldset' => true));
+        $fieldset->add(array(
+            'name' => 'state',
+            'type' => 'Vivo\Form\Element\Radio',
+            'attributes' => array(
+                'options' => $states,
+            ),
+        ));
+
+        $form = new Form('content-'.$id);
+        $form->setWrapElements(true);
+        $form->setAttribute('method', 'post');
+        $form->add($fieldset);
 
         return $form;
     }

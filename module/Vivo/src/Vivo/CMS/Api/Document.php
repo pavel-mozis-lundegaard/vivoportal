@@ -166,6 +166,7 @@ class Document implements DocumentInterface
         return $this->options['states']; //TODO: apply security
     }
 
+    /**
      * Sets a workflow state to the content
      * @param Model\Content $content
      * @param string $state

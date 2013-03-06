@@ -118,6 +118,17 @@ return array(
             ),
         ),
     ),
+    'languages' => array(
+        'cs' => 'čeština',
+        'sk' => 'slovenčina',
+        'en' => 'english',
+        'de' => 'deutsch',
+        'pl' => 'polski',
+        'fr' => 'français',
+        'it' => 'italiano',
+        'es' => 'español',
+        'ru' => 'по-русски',
+    ),
     'backend' => array (
         'plugins' =>  array (
         ),

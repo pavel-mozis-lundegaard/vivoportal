@@ -4,7 +4,6 @@ namespace Vivo\Backend\UI\Explorer;
 use Vivo\UI\AbstractForm;
 use Vivo\UI\Alert;
 use Vivo\Form\Fieldset;
-use Vivo\Backend\UI\Form\EntityEditor as EntityEditorForm;
 use Vivo\CMS\AvailableContentsProvider;
 use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 use Vivo\CMS\Model\ContentContainer;

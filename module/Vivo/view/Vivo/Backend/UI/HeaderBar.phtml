@@ -1,12 +1,65 @@
-<div class="navbar">
-    <span class="brand">Vivo portal</span>
-    <div class="navbar-inner">
-        <?= $siteSelector ?>
-        <span class="navbar-text pull-right">
-            <?= $logon ?>
-        </span>
-    </div>
+<div id="header">
+	<a class="logo" href="http://vivo.lundegaard.cz" target="_blank" title="Vivo"></a>
+	<div class="path">
+		<div class="path_holder">
+			<ul>
+				<li id="siteChooser">
+					<?= $siteSelector ?>
+				</li>
+			<?/*foreach (Context::$instance->document->getParents() as $document):?>
+				<?if (!empty($document->title)):
+					$title = htmlspecialchars($document->title); ?>
+					<li><a href="<?=$document->getURL()?>" title="<?=$title?>"><?=mb_strlen($document->title, 'UTF-8') > 20 ? htmlspecialchars(trim(mb_substr($document->title, 0, 20, 'UTF-8'))).'&hellip;' : $title;?></a></li>
+				<?endif?>
+			<?endforeach*/?>
+				<li><span><?/*=htmlspecialchars(Context::$instance->document->title)*/?></span></li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="help">
+		<a class="square" href="">
+			<img src="<?= $this->resource('backend/img/icons/16x16/help.png','Vivo')?>" alt="" />
+		</a>
+	</div>
+	
+	<div class="time">
+		<div class="time_holder">
+		<span class="clock_ico">&#160;</span>
+			<span id="current_time_year"><?=date("Y")?></span>
+			<span id="current_time_month"><?=date("m")?></span>
+			<span id="current_time_day"><?=date("d")?></span>
+			<span id="current_time_hours"><?=date("H")?></span>:<span id="current_time_minutes"><?=date("i")?></span>:<span id="current_time_seconds"><?=date("s")?></span>
+		</div>
+	</div>
+	
+	<?= $logon ?>
+
+	
+	<?/*
+	<div class="ux_profile">
+		<div id="ux_profile">
+			<span><?=Util\Messages::get('Vivo\\CMS\\UX\\Profile\\'.$ux_level[$user_profile->ux_level])?></span>
+			<div class="ux_profile_params">
+				<ul>
+				<?foreach ($ux_level as $level => $name):?>
+					<li><a href="<?=htmlspecialchars($this->actionURL('setUXlevel', array($level)))?>" title="<?=Util\Messages::get('Vivo\\CMS\\UX\\Profile\\'.$name)?>"><img src="/system/Images/icons/60x60/ux/<?=$name?>.png" border="0" alt="" /><br /><?=Util\Messages::get('Vivo\\CMS\\UX\\Profile\\'.$name)?></a></li>
+				<?endforeach?>
+				</ul>
+			</div>
+		</div>
+	</div>
+	*/?>
+	<?/*
+	<div class="language">
+		<? foreach (CMS::$parameters['cms.languages'] as $language => $title): ?>
+			<? if ($language == Util\Messages::getLanguage()): ?>
+				<span class="square" title="<?= $title ?>"><?= $language ?></span>
+			<? else: ?>
+				<a class="square" href="<?=htmlspecialchars($this->actionURL('setLanguage', array($language)))?>" title="<?= $title ?>"><?= $language ?></a>
+			<? endif ?>
+		<? endforeach ?>
+	</div>
+	*/?>
 </div>
-<div>
-    <?= $alert ?>
-</div>
+<?= $alert ?>

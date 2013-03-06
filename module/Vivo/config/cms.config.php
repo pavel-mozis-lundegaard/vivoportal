@@ -30,7 +30,7 @@ return array(
             'Vivo\CMS\UI\Content\Logon'         => __DIR__.'/../view/Vivo/CMS/UI/Content/Logon.phtml',
             'Vivo\UI\ComponentContainer'        => __DIR__.'/../view/Vivo/UI/ComponentContainer.phtml',
             'Vivo\UI\TabContainer'              => __DIR__.'/../view/Vivo/UI/TabContainer.phtml',
-            'Vivo\UI\Ribbon'                    => __DIR__.'/../view/Vivo/UI/TabContainer.phtml',
+            'Vivo\UI\Ribbon'                    => __DIR__.'/../view/Vivo/UI/TabContainerRibbon.phtml',
             'Vivo\UI\Ribbon\Tab'                => __DIR__.'/../view/Vivo/UI/Ribbon/Tab.phtml',
             'Vivo\UI\Ribbon\Group'              => __DIR__.'/../view/Vivo/UI/Ribbon/Group.phtml',
             'Vivo\UI\Ribbon\Item'               => __DIR__.'/../view/Vivo/UI/Ribbon/Item.phtml',
@@ -101,6 +101,33 @@ return array(
                //If empty all available contents are allowed.
             ),
         ),
+    ),
+    'workflow' => array (
+        'states' => array(
+            100 => array(
+                'state'=> 'NEW',
+                'groups' => array(/* 'Anyone' */),
+            ),
+            200 => array(
+                'state'=> 'PUBLISHED',
+                'groups' => array(),
+            ),
+            300 => array(
+                'state'=> 'ARCHIVED',
+                'groups' => array(),
+            ),
+        ),
+    ),
+    'languages' => array(
+        'cs' => 'čeština',
+        'sk' => 'slovenčina',
+        'en' => 'english',
+        'de' => 'deutsch',
+        'pl' => 'polski',
+        'fr' => 'français',
+        'it' => 'italiano',
+        'es' => 'español',
+        'ru' => 'по-русски',
     ),
     'backend' => array (
         'plugins' =>  array (

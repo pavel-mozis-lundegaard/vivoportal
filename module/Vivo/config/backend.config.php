@@ -5,6 +5,7 @@
 return array(
     'templates' => array (
         'template_map' => array(
+            'Vivo\UI\Page'                                  => __DIR__.'/../view/Vivo/Backend/UI/Page.phtml',
             'Vivo\UI\Ribbon\Tab'                            => __DIR__.'/../view/Vivo/Backend/UI/Ribbon/Tab.phtml',
             'Vivo\UI\Ribbon\Group'                          => __DIR__.'/../view/Vivo/Backend/UI/Ribbon/Group.phtml',
             'Vivo\UI\Ribbon\Item'                           => __DIR__.'/../view/Vivo/Backend/UI/Ribbon/Item.phtml',
@@ -15,6 +16,7 @@ return array(
             'Vivo\Backend\UI\Explorer\Editor'               => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Editor.phtml',
             'Vivo\Backend\UI\Explorer\Editor\Content'       => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Editor/Content.phtml',
             'Vivo\Backend\UI\Explorer\Editor\ContentTab'    => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Editor/ContentTab.phtml',
+            'Vivo\Backend\UI\Explorer\Editor\Resource'      => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Editor/Resource.phtml',
             'Vivo\Backend\UI\Explorer\Explorer'             => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Explorer.phtml',
             'Vivo\Backend\UI\Explorer\Delete'               => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Delete.phtml',
             'Vivo\Backend\UI\Explorer\Finder'               => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Finder.phtml',
@@ -29,6 +31,7 @@ return array(
             'Vivo\Backend\UI\ModulesPanel'                  => __DIR__.'/../view/Vivo/Backend/UI/ModulesPanel.phtml',
             'Vivo\Backend\UI\SiteSelector'                  => __DIR__.'/../view/Vivo/Backend/UI/SiteSelector.phtml',
             'Vivo\Backend\Form\Element'                     => __DIR__.'/../view/Vivo/Backend/Form/Element.phtml',
+            'Vivo\Backend\UI\Explorer\Editor\Resource'      => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Editor/Resource.phtml',
         ),
     ),
 
@@ -50,11 +53,17 @@ return array(
         'Vivo\UI\Page' => array (
             'doctype' => 'HTML5',
                 'links' => array (
+                    // array(
+                    //     'rel'  => 'stylesheet',
+                    //     'href' => '.Vivo.resource/bootstrap/css/bootstrap.css',
+                    //     'type' => 'text/css',
+                    //     'media' => 'screen'
+                    // ),
                     array(
-                        'rel'  => 'stylesheet',
-                        'href' => '.Bootstrap2_3_0.resource/css/bootstrap.css',
-                        'type' => 'text/css',
-                        'media' => 'screen'
+                            'rel'  => 'stylesheet',
+                            'href' => '.Vivo.resource/backend/css/jquery-ui-vivo.css',
+                            'type' => 'text/css',
+                            'media' => 'screen'
                     ),
                     array(
                         'rel'  => 'stylesheet',
@@ -64,8 +73,24 @@ return array(
                     ),
                 ),
                 'scripts' => array (
+                    // array(
+                    //     'src' => '.Vivo.resource/bootstrap/js/bootstrap.js',
+                    //     'type' => 'text/javascript',
+                    // ),
                     array(
-                        'src' => '.Bootstrap2_3_0.resource/js/bootstrap.js',
+                        'src' => '.Vivo.resource/js/jquery.js',
+                        'type' => 'text/javascript',
+                    ),
+                     array(
+                        'src' => '.Vivo.resource/backend/js/jquery-ui.js',
+                        'type' => 'text/javascript',
+                    ),
+                    array(
+                        'src' => '.Vivo.resource/backend/js/manager.js',
+                        'type' => 'text/javascript',
+                    ),
+                    array(
+                        'src' => '.Vivo.resource/backend/js/finder.js',
                         'type' => 'text/javascript',
                     ),
                 ),
@@ -74,14 +99,14 @@ return array(
 //                         'name' => 'Robots',
 //                         'content' => 'INDEX,FOLLOW',
 //                     ),
-//                     array (
-//                         'charset' => 'UTF-8',
-//                     ),
-                array (
-                    'http-equiv' => 'Content-Type',
-                    'content' => 'text/html',
-                    'charset' => 'utf-8',
-                ),
+                     array (
+                         'charset' => 'UTF-8',
+                     ),
+                // array (
+                //     'http-equiv' => 'Content-Type',
+                //     'content' => 'text/html',
+                //     'charset' => 'utf-8',
+                // ),
             ),
         ),
     ),
@@ -96,19 +121,19 @@ return array(
                 'name' => 'explorer',
                 'title' => 'Explorer',
                 'componentClass' => 'Vivo\Backend\UI\Explorer\Explorer',
-                'icon'  => '.Vivo.resource/backend/img/icons/48x48/explorer.png',
+                'icon'  => '.Vivo.resource/backend/img/icons/24x24/explorer.png',
             ),
             'site' => array (
                 'name' => 'site',
                 'title' => 'Site',
                 'componentClass' => 'Vivo\CMS\UI\Blank',
-                'icon'  => '.Vivo.resource/backend/img/icons/48x48/site.png',
+                'icon'  => '.Vivo.resource/backend/img/icons/24x24/site.png',
             ),
             'blank' => array (
                 'name' => 'blank',
                 'title' => 'Blank',
                 'componentClass' => 'Vivo\CMS\UI\Blank',
-                'icon'  => '.Vivo.resource/backend/img/icon/explorer.png',
+                'icon'  => '.Vivo.resource/backend/img/icons/24x24/explorer.png',
             ),
         ),
 

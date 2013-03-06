@@ -102,6 +102,22 @@ return array(
             ),
         ),
     ),
+    'workflow' => array (
+        'states' => array(
+            100 => array(
+                'state'=> 'NEW',
+                'groups' => array(/* 'Anyone' */),
+            ),
+            200 => array(
+                'state'=> 'PUBLISHED',
+                'groups' => array(),
+            ),
+            300 => array(
+                'state'=> 'ARCHIVED',
+                'groups' => array(),
+            ),
+        ),
+    ),
     'backend' => array (
         'plugins' =>  array (
         ),

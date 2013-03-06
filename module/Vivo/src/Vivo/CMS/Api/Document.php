@@ -5,8 +5,6 @@ use Vivo\CMS\Model;
 use Vivo\Repository\RepositoryInterface;
 use Vivo\Repository\Exception\EntityNotFoundException;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
-use Vivo\CMS\Workflow\Factory as WorkflowFactory;
-use Vivo\CMS\Workflow\WorkflowInterface;
 use Vivo\CMS\Exception;
 use Vivo\Uuid\GeneratorInterface as UuidGeneratorInterface;
 use Vivo\CMS\Model\Content\Hyperlink;
@@ -33,12 +31,6 @@ class Document implements DocumentInterface
     protected $pathBuilder;
 
     /**
-     * Workflow factory
-     * @var WorkflowFactory
-     */
-    protected $workflowFactory;
-
-    /**
      * CMS API
      * @var CMS
      */
@@ -51,24 +43,29 @@ class Document implements DocumentInterface
     protected $uuidGenerator;
 
     /**
+     * @var array
+     */
+    protected $options = array();
+
+    /**
      * Constructor
      * @param CMS $cmsApi
      * @param \Vivo\Repository\RepositoryInterface $repository
      * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
-     * @param \Vivo\CMS\Workflow\Factory $workflowFactory
      * @param \Vivo\Uuid\GeneratorInterface $uuidGenerator
+     * @param array $options
      */
     public function __construct(CMS $cmsApi,
                                 RepositoryInterface $repository,
                                 PathBuilderInterface $pathBuilder,
-                                WorkflowFactory $workflowFactory,
-                                UuidGeneratorInterface $uuidGenerator)
+                                UuidGeneratorInterface $uuidGenerator,
+                                array $options)
     {
         $this->cmsApi           = $cmsApi;
         $this->repository       = $repository;
         $this->pathBuilder      = $pathBuilder;
-        $this->workflowFactory  = $workflowFactory;
         $this->uuidGenerator    = $uuidGenerator;
+        $this->options = array_merge($this->options, $options);
     }
 
     /**
@@ -122,7 +119,7 @@ class Document implements DocumentInterface
         $contents = $this->repository->getChildren($container, 'Vivo\CMS\Model\Content');
         foreach ($contents as $content) {
             /* @var $content Model\Content */
-            if ($content->getState() == WorkflowInterface::STATE_PUBLISHED) {
+            if ($content->getState() == 'PUBLISHED') {
                 $result[] = $content;
             }
         }
@@ -145,11 +142,28 @@ class Document implements DocumentInterface
         $document   = $this->getContentDocument($content);
         $oldContent = $this->getPublishedContent($document, $content->getIndex());
         if ($oldContent) {
-            $oldContent->setState(WorkflowInterface::STATE_ARCHIVED);
+            $oldContent->setState('ARCHIVED');
             $this->cmsApi->saveEntity($oldContent, false);
         }
-        $content->setState(WorkflowInterface::STATE_PUBLISHED);
+        $content->setState('PUBLISHED');
         $this->cmsApi->saveEntity($content, true);
+    }
+
+    /**
+     * @return array
+     */
+    public function getWorkflowStates()
+    {
+        return $this->options['states'];
+    }
+
+    /**
+     * Returns all principals workflow states.
+     * @return array
+     */
+    public function getWorkflowAvailableStates()
+    {
+        return $this->options['states']; //TODO: apply security
     }
 
     /**
@@ -158,20 +172,18 @@ class Document implements DocumentInterface
      * @param string $state
      * @throws \Vivo\CMS\Exception\InvalidArgumentException
      */
-    public function setState(Model\Content $content, $state)
+    public function setWorkflowState(Model\Content $content, $state)
     {
-        $document   = $this->getContentDocument($content);
-        $workflow   = $this->getWorkflow($document);
-        $states     = $workflow->getAllStates();
+        $states = $this->getWorkflowStates();
         if (!in_array($state, $states)) {
             throw new Exception\InvalidArgumentException(
                 sprintf('%s: Unknown state value; Available: %s', __METHOD__, implode(', ', $states)));
         }
-        //TODO - authorization
+        //TODO: authorization
         if (true /* uzivatel ma pravo na change*/) {
 
         }
-        if ($state == WorkflowInterface::STATE_PUBLISHED) {
+        if ($state == 'PUBLISHED') {
             $this->publishContent($content);
         } else {
             $content->setState($state);
@@ -190,7 +202,7 @@ class Document implements DocumentInterface
         $components = $this->pathBuilder->getStoragePathComponents($path);
         array_pop($components);
         array_pop($components);
-        $docPath    = $this->pathBuilder->buildStoragePath($components, true);
+        $docPath = $this->pathBuilder->buildStoragePath($components, true);
         $document = $this->repository->getEntity($docPath);
         if ($document instanceof Model\Document) {
             return $document;
@@ -205,7 +217,7 @@ class Document implements DocumentInterface
         $components     = array($path, 'Contents.' . $index, $version);
         $contentPath    = $this->pathBuilder->buildStoragePath($components, true);
         $content->setPath($contentPath);
-        $content->setState(WorkflowInterface::STATE_NEW);
+        $content->setState('NEW');
         $this->cmsApi->saveEntity($content);
     }
 
@@ -398,9 +410,9 @@ class Document implements DocumentInterface
 
         foreach ($contentVersions as $version) { /* @var $version \Vivo\CMS\Model\Content */
             if($version->getUuid() !== $content->getUuid()
-            && $version->getState() == WorkflowInterface::STATE_PUBLISHED)
+            && $version->getState() == 'PUBLISHED')
             {
-                $version->setState(WorkflowInterface::STATE_ARCHIVED);
+                $version->setState('ARCHIVED');
 
                 $this->cmsApi->saveEntity($version, false);
             }
@@ -424,16 +436,6 @@ class Document implements DocumentInterface
         return $result;
     }
 
-    public function getAllStates(Model\Document $document)
-    {
-
-    }
-
-    public function getAvailableStates(Model\Document $document)
-    {
-
-    }
-
     /**
      * Returns number of contents the document has
      * @param \Vivo\CMS\Model\Document $document
@@ -454,16 +456,6 @@ class Document implements DocumentInterface
     {
         $contents = $this->repository->getChildren($container, 'Vivo\CMS\Model\Content');
         return $contents;
-    }
-
-    /**
-     * @param Model\Document $document
-     * @return \Vivo\CMS\Workflow\WorkflowInterface
-     */
-    public function getWorkflow(Model\Document $document)
-    {
-        $workflow   = $this->workflowFactory->get($document->getWorkflow());
-        return $workflow;
     }
 
     /**
@@ -530,7 +522,7 @@ class Document implements DocumentInterface
             $hyperlink  = new Hyperlink();
             $hyperlink->setUuid($this->uuidGenerator->create());
             $hyperlink->setUrl($this->cmsApi->getEntityRelPath($moved));
-            $hyperlink->setState(WorkflowInterface::STATE_PUBLISHED);
+            $hyperlink->setState('PUBLISHED');
             $this->createContent($contentContainer, $hyperlink);
             $this->cmsApi->saveEntity($hyperlink);
         }
@@ -593,7 +585,7 @@ class Document implements DocumentInterface
                 $this->saveDocument($entity);
             } elseif ($entity instanceof Model\Content) {
                 //Content
-                $this->setState($entity, WorkflowInterface::STATE_NEW);
+                $this->setWorkflowState($entity, 'NEW');
                 $this->saveContent($entity);
             } else {
                 //Entity

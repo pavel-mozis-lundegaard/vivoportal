@@ -242,9 +242,7 @@ return array(
             'module_db_provider'        => 'Vivo\Service\ModuleDbProviderFactory',
             'db_table_name_provider'    => 'Vivo\Service\DbTableNameProviderFactory',
             'db_table_gateway_provider' => 'Vivo\Service\DbTableGatewayProviderFactory',
-            'workflow_factory'          => 'Vivo\CMS\Workflow\FactoryFactory',
             'Vivo\CMS\Api\Manager\Manager' => 'Vivo\CMS\Api\Manager\ManagerFactory',
-            'workflow_basic'            => 'Vivo\CMS\Workflow\BasicFactory',
             'component_tree_controller' => 'Vivo\UI\ComponentTreeControllerFactory',
             'Vivo\CMS\AvailableContentsProvider' => 'Vivo\CMS\AvailableContentsProviderFactory',
             'Vivo\Metadata\Provider\SelectableTemplatesProvider' => 'Vivo\Metadata\Provider\SelectableTemplatesProviderFactory',
@@ -259,7 +257,6 @@ return array(
             'Vivo\Util\Redirector'              => 'redirector',
             'Zend\View\Model\ViewModel'         => 'view_model',
             'Zend\Session\SessionManager'       => 'session_manager',
-            'Vivo\CMS\Workflow\Basic'           => 'workflow_basic',
         ),
         'shared' => array(
             'view_model' => false,

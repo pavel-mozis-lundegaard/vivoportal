@@ -35,6 +35,8 @@ class Resource extends AbstractForm
      */
     private $alert;
 
+    protected $autoAddCsrf  = false;
+
     /**
      * @param \Vivo\CMS\Api\CMS $cmsApi
      */
@@ -142,6 +144,8 @@ class Resource extends AbstractForm
                 }
 
                 $this->events->trigger(new RedirectEvent());
+            } else {
+                $this->addAlertMessage('Form not valid', Alert::TYPE_ERROR);
             }
 
             $form->get('resource')->setValue('');

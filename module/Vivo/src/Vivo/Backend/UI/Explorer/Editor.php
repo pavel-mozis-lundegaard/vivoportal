@@ -11,9 +11,12 @@ use Vivo\CMS\Model\Document;
 use Vivo\CMS\Model\ContentContainer;
 use Vivo\Util\RedirectEvent;
 use Vivo\LookupData\LookupDataManager;
-use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
+use Vivo\Service\Initializer\TranslatorAwareInterface;
 
-class Editor extends AbstractForm
+use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
+use Zend\I18n\Translator\Translator;
+
+class Editor extends AbstractForm implements TranslatorAwareInterface
 {
     /**
      * @var \Zend\ServiceManager\ServiceManager
@@ -55,6 +58,12 @@ class Editor extends AbstractForm
      * @var \Vivo\UI\Alert
      */
     private $alert;
+
+    /**
+     * Translator
+     * @var Translator
+     */
+    protected $translator;
 
     /**
      * @var boolean
@@ -211,6 +220,8 @@ class Editor extends AbstractForm
         }
         else {
             $success = false;
+            $message = $this->translator->translate("Document data is not valid");
+            $this->alert->addMessage($message, Alert::TYPE_ERROR);
         }
 
         $success = $success && $this->saveContents();
@@ -253,5 +264,14 @@ class Editor extends AbstractForm
         }
 
         return $success;
+    }
+
+    /**
+     * Injects translator
+     * @param \Zend\I18n\Translator\Translator $translator
+     */
+    public function setTranslator(Translator $translator)
+    {
+        $this->translator   = $translator;
     }
 }

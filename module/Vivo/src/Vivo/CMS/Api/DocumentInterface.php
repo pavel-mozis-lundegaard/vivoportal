@@ -141,15 +141,14 @@ interface DocumentInterface
     public function getContentVersions(Model\ContentContainer $container);
 
     /**
-     * @param Model\Document $document
-     * @return \Vivo\CMS\Workflow\WorkflowInterface
-     */
-//     public function getWorkflow(Model\Document $document);
-
-    /**
      * Returns if the document has any child documents
      * @param \Vivo\CMS\Model\Document $document
      * @return boolean
      */
     public function hasChildDocuments(Model\Document $document);
+
+    /**
+     * @return array
+     */
+    public function getAvailableLanguages();
 }

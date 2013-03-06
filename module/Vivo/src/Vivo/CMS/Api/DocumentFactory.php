@@ -21,7 +21,7 @@ class DocumentFactory implements FactoryInterface
         $pathBuilder    = $serviceLocator->get('path_builder');
         $uuidGenerator  = $serviceLocator->get('uuid_generator');
         $config         = $serviceLocator->get('config');
-        $options        = $this->prepareOptions($config['cms']['workflow']);
+        $options        = $this->prepareOptions($config['cms']);
         $api            = new Document($cms,
                                        $repository,
                                        $pathBuilder,
@@ -37,11 +37,10 @@ class DocumentFactory implements FactoryInterface
     private function prepareOptions($config)
     {
         $options = array(
-            'states' => array(),
+            'languages' => $config['languages'],
         );
-
-        foreach ($config['states'] as $row) {
-            $options['states'][$row['state']] = $row['groups'];
+        foreach ($config['workflow']['states'] as $row) {
+            $options['workflow']['states'][$row['state']] = $row['groups'];
         }
 
         return $options;

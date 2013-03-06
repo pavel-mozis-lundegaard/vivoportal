@@ -16,14 +16,15 @@ class CreatorFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $sm               = $serviceLocator->get('service_manager');
-        $metadataManager  = $sm->get('metadata_manager');
-        $documentApi      = $sm->get('Vivo\CMS\Api\Document');
-        $provider         = $sm->get('Vivo\CMS\AvailableContentsProvider');
-        $alert            = $sm->get('Vivo\UI\Alert');
+        $sm                 = $serviceLocator->get('service_manager');
+        $metadataManager    = $sm->get('metadata_manager');
+        $lookupDataManager  = $sm->get('lookup_data_manager');
+        $documentApi        = $sm->get('Vivo\CMS\Api\Document');
+        $provider           = $sm->get('Vivo\CMS\AvailableContentsProvider');
+        $alert              = $sm->get('Vivo\UI\Alert');
 
-        $editor = new Creator($sm, $metadataManager, $documentApi, $provider);
-        $editor->setTabContainer($sm->create('Vivo\UI\TabContainer'), 'contentTab');
+        $editor = new Creator($sm, $metadataManager, $lookupDataManager, $documentApi, $provider);
+        $editor->setTabContainer($sm->create('Vivo\UI\TabContainer'));
         $editor->setAlert($alert);
 
         return $editor;

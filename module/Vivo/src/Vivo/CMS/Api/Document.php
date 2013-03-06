@@ -9,7 +9,6 @@ use Vivo\CMS\Exception;
 use Vivo\Uuid\GeneratorInterface as UuidGeneratorInterface;
 use Vivo\CMS\Model\Content\Hyperlink;
 use Vivo\CMS\Model\ContentContainer;
-
 use DateTime;
 
 /**
@@ -154,7 +153,7 @@ class Document implements DocumentInterface
      */
     public function getWorkflowStates()
     {
-        return $this->options['states'];
+        return $this->options['workflow']['states'];
     }
 
     /**
@@ -163,7 +162,7 @@ class Document implements DocumentInterface
      */
     public function getWorkflowAvailableStates()
     {
-        return $this->options['states']; //TODO: apply security
+        return $this->options['workflow']['states']; //TODO: apply security
     }
 
     /**
@@ -641,5 +640,13 @@ class Document implements DocumentInterface
     {
         $parent = $this->cmsApi->getParent($folder);
         return ($parent instanceof Model\Folder)? $parent : null;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAvailableLanguages()
+    {
+        return $this->options['languages'];
     }
 }

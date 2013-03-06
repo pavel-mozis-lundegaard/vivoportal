@@ -10,6 +10,12 @@ use Vivo\Util\RedirectEvent;
 class Resource extends AbstractForm
 {
     /**
+     * Disable CSRF
+     * @var bool
+     */
+    protected $autoAddCsrf = false;
+
+    /**
      * @var \Vivo\CMS\Api\CMS
      */
     private $cmsApi;
@@ -154,6 +160,8 @@ class Resource extends AbstractForm
     public function delete($name)
     {
         $this->cmsApi->removeResource($this->entity, $name);
+        $this->addAlertMessage(sprintf('Resource %s has been deleted', $name), Alert::TYPE_SUCCESS);
+        $this->events->trigger(new RedirectEvent());
     }
 
     public function view()

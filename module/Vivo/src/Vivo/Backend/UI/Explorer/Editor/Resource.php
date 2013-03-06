@@ -35,8 +35,6 @@ class Resource extends AbstractForm
      */
     private $alert;
 
-    protected $autoAddCsrf  = false;
-
     /**
      * @param \Vivo\CMS\Api\CMS $cmsApi
      */

@@ -1,13 +1,64 @@
 <?if (isset($logonError)):?>
-<div class="alert alert-error">
-<?=$this->translate($logonError)?>
-</div>
+	<div class="alert alert-error">
+	<?=$this->translate($logonError)?>
+	</div>
 <?endif?>
 
-<?if($user):?>
-    <?=$user->getName();?> &nbsp;
-
-<?=$this->actionLink('logoff', 'Logoff');?>
+<?if ($user):?>
+<a href="<?=$this->actionUrl('logoff');?>" class="user-logout"><span>X</span></a>
+<div class="user">
+	<div class="user-icon">
+		<a href="" title="<?/*=$user->domain.'\\'.$user->username*/?>"><?/*=$user->fullname ? $user->fullname : $user->domain.'\\'.$user->username*/?><?=$user->getName();?></a>
+	</div>
+</div>
 <?else:?>
-    <?=$this->vivoForm($form);?>
-<? endif; ?>
+	<?/*=$this->translate('Not logged in');*/?>
+	
+<div class="manager_content">
+	<div id="logoutDialog">
+		<table width="100%" class="tableGridForm fixed">
+			<tr class="important">
+				<td colspan="2" class="logoutDialogHeader" id="logoutDialog-header"><span><?=$this->translate('Logon');?></span></td>
+			</tr>
+			<tr class="important">
+				<td colspan="2" class="logoutDialogLogo"><img src="<?= $this->resource('backend/img/manager/default/logon_theme.png','Vivo')?>" alt="VIVO logos" width="360" height="100" /></td>
+			</tr>
+
+			<tr class="important">
+				<td colspan="2" class="logoutDialogForm">
+					<?=$this->vivoForm($form);?>
+				</td>
+			</tr>
+
+<!-- 			<tr class="logoutForm important">
+				<td><label for="logonUsername"><?=$this->translate('username') ?></label></td>
+				<td></td>
+			</tr>
+			<tr class="logoutForm important">
+				<td><label for="logonPassword"><?=$this->translate('password') ?></label></td>
+				<td></td>
+			</tr>
+			<? if (1): ?>
+				<tr class="logoutForm important">
+					<td><label for="logonDomain"><?=$this->translate('domain') ?></label></td>
+					<td></td>
+				</tr>
+			<? endif ?> -->
+			<tr class="saveButtons">
+				<td><span class="browsersTrigger"><?=$this->translate('supported_browsers') ?></span></td>
+				<td><input type="submit" class="inputSubmit" value="<?=$this->translate('logon') ?>"/></td>
+			</tr>
+			<tr class="saveButtons browsers">
+				<td colspan="2">
+					<ul>
+						<li class="explorer"><?=$this->translate('supported_ie') ?> <span><?=$this->translate('supported_ie_more') ?></span></li>
+						<li class="firefox"><?=$this->translate('supported_ff') ?> <span><?=$this->translate('supported_ff_more') ?></span></li>
+						<li class="chrome"><?=$this->translate('supported_chrome') ?> <span><?=$this->translate('\supported_chrome_more') ?></span></li>
+						<li class="safari"><?=$this->translate('supported_safari') ?> <span><?=$this->translate('supported_safari_more') ?></span></li>
+					</ul>
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>
+<?endif?>

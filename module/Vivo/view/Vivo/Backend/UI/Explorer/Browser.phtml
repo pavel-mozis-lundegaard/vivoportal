@@ -1,25 +1,49 @@
-<table class="table table-hover">
+<table class="tableGrid light stripeMe">
     <thead>
         <tr>
-            <th>#</th>
-            <th><?= $this->translate('Document name') ?></th>
-            <th><?= $this->translate('Document path') ?></th>
+            <th class="nowrap">
+                <div>
+                    <span class="title">#</span>
+                </div>
+            </th>
+            <th class="nowrap">
+                <div>
+                    <span class="title"><?= $this->translate('Document name') ?></span>
+                </div>
+            </th>
+            <th class="nowrap">
+                <div>
+                    <span class="title"><?= $this->translate('Document path') ?></span>
+                </div>
+            </th>
         </tr>
     </thead>
     <tbody>
         <? if (isset($parent)): ?>
             <tr>
-                <td></td>
-                <td><?= $this->actionLink('set', '..', array($parent->getPath())) ?></td>
-                <td><?= $this->translate('parent folder') ?></td>
+                <td>
+                    <div></div>
+                </td>
+                <td>
+                    <div><?= $this->actionLink('set', '..', array($parent->getPath())) ?></div>
+                </td>
+                <td>
+                    <div><?= $this->translate('parent folder') ?></div>
+                </td>
             </tr>
         <? endif ?>
         <? $i = 0 ?>
         <? foreach ($documents as $document): ?>
             <tr>
-                <td><?= ++$i ?></td>
-                <td><?= $this->actionLink('set', $document->getTitle(), array($document->getPath())) ?></td>
-                <td><?= $document->getPath() ?></td>
+                <td>
+                    <div><?= ++$i ?></div>
+                </td>
+                <td>
+                    <div><?= $this->actionLink('set', $document->getTitle(), array($document->getPath())) ?></div>
+                </td>
+                <td>
+                    <div><?= $document->getPath() ?></div>
+                </td>
             </tr>
         <? endforeach; ?>
     </tbody>

@@ -1,0 +1,25 @@
+<?php
+	foreach ($links as $link) {
+	    $this->headLink()->prepend($link);
+	}
+	foreach ($scripts as $script) {
+	    $this->headScript()->prepend($script);
+	}
+	?>
+	<?=$this->doctype($doctype);?>
+<html>
+	<head>
+		<? foreach ($metas as $element): ?>
+		<meta<? foreach ($element as $name => $value) echo " $name=\"".htmlspecialchars($value).'"' ?> />
+		<? endforeach ?>
+		<base href="<?php echo $this->basePath(); ?>/" />
+		<?= $this->headLink()?>
+	  <!--[if lt IE 9]>
+	    <script src="<?= $this->resource('js/html5.js','Vivo')?>"></script>
+	  <![endif]-->
+  </head>
+  <body class="manager">
+    <?=$main?>
+    <?= $this->headScript()?>
+  </body>
+</html>

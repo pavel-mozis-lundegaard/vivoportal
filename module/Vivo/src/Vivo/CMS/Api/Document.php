@@ -128,7 +128,7 @@ class Document implements DocumentInterface
             return false;
         } else {
             throw new Exception\LogicException(
-                sprintf("%s: The ContentContainer '%s' contains more than one published content.",
+                sprintf("%s: The ContentContainer '%s' contains more than one published content",
                     __METHOD__, $container->getPath()));
         }
     }
@@ -173,10 +173,10 @@ class Document implements DocumentInterface
      */
     public function setWorkflowState(Model\Content $content, $state)
     {
-        $states = $this->getWorkflowStates();
+        $states = array_keys($this->getWorkflowStates());
         if (!in_array($state, $states)) {
             throw new Exception\InvalidArgumentException(
-                sprintf('%s: Unknown state value; Available: %s', __METHOD__, implode(', ', $states)));
+                sprintf("%s: Unknown state '%s', available: %s", __METHOD__, $state, implode(', ', $states)));
         }
         //TODO: authorization
         if (true /* uzivatel ma pravo na change*/) {

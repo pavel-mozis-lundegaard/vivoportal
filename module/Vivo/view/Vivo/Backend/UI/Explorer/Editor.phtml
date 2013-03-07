@@ -1,5 +1,5 @@
 Editor<hr>
-<form action="<?=$form->getAttribute('action')?>" method="<?=$form->getAttribute('method')?>">
+<form name="<?= $form->getName() ?>" action="<?=$form->getAttribute('action')?>" method="<?=$form->getAttribute('method')?>">
     <fieldset>
     <?
     foreach ($form->get('entity')->getElements() as $element) {
@@ -10,6 +10,7 @@ Editor<hr>
     <?=$contentTab?>
     <hr>
     <?=$this->formRow($form->get('act'))?>
+    <?=$this->formRow($form->get('csrf'))?>
     <?=$this->vivoFormFieldset($form->get('buttons'))?>
 </form>
 Resource editor<hr>

@@ -5,5 +5,4 @@ use Zend\Form\Element\Csrf as ZendCsrf;
 
 class Csrf extends ZendCsrf
 {
-
 }

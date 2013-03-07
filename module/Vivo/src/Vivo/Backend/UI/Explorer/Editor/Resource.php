@@ -10,12 +10,6 @@ use Vivo\Util\RedirectEvent;
 class Resource extends AbstractForm
 {
     /**
-     * Disable CSRF
-     * @var bool
-     */
-    protected $autoAddCsrf = false;
-
-    /**
      * @var \Vivo\CMS\Api\CMS
      */
     private $cmsApi;
@@ -34,6 +28,13 @@ class Resource extends AbstractForm
      * @var \Vivo\UI\Alert
      */
     private $alert;
+
+    /**
+     * TTL for CSRF token
+     * Redefine in descendant if necessary
+     * @var int|null
+     */
+    protected $csrfTimeout          = 3600;
 
     /**
      * @param \Vivo\CMS\Api\CMS $cmsApi

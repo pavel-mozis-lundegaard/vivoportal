@@ -66,9 +66,11 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
     protected $translator;
 
     /**
-     * @var boolean
+     * TTL for CSRF token
+     * Redefine in descendant if necessary
+     * @var int|null
      */
-    protected $autoAddCsrf = false;
+    protected $csrfTimeout          = 3600;
 
     /**
      * Constructor
@@ -176,7 +178,7 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
             ),
         ));
 
-        $form = new Form\Form('entity');
+        $form = new Form\Form('entity-' . $this->entity->getUuid());
         $form->setAttribute('action', $action);
         $form->setAttribute('method', 'post');
         $form->add(array(

@@ -1,17 +1,34 @@
+<?php
+    $formType       = \DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
+    //Display options
+    $displayOptions = array(
+        'fieldsets' => array(
+            'entity'    => array(
+                'elements'  => array(
+                    'path'      => array(
+                        'class' => 'span5',
+                    ),
+                ),
+            ),
+        ),
+    );
+?>
 Editor<hr>
-<form name="<?= $form->getName() ?>" action="<?=$form->getAttribute('action')?>" method="<?=$form->getAttribute('method')?>">
-    <fieldset>
-    <?
-    foreach ($form->get('entity')->getElements() as $element) {
-        echo $this->partial('Vivo\Backend\Form\Element', array('element'=>$element));
-    }
-    ?>
-    </fieldset>
-    <?=$contentTab?>
-    <hr>
-    <?=$this->formRow($form->get('act'))?>
-    <?=$this->formRow($form->get('csrf'))?>
-    <?=$this->vivoFormFieldset($form->get('buttons'))?>
-</form>
+<?php
+    echo $this->formTwb()->openTag($form, $formType);
+    $fsEntity   = $form->get('entity');
+    $doEntity = $displayOptions['fieldsets']['entity'];
+    echo $this->formFieldsetTwb($fsEntity, $formType, $doEntity);
+    echo $contentTab;
+?>
+<hr>
+<?php
+    echo $this->formRow($form->get('act'));
+    echo $this->formRow($form->get('csrf'));
+    echo $this->vivoFormFieldset($form->get('buttons'));
+    echo $this->formTwb()->closeTag();
+?>
 Resource editor<hr>
-<?=$resourceEditor?>
+<?
+    echo $resourceEditor;
+?>

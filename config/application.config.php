@@ -5,6 +5,7 @@ return array(
         'ZF2NetteDebug',
         'ZendSearch',
         'ApacheSolr',
+        'DluTwBootstrap',
     ),
     'module_listener_options' => array(
         'config_glob_paths'    => array(

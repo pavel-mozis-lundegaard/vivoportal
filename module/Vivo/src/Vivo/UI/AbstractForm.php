@@ -117,15 +117,24 @@ abstract class AbstractForm extends ComponentContainer
             $this->form = $this->doGetForm();
             if ($this->autoAddCsrf) {
                 //Add CSRF field
-                $this->form->add(array(
-                    'type'      => 'Vivo\Form\Element\Csrf',
-                    'name'      => 'csrf',
-                    'options'   => array(
-                        'csrf_options'  => array(
-                            'timeout'   => $this->csrfTimeout,
-                        ),
-                    ),
-                ));
+                $formName           = $this->form->getName();
+                if (!$formName) {
+                    throw new Exception\InvalidArgumentException(sprintf("%s: Form name not set", __METHOD__));
+                }
+                $elementName        = 'csrf';
+                /* Csrf validator name is used as a part of session container name; This is to prevent csrf session
+                container mix-up when there are more forms with csrf field on the same page. The unique Csrf element
+                name (using $form->setWrapElements(true) is of no use here, as the session container name is constructed
+                PRIOR to element preparation, thus the session container name is always constructed from the bare
+                element name, which is not unique. Explicitly setting the csrf validator name to unique value solves
+                this problem.
+                */
+                $csrfValidatorName  = 'csrf' . md5($formName . '_' . $elementName);
+                $csrf               = new \Vivo\Form\Element\Csrf($elementName);
+                $csrfValidator      = $csrf->getCsrfValidator();
+                $csrfValidator->setName($csrfValidatorName);
+                $csrfValidator->setTimeout($this->csrfTimeout);
+                $this->form->add($csrf);
             }
         }
         return $this->form;

@@ -92,13 +92,12 @@ class Tree extends Component
      */
     public function getSubtree($relPath)
     {
-        $view = new \Zend\View\Model\ViewModel();
-        $view->setTemplate(__CLASS__.':Subtree');
+        $this->view->setTemplate(__CLASS__.':Subtree');
          $folder = $this->cmsApi->getSiteEntity($relPath, $this->explorer->getSite());
         $tree = $this->getDocumentTree($folder, $folder->getPath());
         $nodes = $tree->getChildrenNodes();
-        $view->tree = reset($nodes);
-        return $view;
+        $this->view->tree = reset($nodes);
+        return parent::view();
     }
 
     /**

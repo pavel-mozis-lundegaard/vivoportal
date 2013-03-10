@@ -271,6 +271,11 @@ class ComponentFactory implements EventManagerAwareInterface
             $type = 'DI';
         }
 
+        if (!$component instanceof ComponentInterface) {
+            throw new Exception(sprintf("%s: Object must be instance of ComponentInterface. Got `%s`",
+                    __METHOD__, get_class($component)));
+        }
+
         $message = "Created component '" . get_class($component) . "' using $type.";
         $this->eventManager->trigger('log', $this, array ('message' => $message));
 

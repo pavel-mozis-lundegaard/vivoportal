@@ -1,8 +1,7 @@
 <?php
 namespace Vivo\CMS;
 
-use Vivo\CMS\Api\CMS;
-use Vivo\CMS\Api\Document as DocumentApi;
+use Vivo\CMS\Api;
 use Vivo\CMS\Exception\Exception;
 use Vivo\CMS\Exception\LogicException;
 use Vivo\CMS\Model\Content;
@@ -11,7 +10,6 @@ use Vivo\CMS\Model\Site;
 use Vivo\CMS\UI\InjectModelInterface;
 use Vivo\CMS\UI\Content\Layout;
 use Vivo\CMS\UI\Content\RawComponentInterface;
-use Vivo\UI\ComponentContainer;
 use Vivo\UI\ComponentInterface;
 
 use Zend\Di\Di;
@@ -26,13 +24,13 @@ class ComponentFactory implements EventManagerAwareInterface
 {
 
     /**
-     * @var \Vivo\CMS
+     * @var Api\CMS
      */
-    private $cms;
+    protected $cmsApi;
 
     /**
      * Document API
-     * @var DocumentApi
+     * @var Api\Document
      */
     protected $documentApi;
 
@@ -65,9 +63,9 @@ class ComponentFactory implements EventManagerAwareInterface
      * @param Api\Document $documentApi
      * @param Model\Site $site
      */
-    public function __construct(ServiceManager $sm, Di $di, CMS $cms, DocumentApi $documentApi, Site $site)
+    public function __construct(ServiceManager $sm, Di $di, Api\CMS $cmsApi, Api\Document $documentApi, Site $site)
     {
-        $this->cms          = $cms;
+        $this->cmsApi       = $cmsApi;
         $this->sm           = $sm;
         $this->di           = $di;
         $this->documentApi  = $documentApi;
@@ -129,7 +127,7 @@ class ComponentFactory implements EventManagerAwareInterface
 
         if (!isset($parameters['noLayout']) || !$parameters['noLayout'] == true) {
             if ($layoutPath = $document->getLayout()) {
-                $layout = $this->cms->getSiteEntity($layoutPath, $this->site);
+                $layout = $this->cmsApi->getSiteEntity($layoutPath, $this->site);
                 $panels = $this->getDocumentLayoutPanels($document);
                 $frontComponent = $this
                         ->applyLayout($layout, $frontComponent, $panels);
@@ -146,7 +144,7 @@ class ComponentFactory implements EventManagerAwareInterface
      * @param Component $component
      * @return \Vivo\UI\Component
      */
-    public function applyLayout(Document $layout, ComponentInterface $component,
+    protected function applyLayout(Document $layout, ComponentInterface $component,
             $panels = array())
     {
         $layoutComponent = $this->getFrontComponent($layout);
@@ -168,7 +166,7 @@ class ComponentFactory implements EventManagerAwareInterface
         foreach ($layoutPanels as $name => $panel) {
             $parts = explode('#', $name);
             if (count($parts) == 2
-                    && $this->cms->getEntityUrl($layout) == $parts[0]) {
+                    && $this->cmsApi->getEntityUrl($layout) == $parts[0]) {
                 $name = $parts[1];
             }
 
@@ -184,7 +182,7 @@ class ComponentFactory implements EventManagerAwareInterface
                 $panelComponent = $this->createComponent('layout_empty_panel');
 
             } else {
-                $panelDocument = $this->cms->getSiteEntity($path, $this->site);
+                $panelDocument = $this->cmsApi->getSiteEntity($path, $this->site);
                 $panelComponent = $this->getFrontComponent($panelDocument);
             }
             $layoutComponent->addComponent($panelComponent, $name);
@@ -193,7 +191,7 @@ class ComponentFactory implements EventManagerAwareInterface
         $layoutDocumentPanels = $layout->getLayoutPanels();
         $panels = array_merge($layoutDocumentPanels, $panels);
 
-        if ($parentLayout = $this->cms->getParent($layout)) {
+        if ($parentLayout = $this->cmsApi->getParent($layout)) {
             if ($parentLayout instanceof Document) {
                 if ($component = $this
                         ->applyLayout($parentLayout, $layoutComponent, $panels)) {
@@ -210,12 +208,12 @@ class ComponentFactory implements EventManagerAwareInterface
      * @param Document $document
      * @todo this should be cached
      */
-    public function getDocumentLayoutPanels(Document $document)
+    protected function getDocumentLayoutPanels(Document $document)
     {
         $panels = array();
         while ($document instanceof Document) {
             $panels = array_merge($document->getLayoutPanels(), $panels);
-            $document = $this->cms->getParent($document);
+            $document = $this->cmsApi->getParent($document);
         }
         return $panels;
     }
@@ -231,7 +229,7 @@ class ComponentFactory implements EventManagerAwareInterface
             Document $document)
     {
         if ($content instanceof \Vivo\CMS\Model\Content\Link) {
-            $linkedDocument = $this->cms->getSiteEntity($content->getRelPath(), $this->site);
+            $linkedDocument = $this->cmsApi->getSiteEntity($content->getRelPath(), $this->site);
             return $this
                     ->getFrontComponent($linkedDocument,
                             array('noLayout' => true));
@@ -261,7 +259,7 @@ class ComponentFactory implements EventManagerAwareInterface
      * @param string $name
      * @return \Vivo\UI\Component
      */
-    public function createComponent($name)
+    protected function createComponent($name)
     {
         if ($this->sm->has($name, false)) {
             $component = $this->sm->create($name);

@@ -1,24 +1,22 @@
 <?php
-namespace Vivo\Service\Controller;
-
-use Vivo\Controller\CMSFrontController;
+namespace Vivo\CMS;
 
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 /**
- * Factory for CMSFrontController
+ * Factory for FrontController
  */
-class CMSFrontControllerFactory implements FactoryInterface
+class FrontControllerFactory implements FactoryInterface
 {
     /**
      * Creates CMS front controller.
      * @param ServiceLocatorInterface $serviceLocator
-     * @return CMSFrontController
+     * @return FrontController
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $fc = new CMSFrontController();
+        $fc = new FrontController();
         $sm = $serviceLocator->getServiceLocator();
         $siteEvent = $sm->get('site_event');
         if ($siteEvent->getSite()) {

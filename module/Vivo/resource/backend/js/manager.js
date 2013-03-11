@@ -1,4 +1,5 @@
-var action_param = "act";
+var action_param = "act",
+	showHideHintsFlag = true;
 
 //onload
 $(document).ready(function() {
@@ -34,6 +35,11 @@ $(document).ready(function() {
 	//init treemenu
 	initTreeMenu('#treeMenu');
 
+	$(window).resize(function() {
+		setFakeDialogPathWidth();
+	});
+	setFakeDialogPathWidth();
+
 	//manager logout window
 	$(window).resize(function() {shadowWindow("#logoutDialog", ".manager_content");});
 	shadowWindow("#logoutDialog", ".manager_content");
@@ -42,7 +48,13 @@ $(document).ready(function() {
 		$(this).toggleClass('open');
 		$('.saveButtons.browsers').toggle();
 		shadowWindow("#logoutDialog", ".manager_content", false);
-	})	
+	});
+
+	initTableInputs(".form-horizontal");
+
+	//hint box (help)
+	hintBox();
+
 });
 
 $.fn.dropShadow = function() {
@@ -130,21 +142,21 @@ function action(act) {
 function checkHeight() {
 	var window_height = $(parent.window).height();
 	var window_width = $(parent.window).width();
-	var tabs_height = $("#tabs").height();
+	var tabs_height = $("#tabs").outerHeight();
 	tabs_height = (tabs_height === null || typeof tabs_height == 'undefined') ? 0 : tabs_height;
-	var ribbon_height = $(".ribbon-holder").height();
+	var ribbon_height = $(".ribbon-holder").outerHeight();
 	ribbon_height = (ribbon_height === null) ? 0 : ribbon_height;
 	tabs_height = ribbon_height ? ribbon_height : tabs_height;
-	var tabs_multi_iframe_height = $("#tabs-multi-iframe").height();
-	var dialog_height = $(".dialogHeader").height();
-	var finder_height = $("#finder").height() > 0 ? $("#finder").height() + 2 : 0;
-	var footer_height = $("#footer").height();
-	var default_view = window_height -  $("#header").height() - footer_height - finder_height - 3;
-	var message_height = $(".main_message").height();
-	var h1_height = ($("h1.dialogTitle").height() > 0) ? $("h1.dialogTitle").height() + 1 : 0;
+	var tabs_multi_iframe_height = $("#tabs-multi-iframe").outerHeight();
+	var dialog_height = $(".dialogHeader").outerHeight();
+	var finder_height = $("#finder").outerHeight() > 0 ? $("#finder").outerHeight() + 0 : 0;
+	var footer_height = $("#footer").outerHeight();
+	var default_view = window_height -  $("#header").outerHeight() - footer_height - finder_height - 0;
+	var message_height = $(".main_message").outerHeight();
+	var h1_height = ($("h1.dialogTitle").outerHeight() > 0) ? $("h1.dialogTitle").outerHeight() + 0 : 0;
 	var manager_panel_width = $(".manager_panel").width();
-	message_height = (message_height === null || typeof message_height == 'undefined') ? 0 : message_height + 2;
-	var button_bar = $('#buttons-bar').length ? $('#buttons-bar').height() : 0;
+	message_height = (message_height === null || typeof message_height == 'undefined') ? 0 : message_height + 0;
+	var button_bar = $('#buttons-bar').length ? $('#buttons-bar').outerHeight() : 0;
 	
 	
 	$("body").css({"overflow-y": "hidden"});
@@ -170,9 +182,11 @@ function checkHeight() {
 	}
 
 	if (dialog_height > 0) {//page with dialog options
+		console.log(default_view +" "+ tabs_height +" "+ dialog_height +" "+ message_height +" "+ h1_height +" "+ button_bar);
 		if (location.pathname != "/system/Editors/browser/" || (location.pathname == "/system/Editors/browser/" && parent.window.location.pathname != "/system/Editors/editor/"))
-			$(".tabMainContent").css({"height" : default_view - tabs_height - dialog_height - message_height - h1_height - button_bar, "overflow-y": "auto", "overflow-x" : "hidden", "zoom" : "1"});
+			$(".tabMainContent").css({"height" : default_view - tabs_height - /*dialog_height -*/ message_height - h1_height - button_bar, "overflow-y": "auto", "overflow-x" : "hidden", "zoom" : "1"});
 	} else { //page without dialog options
+		console.log("b");
 		$(".tabContent").css({"height" : default_view - tabs_height - message_height - h1_height - button_bar, "overflow-y": "auto", "overflow-x" : "hidden"});
 		$(".tabMainContent").css({"height" : default_view - tabs_height - message_height - h1_height - button_bar, "overflow-y": "auto", "overflow-x" : "hidden"});
 	};
@@ -203,7 +217,7 @@ function checkHeight() {
 	}
 
 	//resize iframe
-	$(".viewFrame, .vivoiframe").css({"height" : default_view - tabs_height - dialog_height - message_height, "overflow-y": "auto", "overflow-x" : "hidden", "border" : "0px"});
+	$(".viewFrame, .vivoiframe").css({"height" : default_view - tabs_height - dialog_height - message_height - 4, "overflow-y": "auto", "overflow-x" : "hidden", "border" : "0px"});
 	$(".vivoiframe").parents(".tabContent").css({"overflow-y": "hidden"});
 	
 	//manager help
@@ -408,4 +422,75 @@ function shadowWindow(_idWindow, _containment, center) {
 
 	$(_idWindow + "-header").css({"cursor" : "move"});
 	$(_idWindow + "-shadow").css({"width" : $(_idWindow).width(), "height" : $(_idWindow).height(), "top" : $(_idWindow).css("top"), "left" : $(_idWindow).css("left")}).show();
+}
+
+function setFakeDialogPathWidth() {
+	if ($("#fakePathHolder").is(":visible")) {
+		var firstItemOnRightSide = $("#firstRDialogItem").offset();
+		var fakePath = $("#fakePathHolder .fakePath").offset();
+		var newFakePathWidth = firstItemOnRightSide.left - fakePath.left - 30;
+
+		$("#fakePathHolder .fakePath").css({"width" : newFakePathWidth + "px"});
+	}
+}
+
+//datagrid inputs focus
+function initTableInputs(_selector) {
+	$(_selector + " input").add($(_selector + " select")).add($(_selector + " textarea"))
+	.each(function() {
+		if ($(this).attr("readonly") && !$(this).hasClass("custom_selectbox_fake")) {
+			$(this).addClass("readonly-input").click(function() {$(this).blur();});
+		}
+	})
+	.focus(function() {
+		//if (!$(this).hasClass("file") && !$(this).hasClass("radio") && !$(this).hasClass("checkbox") && !$(this).hasClass("icon") && (!($.browser.msie) || ($.browser.msie && !$(this).is("select")))) {
+			$(this).addClass("selected-input");
+		//}
+	})
+	.blur(function() {
+		$(this).removeClass("selected-input");
+	});
+}
+
+//hint (help) box generator
+function hintBox() {
+	$(".form-horizontal input").add("select").add(".custom_selectbox_fake").add("textarea").add("div[id^='solmetraUploaderPlaceholder']").add(".withHint").each(function(i) {
+		var $this = $(this);
+		var help = $this.siblings(".help-block");
+		//for inputs with trigger image (datepicker ...) - we have to put hint box after trigger image
+		var triggerImage = $this.siblings(".ui-datepicker-trigger");
+		if (jQuery.trim($(help).text()) != "") {
+			var helpTimeout = new Array();
+			$this
+				.bind("mouseover", function() {
+					if (showHideHintsFlag) {
+						var _content = (triggerImage.length) ? triggerImage : $this;
+						if (! _content.siblings(".hintBox").length)
+							_content.after("<div class='hintBox' id='hintBox-"+i+"'><div class='hintBoxHolder'><div class='hintBoxTop'></div><div class='hintBoxMiddle'><div class='hintBoxMiddleContent'>" + $(help).html() +  "</div></div><div class='hintBoxBottom'></div></div></div>");
+						$("#hintBox-" + i).hide();
+						helpTimeout[i] = setTimeout(function() {
+							$("#hintBox-" + i).hide().fadeIn("def");
+						}, 500);
+					}
+				})
+				.bind("mouseout", function() {
+					if (showHideHintsFlag) {
+						clearTimeout(helpTimeout[i]);
+						$("#hintBox-" + i).fadeOut("fast", function() {$(this).remove();});
+					}
+				})
+				.bind("focus", function() {
+					if (showHideHintsFlag) {
+						clearTimeout(helpTimeout[i]);
+						$("#hintBox-" + i).fadeOut("fast", function() {$(this).remove();});
+					}
+				})
+				.bind("click", function() {
+					if (showHideHintsFlag) {
+						clearTimeout(helpTimeout[i]);
+						$("#hintBox-" + i).fadeOut("fast", function() {$(this).remove(); });
+					}
+				});
+		}
+	});
 }

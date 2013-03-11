@@ -15,6 +15,7 @@
         "doctrine/orm": ">=2.2.0",
         "webino/zf2nette-debug": ">=1",
         "firephp/firephp-core": "dev-master",
-        "dlu/dluphpsettings": ">=0.1.0"
+        "dlu/dluphpsettings": ">=0.1.0",
+        "dlu/dlutwbootstrap": ">=0.1.2"
     }
 }

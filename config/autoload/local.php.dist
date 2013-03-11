@@ -49,6 +49,33 @@ return array(
             'db_source'     => 'local_vivo_dev',
         ),
     ),
+    'transliterator'    => array(
+//        'path'  => array(
+//            'options'   => array(
+                //Transliteration map - will be merged with predefined transliteration map
+//                'map'       => array(
+//                    'Ě' => 'E',
+//                ),
+                //String with all allowed characters
+//                'allowedChars'      => '',
+                //Character used to replace illegal characters
+//                'replacementChar'   => '-'
+//            ),
+//        ),
+//        'url'  => array(
+//            'options'   => array(
+                //Transliteration map - will be merged with predefined transliteration map
+//                'map'       => array(
+//                    'Ě' => 'E',
+//                ),
+                //String with all allowed characters
+//                'allowedChars'      => '',
+                //Character used to replace illegal characters
+//                'replacementChar'   => '-'
+//            ),
+//        ),
+//    ),
+
     'cms'  => array(
         'security_manager_db'  => array(
             'options'           => array(

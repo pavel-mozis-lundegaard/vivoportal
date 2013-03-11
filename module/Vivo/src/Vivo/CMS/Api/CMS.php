@@ -276,13 +276,6 @@ class CMS
         $this->repository->commit();
     }
 
-    public function getEntityUrl(Model\Entity $entity)
-    {
-        //TODO - implement using PathBuilder
-        $parts = explode('/ROOT/', $entity->getPath());
-        return $parts[1];
-    }
-
     /**
      * Returns entity relative path within site
      * Relative path starts and ends with slash.

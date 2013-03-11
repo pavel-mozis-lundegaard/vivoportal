@@ -247,6 +247,8 @@ return array(
             'Vivo\CMS\AvailableContentsProvider' => 'Vivo\CMS\AvailableContentsProviderFactory',
             'Vivo\Metadata\Provider\SelectableTemplatesProvider' => 'Vivo\Metadata\Provider\SelectableTemplatesProviderFactory',
             'Vivo\Util\UrlHelper'   =>  'Vivo\Util\UrlHelperFactory',
+            'Vivo\Http\HeaderHelper' => 'Vivo\Http\HeaderHelperFactory',
+
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -283,7 +285,7 @@ return array(
         ),
         'factories' => array(
             'cms_front_controller'      => 'Vivo\Service\Controller\CMSFrontControllerFactory',
-            'resource_front_controller' => 'Vivo\Service\Controller\ResourceFrontControllerFactory',
+            'resource_front_controller' => 'Vivo\Controller\ResourceFrontControllerFactory',
             'cli_module'                => 'Vivo\Service\Controller\CLI\CLIModuleControllerFactory',
             'cli_repository'            => 'Vivo\Service\Controller\CLI\CLIRepositoryControllerFactory',
             'cli_cms'                   => 'Vivo\Service\Controller\CLI\CLICmsControllerFactory',
@@ -342,6 +344,21 @@ return array(
             //'firephp',
         ),
     ),
+
+    'response' => array (
+        'headers' => array (
+            'mime_type_expiration' => array (
+                //define specific expiration time for content type
+                'image/*' => 86400,
+                'audio/*' => 86400,
+                'text/*' => 86400,
+                'font/*' => 86400,
+                'application/x-shockwave-flash' => 86400,
+                '*/*' => 86400, // other mime types
+            ),
+        ),
+    ),
+
     'db_service'    => array(
         'abstract_factory'  => array(
             //PDO

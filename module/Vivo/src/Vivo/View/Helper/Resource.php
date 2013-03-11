@@ -1,9 +1,7 @@
 <?php
 namespace Vivo\View\Helper;
 
-use Zend\Mvc\Router\RouteMatch;
-
-use Vivo\CMS\Api\CMS;
+use Vivo\CMS\Api;
 use Vivo\CMS\Model\Entity;
 use Vivo\View\Helper\Exception\InvalidArgumentException;
 
@@ -23,13 +21,12 @@ class Resource extends AbstractHelper
             );
 
     /**
-     * @var CMS
+     * @var Api\CMS
      */
-    private $cms;
+    private $cmsApi;
 
     /**
-     *
-     * @var unknown
+     * @var string
      */
     protected $resourceRouteName;
 
@@ -38,9 +35,9 @@ class Resource extends AbstractHelper
      * @param CMS $cms
      * @param array $options
      */
-    public function __construct(CMS $cms, $options = array())
+    public function __construct(Api\CMS $cmsApi, $options = array())
     {
-        $this->cms = $cms;
+        $this->cmsApi = $cmsApi;
         $this->options  = array_merge($this->options, $options);
     }
 
@@ -61,7 +58,7 @@ class Resource extends AbstractHelper
         $urlHelper = $this->view->plugin('url');
 
         if ($source instanceof Entity) {
-            $entityUrl = $this->cms->getEntityUrl($source);
+            $entityUrl = $this->cmsApi->getEntityRelPath($source);
             $url = $urlHelper($this->resourceRouteName . '_entity',
                             array('path' => $resourcePath,
                                     'entity' => $entityUrl,

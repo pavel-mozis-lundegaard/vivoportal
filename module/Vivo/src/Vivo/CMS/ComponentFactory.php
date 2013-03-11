@@ -166,7 +166,7 @@ class ComponentFactory implements EventManagerAwareInterface
         foreach ($layoutPanels as $name => $panel) {
             $parts = explode('#', $name);
             if (count($parts) == 2
-                    && $this->cmsApi->getEntityUrl($layout) == $parts[0]) {
+                    && $this->cmsApi->getEntityRelPath($layout) == $parts[0]) {
                 $name = $parts[1];
             }
 

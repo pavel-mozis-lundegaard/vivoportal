@@ -4,10 +4,10 @@ namespace Vivo\Transliterator;
 use Zend\Stdlib\ArrayUtils;
 
 /**
- * Path
- * Path transliterator. Transliterates strings to be usable as file system paths.
+ * Url
+ * Url transliterator. Transliterates strings to be usable as URLs
  */
-class Path implements TransliteratorInterface
+class Url implements TransliteratorInterface
 {
     /**
      * Transliterator options
@@ -21,48 +21,39 @@ class Path implements TransliteratorInterface
             'з' => 'z', 'и' =>'i', 'й' => 'j', 'к' => 'k', 'л' => 'l', 'м' => 'm', 'н' => 'n', 'о' => 'o', 'п' => 'p',
             'р' => 'r', 'с' => 's', 'т' => 't', 'у' => 'u', 'ф' => 'f', 'х' => 'kh', 'ц' => 'c', 'ч' => 'ch',
             'ш' => 'sh', 'щ' => 'shh', 'ъ' => '', 'ы' => 'y', 'ь' => '', 'э' => 'eh', 'ю' => 'ju', 'я' => 'ja',
-            'А' => 'A', 'Б' => 'B', 'В' => 'V', 'Г' => 'G', 'Д' => 'D', 'Е' => 'E', 'Ё' => 'JO', 'Ж' => 'ZH',
-            'З' => 'Z', 'И' => 'I', 'Й' => 'J', 'К' => 'K', 'Л' => 'L', 'М' => 'M', 'Н' => 'N', 'О' => 'O', 'П' => 'P',
-            'Р' => 'R', 'С' => 'S', 'Т' => 'T', 'У' => 'U', 'Ф' => 'F', 'Х' => 'KH', 'Ц' => 'C', 'Ч' => 'CH',
-            'Ш' => 'SH', 'Щ' => 'SHH', 'Ъ' => '', 'Ы' => 'Y', 'Ь' => '', 'Э' => 'EH', 'Ю' => 'JU', 'Я' => 'JA',
             //Doubles
-            'ß' => 'ss', 'æ' => 'ae', 'Æ' => 'AE', 'œ' => 'oe', 'Œ' => 'OE',
+            'ß' => 'ss', 'æ' => 'ae', 'œ' => 'oe',
             //A
-            'á' => 'a', 'Á' => 'A', 'ä' => 'a', 'Ä' => 'A', 'ą' => 'a', 'à' => 'a', 'À' => 'A', 'â' => 'a', 'Â' => 'A',
-            'å' => 'a', 'Å' => 'A', 'ă' => 'a', 'Ă' => 'A',
+            'á' => 'a', 'ä' => 'a', 'ą' => 'a', 'à' => 'a', 'â' => 'a', 'å' => 'a', 'ă' => 'a',
             //C
-            'č' => 'c', 'Č' => 'C', 'ć' => 'c', 'Ć' => 'C', 'ç' => 'c', 'Ç' => 'C',
+            'č' => 'c', 'ć' => 'c', 'ç' => 'c',
             //D
-            'ď' => 'd', 'Ď' => 'D', 'ð' => 'd', 'Ð' => 'D',
+            'ď' => 'd', 'ð' => 'd',
             //E
-            'é' => 'e', 'É' => 'E', 'ě' => 'e', 'Ě' => 'E', 'ë' => 'e', 'Ë' => 'E', 'ę' => 'e', 'Ę' => 'E',
-            'è' => 'e', 'È' => 'E', 'ê' => 'e', 'Ê' => 'E',
+            'é' => 'e', 'ě' => 'e', 'ë' => 'e', 'ę' => 'e', 'è' => 'e', 'ê' => 'e',
             //I
-            'í' => 'i', 'Í' => 'I', 'ï' => 'i', 'Ï' => 'I', 'î' => 'i', 'Î' => 'I',
+            'í' => 'i', 'ï' => 'i', 'î' => 'i',
             //L
-            'ľ' => 'l', 'Ľ' => 'L', 'ĺ' => 'l', 'Ĺ' => 'L', 'ł' => 'l', '£' => 'L',
+            'ľ' => 'l', 'ĺ' => 'l', 'ł' => 'l',
             //N
-            'ň' => 'n', 'Ň' => 'N', 'ń' => 'n', 'Ń' => 'N', 'ñ' => 'n', 'Ñ' => 'N',
+            'ň' => 'n', 'ń' => 'n', 'ñ' => 'n',
             //O
-            'ó' => 'o', 'Ó' => 'O', 'ö' => 'o', 'Ö' => 'O', 'ô' => 'o', 'Ô' => 'O', 'ő' => 'o', 'Ő' => 'O',
+            'ó' => 'o', 'ö' => 'o', 'ô' => 'o', 'ő' => 'o',
             //R
-            'ř' => 'r', 'Ř' => 'R', 'ŕ' => 'r', 'Ŕ' => 'R',
+            'ř' => 'r', 'ŕ' => 'r',
             //S
-            'š' => 's', 'Š' => 'S', 'ś' => 's', 'Ś' => 'S', 'ş' => 's', 'Ş' => 'S',
+            'š' => 's', 'ś' => 's', 'ş' => 's',
             //T
-            'ť' => 't', 'Ť' => 'T', 'ţ' => 't', 'Ţ' => 'T',
+            'ť' => 't', 'ţ' => 't',
             //U
-            'ú' => 'u', 'Ú' => 'U', 'ů' => 'u', 'Ů' => 'U', 'ü' => 'u', 'Ü' => 'U', 'ű' => 'u', 'Ű' => 'U',
-            'û' => 'u', 'Û' => 'U', 'ù' => 'u',
+            'ú' => 'u', 'ů' => 'u', 'ü' => 'u', 'ű' => 'u', 'û' => 'u', 'ù' => 'u',
             //Y
-            'ý' => 'y', 'Ý' => 'Y', 'ÿ' => 'y', 'Ÿ' => 'Y',
+            'ý' => 'y', 'ÿ' => 'y',
             //Z
-            'ž' => 'z', 'Ž' => 'Z', 'ź' => 'z', 'Ź' => 'Z', 'ż' => 'z', 'Ż' => 'Z',
-            //Symbols
-            '\\' => '/',
+            'ž' => 'z', 'ź' => 'z', 'ż' => 'z',
         ),
         //String with all allowed characters
-        'allowedChars'      => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_/.',
+        'allowedChars'      => 'abcdefghijklmnopqrstuvwxyz-/',
         //Character used to replace illegal characters
         'replacementChar'   => '-',
     );
@@ -89,6 +80,7 @@ class Path implements TransliteratorInterface
      */
     public function transliterate($str)
     {
+        $str    = mb_strtolower($str);
         //Replace according to the map
         foreach ($this->options['map'] as $from => $to) {
             $re     = sprintf('\\%s', $from);
@@ -104,13 +96,13 @@ class Path implements TransliteratorInterface
         }
         //Remove duplicated replacement chars
         $re         = sprintf('\\%s+', $this->options['replacementChar']);
-        $translit   = mb_eregi_replace($re, $this->options['replacementChar'], $translit);
+        $translit   = mb_ereg_replace($re, $this->options['replacementChar'], $translit);
         //Remove leading replacement char
         $re         = sprintf('^\\%s', $this->options['replacementChar']);
-        $translit   = mb_eregi_replace($re, '', $translit);
+        $translit   = mb_ereg_replace($re, '', $translit);
         //Remove trailing replacement char
         $re         = sprintf('\\%s$', $this->options['replacementChar']);
-        $translit   = mb_eregi_replace($re, '', $translit);
+        $translit   = mb_ereg_replace($re, '', $translit);
         return $translit;
     }
 }

@@ -62,6 +62,18 @@ return array(
 //                'replacementChar'   => '-'
 //            ),
 //        ),
+//        'url'  => array(
+//            'options'   => array(
+                //Transliteration map - will be merged with predefined transliteration map
+//                'map'       => array(
+//                    'Ě' => 'E',
+//                ),
+                //String with all allowed characters
+//                'allowedChars'      => '',
+                //Character used to replace illegal characters
+//                'replacementChar'   => '-'
+//            ),
+//        ),
 //    ),
 
     'cms'  => array(

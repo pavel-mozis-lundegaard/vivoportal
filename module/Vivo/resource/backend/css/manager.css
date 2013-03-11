@@ -3577,6 +3577,10 @@ textarea::-webkit-input-placeholder {
   float: left;
   margin-left: -20px;
 }
+.form-horizontal .radio input[type="radio"],
+.form-horizontal .checkbox input[type="checkbox"] {
+  margin-left: 0;
+}
 .controls > .radio:first-child,
 .controls > .checkbox:first-child {
   padding-top: 5px;

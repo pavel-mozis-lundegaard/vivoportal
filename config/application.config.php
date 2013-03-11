@@ -1,6 +1,7 @@
 <?php
 return array(
     'modules' => array(
+        'DluPhpSettings',
         'Vivo',
         'ZF2NetteDebug',
         'ZendSearch',

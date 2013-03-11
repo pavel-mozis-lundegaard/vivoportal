@@ -1,10 +1,9 @@
 <?php
-namespace Vivo\Controller;
+namespace Vivo\CMS;
 
 use Vivo\CMS\Api\CMS;
 use Vivo\CMS\ComponentFactory;
 use Vivo\CMS\Event\CMSEvent;
-use Vivo\CMS\Model;
 use Vivo\Controller\Exception;
 use Vivo\IO\InputStreamInterface;
 use Vivo\SiteManager\Event\SiteEvent;
@@ -30,7 +29,7 @@ use Zend\View\Model\ModelInterface;
 /**
  * The front controller which is responsible for dispatching all requests for documents in CMS repository.
  */
-class CMSFrontController implements DispatchableInterface,
+class FrontController implements DispatchableInterface,
     InjectApplicationEventInterface, EventManagerAwareInterface,
         ServiceLocatorAwareInterface
 
@@ -129,6 +128,8 @@ class CMSFrontController implements DispatchableInterface,
                         __METHOD__,
                         $this->cmsEvent->getRequestedPath()),
                     \Zend\Http\Response::STATUS_CODE_404);
+        } else {
+            $this->cmsEvent->setDocument($document);
         }
 
         //perform redirects

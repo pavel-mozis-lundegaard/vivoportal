@@ -1,7 +1,5 @@
 <?php
-namespace Vivo\CMS\Service\UI\Content;
-
-use Vivo\CMS\UI\Content\Overview;
+namespace Vivo\CMS\UI\Content;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;

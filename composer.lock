@@ -1,6 +1,50 @@
 {
-    "hash": "f7ed26c4c843c446dc91ea61784293cd",
+    "hash": "dc456e4aa857ad2cd3f6370148134a87",
     "packages": [
+        {
+            "name": "dlu/dluphpsettings",
+            "version": "0.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://bitbucket.org/dlu/dluphpsettings.git",
+                "reference": "release-0.1.1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://bitbucket.org/dlu/dluphpsettings/get/release-0.1.1.zip",
+                "reference": "release-0.1.1",
+                "shasum": ""
+            },
+            "require": {
+                "zendframework/zendframework": ">=2.0.5"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "./Module.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "New-BSD-License"
+            ],
+            "authors": [
+                {
+                    "name": "David Lukas",
+                    "homepage": "http://www.zfdaily.com"
+                }
+            ],
+            "description": "ZF2 module to set PHP ini settings based on the configuration data",
+            "homepage": "https://bitbucket.org/dlu/dluphpsettings",
+            "keywords": [
+                "dluphpsettings",
+                "module",
+                "php settings",
+                "zend framework 2",
+                "zf2"
+            ],
+            "time": "2013-03-11 13:13:33"
+        },
         {
             "name": "dlu/dlutwbootstrap",
             "version": "0.1.2",

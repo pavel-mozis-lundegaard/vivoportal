@@ -246,7 +246,8 @@ return array(
             'component_tree_controller' => 'Vivo\UI\ComponentTreeControllerFactory',
             'Vivo\CMS\AvailableContentsProvider' => 'Vivo\CMS\AvailableContentsProviderFactory',
             'Vivo\Metadata\Provider\SelectableTemplatesProvider' => 'Vivo\Metadata\Provider\SelectableTemplatesProviderFactory',
-            'Vivo\Util\UrlHelper'   =>  'Vivo\Util\UrlHelperFactory',
+            'Vivo\Util\UrlHelper'       =>  'Vivo\Util\UrlHelperFactory',
+            'Vivo\Transliterator\Path'  => 'Vivo\Transliterator\PathFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',

@@ -1,9 +1,5 @@
 <?php
-namespace Vivo\CMS\Service\UI\Content;
-
-use Vivo\CMS\UI\Content\Hyperlink;
-
-use Vivo\CMS\UI\Content\File;
+namespace Vivo\CMS\UI\Content;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
@@ -11,10 +7,8 @@ use Zend\ServiceManager\FactoryInterface;
 class HyperlinkFactory implements FactoryInterface
 {
     /**
-     * Create UI Page object.
-     *
      * @param  ServiceLocatorInterface $serviceLocator
-     * @return \Zend\Stdlib\Message
+     * @return Hyperlink
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {

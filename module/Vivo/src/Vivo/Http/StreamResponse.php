@@ -2,13 +2,11 @@
 namespace Vivo\Http;
 
 use Vivo\IO\ByteArrayInputStream;
-
-use Vivo\IO\OutputStreamInterface;
-
 use Vivo\IO\CloseableInterface;
 use Vivo\IO\FileOutputStream;
 use Vivo\IO\InputStreamInterface;
 use Vivo\IO\IOUtil;
+use Vivo\IO\OutputStreamInterface;
 
 use Zend\Http\PhpEnvironment\Response as PHPResponse;
 
@@ -20,17 +18,17 @@ class StreamResponse extends PHPResponse
 {
 
     /**
-     * @var \Vivo\IO\InputStreamInterface
+     * @var InputStreamInterface
      */
     private $inputStream;
 
     /**
-     * @var \Vivo\IO\OutputStreamInterface
+     * @var OutputStreamInterface
      */
     private $outputStream;
 
     /**
-     * @return \Vivo\IO\InputStreamInterface
+     * @return InputStreamInterface
      */
     public function getInputStream() {
         if ($this->inputStream == null) {
@@ -48,7 +46,7 @@ class StreamResponse extends PHPResponse
     }
 
     /**
-     * @return \Vivo\IO\OutputStreamInterface
+     * @return OutputStreamInterface
      */
     public function getOutputStream() {
         if ($this->outputStream == null) {

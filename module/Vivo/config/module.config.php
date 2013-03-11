@@ -50,8 +50,8 @@ return array(
                     'resource_entity' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
-                            'regex'    => '/\.entity(?<entity>.+?)((\.path(?<path>.+)))',
-                            'spec'    => '/.entity/%entity%/.path/%path%',
+                            'regex'    => '/\.entity(?<entity>.+?)((\.path/(?<path>.+)))',
+                            'spec'    => '/.entity%entity%.path/%path%',
                             'defaults' => array(
                                 'controller' => 'resource_front_controller',
                                 'path' => '',
@@ -154,8 +154,8 @@ return array(
                     'resource_entity' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
-                            'regex'    => '/(?<host>.+)/view/\.entity(?<entity>.+?)((\.path(?<path>.+)))',
-                            'spec'    => '/%host%/view/.entity/%entity%/.path/%path%',
+                            'regex'    => '/(?<host>.+)/view/\.entity(?<entity>.+?)((\.path/(?<path>.+)))',
+                            'spec'    => '/%host%/view/.entity%entity%.path/%path%',
                             'defaults' => array(
                                 'controller' => 'resource_front_controller',
                                 'path' => '',
@@ -282,7 +282,7 @@ return array(
             'cli_info'      => 'Vivo\Controller\CLI\InfoController',
         ),
         'factories' => array(
-            'cms_front_controller'      => 'Vivo\Service\Controller\CMSFrontControllerFactory',
+            'cms_front_controller'      => 'Vivo\CMS\FrontControllerFactory',
             'resource_front_controller' => 'Vivo\Service\Controller\ResourceFrontControllerFactory',
             'cli_module'                => 'Vivo\Service\Controller\CLI\CLIModuleControllerFactory',
             'cli_repository'            => 'Vivo\Service\Controller\CLI\CLIRepositoryControllerFactory',

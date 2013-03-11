@@ -12,5 +12,12 @@
  */
 
 return array(
-    // ...
+    'phpSettings'   => array(
+        'display_startup_errors'        => false,
+        'display_errors'                => false,
+        'error_reporting'               => E_ALL | E_STRICT,
+//        'max_execution_time'		    => 60,
+        'date.timezone'                 => 'Europe/Prague',
+        'mbstring.internal_encoding'    => 'UTF-8',
+    ),
 );

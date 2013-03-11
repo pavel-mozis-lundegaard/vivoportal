@@ -2,6 +2,7 @@
 namespace Vivo\Storage\PathBuilder;
 
 use Vivo\Storage\Exception;
+use Vivo\Transliterator\TransliteratorInterface;
 
 /**
  * PathBuilder
@@ -16,23 +17,31 @@ class PathBuilder implements PathBuilderInterface
     protected $separator;
 
     /**
-     * Character used to replace illegal path characters
-     * @var string
+     * Path Transliterator
+     * @var TransliteratorInterface
      */
-    protected $replacementChar    = '-';
+    protected $pathTransliterator;
+//
+//    /**
+//     * Character used to replace illegal path characters
+//     * @var string
+//     */
+//    protected $replacementChar    = '-';
 
     /**
      * Constructor
      * @param string $separator Path components separator
+     * @param \Vivo\Transliterator\TransliteratorInterface $pathTransliterator
      * @throws \Vivo\Storage\Exception\InvalidArgumentException
      */
-    public function __construct($separator)
+    public function __construct($separator, TransliteratorInterface $pathTransliterator)
     {
         if (strlen($separator) != 1) {
             throw new Exception\InvalidArgumentException(
                 sprintf("%s: Only single character separators supported; '%s' given", __METHOD__, $separator));
         }
-        $this->separator    = $separator;
+        $this->separator            = $separator;
+        $this->pathTransliterator   = $pathTransliterator;
     }
 
     /**
@@ -63,7 +72,7 @@ class PathBuilder implements PathBuilderInterface
         if ($absolute) {
             $path    = $separator . $path;
         }
-        $path   = $this->removeIllegalCharacters($path);
+        $path   = $this->pathTransliterator->transliterate($path);
         return $path;
     }
 
@@ -101,7 +110,7 @@ class PathBuilder implements PathBuilderInterface
         if ($absolute) {
             $sanitized  = $separator . $sanitized;
         }
-        $sanitized  = $this->removeIllegalCharacters($sanitized);
+        $sanitized  = $this->pathTransliterator->transliterate($sanitized);
         return  $sanitized;
     }
 

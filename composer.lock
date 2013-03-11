@@ -1,6 +1,50 @@
 {
-    "hash": "8981ed2f079dcafb87f9235b4e04e479",
+    "hash": "8071bb7a2d632871b6e50869dfb5cb21",
     "packages": [
+        {
+            "name": "dlu/dluphpsettings",
+            "version": "0.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://bitbucket.org/dlu/dluphpsettings.git",
+                "reference": "release-0.1.1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://bitbucket.org/dlu/dluphpsettings/get/release-0.1.1.zip",
+                "reference": "release-0.1.1",
+                "shasum": ""
+            },
+            "require": {
+                "zendframework/zendframework": ">=2.0.5"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "./Module.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "New-BSD-License"
+            ],
+            "authors": [
+                {
+                    "name": "David Lukas",
+                    "homepage": "http://www.zfdaily.com"
+                }
+            ],
+            "description": "ZF2 module to set PHP ini settings based on the configuration data",
+            "homepage": "https://bitbucket.org/dlu/dluphpsettings",
+            "keywords": [
+                "dluphpsettings",
+                "module",
+                "php settings",
+                "zend framework 2",
+                "zf2"
+            ],
+            "time": "2013-03-11 13:13:33"
+        },
         {
             "name": "doctrine/common",
             "version": "2.3.0",
@@ -24,12 +68,50 @@
                     "dev-master": "2.3.x-dev"
                 }
             },
-            "installation-source": "dist",
             "autoload": {
                 "psr-0": {
                     "Doctrine\\Common": "lib/"
                 }
-            }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jonathan Wage",
+                    "email": "jonwage@gmail.com",
+                    "homepage": "http://www.jwage.com/"
+                },
+                {
+                    "name": "Guilherme Blanco",
+                    "email": "guilhermeblanco@gmail.com",
+                    "homepage": "http://www.instaclick.com"
+                },
+                {
+                    "name": "Roman Borschel",
+                    "email": "roman@code-factory.org"
+                },
+                {
+                    "name": "Benjamin Eberlei",
+                    "email": "kontakt@beberlei.de"
+                },
+                {
+                    "name": "Johannes M. Schmitt",
+                    "email": "schmittjoh@gmail.com",
+                    "homepage": "http://jmsyst.com",
+                    "role": "Developer of wrapped JMSSerializerBundle"
+                }
+            ],
+            "description": "Common Library for Doctrine projects",
+            "homepage": "http://www.doctrine-project.org",
+            "keywords": [
+                "annotations",
+                "collections",
+                "eventmanager",
+                "persistence",
+                "spl"
+            ],
+            "time": "2012-09-20 05:55:18"
         },
         {
             "name": "doctrine/dbal",
@@ -46,23 +128,20 @@
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.2",
-                "doctrine/common": "2.3.*"
+                "doctrine/common": "2.3.*",
+                "php": ">=5.3.2"
             },
-            "time": "2013-01-07 20:03:43",
             "type": "library",
             "extra": {
                 "branch-alias": {
                     "dev-master": "2.3.x-dev"
                 }
             },
-            "installation-source": "dist",
             "autoload": {
                 "psr-0": {
                     "Doctrine\\DBAL": "lib/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -90,10 +169,11 @@
             "homepage": "http://www.doctrine-project.org",
             "keywords": [
                 "database",
-                "persistence",
                 "dbal",
+                "persistence",
                 "queryobject"
-            ]
+            ],
+            "time": "2013-01-07 20:03:43"
         },
         {
             "name": "doctrine/orm",
@@ -110,15 +190,14 @@
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.2",
-                "ext-pdo": "*",
                 "doctrine/dbal": "2.3.*",
+                "ext-pdo": "*",
+                "php": ">=5.3.2",
                 "symfony/console": "2.*"
             },
             "suggest": {
                 "symfony/yaml": "If you want to use YAML Metadata Mapping Driver"
             },
-            "time": "2013-01-07 20:05:04",
             "bin": [
                 "bin/doctrine",
                 "bin/doctrine.php"
@@ -129,13 +208,11 @@
                     "dev-master": "2.3.x-dev"
                 }
             },
-            "installation-source": "dist",
             "autoload": {
                 "psr-0": {
                     "Doctrine\\ORM": "lib/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -164,25 +241,24 @@
             "keywords": [
                 "database",
                 "orm"
-            ]
+            ],
+            "time": "2013-01-07 20:05:04"
         },
         {
             "name": "firephp/firephp-core",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/RobLoach/firephp-core",
-                "reference": "c26d972dcb28fd483fa193512091df7b3c85e450"
+                "url": "https://github.com/firephp/firephp-core.git",
+                "reference": "f60753a8dd7817e4da6bc73e0e717387a9a0866a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/RobLoach/firephp-core/zipball/c26d972dcb28fd483fa193512091df7b3c85e450",
-                "reference": "c26d972dcb28fd483fa193512091df7b3c85e450",
+                "url": "https://api.github.com/repos/firephp/firephp-core/zipball/f60753a8dd7817e4da6bc73e0e717387a9a0866a",
+                "reference": "f60753a8dd7817e4da6bc73e0e717387a9a0866a",
                 "shasum": ""
             },
-            "time": "2012-05-29 00:08:14",
             "type": "library",
-            "installation-source": "source",
             "autoload": {
                 "classmap": [
                     "lib/FirePHPCore/FirePHP.class.php",
@@ -197,36 +273,40 @@
                 {
                     "name": "Christoph Dorn",
                     "email": "christoph@christophdorn.com",
-                    "homepage": "christophdorn.com"
+                    "homepage": "http://christophdorn.com"
                 }
             ],
             "description": "Traditional FirePHPCore library for sending PHP variables to the browser.",
-            "homepage": "https://github.com/firephp/firephp-core"
+            "homepage": "https://github.com/firephp/firephp-core",
+            "time": "2013-01-19 22:55:24"
         },
         {
             "name": "symfony/console",
-            "version": "v2.1.6",
+            "version": "v2.2.0",
             "target-dir": "Symfony/Component/Console",
             "source": {
                 "type": "git",
-                "url": "https://github.com/symfony/Console",
-                "reference": "v2.1.6"
+                "url": "https://github.com/symfony/Console.git",
+                "reference": "v2.2.0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/symfony/Console/archive/v2.1.6.zip",
-                "reference": "v2.1.6",
+                "url": "https://api.github.com/repos/symfony/Console/zipball/v2.2.0",
+                "reference": "v2.2.0",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3"
             },
-            "time": "2012-12-13 17:42:00",
             "type": "library",
-            "installation-source": "dist",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.2-dev"
+                }
+            },
             "autoload": {
                 "psr-0": {
-                    "Symfony\\Component\\Console": ""
+                    "Symfony\\Component\\Console\\": ""
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -244,7 +324,8 @@
                 }
             ],
             "description": "Symfony Console Component",
-            "homepage": "http://symfony.com"
+            "homepage": "http://symfony.com",
+            "time": "2013-03-01 06:43:14"
         },
         {
             "name": "webino/zf2nette-debug",
@@ -265,12 +346,10 @@
                 "zendframework/zendframework": "2.*"
             },
             "suggest": {
-                "zendframework/ZendDeveloperTools": "Module for developer and debug tools for working with the ZF2 MVC layer. ",
-                "webino/WebinoDraw": "XHTML Layout Renderer for Zend Framework"
+                "webino/WebinoDraw": "XHTML Layout Renderer for Zend Framework",
+                "zendframework/ZendDeveloperTools": "Module for developer and debug tools for working with the ZF2 MVC layer. "
             },
-            "time": "2012-11-08 01:03:15",
             "type": "library",
-            "installation-source": "dist",
             "autoload": {
                 "psr-0": {
                     "Nette": "src/"
@@ -279,7 +358,6 @@
                     "Module.php"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "New BSD License"
             ],
@@ -295,9 +373,10 @@
             "homepage": "http://github.com/webino/Zf2NetteDebug",
             "keywords": [
                 "debug",
-                "zf2",
-                "debugger"
-            ]
+                "debugger",
+                "zf2"
+            ],
+            "time": "2012-11-08 01:03:15"
         },
         {
             "name": "zendframework/zendframework",
@@ -309,7 +388,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/zendframework/zf2/archive/release-2.0.6.zip",
+                "url": "https://api.github.com/repos/zendframework/zf2/zipball/release-2.0.6",
                 "reference": "release-2.0.6",
                 "shasum": ""
             },
@@ -376,7 +455,6 @@
                 "zendframework/zendpdf": "ZendPdf for creating PDF representations of barcodes",
                 "zendframework/zendservice-recaptcha": "ZendService\\ReCaptcha for rendering ReCaptchas in Zend\\Captcha and/or Zend\\Form"
             },
-            "time": "2012-12-19 21:14:25",
             "bin": [
                 "bin/classmap_generator.php"
             ],
@@ -387,7 +465,6 @@
                     "dev-develop": "2.1-dev"
                 }
             },
-            "installation-source": "dist",
             "autoload": {
                 "psr-0": {
                     "Zend\\": "library/",
@@ -403,15 +480,24 @@
             "keywords": [
                 "framework",
                 "zf2"
-            ]
+            ],
+            "time": "2012-12-19 21:14:25"
         }
     ],
-    "packages-dev": null,
+    "packages-dev": [
+
+    ],
     "aliases": [
 
     ],
     "minimum-stability": "stable",
     "stability-flags": {
         "firephp/firephp-core": 20
-    }
+    },
+    "platform": {
+        "php": ">=5.3.3"
+    },
+    "platform-dev": [
+
+    ]
 }

@@ -35,7 +35,8 @@ class EntityEditor extends Fieldset
 
             // Attributes
             $attributes = array();
-            $attributes['id'] = $name;
+            //The element id will be added automatically by TWB view helper
+            //$attributes['id'] = $name;
 
             if(!empty($attrs['options']) && is_array($attrs['options'])) {
                 $attributes['options'] = $attrs['options'];

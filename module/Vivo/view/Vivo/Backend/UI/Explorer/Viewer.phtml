@@ -1,2 +1,53 @@
-<iframe width="100%" height="500" src="<?=$this->url('backend/cms/query', array('path' => $entityPath), false)?>">
-</iframe>
+<form method="post">
+	<div class="dialogHeader">
+		<div class="dialogHeaderHolder">
+			<? if (1) : ?> <?/*count($this->content_versions)*/?>
+				<div class="fakePathHolder" id="fakePathHolder">
+					<div class="fakePath" style="">
+						<span>&nbsp;</span>
+					</div>
+				</div>
+
+				<?/* $this->act('update') ?>
+				<? $this->view_type->view('input', array('type'=>'hidden')); */?>
+
+				<a id="openViewFrame" class="ico" href="#" rel="<?= $this->id ?>" title="<?= $this->translate('Open in new window') ?>">
+					<img src="<?= $this->resource('backend/img/icons/16x16/new-window.png','Vivo')?>" alt="" class="icon" />
+				</a>
+				<a id="reloadViewFrame" class="ico" title="<?= $this->translate('Refresh') ?>">
+					<img src="<?= $this->resource('backend/img/icons/16x16/refresh.png','Vivo')?>" alt="" class="icon" />
+				</a>
+				<span class="separator"></span>
+
+				<a id="showHighlightPanels" class="ico">
+					<img src="<?= $this->resource('backend/img/icons/16x16/panel_edit.png','Vivo')?>" alt="" class="icon" />
+				</a>
+				<span class="separator"></span>
+
+
+
+				<a class="ico" href="&amp;view_type=PUBLISHED" title="<?= $this->translate('Published version') ?>">
+					<img src="<?= $this->resource('backend/img/icons/16x16/published.png','Vivo')?>" alt="" class="icon" />
+				</a>
+				<a class="ico" href="&amp;view_type=LAST" title="<?= $this->translate('Last version') ?>">
+					<img src="<?= $this->resource('backend/img/icons/16x16/last.png','Vivo')?>" alt="" class="icon" />
+				</a>
+
+
+				<span class="separator"></span>
+
+				<span class="dialogItem dialogContentVersion dialogItemInput">
+					
+				<select onchange="$(this).parents(&quot;form&quot;).find(&quot;input[name=view_type]&quot;).val(&quot;VERSION&quot;).end().submit();" class="" name="view_version">
+					<option value="0">1.0</option>
+				</select>
+
+				</span>
+				<span class="dialogItem dialogItemText" id="firstRDialogItem">
+					<?= $this->translate('Version') ?>
+				</span>
+			<? endif; ?>
+		</div>
+	</div>
+</form>
+<iframe style="width:100%; height:100%" src="<?=$this->url('backend/cms/query', array('path' => $entityPath), false)?>" class="viewFrame"></iframe>

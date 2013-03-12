@@ -23,12 +23,12 @@ class Ribbon extends \Vivo\UI\Ribbon implements EventManagerAwareInterface
         $tab = new Tab('Document');
 
         $group = new Group('Show');
-        $group->addItem(new Item('viewer', 'Viewer', '', $this));
-        $group->addItem(new Item('browser', 'Browser', '', $this));
+        $group->addItem(new Item('viewer', 'View', '', $this));
+        $group->addItem(new Item('browser', 'Browse', '', $this));
         $tab->addGroup($group);
 
-        $group = new Group('Edit');
-        $group->addItem(new Item('editor', 'Editor', '', $this));
+        $group = new Group('Editor');
+        $group->addItem(new Item('editor', 'Edit', '', $this));
         $tab->addGroup($group);
 
         $group = new Group('Structure');

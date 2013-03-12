@@ -6,6 +6,7 @@
 <div class="samplediv">
 <h4>LOGON UI COMPONENT</h4>
 <?php
+    $formType       = \DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
     /** @var $form \Vivo\Form\Logon */
     //Display error notice
     if ($form->getMessages()) {
@@ -27,7 +28,7 @@
                 'value'         => $this->action('logon'),
             ),
         ));
-        echo $this->vivoForm($form);
+        echo $this->formTwb($form, $formType);
     }
 ?>
 </div>

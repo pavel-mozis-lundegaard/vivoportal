@@ -91,7 +91,7 @@ class Resource extends AbstractForm
             'name' => 'save',
             'attributes' => array(
                 'type'  => 'submit',
-                'value' => 'Save',
+                'value' => 'Upload',
                 'class' => 'btn',
             ),
         ));

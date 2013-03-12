@@ -1,10 +1,13 @@
 <?
+$formType       = \DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
 foreach ($form->get('content')->getElements() as $name=>$element) {
     if($name != 'state') {
-        echo $this->partial('Vivo\Backend\Form\Element', array('element'=>$element));
+        echo $this->formRowTwb($element, $formType);
     }
 }
+echo $this->editorComponent;
 ?>
-<?=$this->editorComponent?>
 <hr />
-<?= $this->formRow($form->get('content')->get('state'))?>
+<?php
+echo $this->formRowTwb($form->get('content')->get('state'), $formType);
+?>

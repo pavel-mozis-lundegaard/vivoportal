@@ -22,9 +22,9 @@
 ?>
 <hr>
 <?php
-    echo $this->formRow($form->get('act'));
-    echo $this->formRow($form->get('csrf'));
-    echo $this->vivoFormFieldset($form->get('buttons'));
+    echo $this->formRowTwb($form->get('act'), $formType);
+    echo $this->formRowTwb($form->get('csrf'), $formType);
+    echo $this->formFieldsetTwb($form->get('buttons'), $formType);
     echo $this->formTwb()->closeTag();
 ?>
 Resource editor<hr>

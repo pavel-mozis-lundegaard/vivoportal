@@ -1,5 +1,5 @@
 {
-    "hash": "dc456e4aa857ad2cd3f6370148134a87",
+    "hash": "aa535f55c146c4d1ebf31a656fd63809",
     "packages": [
         {
             "name": "dlu/dluphpsettings",
@@ -47,16 +47,16 @@
         },
         {
             "name": "dlu/dlutwbootstrap",
-            "version": "0.1.2",
+            "version": "0.1.3",
             "source": {
                 "type": "git",
                 "url": "https://bitbucket.org/dlu/dlutwbootstrap.git",
-                "reference": "release-0.1.2"
+                "reference": "release-0.1.3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://bitbucket.org/dlu/dlutwbootstrap/get/release-0.1.2.zip",
-                "reference": "release-0.1.2",
+                "url": "https://bitbucket.org/dlu/dlutwbootstrap/get/release-0.1.3.zip",
+                "reference": "release-0.1.3",
                 "shasum": ""
             },
             "require": {
@@ -91,7 +91,7 @@
                 "zend framework 2",
                 "zf2"
             ],
-            "time": "2013-03-07 16:50:13"
+            "time": "2013-03-12 09:12:57"
         },
         {
             "name": "doctrine/common",

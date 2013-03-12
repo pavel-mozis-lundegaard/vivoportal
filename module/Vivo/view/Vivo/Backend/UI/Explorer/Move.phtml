@@ -8,10 +8,8 @@
     ?>
 </h4>
 <?php
+    $formType       = \DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
     $name   = $form->get('name');
     $name->setAttribute('onkeyup', 'this.form.name_in_path.value = updatePath(this.form.name_in_path.value, this.value)');
-    if ($form->getMessages()) {
-        echo $this->escapeHtml($this->translate('Form data is not valid'));
-    }
-    echo $this->vivoForm($form);
+    echo $this->formTwb($form, $formType);
 ?>

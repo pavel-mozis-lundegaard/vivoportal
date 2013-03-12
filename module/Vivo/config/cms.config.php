@@ -132,6 +132,12 @@ return array(
     'backend' => array (
         'plugins' =>  array (
         ),
+        //Backend Tree component
+        'tree'      => array(
+            'options'   => array(
+                'max_items'     => 20,
+            ),
+        ),
     ),
     'service_manager' => array (
         //configuration of service manager, services defined here should not override

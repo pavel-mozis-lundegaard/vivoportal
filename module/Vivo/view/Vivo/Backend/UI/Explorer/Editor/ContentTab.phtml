@@ -4,6 +4,6 @@ $form->get('version')
     ->setAttribute('style', 'width:100%')
     ->setAttribute('onchange',
         sprintf('this.form.act.value = "%s"; this.form.submit();', $this->action('changeVersion')));
-echo $this->formFieldsetTwb($form, $formType);
+echo $this->formFieldsetTwb($form, $formType, array(), false, false);
 echo $contentEditor;
 ?>

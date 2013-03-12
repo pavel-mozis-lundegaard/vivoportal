@@ -1,6 +1,7 @@
 <?php
 /**
- * config for backend
+ * Config for backend
+ * This config is merged into the cms.config
  */
 return array(
     'templates' => array (
@@ -137,7 +138,7 @@ return array(
             ),
         ),
 
-    //Backend modules
+        //Backend modules
         'modules'       => array(
             'Bootstrap2_3_0'    => array(
                 'enabled'           => true,

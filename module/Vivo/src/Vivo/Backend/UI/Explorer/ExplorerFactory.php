@@ -27,9 +27,16 @@ class ExplorerFactory implements FactoryInterface
 
         $explorer->addComponent($sm->create('Vivo\Backend\UI\Explorer\Ribbon'), 'ribbon');
 
+        $cmsConfig  = $sm->get('cms_config');
+        if (isset($cmsConfig['backend']['tree']['options'])) {
+            $options    = $cmsConfig['backend']['tree']['options'];
+        } else {
+            $options    = array();
+        }
         $tree = new \Vivo\Backend\UI\Explorer\Tree(
                 $sm->get('Vivo\CMS\Api\CMS'),
-                $sm->get('Vivo\CMS\Api\Document'));
+                $sm->get('Vivo\CMS\Api\Document'),
+                $options);
         $tree->setView($sm->get('view_model'));
         $tree->setExplorer($explorer);
         $explorer->addComponent($tree, 'tree');

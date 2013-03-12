@@ -10,8 +10,8 @@ $param = $viewAll ? '-all' : '';
                 foreach ($tabs as $tab):
                     $position++;
                 ?>
-                <li<?if (!$viewAll && $tab['name'] == $selected):?> class="selected"<?endif?> data-rel="tab<?=$position?>">
-                    <a href="<?=$this->actionUrl('select', array($tab['name']))?>"><?=$this->translate($tab['label'])?></a>
+                <li<?if ($tab['name'] == $selected):?> class="selected"<?endif?> data-rel="ribbon-tab-<?=$position?>">
+                    <a href="#"><?=$this->translate($tab['label'])?></a>
                 </li>
                <?endforeach?>
             </ul>
@@ -19,15 +19,24 @@ $param = $viewAll ? '-all' : '';
         </div>
     </div>
     <div class="clear"></div>
+
     <div class="tabContentRibbon">
         <?
         if (!empty($components))
-        if ($viewAll) {
-            foreach ($components as $name)
-                echo ${$name};
-        } else {
-            echo ${$selected};
-        }?>
+            if ($viewAll) {
+                $position   = 0;
+                foreach ($components as $name):
+                    $position++;
+        ?>
+                    <div id="ribbon-tab-<?=$position?>" class="tab-content">
+                    <?php echo ${$name}; ?>
+                    </div>
+        <?php
+                endforeach;
+            } else {
+                echo ${$selected};
+            }?>
     </div>
+
 </div>
 <div class="clear"></div>

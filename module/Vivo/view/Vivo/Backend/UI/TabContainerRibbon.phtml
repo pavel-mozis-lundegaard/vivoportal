@@ -1,5 +1,6 @@
 <?php
-$param = $viewAll ? '-all' : '';
+//$param = $viewAll ? '-all' : '';
+$param = "";
 ?>
 <div id="tabContainer<?=$param?>">
     <div id="tabs<?=$param?>">
@@ -10,7 +11,7 @@ $param = $viewAll ? '-all' : '';
                 foreach ($tabs as $tab):
                     $position++;
                 ?>
-                <li<?if ($tab['name'] == $selected):?> class="selected"<?endif?> data-rel="ribbon-tab-<?=$position?>">
+                <li<?/*if ($tab['name'] == $selected):?> class="selected"<?endif*/?> data-rel="ribbon-tab-<?=$position?>">
                     <a href="#"><?=$this->translate($tab['label'])?></a>
                 </li>
                <?endforeach?>

@@ -748,7 +748,6 @@ body.manager a:hover {
 }
 .manager .tabs li.hover {
   background-color: #dce6ee;
-  border-bottom: 1px #f0f5fa solid;
 }
 .manager .tabs li.selected {
   background-color: #f0f5fa;

@@ -48,7 +48,7 @@ input,
 button,
 select,
 textarea {
-  font-family: @baseFontFamily; // And only set font-family here for those that need it (note the missing label element)
+  //font-family: @baseFontFamily; // And only set font-family here for those that need it (note the missing label element)
 }
 
 // Identify controls by their labels
@@ -242,6 +242,11 @@ textarea {
 .checkbox input[type="checkbox"] {
   float: left;
   margin-left: -20px;
+}
+
+.form-horizontal .radio input[type="radio"],
+.form-horizontal .checkbox input[type="checkbox"] {
+  margin-left: 0;
 }
 
 // Move the options list down to align with labels

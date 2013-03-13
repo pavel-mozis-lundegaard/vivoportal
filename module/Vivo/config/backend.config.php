@@ -82,8 +82,12 @@ return array(
                         'src' => '.Vivo.resource/js/jquery.js',
                         'type' => 'text/javascript',
                     ),
-                     array(
+                    array(
                         'src' => '.Vivo.resource/backend/js/jquery-ui.js',
+                        'type' => 'text/javascript',
+                    ),
+                    array(
+                        'src' => '.Vivo.resource/backend/js/jquery.cookie.js',
                         'type' => 'text/javascript',
                     ),
                     array(

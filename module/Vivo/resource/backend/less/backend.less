@@ -802,7 +802,7 @@ body.manager a:hover {
 	margin-bottom: 0px;
 	background: @background-color-content;// url("../img/manager/default/tab_content_background.gif") top left repeat-y;
 	zoom: 1;
-	height:100%;
+	//height:100%;
 }
 
 .manager #editor .tabMainContentHolder {
@@ -1046,6 +1046,14 @@ body.manager a:hover {
 .manager .fakePath span {
 	padding-right: 2px;
 	
+}
+
+.manager .dialogItemInput select {
+	width: 65px;
+	padding: 0;
+	height: 24px;
+	line-height: 24px;
+	margin: 0;
 }
 
 /**/
@@ -2053,7 +2061,8 @@ a img { border: none; }
     background: transparent url(../img/front/default/open_closed_ico.gif) 100% 3px no-repeat; 
 }
 
-.manager table.tableGridForm td .hint {
+.manager table.tableGridForm td .hint,
+.form-horizontal .help-block {
 	display: none;
 }
 
@@ -2064,30 +2073,61 @@ a img { border: none; }
 }
 
 .manager .hintBoxHolder {
+	position:relative;
+	margin-top:8px;
+	background:#1e395b;
+	.border-radius(5px);
+}
+
+.manager .hintBoxHolder:before {
+	position:absolute;
+	top:0px;
+	left:0;
+	width:155px;
+	height:36px;
+    /* reduce the damage in FF3.0 */
+    display:block; 
+}
+
+.manager .hintBoxHolder:after {
+	content:"";
+	position:absolute;
+	top:-16px;
+	left:15px;
+	border:8px solid transparent;
+	border-bottom-color:#1e395b;
+    /* reduce the damage in FF3.0 */
+    display:block; 
+    width:0;
+}
+
+.manager .hintBoxHolder {
 	width: 275px;
 	position: absolute;
 }
 
 .manager .hintBox .hintBoxHolder .hintBoxTop {
-	background: url("../img/manager/default/hint_box_top.png") top left no-repeat;
-	height: 15px;
+	//background: url("../img/manager/default/hint_box_top.png") top left no-repeat;
+	//height: 15px;
+	display: none;
 }
 
 .manager .hintBox .hintBoxHolder div.hintBoxMiddle {
-	background: url("../img/manager/default/hint_box_middle.png") top left repeat-y !important;
+	//background: url("../img/manager/default/hint_box_middle.png") top left repeat-y !important;
 	min-height: 1px;
 }
 
 .manager .hintBox .hintBoxHolder .hintBoxMiddle .hintBoxMiddleContent {
 	color: #fff !important;
-	padding: 0px 12px 0px 12px;
+	padding: 12px;
 	font-size: 0.85em;
 	text-align: left;
 }
 
 .manager .hintBox .hintBoxHolder .hintBoxBottom {
-	background: url("../img/manager/default/hint_box_bottom.png") top left no-repeat;
-	height: 14px;
+	//background: url("../img/manager/default/hint_box_bottom.png") top left no-repeat;
+	//height: 14px;
+	display: none;
 }
 
 .manager .entitySelectContainer {

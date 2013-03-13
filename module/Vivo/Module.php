@@ -1,16 +1,13 @@
 <?php
 namespace Vivo;
 
-use Vivo\Http\Filter\OutputFilterListener;
 use Vivo\View\Helper as ViewHelper;
-use Vivo\Service\Exception;
 
 use Zend\Console\Adapter\AdapterInterface as Console;
 use Zend\ModuleManager\Feature\ConsoleBannerProviderInterface;
 use Zend\ModuleManager\Feature\ConsoleUsageProviderInterface;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
-use Zend\ServiceManager\ServiceManager;
 
 class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInterface
 {
@@ -29,7 +26,6 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         $moduleRouteListener->attach($eventManager);
 
         $sm     = $e->getApplication()->getServiceManager();
-        /* @var $sm ServiceManager */
         $config = $sm->get('config');
 
         //Attach a listener to set up the SiteManager object
@@ -62,6 +58,9 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
     public function getAutoloaderConfig()
     {
         return array(
+            'Zend\Loader\ClassMapAutoloader' => array(
+                __DIR__ . '/autoload_classmap.php',
+            ),
             'Zend\Loader\StandardAutoloader' => array(
                 'namespaces' => array(
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,

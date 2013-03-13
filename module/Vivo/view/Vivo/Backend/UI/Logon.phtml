@@ -1,3 +1,6 @@
+<?php
+$formType       = \DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
+?>
 <?if (isset($logonError)):?>
 	<div class="alert alert-error">
 	<?=$this->translate($logonError)?>
@@ -26,7 +29,7 @@
 
 			<tr class="important">
 				<td colspan="2" class="logoutDialogForm">
-					<?=$this->vivoForm($form);?>
+					<?=$this->formTwb($form, $formType);?>
 				</td>
 			</tr>
 

@@ -1,1 +1,4 @@
-<?=$this->vivoForm($form, array('renderFormTag' => false))?>
+<?php
+$formType       = \DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
+echo $this->formFieldsetTwb($form, $formType, array(), false, false);
+?>

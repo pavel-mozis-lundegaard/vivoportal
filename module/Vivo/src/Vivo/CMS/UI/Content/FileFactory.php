@@ -1,7 +1,5 @@
 <?php
-namespace Vivo\CMS\Service\UI\Content;
-
-use Vivo\CMS\UI\Content\File;
+namespace Vivo\CMS\UI\Content;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
@@ -9,10 +7,8 @@ use Zend\ServiceManager\FactoryInterface;
 class FileFactory implements FactoryInterface
 {
     /**
-     * Create UI Page object.
-     *
      * @param  ServiceLocatorInterface $serviceLocator
-     * @return \Zend\Stdlib\Message
+     * @return File
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {

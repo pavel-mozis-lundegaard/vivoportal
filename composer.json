@@ -10,10 +10,12 @@
     
     "require": {
         "php": ">=5.3.3",
-        "zendframework/zendframework": ">=2.0.0",
+        "zendframework/zendframework": "=2.0.6",
         "doctrine/common": ">=2.2.0",
         "doctrine/orm": ">=2.2.0",
         "webino/zf2nette-debug": ">=1",
-        "firephp/firephp-core": "dev-master"
+        "firephp/firephp-core": "dev-master",
+        "dlu/dluphpsettings": ">=0.1.0",
+        "dlu/dlutwbootstrap": ">=0.1.3"
     }
 }

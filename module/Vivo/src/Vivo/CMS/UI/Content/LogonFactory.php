@@ -1,7 +1,5 @@
 <?php
-namespace Vivo\CMS\Service\UI\Content;
-
-use Vivo\CMS\UI\Content\Layout;
+namespace Vivo\CMS\UI\Content;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
@@ -22,7 +20,7 @@ class LogonFactory implements FactoryInterface
         /** @var $siteEvent \Vivo\SiteManager\Event\SiteEventInterface */
         $siteEvent          = $serviceLocator->get('site_event');
         $securityDomain     = $siteEvent->getSite()->getDomain();
-        $logon  = new \Vivo\CMS\UI\Content\Logon($securityManager, $securityDomain, $redirector,  $request);
+        $logon  = new Logon($securityManager, $securityDomain, $redirector,  $request);
         return $logon;
     }
 }

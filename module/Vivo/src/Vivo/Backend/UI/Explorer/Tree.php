@@ -27,14 +27,24 @@ class Tree extends Component
     protected $documentApi;
 
     /**
+     * Tree options
+     * @var array
+     */
+    protected $options  = array(
+        'max_items'     => 20,
+    );
+
+    /**
      * Constuctor.
      * @param Api\CMS $cmsApi
      * @param Api\Document $documentApi
+     * @param array $options
      */
-    public function __construct(Api\CMS $cmsApi, Api\Document $documentApi)
+    public function __construct(Api\CMS $cmsApi, Api\Document $documentApi, $options = array())
     {
-        $this->cmsApi = $cmsApi;
-        $this->documentApi = $documentApi;
+        $this->cmsApi       = $cmsApi;
+        $this->documentApi  = $documentApi;
+        $this->options      = array_merge($this->options, $options);
     }
 
     /**
@@ -92,13 +102,12 @@ class Tree extends Component
      */
     public function getSubtree($relPath)
     {
-        $view = new \Zend\View\Model\ViewModel();
-        $view->setTemplate(__CLASS__.':Subtree');
+        $this->view->setTemplate(__CLASS__.':Subtree');
          $folder = $this->cmsApi->getSiteEntity($relPath, $this->explorer->getSite());
         $tree = $this->getDocumentTree($folder, $folder->getPath());
         $nodes = $tree->getChildrenNodes();
-        $view->tree = reset($nodes);
-        return $view;
+        $this->view->tree = reset($nodes);
+        return parent::view();
     }
 
     /**
@@ -108,7 +117,7 @@ class Tree extends Component
      * @param string $expandedPath
      * @return \Vivo\Util\DataTree
      */
-    protected function getDocumentTree(Folder $rootFolder, $expandedPath = '', $maxItems = 10)
+    protected function getDocumentTree(Folder $rootFolder, $expandedPath = '')
     {
         $que = new \SplQueue();
         $tree = new DataTree($rootFolder);
@@ -143,7 +152,7 @@ class Tree extends Component
                     (strpos($expandedPath, $child->getPath(). '/') !== false);
             if ($expand) {
                 foreach ($children as $child) {
-                    if (++$i > $maxItems) {
+                    if (++$i > $this->options['max_items']) {
                         break;
                     }
                     $childNode = new DataTree($child);

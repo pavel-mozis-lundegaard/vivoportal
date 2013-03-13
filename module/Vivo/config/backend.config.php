@@ -1,6 +1,7 @@
 <?php
 /**
- * config for backend
+ * Config for backend
+ * This config is merged into the cms.config
  */
 return array(
     'templates' => array (
@@ -30,8 +31,8 @@ return array(
             'Vivo\Backend\UI\Logon'                         => __DIR__.'/../view/Vivo/Backend/UI/Logon.phtml',
             'Vivo\Backend\UI\ModulesPanel'                  => __DIR__.'/../view/Vivo/Backend/UI/ModulesPanel.phtml',
             'Vivo\Backend\UI\SiteSelector'                  => __DIR__.'/../view/Vivo/Backend/UI/SiteSelector.phtml',
-            'Vivo\Backend\Form\Element'                     => __DIR__.'/../view/Vivo/Backend/Form/Element.phtml',
-            'Vivo\Backend\UI\Explorer\Editor\Resource'      => __DIR__.'/../view/Vivo/Backend/UI/Explorer/Editor/Resource.phtml',
+            'Vivo\UI\TabContainer'                          => __DIR__.'/../view/Vivo/Backend/UI/TabContainer.phtml',
+            'Vivo\UI\Ribbon'                                => __DIR__.'/../view/Vivo/Backend/UI/TabContainerRibbon.phtml',
         ),
     ),
 
@@ -137,7 +138,7 @@ return array(
             ),
         ),
 
-    //Backend modules
+        //Backend modules
         'modules'       => array(
             'Bootstrap2_3_0'    => array(
                 'enabled'           => true,

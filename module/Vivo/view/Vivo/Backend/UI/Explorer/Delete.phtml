@@ -5,8 +5,6 @@
 ?>
 </h4>
 <?php
-    if ($form->getMessages()) {
-        echo $this->escapeHtml($this->translate('Form data is not valid'));
-    }
-    echo $this->vivoForm($form);
+    $formType       = \DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
+    echo $this->formTwb($form, $formType);
 ?>

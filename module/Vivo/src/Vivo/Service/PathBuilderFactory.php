@@ -16,7 +16,8 @@ class PathBuilderFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $pathBuilder    = new \Vivo\Storage\PathBuilder\PathBuilder('/');
+        $pathTransliterator = $serviceLocator->get('Vivo\Transliterator\Path');
+        $pathBuilder    = new \Vivo\Storage\PathBuilder\PathBuilder('/', $pathTransliterator);
         return $pathBuilder;
     }
 }

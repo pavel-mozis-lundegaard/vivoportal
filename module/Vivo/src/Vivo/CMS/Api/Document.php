@@ -492,7 +492,8 @@ class Document implements DocumentInterface
         $targetPath = $this->cmsApi->getEntityAbsolutePath($targetUrl, $site);
         if ($this->repository->hasEntity($targetPath)) {
             //There is an entity at the target path already
-            throw new Exception\Exception(sprintf("%s: There is an entity at the target path '%s'", __METHOD__, $targetPath));
+            throw new Exception\EntityAlreadyExistsException(
+                sprintf("%s: There is an entity at the target path '%s'", __METHOD__, $targetPath));
         }
         /** @var $moved \Vivo\CMS\Model\Document */
         $docClone   = clone $document;

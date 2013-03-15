@@ -73,14 +73,16 @@ return array(
             'Vivo\CMS\Model\Content\File'       => 'Vivo\CMS\UI\Content\Editor\File',
             'Vivo\CMS\Model\Content\Overview'   => 'Vivo\CMS\UI\Content\Editor\Overview',
             'Vivo\CMS\Model\Content\Layout'     => 'Vivo\CMS\UI\Content\Editor\Layout',
+            'Vivo\CMS\Model\Content\Link'       => 'Vivo\CMS\UI\Content\Editor\Editor',
+            'Vivo\CMS\Model\Content\Hyperlink'  => 'Vivo\CMS\UI\Content\Editor\Editor',
         ),
     ),
     'contents' => array (
         'available_contents' => array (
             'Vivo\CMS\Model\Content\File',
             'Vivo\CMS\Model\Content\Overview',
-          //  'Vivo\CMS\Model\Content\Link',
-          //  'Vivo\CMS\Model\Content\Hyperlink',
+            'Vivo\CMS\Model\Content\Link',
+            'Vivo\CMS\Model\Content\Hyperlink',
             'Vivo\CMS\Model\Content\Component',
             'Vivo\CMS\Model\Content\Layout',
         ),

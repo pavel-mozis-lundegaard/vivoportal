@@ -7,12 +7,13 @@ use Vivo\CMS\Model\ContentContainer;
 interface EditorInterface
 {
     /**
-     * @param Content $content
+     * @param \Vivo\CMS\Model\Content $content
      */
     public function setContent(Content $content);
 
     /**
      * Save action.
+     * @param \Vivo\CMS\Model\ContentContainer $container
      */
     public function save(ContentContainer $container);
 

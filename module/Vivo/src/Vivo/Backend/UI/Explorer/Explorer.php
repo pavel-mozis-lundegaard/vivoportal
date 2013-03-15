@@ -112,6 +112,7 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
         $this->currentName = isset($state['current_name']) ?
                 $state['current_name'] : $this->currentName;
         $this->createComponent();
+        $this->updateRibbon();
     }
 
     /**
@@ -161,6 +162,7 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
         $this->removeComponent($this->currentName);
         $this->currentName = $name;
         $this->createComponent(true);
+        $this->updateRibbon();
     }
 
     /**
@@ -281,5 +283,18 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     public function setRequest(RequestInterface $request)
     {
         $this->request = $request;
+    }
+
+    /**
+     * Updates ribbon - sets the currently active item
+     */
+    protected function updateRibbon()
+    {
+        /** @var $ribbon \Vivo\Backend\UI\Explorer\Ribbon */
+        $ribbon = $this->getComponent('ribbon');
+        $ribbon->deactivateAll();
+        if ($this->currentName) {
+            $ribbon->setActive($this->currentName);
+        }
     }
 }

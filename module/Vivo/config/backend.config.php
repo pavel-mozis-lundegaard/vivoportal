@@ -31,7 +31,7 @@ return array(
             'Vivo\Backend\UI\Logon'                         => __DIR__.'/../view/Vivo/Backend/UI/Logon.phtml',
             'Vivo\Backend\UI\ModulesPanel'                  => __DIR__.'/../view/Vivo/Backend/UI/ModulesPanel.phtml',
             'Vivo\Backend\UI\SiteSelector'                  => __DIR__.'/../view/Vivo/Backend/UI/SiteSelector.phtml',
-            'Vivo\UI\TabContainer'                          => __DIR__.'/../view/Vivo/Backend/UI/TabContainer.phtml',
+            'Vivo\UI\TabContainer'                          => __DIR__.'/../view/Vivo/Backend/UI/TabContainerMultiContent.phtml',
             'Vivo\UI\Ribbon'                                => __DIR__.'/../view/Vivo/Backend/UI/TabContainerRibbon.phtml',
         ),
     ),
@@ -82,8 +82,12 @@ return array(
                         'src' => '.Vivo.resource/js/jquery.js',
                         'type' => 'text/javascript',
                     ),
-                     array(
+                    array(
                         'src' => '.Vivo.resource/backend/js/jquery-ui.js',
+                        'type' => 'text/javascript',
+                    ),
+                    array(
+                        'src' => '.Vivo.resource/backend/js/jquery.cookie.js',
                         'type' => 'text/javascript',
                     ),
                     array(

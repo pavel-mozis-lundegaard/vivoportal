@@ -98,7 +98,7 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
         }
 
         foreach ($this->availableContents as $ac) {
-            $options['NEW:'.$ac] = sprintf('[%s] %s', 'NEW', $ac);
+            $options['NEW:'.$ac] = $ac;
         }
 
         $values = array_keys($options);

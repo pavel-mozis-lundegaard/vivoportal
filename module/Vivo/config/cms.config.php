@@ -36,10 +36,10 @@ return array(
             'Vivo\UI\Ribbon\Item'               => __DIR__.'/../view/Vivo/UI/Ribbon/Item.phtml',
             'Vivo\UI\Alert'                     => __DIR__.'/../view/Vivo/UI/Alert.phtml',
 
-            'Vivo\CMS\UI\Content\Editor\File' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File.phtml',
-            'Vivo\CMS\UI\Content\Editor\Layout' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Layout.phtml',
-            'Vivo\CMS\UI\Content\Editor\Overview' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Overview.phtml',
-
+            'Vivo\CMS\UI\Content\Editor\Editor'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Editor.phtml',
+            'Vivo\CMS\UI\Content\Editor\File'      => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File.phtml',
+            'Vivo\CMS\UI\Content\Editor\Layout'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Layout.phtml',
+            'Vivo\CMS\UI\Content\Editor\Overview'  => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Overview.phtml',
         ),
         'custom_templates' => array (
             // custom selectable templates
@@ -61,6 +61,7 @@ return array(
     ),
     'component_mapping' => array (
         'front_component' => array (
+            'Vivo\CMS\Model\Content\Component'  => 'Vivo\CMS\UI\Content\Component',
             'Vivo\CMS\Model\Content\Layout'     => 'Vivo\CMS\UI\Content\Layout',
             'Vivo\CMS\Model\Content\File'       => 'Vivo\CMS\UI\Content\File',
             'Vivo\CMS\Model\Content\Overview'   => 'Vivo\CMS\UI\Content\Overview',
@@ -68,6 +69,7 @@ return array(
             'Vivo\CMS\Model\Content\Logon'      => 'Vivo\CMS\UI\Content\Logon',
         ),
         'editor_component' => array (
+            'Vivo\CMS\Model\Content\Component'  => 'Vivo\CMS\UI\Content\Editor\Editor',
             'Vivo\CMS\Model\Content\File'       => 'Vivo\CMS\UI\Content\Editor\File',
             'Vivo\CMS\Model\Content\Overview'   => 'Vivo\CMS\UI\Content\Editor\Overview',
             'Vivo\CMS\Model\Content\Layout'     => 'Vivo\CMS\UI\Content\Editor\Layout',
@@ -79,7 +81,7 @@ return array(
             'Vivo\CMS\Model\Content\Overview',
           //  'Vivo\CMS\Model\Content\Link',
           //  'Vivo\CMS\Model\Content\Hyperlink',
-          //  'Vivo\CMS\Model\Content\Component',
+            'Vivo\CMS\Model\Content\Component',
             'Vivo\CMS\Model\Content\Layout',
         ),
         'restrictions' => array (
@@ -181,6 +183,7 @@ return array(
             'Vivo\Backend\ModuleResolver'       => 'Vivo\Backend\ModuleResolverFactory',
 
             //TODO: content editor factories
+            'Vivo\CMS\UI\Content\Editor\Editor'   => 'Vivo\CMS\UI\Content\Editor\EditorFactory',
             'Vivo\CMS\UI\Content\Editor\File'     => 'Vivo\CMS\UI\Content\Editor\FileFactory',
             'Vivo\CMS\UI\Content\Editor\Overview' => 'Vivo\CMS\UI\Content\Editor\OverviewFactory',
             'Vivo\CMS\UI\Content\Editor\Layout'   => 'Vivo\CMS\UI\Content\Editor\LayoutFactory',

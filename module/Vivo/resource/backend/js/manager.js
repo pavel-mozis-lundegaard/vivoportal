@@ -1,5 +1,6 @@
 var action_param = "act",
-	showHideHintsFlag = true;
+	showHideHintsFlag = true,
+	ie7, ie8, ie6, opera;
 
 //onload
 $(document).ready(function() {
@@ -25,7 +26,7 @@ $(document).ready(function() {
 		alert("Ajax error ...\n" + exception);
 	});
 
-		
+	ribbonInit();	
 
 	checkHeight();
 	$(window).resize(function() {checkHeight();});
@@ -54,6 +55,9 @@ $(document).ready(function() {
 
 	//hint box (help)
 	hintBox();
+
+	//choose site ... menu
+	siteMenu();
 
 });
 
@@ -493,4 +497,253 @@ function hintBox() {
 				});
 		}
 	});
+}
+
+//refresh ribbon
+function refreshRibbon(_path) {
+	var htmlContent = action($("#ribbonAction").attr("rel"), 'view');
+	$(".ribbon-holder").html(htmlContent);
+	ribbonInit();	
+}
+
+function ribbonInit() {
+//inicializace Ribbonu
+	var ribbon_holder = $('.manager .ribbon-holder'), show_hide_ribbon_btn, show_hide_ribbon_title_array = [null, null], active_tab, active_tab_id;
+	
+	$('.tabContentRibbon .tab-content', ribbon_holder).hide();
+	active_tab = ribbon_holder.find('a.active').closest('.tab-content');
+	if (!active_tab.length) {
+	    active_tab = $("#ribbon-tab-tab1");
+	}
+	active_tab.show();
+	ribbon_holder.find('#tabs .tabs li[data-rel="'+active_tab.attr("id")+'"]').addClass('selected');
+	
+	if (!ribbon_holder.length) {
+		return;
+	}
+	if ($('a.showHideRibbon', ribbon_holder).length) {
+		show_hide_ribbon_btn = $('a.showHideRibbon', ribbon_holder);
+		show_hide_ribbon_title_array = [Messages.get('Vivo_UI_Ribbon_min_ribbon'), Messages.get('Vivo_UI_Ribbon_max_ribbon')];
+	}
+	
+	rollRibbonInit($.cookie("showHideRibbon"), ribbon_holder, show_hide_ribbon_title_array);
+	
+	hoverElement('.tabs li', ribbon_holder);
+			
+	$('.tabs li.selected', ribbon_holder).on("dblclick", function () {
+		var _selected = $(this);
+		var sel;
+		if(document.selection && document.selection.empty){
+			document.selection.empty() ;
+		} 
+		else if(window.getSelection) {
+			sel=window.getSelection();
+			if(sel && sel.removeAllRanges) {
+				sel.removeAllRanges();
+			}
+		}
+		rollRibbon(_selected, true, ribbon_holder, show_hide_ribbon_title_array);
+	});
+	
+	$('.tabs li a', ribbon_holder).click(function () { 
+		var _selected = $(this);
+		rollRibbon(_selected, false, ribbon_holder, show_hide_ribbon_title_array);
+	});
+	
+	/*
+	$('a.showHideRibbon', ribbon_holder).click(function(e) { 
+		var _thisIsShow = $(this);
+		if (_thisIsShow.hasClass('active')) {
+			var _selected = $('.tabs li.selected');
+			rollRibbon(_selected, true, ribbon_holder, show_hide_ribbon_title_array);
+		}
+		else {
+			var _selected = $('.tabs li.ref');
+			rollRibbon(_selected, false, ribbon_holder, show_hide_ribbon_title_array);
+		}
+		e.preventDefault();
+	});
+	*/
+	 
+	$('a.disabled, .tabs li a', ribbon_holder).click(function(e) {
+		e.preventDefault();
+	});
+	
+	$(".tabs li", ribbon_holder).click(function(e) {
+		var _this = $(this);
+		ribbon_holder.find('#tabs .tabs li').removeClass('selected');
+		_this.addClass('selected');
+		ribbon_holder.find('.tab-content').hide();
+		ribbon_holder.find('#'+ _this.attr('data-rel')).show();
+	});
+	//ajaxove nacitani obsahu ribbonu
+	/*
+	$(".tabs li a", ribbon_holder).not(".tabs li.selected a").click(function(e) {
+		e.preventDefault();
+		var _link = $(this);
+		var act_select = jQuery.url.setUrl(_link.attr("href")).param("act");
+	
+		var query_params_select = [jQuery.url.setUrl(_link.attr("href")).param("args[]")];
+		var query_select = 'async=1&act=' + act_select;
+		for (var i = 0; i < query_params_select.length; i++)
+	    query_select += '&args[]=' + encodeURIComponent(query_params_select[i]);
+		
+		var tabContent = "";
+		var tab = "";
+		var sending = false;
+		if (!smc_sending) {
+			$.ajax({
+			  url: window.location.pathname + "?" + query_select,
+			  type: "POST",
+			  dataType: "html",
+			  beforeSend: function(jqXHR, textStatus) {
+			  	smc_sending = true;
+			  },
+			  error: function(jqXHR, textStatus, errorThrown) {
+			  },
+			  success: function(res, textStatus, jqXHR) {
+			  	if(res && res !== "null") {
+						tab = res;
+			  	}
+			  },
+			  complete: function(jqXHR, textStatus) {
+			  	if (tab) {
+						smc_sending = changeRibbonContent();	
+					} else {
+						smc_sending = false;
+					}
+			  }
+			});
+		}
+	});	
+	
+	var changeRibbonContent = function() {
+		var act_view = window.tabRibbonContainder.view;
+		var query_params = [];
+		var query = 'async=1&act=' + act_view;
+		for (var i = 0; i < query_params.length; i++)
+	    query += '&args[]=' + encodeURIComponent(query_params[i]);
+  	$.ajax({
+		  url: window.location.pathname + "?" + query,
+		  type: "POST",
+		  dataType: "html",
+		  beforeSend: function(jqXHR, textStatus) {
+		  	smc_sending = true;
+		  },
+		  error: function(jqXHR, textStatus, errorThrown) {
+		  },
+		  success: function(res, textStatus, jqXHR) {
+		  	if(res && res !== "null") {
+					tabContent = res;
+		  	}
+		  },
+		  complete: function(jqXHR, textStatus) {
+		  	ribbon_holder.html(tabContent);
+		  	ribbonInit();					
+			return false;
+		  }
+		});
+	}
+	*/
+	
+}
+
+//inicializace ribbonu (zobrazen/skryt)
+function rollRibbonInit(param, ribbon_holder, showHideRibbonTitleArray) {
+	if (param == "hide") {
+		ribbon_holder.css('height', '35px');
+		$('.tabs li.selected', ribbon_holder).removeClass('selected').addClass('ref');
+		$('a.showHideRibbon', ribbon_holder).removeClass('active').attr('title',showHideRibbonTitleArray[1]);
+		checkHeight();
+	}
+	else {
+		$('a.showHideRibbon', ribbon_holder).attr('title',showHideRibbonTitleArray[0]);
+	}
+	return;
+}
+
+//Zobrazeni/skryti ribbonu
+function rollRibbon(_selected, doubleClick, ribbon_holder, showHideRibbonTitleArray) {
+	if (doubleClick) {
+		ribbon_holder.animate({
+			height: '35px'			
+		}, 
+		200, 
+		function() {
+			_selected.removeClass('selected').addClass('ref');
+			checkHeight();
+			$.cookie("showHideRibbon", "hide");
+			$('a.showHideRibbon', ribbon_holder).removeClass('active').attr('title',showHideRibbonTitleArray[1]);
+		});
+		return;	
+	}
+	else {
+		_selected.addClass('selected').removeClass('ref');
+		$.cookie("showHideRibbon", "show");
+		ribbon_holder.animate({
+			height: '123px'
+		}, 
+		200, 
+		function() {
+			checkHeight();
+			$('a.showHideRibbon', ribbon_holder).addClass('active').attr('title',showHideRibbonTitleArray[0]);
+		});
+		return;	
+	}
+}
+
+//fce pro hover efekt na elementech
+function hoverElement(selector, context) {
+	if (context != null) {
+		$(selector, context).hover(function() {
+			$(this).addClass("hover");
+		}, function() {
+			$(this).removeClass("hover");
+		});
+		return;
+	}
+	else {
+		$(selector).hover(function() {
+			$(this).addClass("hover");
+		}, function() {
+			$(this).removeClass("hover");
+		});
+	}
+}
+
+//choose site ... menu
+function siteMenu() {
+	var site_chooser = $("#siteChooser");
+	site_chooser.find(".site-name").text(site_chooser.find("li.active").text());
+	site_chooser.click(function(e) {
+        var $ul = $(this).find('ul');
+        var $span = $ul.prev();
+
+        if ($ul.is(":visible")) {
+        	$ul.removeShadow().hide();
+        } else {
+	        $ul.slideDown(100, function() {
+	        	$(this).css({"z-index":"1000"});
+						if(!ie7 && !ie8 && !opera){
+							$(this).removeShadow();
+							$(this).dropShadow({
+								left: 3,
+								top: 3,
+								blur: 2,
+								opacity: .7,
+								color: "#8ba9c8",
+								swap: false
+							});
+						}
+					//$(this).css({"z-index":1001});
+					});
+					e.preventDefault();
+					e.stopPropagation();
+					e.cancelBubble = true;
+			}
+    }).hover(function() {
+    		$(this).find("span").addClass("over");
+    	}, function() {
+    		$(this).find("span").removeClass("over");
+    	});
 }

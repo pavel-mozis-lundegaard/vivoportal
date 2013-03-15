@@ -748,7 +748,6 @@ body.manager a:hover {
 }
 .manager .tabs li.hover {
   background-color: #dce6ee;
-  border-bottom: 1px #f0f5fa solid;
 }
 .manager .tabs li.selected {
   background-color: #f0f5fa;
@@ -3383,12 +3382,6 @@ textarea {
   font-weight: normal;
   line-height: 20px;
 }
-input,
-button,
-select,
-textarea {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-}
 label {
   display: block;
   margin-bottom: 5px;
@@ -3576,6 +3569,10 @@ textarea::-webkit-input-placeholder {
 .checkbox input[type="checkbox"] {
   float: left;
   margin-left: -20px;
+}
+.form-horizontal .radio input[type="radio"],
+.form-horizontal .checkbox input[type="checkbox"] {
+  margin-left: 0;
 }
 .controls > .radio:first-child,
 .controls > .checkbox:first-child {

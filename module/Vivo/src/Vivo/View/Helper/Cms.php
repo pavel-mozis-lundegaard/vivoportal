@@ -41,6 +41,9 @@ class Cms extends AbstractHelper
             case 'site':
                 $retVal = $this->getSite();
                 break;
+            case 'requestedPath':
+                $retVal = $this->getRequestedPath();
+                break;
             default:
                 throw new Exception\InvalidArgumentException(
                     sprintf("%s: Unsupported quick command '%s'", __METHOD__, $quickCmd));
@@ -65,5 +68,14 @@ class Cms extends AbstractHelper
     public function getSite()
     {
         return $this->cmsEvent->getSite();
+    }
+
+    /**
+     * Returns the requested path
+     * @return string
+     */
+    public function getRequestedPath()
+    {
+        return $this->cmsEvent->getRequestedPath();
     }
 }

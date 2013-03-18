@@ -4,6 +4,7 @@ namespace Vivo\SiteManager\Listener;
 use Vivo\CMS\Api\Site as SiteApi;
 use Vivo\SiteManager\Event\SiteEventInterface;
 use Vivo\SiteManager\Exception;
+use Vivo\CMS\Event\CMSEvent;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
@@ -31,14 +32,22 @@ class SiteModelLoadListener implements ListenerAggregateInterface
     protected $siteApi;
 
     /**
+     * CMS Event
+     * @var CMSEvent
+     */
+    protected $cmsEvent;
+
+    /**
      * Constructor
      * @param $routeParamHost
      * @param \Vivo\CMS\Api\Site $siteApi
+     * @param \Vivo\CMS\Event\CMSEvent $cmsEvent
      */
-    public function __construct($routeParamHost, SiteApi $siteApi)
+    public function __construct($routeParamHost, SiteApi $siteApi, CMSEvent $cmsEvent)
     {
         $this->routeParamHost   = $routeParamHost;
         $this->siteApi          = $siteApi;
+        $this->cmsEvent         = $cmsEvent;
     }
 
     /**
@@ -66,7 +75,8 @@ class SiteModelLoadListener implements ListenerAggregateInterface
     }
 
     /**
-     * Listen to "siteModelLoad" event, get host name from RouteMatch, get site model from CMS and store it into Site Event
+     * Listen to "siteModelLoad" event, get host name from RouteMatch, get site model from CMS and store it
+     * into Site Event; update CMSEvent
      * @param SiteEventInterface $e
      * @param \Vivo\SiteManager\Event\SiteEventInterface $e
      * @return void
@@ -80,7 +90,10 @@ class SiteModelLoadListener implements ListenerAggregateInterface
                 $siteModel  = $this->siteApi->getSiteByHost($host);
                 $e->setHost($host);
                 $e->setSite($siteModel);
-                $e->stopPropagation(true);
+//                $e->stopPropagation(true);
+                //Update the CMSEvent
+                $this->cmsEvent->setSite($siteModel);
+                $this->cmsEvent->setRequestedPath($routeMatch->getParam('path'));
             }
         }
     }

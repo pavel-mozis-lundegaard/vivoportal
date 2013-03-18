@@ -139,7 +139,8 @@ class SiteManager implements SiteManagerInterface,
         $this->siteEvent->setRouteMatch($this->routeMatch);
 
         //Attach Site model load listener
-        $listener   = new SiteModelLoadListener($this->routeParamHost, $this->siteApi);
+        $cmsEvent   = $this->serviceManager->get('cms_event');
+        $listener   = new SiteModelLoadListener($this->routeParamHost, $this->siteApi, $cmsEvent);
         $listener->attach($this->events);
         //Attach Site config listener
         $listener   = new SiteConfigListener($this->siteApi);

@@ -10,7 +10,7 @@ use Zend\EventManager\Event;
 class CMSEvent extends Event
 {
     /**#@+
-     * CMS events trigered by CMS front controller
+     * CMS events triggered by CMS front controller
      */
     const EVENT_FETCH_DOCUMENT  = 'fetch_document';
     const EVENT_CREATE          = 'create';

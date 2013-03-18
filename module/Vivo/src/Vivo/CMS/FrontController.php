@@ -30,11 +30,10 @@ use Zend\View\Model\ModelInterface;
  * The front controller which is responsible for dispatching all requests for documents in CMS repository.
  */
 class FrontController implements DispatchableInterface,
-    InjectApplicationEventInterface, EventManagerAwareInterface,
-        ServiceLocatorAwareInterface
-
+                                 InjectApplicationEventInterface,
+                                 EventManagerAwareInterface,
+                                 ServiceLocatorAwareInterface
 {
-
     /**
      * @var MvcEvent
      */
@@ -236,18 +235,11 @@ class FrontController implements DispatchableInterface,
     }
 
     /**
-     * Returns CMS event, or creates it if not exists.
+     * Returns CMS event
      * @return CMSEvent
      */
     public function getCmsEvent()
     {
-        if (!$this->cmsEvent) {
-            $this->cmsEvent = new CMSEvent();
-            $this->cmsEvent->setSite($this->siteEvent->getSite());
-            $path = $this->mvcEvent->getRouteMatch()->getParam('path');
-            $this->cmsEvent->setRequestedPath($path);
-            $this->serviceManager->get('service_manager')->setService('cms_event', $this->cmsEvent);
-        }
         return $this->cmsEvent;
     }
 
@@ -371,5 +363,15 @@ class FrontController implements DispatchableInterface,
     public function setUrlHelper (UrlHelper $urlHelper)
     {
         $this->urlHelper = $urlHelper;
+    }
+
+    /**
+     * Sets the CMS event
+     * @param CMSEvent $cmsEvent
+     * @return void
+     */
+    public function setCmsEvent(CMSEvent $cmsEvent)
+    {
+        $this->cmsEvent = $cmsEvent;
     }
 }

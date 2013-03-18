@@ -188,6 +188,7 @@ return array(
             'uuid_generator'            => 'Vivo\Uuid\Generator',
             'storage_factory'           => 'Vivo\Storage\Factory',
             'site_event'                => 'Vivo\SiteManager\Event\SiteEvent',
+            'cms_event'                 => 'Vivo\CMS\Event\CMSEvent',
             'io_util'                   => 'Vivo\IO\IOUtil',
             'indexer_query_builder'     => 'Vivo\Indexer\QueryBuilder',
             'indexer_document_builder'  => 'Vivo\Indexer\DocumentBuilder',
@@ -321,6 +322,9 @@ return array(
             'vivoformfieldset'  => 'Vivo\View\Helper\VivoFormFieldset',
             'tiny_mce'          => 'Vivo\View\Helper\TinyMce',
           //  'url' => 'Vivo\View\Helper\Url',
+        ),
+        'factories' => array(
+            'cms'               => 'Vivo\View\Helper\CmsFactory',
         ),
     ),
 

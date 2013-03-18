@@ -13,8 +13,7 @@ class ComponentInitializer implements InitializerInterface
      * (non-PHPdoc)
      * @see \Zend\ServiceManager\InitializerInterface::initialize()
      */
-    public function initialize($instance,
-            ServiceLocatorInterface $serviceLocator)
+    public function initialize($instance, ServiceLocatorInterface $serviceLocator)
     {
         if ($instance instanceof \Vivo\UI\Component) {
             //inject view model

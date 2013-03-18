@@ -28,6 +28,11 @@ class DefaultInitializer implements InitializerInterface
         if ($instance instanceof SiteEventAwareInterface) {
             $instance->setSiteEvent($serviceLocator->get('site_event'));
         }
+        //Inject CMS event
+        if ($instance instanceof CmsEventAwareInterface) {
+            $cmsEvent   = $serviceLocator->get('cms_event');
+            $instance->setCmsEvent($cmsEvent);
+        }
         //inject translator
         if ($instance instanceof TranslatorAwareInterface) {
             $instance->setTranslator($serviceLocator->get('translator'));

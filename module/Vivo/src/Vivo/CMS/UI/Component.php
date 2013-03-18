@@ -4,11 +4,13 @@ namespace Vivo\CMS\UI;
 use Vivo\CMS\Model\Content;
 use Vivo\CMS\Model\Document;
 use Vivo\UI\ComponentContainer;
+use Vivo\CMS\Event\CMSEvent;
+use Vivo\Service\Initializer\CmsEventAwareInterface;
 
 /**
  * Base component for CMS UI components.
  */
-class Component extends ComponentContainer implements InjectModelInterface, InjectRequestedDocumentInterface
+class Component extends ComponentContainer implements InjectModelInterface, CmsEventAwareInterface
 {
 
     /**
@@ -22,9 +24,10 @@ class Component extends ComponentContainer implements InjectModelInterface, Inje
     protected $content;
 
     /**
-     * @var Document
+     * CMS Event
+     * @var CMSEvent
      */
-    protected $requestedDocument;
+    protected $cmsEvent;
 
     /**
      * @param Document $document
@@ -42,20 +45,19 @@ class Component extends ComponentContainer implements InjectModelInterface, Inje
         $this->content = $content;
     }
 
-    /**
-     * Sets requested document
-     * @param Document $document
-     * @return void
-     */
-    public function setRequestedDocument(Document $document)
-    {
-        $this->requestedDocument    = $document;
-    }
-
     public function view() {
          $this->view->content           = $this->content;
          $this->view->document          = $this->document;
-         $this->view->requestedDocument = $this->requestedDocument;
          return parent::view();
+    }
+
+    /**
+     * Sets the CMS event
+     * @param CMSEvent $cmsEvent
+     * @return void
+     */
+    public function setCmsEvent(CMSEvent $cmsEvent)
+    {
+        $this->cmsEvent = $cmsEvent;
     }
 }

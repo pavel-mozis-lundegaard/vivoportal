@@ -257,11 +257,18 @@ class Document implements DocumentInterface
     /**
      * @param Model\Document $parent
      * @param Model\Document $document
+     * @throws \Vivo\CMS\Api\Exception\InvalidTitleException
      * @return \Vivo\CMS\Model\Document
      */
     public function createDocument(Model\Document $parent, Model\Document $document)
     {
-        $titleLc    = mb_strtolower($document->getTitle());
+        $title = trim($document->getTitle());
+        if($title == '') {
+            throw new \Vivo\CMS\Api\Exception\InvalidTitleException('Document title is not set');
+        }
+        $document->setTitle($title);
+
+        $titleLc = mb_strtolower($document->getTitle());
         $path = $this->pathBuilder->buildStoragePath(array($parent->getPath(), $titleLc));
 
         $document->setPath($path);

@@ -222,38 +222,6 @@ class Document implements DocumentInterface
 
     /**
      * @param Model\Document $document
-     * @param int $index
-     * @param int $version
-     * @throws \Vivo\CMS\Exception\InvalidArgumentException
-     * @return Model\Content
-     */
-    public function getDocumentContent(Model\Document $document, $index, $version/*, $state {PUBLISHED}*/)
-    {
-        if (!is_integer($version)) {
-            throw new Exception\InvalidArgumentException(
-                sprintf(
-                    'Argument %d passed to %s must be an type of %s, %s given',
-                    2, __METHOD__, 'integer', gettype($version)));
-        }
-        if (!is_integer($index)) {
-            throw new Exception\InvalidArgumentException(
-                sprintf(
-                    'Argument %d passed to %s must be an type of %s, %s given',
-                    3, __METHOD__, 'integer', gettype($index)));
-        }
-        $components = array(
-            $document->getPath(),
-            'Contents.',
-            $index,
-            $version,
-        );
-        $path   = $this->pathBuilder->buildStoragePath($components, true);
-        $entity = $this->repository->getEntity($path);
-        return $entity;
-    }
-
-    /**
-     * @param Model\Document $document
      * @return Model\ContentContainer[]
      */
     public function getContentContainers(Model\Document $document)

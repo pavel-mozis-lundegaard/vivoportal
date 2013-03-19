@@ -6,6 +6,8 @@ use Vivo\CMS\Model;
 use Vivo\UI\AbstractForm;
 use Vivo\Form\Form;
 use Vivo\Repository\Exception\PathNotSetException;
+use Vivo\CMS\RefInt\SymRefConvertorInterface;
+
 use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
 
 class File extends AbstractForm implements EditorInterface
@@ -23,11 +25,24 @@ class File extends AbstractForm implements EditorInterface
      */
     private $documentApi;
 
-    public function __construct(Api\CMS $cmsApi, Api\Document $documentApi)
+    /**
+     * Symbolic reference convertor
+     * @var SymRefConvertorInterface
+     */
+    protected $symRefConvertor;
+
+    /**
+     * Constructor
+     * @param Api\CMS $cmsApi
+     * @param Api\Document $documentApi
+     * @param SymRefConvertorInterface $symRefConvertor
+     */
+    public function __construct(Api\CMS $cmsApi, Api\Document $documentApi, SymRefConvertorInterface $symRefConvertor)
     {
-        $this->cmsApi = $cmsApi;
-        $this->documentApi = $documentApi;
-        $this->autoAddCsrf = false;
+        $this->cmsApi           = $cmsApi;
+        $this->documentApi      = $documentApi;
+        $this->symRefConvertor  = $symRefConvertor;
+        $this->autoAddCsrf      = false;
     }
 
     public function setContent(Model\Content $content)
@@ -38,8 +53,8 @@ class File extends AbstractForm implements EditorInterface
     public function init()
     {
         try {
-            $data = $this->cmsApi->getResource($this->content, 'resource.html');
-
+            $data   = $this->cmsApi->getResource($this->content, 'resource.html');
+            $data   = $this->symRefConvertor->convertReferencesToURLs($data);
             $this->getForm()->get('resource')->setValue($data);
         }
         catch (PathNotSetException $e) {
@@ -69,8 +84,8 @@ class File extends AbstractForm implements EditorInterface
                 $this->documentApi->createContent($contentContainer, $this->content);
             }
 
-            $data = $form->get('resource')->getValue();
-
+            $data   = $form->get('resource')->getValue();
+            $data   = $this->symRefConvertor->convertUrlsToReferences($data);
             $this->cmsApi->saveResource($this->content, $this->content->getFilename(), $data);
         }
     }

@@ -1,11 +1,9 @@
 <?php
 namespace Vivo\CMS\Api;
 
-use Vivo\CMS\Model\Site;
-use Vivo\CMS\Exception\InvalidArgumentException;
 use Vivo\CMS\Model;
-use Vivo\CMS\Workflow;
 use Vivo\CMS\Exception;
+use Vivo\CMS\Api\Exception as ApiException;
 use Vivo\CMS\UuidConvertor\UuidConvertorInterface;
 use Vivo\Repository\RepositoryInterface;
 use Vivo\Indexer\QueryBuilder;
@@ -16,7 +14,7 @@ use Vivo\Security\Manager\AbstractManager as AbstractSecurityManager;
 use DateTime;
 
 /**
- * Main business class for interact with CMS.
+ * Main business class to interact with CMS.
  */
 class CMS
 {
@@ -97,7 +95,7 @@ class CMS
     /**
      * Returns entity specified by path, UUID or symbolic reference
      * @param string $ident Path, UUID or symbolic reference
-     * @throws \Vivo\CMS\Exception\InvalidArgumentException
+     * @throws Exception\InvalidArgumentException
      * @return Model\Entity
      */
     public function getEntity($ident)
@@ -279,33 +277,67 @@ class CMS
     /**
      * Returns entity relative path within site
      * Relative path starts and ends with slash.
-     * @param Model\Entity $entity
-     * @example '/path/to/some-document-within-site/'
+     * @param Model\Entity|string $spec
+     * @throws ApiException\UnexpectedValueException
+     * @throws ApiException\InvalidArgumentException
      * @return string
      */
-    public function getEntityRelPath(Model\Entity $entity)
+    public function getEntityRelPath($spec)
     {
-        //TODO - implement using PathBuilder
-        $parts = explode('/ROOT', $entity->getPath());
-        return $parts[1].'/';
+        if ($spec instanceof Model\Entity) {
+            $path   = $spec->getPath();
+        } elseif (is_string($spec)) {
+            $path   = $spec;
+        } else {
+            throw new ApiException\InvalidArgumentException(
+                sprintf("%s: Spec must be either an entity or a string", __METHOD__));
+        }
+        $components = $this->pathBuilder->getStoragePathComponents($path);
+        $comp       = '';
+        while (!empty($components) && ($comp != 'ROOT')) {
+            $comp   = array_shift($components);
+        }
+        if ($comp != 'ROOT') {
+            throw new ApiException\UnexpectedValueException(
+                sprintf("%s: Cannot get relative path from '%s'", __METHOD__, $path));
+        }
+        $relPath    = $this->pathBuilder->buildStoragePath($components, true, true);
+        return $relPath;
     }
 
     /**
      * Returns site path of given entity.
-     * @param Model\Entity $entity
+     * @param Model\Entity|string $spec
+     * @throws ApiException\UnexpectedValueException
+     * @throws ApiException\InvalidArgumentException
      * @return string
      */
-    public function getEntitySitePath(Model\Entity $entity) {
-        //TODO - implement using PathBuilder
-        $parts = explode('/ROOT/', $entity->getPath());
-        return $parts[0];
+    public function getEntitySitePath($spec) {
+        if ($spec instanceof Model\Entity) {
+            $path   = $spec->getPath();
+        } elseif (is_string($spec)) {
+            $path   = $spec;
+        } else {
+            throw new ApiException\InvalidArgumentException(
+                sprintf("%s: Spec must be either an entity or a string", __METHOD__));
+        }
+        $components = $this->pathBuilder->getStoragePathComponents($path);
+        $comp       = '';
+        while (!empty($components) && ($comp != 'ROOT')) {
+            $comp   = array_pop($components);
+        }
+        if (empty($components)) {
+            throw new ApiException\UnexpectedValueException(
+                sprintf("%s: Cannot get site path from '%s'", __METHOD__, $path));
+        }
+        $sitePath   = $this->pathBuilder->buildStoragePath($components, true, false);
+        return $sitePath;
     }
 
     /**
      * Returns
      * @param string $path
      * @param Model\Site $site
-     * @throws InvalidArgumentException
      * @return string
      */
     public function getEntityAbsolutePath($path, Model\Site $site)

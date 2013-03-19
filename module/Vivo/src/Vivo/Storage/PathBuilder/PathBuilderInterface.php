@@ -15,10 +15,11 @@ interface PathBuilderInterface
     /**
      * Builds storage path from submitted elements
      * @param array $elements
-     * @param bool $absolute If true, builds an absolute path starting with the storage path separator
+     * @param bool $leadingSeparator If true, prepends storage path separator
+     * @param bool $trailingSeparator If true, appends storage path separator
      * @return string
      */
-    public function buildStoragePath(array $elements, $absolute = true);
+    public function buildStoragePath(array $elements, $leadingSeparator = true, $trailingSeparator = false);
 
     /**
      * Returns an array of 'atomic' storage path components

@@ -8,7 +8,7 @@ use Vivo\CMS\Model;
  * @todo recursive property?
  *
  */
-class Hyperlink extends Model\Content
+class Hyperlink extends Model\Content implements Model\SymRefDataExchangeInterface
 {
 
     /**
@@ -50,5 +50,29 @@ class Hyperlink extends Model\Content
     public function getTextContent($fieldNames = array())
     {
         return parent::getTextContent(array_merge($fieldNames, array('url')));
+    }
+
+    /**
+     * Exchange internal values containing symbolic refs / URLs from provided array
+     * @param  array $data
+     * @return void
+     */
+    public function exchangeArraySymRef(array $data)
+    {
+        if (array_key_exists('url', $data)) {
+            $this->setUrl($data['url']);
+        }
+    }
+
+    /**
+     * Return an array representation of the object's properties containing symbolic refs / URLs
+     * @return array
+     */
+    public function getArrayCopySymRef()
+    {
+        $data   = array(
+            'url'   => $this->getUrl(),
+        );
+        return $data;
     }
 }

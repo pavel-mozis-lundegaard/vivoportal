@@ -136,7 +136,7 @@ class Document extends Folder
 
     /**
      * @param string $path Repository path.
-     * @param Vivo\CMS\Model\Entity\Security $security
+     * @param null $security
      */
     public function __construct($path = null, $security = null)
     {
@@ -368,5 +368,40 @@ class Document extends Folder
 
     public function setInternalNotice($internalNotice) {
         $this->internalNotice = $internalNotice;
+    }
+
+    /**
+     * Exchange internal values containing symbolic refs / URLs from provided array
+     * @param  array $data
+     * @return void
+     */
+    public function exchangeArraySymRef(array $data)
+    {
+        //Layout
+        if (array_key_exists('layout', $data)) {
+            $this->setLayout($data['layout']);
+        }
+        //Internal notice
+        if (array_key_exists('internal_notice', $data)) {
+            $this->setInternalNotice($data['internal_notice']);
+        }
+        //URL
+        if (array_key_exists('url', $data)) {
+            $this->setUrl($data['url']);
+        }
+        parent::exchangeArraySymRef($data);
+    }
+
+    /**
+     * Return an array representation of the object's properties containing symbolic refs / URLs
+     * @return array
+     */
+    public function getArrayCopySymRef()
+    {
+        $data                       = parent::getArrayCopySymRef();
+        $data['layout']             = $this->getLayout();
+        $data['internal_notice']    = $this->getInternalNotice();
+        $data['url']                = $this->getUrl();
+        return $data;
     }
 }

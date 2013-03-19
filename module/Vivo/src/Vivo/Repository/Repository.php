@@ -677,7 +677,17 @@ class Repository implements RepositoryInterface
                 $path                   = $this->pathBuilder->buildStoragePath($pathElements, true);
                 $tmpPath                = $path . '.' . uniqid('tmp-');
                 $this->tmpFiles[$path]  = $tmpPath;
-                $entitySer              = $this->serializer->serialize($entity);
+                //Create entity clone which will be serialized and stored - this is to prevent changes to the entity
+                //kept in memory
+                //TODO - is the clone ok?
+                $entityCopy     = clone $entity;
+                //Trigger pre-serialize event
+                $eventParams    = array(
+                    'entity'    => $entityCopy,
+                );
+                $event          = new Event(EventInterface::EVENT_SERIALIZE_PRE, $this, $eventParams);
+                $this->events->trigger($event);
+                $entitySer      = $this->serializer->serialize($entityCopy);
                 $this->storage->set($tmpPath, $entitySer);
             }
             //b) Data

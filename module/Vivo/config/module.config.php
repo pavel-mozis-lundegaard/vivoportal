@@ -250,6 +250,7 @@ return array(
             'Vivo\Util\UrlHelper'       =>  'Vivo\Util\UrlHelperFactory',
             'Vivo\Http\HeaderHelper'    => 'Vivo\Http\HeaderHelperFactory',
             'Vivo\Transliterator\Path'  => 'Vivo\Transliterator\PathFactory',
+            'sym_ref_convertor'         => 'Vivo\CMS\RefInt\SymRefConvertorFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',

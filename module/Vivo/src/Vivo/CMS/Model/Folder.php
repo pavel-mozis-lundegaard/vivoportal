@@ -6,7 +6,7 @@ use Vivo\CMS\Security;
 /**
  * Represents folder in tree.
  */
-class Folder extends Entity
+class Folder extends Entity implements SymRefDataExchangeInterface
 {
     /**
      * @var string Folder name.
@@ -160,5 +160,28 @@ class Folder extends Entity
     {
         return parent::getTextContent(
                 array_merge($field_names, array('description')));
+    }
+
+    /**
+     * Exchange internal values containing symbolic refs / URLs from provided array
+     * @param  array $data
+     * @return void
+     */
+    public function exchangeArraySymRef(array $data)
+    {
+        if (array_key_exists('description', $data)) {
+            $this->setDescription($data['description']);
+        }
+    }
+
+    /**
+     * Return an array representation of the object's properties containing symbolic refs / URLs
+     * @return array
+     */
+    public function getArrayCopySymRef()
+    {
+        $data                   = array();
+        $data['description']    = $this->getDescription();
+        return $data;
     }
 }

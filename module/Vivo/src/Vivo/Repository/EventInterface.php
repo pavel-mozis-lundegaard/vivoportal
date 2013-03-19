@@ -12,5 +12,10 @@ interface EventInterface extends ZendEventInterface
     /**
      * Event triggered right before the repository commit finishes
      */
-    const EVENT_COMMIT      = 'commit';
+    const EVENT_COMMIT          = 'commit';
+
+    /**
+     * Event triggered right before an entity is serialized prior to saving into storage
+     */
+    const EVENT_SERIALIZE_PRE   = 'serialize_pre';
 }

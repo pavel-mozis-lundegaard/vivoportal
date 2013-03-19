@@ -279,14 +279,21 @@ class CMS
     /**
      * Returns entity relative path within site
      * Relative path starts and ends with slash.
-     * @param Model\Entity $entity
+     * @param Model\Entity $spec
      * @example '/path/to/some-document-within-site/'
      * @return string
      */
-    public function getEntityRelPath(Model\Entity $entity)
+    public function getEntityRelPath(Model\Entity $spec)
     {
+        if ($spec instanceof Model\Entity) {
+            $path   = $spec->getPath();
+        } elseif (is_string($spec)) {
+            $path   = $spec;
+        } else {
+
+        }
         //TODO - implement using PathBuilder
-        $parts = explode('/ROOT', $entity->getPath());
+        $parts = explode('/ROOT', $spec->getPath());
         return $parts[1].'/';
     }
 

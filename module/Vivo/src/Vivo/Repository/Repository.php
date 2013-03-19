@@ -233,6 +233,7 @@ class Repository implements RepositoryInterface
      * Looks up an entity in storage and returns it
      * If the entity is not found returns null
      * @param string $path
+     * @throws Exception\Exception
      * @return \Vivo\CMS\Model\Entity|null
      */
     public function getEntityFromStorage($path)
@@ -251,6 +252,12 @@ class Repository implements RepositoryInterface
             throw new Exception\Exception(
                     sprintf("%s: Can't unserialize entity with path `%s`.", __METHOD__, $fullPath),null, $e);
         }
+        //Trigger post-unserialize event
+        $eventParams    = array(
+            'entity'    => $entity,
+        );
+        $event          = new Event(EventInterface::EVENT_UNSERIALIZE_POST, $this, $eventParams);
+        $this->events->trigger($event);
 
         //Set volatile path property of entity instance
         $entity->setPath($path);
@@ -679,7 +686,6 @@ class Repository implements RepositoryInterface
                 $this->tmpFiles[$path]  = $tmpPath;
                 //Create entity clone which will be serialized and stored - this is to prevent changes to the entity
                 //kept in memory
-                //TODO - is the clone ok?
                 $entityCopy     = clone $entity;
                 //Trigger pre-serialize event
                 $eventParams    = array(

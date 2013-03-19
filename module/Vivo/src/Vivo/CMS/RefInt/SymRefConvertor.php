@@ -10,6 +10,7 @@ use Vivo\CMS\UuidConvertor\UuidConvertorInterface;
 
 /**
  * Class SymRefConvertor
+ * Converts URLs to symbolic references and vice versa
  * @package Vivo\CMS\RefInt
  */
 class SymRefConvertor implements SymRefConvertorInterface
@@ -118,6 +119,7 @@ class SymRefConvertor implements SymRefConvertorInterface
     /**
      * Callback used from convertReferencesToUrls()
      * @param array $matches
+     * @throws \Exception
      * @return string
      */
     protected function replaceUuid(array $matches)
@@ -135,15 +137,10 @@ class SymRefConvertor implements SymRefConvertorInterface
                     $path   = '[invalid-ref:' . $uuid . ']';
                 } else {
                     //UUID found
-
-                    //TODO - Implement this method
-                    throw new \Exception(sprintf('%s not implemented!', __METHOD__));
-
-                    //$path   = $this->cmsApi->getEntityRelPath();
+                    $path   = $this->cmsApi->getEntityRelPath($path);
                 }
-
+                break;
         }
         return $path;
-
     }
 }

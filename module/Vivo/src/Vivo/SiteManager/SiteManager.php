@@ -3,6 +3,7 @@ namespace Vivo\SiteManager;
 
 use Vivo\SiteManager\Event\SiteEventInterface;
 use Vivo\SiteManager\Exception;
+use Vivo\SiteManager\Listener\LoadModulesPostListener;
 use Vivo\SiteManager\Listener\SiteModelLoadListener;
 use Vivo\SiteManager\Listener\SiteConfigListener;
 use Vivo\SiteManager\Listener\BackendConfigListener;
@@ -172,6 +173,10 @@ class SiteManager implements SiteManagerInterface,
             $listener   = new ReconfigureForBackendListener($this->serviceManager);
             $listener->attach($this->events);
         }
+
+        //Attach generic load modules post listener
+        $listener   = new LoadModulesPostListener($this->serviceManager);
+        $listener->attach($this->events);
     }
 
     /**

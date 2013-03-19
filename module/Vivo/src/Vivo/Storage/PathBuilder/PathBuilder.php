@@ -56,10 +56,11 @@ class PathBuilder implements PathBuilderInterface
     /**
      * Builds storage path from submitted elements
      * @param array $elements
-     * @param bool $absolute If true, builds an absolute path starting with the storage path separator
+     * @param bool $leadingSeparator If true, prepends storage path separator
+     * @param bool $trailingSeparator If true, appends storage path separator
      * @return string
      */
-    public function buildStoragePath(array $elements, $absolute = true)
+    public function buildStoragePath(array $elements, $leadingSeparator = true, $trailingSeparator = false)
     {
         $components = array();
         $separator  = $this->getStoragePathSeparator();
@@ -69,8 +70,11 @@ class PathBuilder implements PathBuilderInterface
             $components         = array_merge($components, $elementComponents);
         }
         $path   = implode($separator, $components);
-        if ($absolute) {
-            $path    = $separator . $path;
+        if ($leadingSeparator) {
+            $path   = $separator . $path;
+        }
+        if ($trailingSeparator && ($path != $separator)) {
+            $path   = $path . $separator;
         }
         $path   = $this->pathTransliterator->transliterate($path);
         return $path;

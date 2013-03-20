@@ -252,6 +252,7 @@ return array(
             'Vivo\Transliterator\Path'  => 'Vivo\Transliterator\PathFactory',
             'sym_ref_convertor'         => 'Vivo\CMS\RefInt\SymRefConvertorFactory',
             'ref_int_listener'          => 'Vivo\CMS\RefInt\ListenerFactory',
+            'mail_simple_renderer'      => 'Vivo\Mail\View\SimpleRendererFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',

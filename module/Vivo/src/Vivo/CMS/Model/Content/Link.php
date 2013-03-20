@@ -63,5 +63,6 @@ class Link extends Model\Content implements Model\SymRefDataExchangeInterface
         $data   = array(
             'rel_path'  => $this->getRelPath(),
         );
+        return $data;
     }
 }

@@ -291,4 +291,19 @@ return array(
             ),
         ),
     ),
+    'mail'  => array(
+        'simple_renderer'   => array(
+            'options'   => array(
+                //Map of template names mapped to phtml files
+                'template_map'          => array(
+                ),
+                //Array of helper names to be copied from the main helper plugin manager
+                //Note that there are Zend view helpers available by default
+                //See Zend\View\HelperPluginManager
+                'use_helpers'       => array(
+                    'translate',
+                ),
+            ),
+        ),
+    ),
 );

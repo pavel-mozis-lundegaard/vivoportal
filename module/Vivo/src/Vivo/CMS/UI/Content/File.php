@@ -6,6 +6,7 @@ use Vivo\CMS\Model\Content;
 use Vivo\CMS\UI\Component;
 use Vivo\CMS\UI\Exception;
 use Vivo\Util\MIME;
+use Vivo\CMS\RefInt\SymRefConvertorInterface;
 
 /**
  * UI component for content file.
@@ -24,11 +25,20 @@ class File extends Component
     private $templateVariant;
 
     /**
-     * @param CMS $cms
+     * Symbolic reference convertor
+     * @var SymRefConvertorInterface
      */
-    public function __construct(CMS $cms)
+    protected $symRefConvertor;
+
+    /**
+     * Constructor
+     * @param CMS $cms
+     * @param \Vivo\CMS\RefInt\SymRefConvertorInterface $symRefConvertor
+     */
+    public function __construct(CMS $cms, SymRefConvertorInterface $symRefConvertor)
     {
-        $this->cms = $cms;
+        $this->cms              = $cms;
+        $this->symRefConvertor  = $symRefConvertor;
     }
 
     public function init()
@@ -45,10 +55,12 @@ class File extends Component
         $resourceFile = 'resource.' . MIME::getExt($mimeType);
         $this->view->resourceFile = $resourceFile;
         if ($mimeType == 'text/html') {
-            $this->view->fileContent = $this->cms->getResource($this->content, $resourceFile);
+            $fileContent                = $this->cms->getResource($this->content, $resourceFile);
+            $this->view->fileContent    = $this->symRefConvertor->convertReferencesToURLs($fileContent);
             $templateVariant = 'html';
         } elseif ($mimeType == 'text/plain') {
-            $this->view->fileContent = $this->cms->getResource($this->content, $resourceFile);
+            $fileContent                = $this->cms->getResource($this->content, $resourceFile);
+            $this->view->fileContent    = $this->symRefConvertor->convertReferencesToURLs($fileContent);
             $templateVariant = 'plain';
         } elseif ($mimeType == 'application/x-shockwave-flash') {
             $templateVariant = 'flash';

@@ -12,6 +12,8 @@ class FileFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        return new File($serviceLocator->get('Vivo\CMS\Api\CMS'));
+        $cmsApi             = $serviceLocator->get('Vivo\CMS\Api\CMS');
+        $symRefConvertor    = $serviceLocator->get('sym_ref_convertor');
+        return new File($cmsApi, $symRefConvertor);
     }
 }

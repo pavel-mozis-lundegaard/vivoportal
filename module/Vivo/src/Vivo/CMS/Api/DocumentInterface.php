@@ -80,36 +80,41 @@ interface DocumentInterface
     public function getDocumentContents(Model\Document $document, $index/*, $state {PUBLISHED}*/);
 
     /**
-     * @param Model\Document $parent
-     * @param Model\Document $document
+     * @param Model\Folder $parent
+     * @param Model\Folder $document
      * @return \Vivo\CMS\Model\Document
      */
-    public function createDocument(Model\Document $parent, Model\Document $document);
+    public function createDocument(Model\Folder $parent, Model\Folder $document);
 
     /**
      * Copies document to a new location
-     * @param \Vivo\CMS\Model\Document $document
+     * @param \Vivo\CMS\Model\Folder $document
      * @param \Vivo\CMS\Model\Site $site
      * @param string $targetUrl
      * @param string $targetName
      * @param string $title
      * @return Model\Document
      */
-    public function copyDocument(Model\Document $document, Model\Site $site, $targetUrl, $targetName, $title);
+    public function copyDocument(Model\Folder $document, Model\Site $site, $targetUrl, $targetName, $title);
 
     /**
-     * @param Model\Document $document
+     * @param Model\Folder $document
      * @param \Vivo\CMS\Model\Site $site
      * @param string $targetUrl
      * @param string $targetName
      * @param string $title
      * @param boolean $createHyperlink
-     * @return Model\Document
+     * @return Model\Folder
      */
-    public function moveDocument(Model\Document $document, Model\Site $site, $targetUrl, $targetName, $title,
+    public function moveDocument(Model\Folder $document, Model\Site $site, $targetUrl, $targetName, $title,
                                  $createHyperlink);
 
-    public function saveDocument(Model\Document $document);
+    /**
+     * Saves document
+     * @param Model\Folder $document
+     * @return Model\Folder
+     */
+    public function saveDocument(Model\Folder $document);
 
     /**
      * Returns child documents.
@@ -133,10 +138,10 @@ interface DocumentInterface
 
     /**
      * Returns if the document has any child documents
-     * @param \Vivo\CMS\Model\Document $document
+     * @param \Vivo\CMS\Model\Folder $document
      * @return boolean
      */
-    public function hasChildDocuments(Model\Document $document);
+    public function hasChildDocuments(Model\Folder $document);
 
     /**
      * @return array

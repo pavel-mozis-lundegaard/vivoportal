@@ -254,12 +254,12 @@ class Document implements DocumentInterface
     }
 
     /**
-     * @param Model\Document $parent
-     * @param Model\Document $document
-     * @throws \Vivo\CMS\Api\Exception\InvalidTitleException
+     * @param Model\Folder $parent
+     * @param Model\Folder $document
+     * @throws Exception\InvalidTitleException
      * @return \Vivo\CMS\Model\Document
      */
-    public function createDocument(Model\Document $parent, Model\Document $document)
+    public function createDocument(Model\Folder $parent, Model\Folder $document)
     {
         $title = trim($document->getTitle());
         if($title == '') {
@@ -280,16 +280,13 @@ class Document implements DocumentInterface
     }
 
     /**
-     * @param Model\Document $document
-     * @return Model\Document
+     * Saves document
+     * @param Model\Folder $document
+     * @return Model\Folder
      */
-    public function saveDocument(Model\Document $document)
+    public function saveDocument(Model\Folder $document)
     {
-        $options = array(
-            'published_content_types' => $this->getPublishedContentTypes($document),
-        );
-        $this->cmsApi->saveEntity($document, $options);
-
+        $this->cmsApi->saveEntity($document, true);
         return $document;
     }
 
@@ -431,10 +428,10 @@ class Document implements DocumentInterface
 
     /**
      * Returns if the document has any child documents
-     * @param \Vivo\CMS\Model\Document $document
-     * @return bool
+     * @param \Vivo\CMS\Model\Folder $document
+     * @return boolean
      */
-    public function hasChildDocuments(Model\Document $document)
+    public function hasChildDocuments(Model\Folder $document)
     {
         $childDocs      = $this->getChildDocuments($document);
         $hasChildDocs   = count($childDocs) > 0;
@@ -442,16 +439,17 @@ class Document implements DocumentInterface
     }
 
     /**
-     * @param Model\Document $document
+     * @param Model\Folder $document
      * @param \Vivo\CMS\Model\Site $site
      * @param string $targetUrl
      * @param string $targetName
      * @param string $title
      * @param boolean $createHyperlink
+     * @throws CMSException\EntityAlreadyExistsException
      * @throws \Vivo\CMS\Exception\Exception
-     * @return Model\Document
+     * @return Model\Folder
      */
-    public function moveDocument(Model\Document $document, Model\Site $site, $targetUrl, $targetName, $title,
+    public function moveDocument(Model\Folder $document, Model\Site $site, $targetUrl, $targetName, $title,
                                  $createHyperlink)
     {
         //Add trailing slash
@@ -465,7 +463,7 @@ class Document implements DocumentInterface
         $targetPath = $this->cmsApi->getEntityAbsolutePath($targetUrl, $site);
         if ($this->repository->hasEntity($targetPath)) {
             //There is an entity at the target path already
-            throw new Exception\EntityAlreadyExistsException(
+            throw new CMSException\EntityAlreadyExistsException(
                 sprintf("%s: There is an entity at the target path '%s'", __METHOD__, $targetPath));
         }
         /** @var $moved \Vivo\CMS\Model\Document */
@@ -483,7 +481,7 @@ class Document implements DocumentInterface
             $this->cmsApi->saveEntity($entity, false);
         }
         //Hyperlink
-        if ($createHyperlink) {
+        if (($document instanceof Model\Document) && $createHyperlink) {
             //Document
             $docClone->setUuid($this->uuidGenerator->create());
             $docClone->setTitle($docClone->getTitle() . ' HYPERLINK');
@@ -505,15 +503,15 @@ class Document implements DocumentInterface
 
     /**
      * Copies document to a new location
-     * @param \Vivo\CMS\Model\Document $document
+     * @param \Vivo\CMS\Model\Folder $document
      * @param \Vivo\CMS\Model\Site $site
      * @param string $targetUrl
      * @param string $targetName
      * @param string $title
      * @throws \Vivo\CMS\Exception\Exception
-     * @return \Vivo\CMS\Model\Document
+     * @return Model\Document
      */
-    public function copyDocument(Model\Document $document, Model\Site $site, $targetUrl, $targetName, $title)
+    public function copyDocument(Model\Folder $document, Model\Site $site, $targetUrl, $targetName, $title)
     {
         //TODO - check recursive operation
 //        if (strpos($target, "$path/") === 0) {
@@ -577,9 +575,9 @@ class Document implements DocumentInterface
      * Replaces UUIDs in a subtree
      * @param string $oldUuid
      * @param string $newUuid
-     * @param Model\Document $rootDoc
+     * @param Model\Folder $rootDoc
      */
-    public function replaceUuidRefs($oldUuid, $newUuid, Model\Document $rootDoc)
+    public function replaceUuidRefs($oldUuid, $newUuid, Model\Folder $rootDoc)
     {
         $children           = $this->repository->getChildren($rootDoc, false, true);
         /** @var $subTreeEntities Model\Entity[] */

@@ -9,6 +9,7 @@ use Vivo\CMS\AvailableContentsProvider;
 use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 use Vivo\CMS\Model\Document;
 use Vivo\CMS\Model\ContentContainer;
+use Vivo\UI\TabContainer;
 use Vivo\Util\RedirectEvent;
 use Vivo\LookupData\LookupDataManager;
 use Vivo\Service\Initializer\TranslatorAwareInterface;
@@ -97,23 +98,32 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
     public function init()
     {
         $this->entity = $this->getParent()->getEntity();
-
-        $this->getForm()->bind($this->entity);
-
-        try {
-            $this->getComponent('resourceEditor')->setEntity($this->entity);
+        if ($this->hasComponent('resourceEditor')) {
+            if ($this->entity instanceof Document) {
+                $this->getComponent('resourceEditor')->setEntity($this->entity);
+            } else {
+                $this->removeComponent('resourceEditor');
+            }
         }
-        catch (\Vivo\UI\Exception\ComponentNotExists $e) { }
-
+        $this->getForm()->bind($this->entity);
         parent::init();
         $this->initForm();
     }
 
+    /**
+     * Returns path which should be passed to availableContentsProvider
+     * @return string
+     */
+    protected function getPathForContentsProvider()
+    {
+        return $this->entity->getPath();
+    }
+
     protected function initForm()
     {
-        // Load avalilable contents
-        $this->availableContents = $this->availableContentsProvider->getAvailableContents($this->entity);
-
+        // Load available contents
+        $documentPath            = $this->getPathForContentsProvider();
+        $this->availableContents = $this->availableContentsProvider->getAvailableContents($this->entity, $documentPath);
         // Editor tabs
         $containers = array();
         if($this->entity instanceof Document) {
@@ -121,15 +131,17 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
                 $containers = $this->documentApi->getContentContainers($this->entity);
             }
             catch(\Vivo\Repository\Exception\PathNotSetException $e) {
-
             }
         }
         $count = count($containers);
         foreach ($containers as $index => $contentContainer) {
-            $this->contentTab->addComponent($this->createContentTab($contentContainer), "content_$index");
+            $contentTab = $this->createContentTab($contentContainer);
+            $this->contentTab->addComponent($contentTab, "content_$index");
         }
-
-        $this->contentTab->addComponent($this->createContentTab(new ContentContainer()), "content_$count");
+        if (count($this->availableContents) > 0) {
+            $contentTab = $this->createContentTab(new ContentContainer());
+            $this->contentTab->addComponent($contentTab, "content_$count");
+        }
     }
 
     /**
@@ -276,21 +288,20 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
     protected function saveProcess()
     {
         $success = true;
-
-        /* @var $component \Vivo\Backend\UI\Explorer\Editor\ContentTab */
-        $component = $this->getComponent('contentTab')->getSelectedComponent();
-
-        $success = $success && $component->save();
-
+        /** @var $tabContainer TabContainer */
+        $tabContainer   = $this->getComponent('contentTab');
+        if ($tabContainer->hasComponent($tabContainer->getSelected())) {
+            /* @var $component \Vivo\Backend\UI\Explorer\Editor\ContentTab */
+            $component  = $tabContainer->getSelectedComponent();
+            $success    = $success && $component->save();
+        }
         if($success) {
-            $this->contentTab->removeAllComponents();
+            $tabContainer->removeAllComponents();
             $this->init();
-
-            foreach ($this->contentTab->getComponents() as $component) {
+            foreach ($tabContainer->getComponents() as $component) {
                 $component->initForm();
             }
         }
-
         return $success;
     }
 }

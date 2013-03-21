@@ -2,6 +2,8 @@
 namespace Vivo\Backend\UI\Form;
 
 use Vivo\Form\Form;
+use Vivo\CMS\Model\Entity;
+use Vivo\CMS\Model\Document;
 
 use Zend\InputFilter\InputFilterProviderInterface;
 
@@ -13,8 +15,9 @@ class Move extends Form implements InputFilterProviderInterface
 {
     /**
      * Constructor
+     * @param Entity $entity
      */
-    public function __construct()
+    public function __construct(Entity $entity)
     {
         parent::__construct('moveDocument');
 
@@ -46,13 +49,15 @@ class Move extends Form implements InputFilterProviderInterface
                 'label'         => 'Name in path',
             ),
         ));
-        $this->add(array(
-            'name'          => 'create_hyperlink',
-            'type'          => 'Vivo\Form\Element\Checkbox',
-            'options'       => array(
-                'label'         => 'Create hyperlink',
-            ),
-        ));
+        if ($entity instanceof Document) {
+            $this->add(array(
+                'name'          => 'create_hyperlink',
+                'type'          => 'Vivo\Form\Element\Checkbox',
+                'options'       => array(
+                    'label'         => 'Create hyperlink',
+                ),
+            ));
+        }
         $this->add(array(
             'name'  => 'submit',
             'type'  => 'Vivo\Form\Element\Submit',

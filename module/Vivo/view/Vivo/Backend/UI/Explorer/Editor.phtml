@@ -25,7 +25,7 @@
     echo $this->formFieldsetTwb($form->get('buttons'), $formType);
     echo $this->formTwb()->closeTag();
 ?>
+<?php if (isset($resourceEditor)): ?>
 <hr>Resource editor
-<?
-    echo $resourceEditor;
-?>
+<?php echo $resourceEditor; ?>
+<?php endif ?>

@@ -88,7 +88,8 @@ return array(
         ),
         'restrictions' => array (
             'document_type' => array (
-                'Vivo\CMS\Model\Document' => array(
+                'Vivo\CMS\Model\Folder'     => array(
+                    //Folder has no available contents
                 ),
             ),
             'document_path' => array (
@@ -100,10 +101,9 @@ return array(
                 'managers' => array (
                 ),
             ),
-            'site' => array (
-               //Whitelist of allowed contents in current site.
-               //If empty all available contents are allowed.
-            ),
+//            'site' => array (
+//               //Whitelist of allowed contents in current site.
+//            ),
         ),
     ),
     'workflow' => array (

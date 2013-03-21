@@ -234,8 +234,8 @@ class ComponentFactory implements EventManagerAwareInterface
     {
         if ($content instanceof \Vivo\CMS\Model\Content\Link) {
             $linkedDocument = $this->cmsApi->getSiteEntity($content->getRelPath(), $this->site);
-            return $this
-                    ->getFrontComponent($linkedDocument, $linkedDocument, array('noLayout' => true));
+            $frontComponent = $this->getFrontComponent($linkedDocument, array('noLayout' => true));
+            return $frontComponent;
         }
 
         $className = $this->resolver->resolve($content);

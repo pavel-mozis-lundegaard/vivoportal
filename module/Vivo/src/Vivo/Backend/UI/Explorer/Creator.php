@@ -1,13 +1,10 @@
 <?php
 namespace Vivo\Backend\UI\Explorer;
 
-use Vivo\UI\AbstractForm;
 use Vivo\UI\Alert;
 use Vivo\Form\Fieldset;
-use Vivo\CMS\AvailableContentsProvider;
-use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
-use Vivo\CMS\Model\ContentContainer;
 use Vivo\Util\RedirectEvent;
+use Vivo\CMS\Model\Folder;
 
 class Creator extends Editor
 {
@@ -16,12 +13,32 @@ class Creator extends Editor
      */
     private $explorer;
 
+    /**
+     * Parent folder for the entity being created
+     * @var Folder
+     */
+    protected $parentFolder;
+
     public function init()
     {
         $this->explorer = $this->getParent('Vivo\Backend\UI\Explorer\ExplorerInterface');
+        $this->parentFolder = $this->explorer->getEntity();
         $this->doCreate();
 
         parent::initForm();
+    }
+
+    public function create()
+    {
+    }
+
+    /**
+     * Returns path which should be passed to availableContentsProvider
+     * @return string
+     */
+    protected function getPathForContentsProvider()
+    {
+        return $this->parentFolder->getPath();
     }
 
     protected function doGetForm()
@@ -37,18 +54,13 @@ class Creator extends Editor
                 )
             )
         ));
-
         return $form;
     }
-
-    public function create() { }
 
     private function doCreate()
     {
         $entityClass = $this->request->getPost('__type', 'Vivo\CMS\Model\Document');
-
         $this->entity = new $entityClass;
-
         $this->resetForm();
         $this->getForm()->bind($this->entity);
         $this->getForm()->get('__type')->setValue($entityClass);
@@ -59,16 +71,11 @@ class Creator extends Editor
     {
         if($this->getForm()->isValid()) {
             $parent = $this->explorer->getEntity();
-
             $this->entity = $this->documentApi->createDocument($parent, $this->entity);
-
             $this->explorer->setEntity($this->entity);
-
             $this->saveProcess();
-
             $this->explorer->setCurrent('editor');
             $this->events->trigger(new RedirectEvent());
-
             $this->addAlertMessage('Created...', Alert::TYPE_SUCCESS);
         }
         else {

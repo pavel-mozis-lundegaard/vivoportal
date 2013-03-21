@@ -1,6 +1,7 @@
 <?php
 namespace Vivo\Backend\UI\Explorer;
 
+use Vivo\CMS\Model\Entity;
 use Vivo\CMS\UI\AbstractForm;
 use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
@@ -13,7 +14,6 @@ use Vivo\Service\Initializer\TranslatorAwareInterface;
 use Vivo\CMS\Exception\EntityAlreadyExistsException;
 
 use Zend\I18n\Translator\Translator;
-
 
 /**
  * Move
@@ -45,6 +45,18 @@ class Move extends AbstractForm implements TranslatorAwareInterface
     protected $alert;
 
     /**
+     * Explorer
+     * @var Explorer
+     */
+    protected $explorer;
+
+    /**
+     * Current entity
+     * @var Entity
+     */
+    protected $entity;
+
+    /**
      * Translator
      * @var Translator
      */
@@ -66,13 +78,17 @@ class Move extends AbstractForm implements TranslatorAwareInterface
         $this->alert        = $alert;
     }
 
+    public function init()
+    {
+        $this->explorer = $this->getParent();
+        $this->entity   = $this->explorer->getEntity();
+        parent::init();
+    }
+
     public function view()
     {
-        /** @var $explorer Explorer */
-        $explorer   = $this->getParent();
-        $entity     = $explorer->getEntity();
-        $this->getView()->entity = $entity;
-        $this->getView()->entityRelPath = $this->cmsApi->getEntityRelPath($entity);
+        $this->getView()->entity = $this->entity;
+        $this->getView()->entityRelPath = $this->cmsApi->getEntityRelPath($this->entity);
         return parent::view();
     }
 
@@ -84,17 +100,20 @@ class Move extends AbstractForm implements TranslatorAwareInterface
         $form   = $this->getForm();
         if ($form->isValid()) {
             $validData  = $form->getData();
-            /** @var $explorer Explorer */
-            $explorer   = $this->getParent();
             //Move - and redirect
-            $doc        = $explorer->getEntity();
+            $doc        = $this->entity;
             $docRelPath = $this->cmsApi->getEntityRelPath($doc);
             try {
-                $movedDoc   = $this->documentApi->moveDocument($doc, $explorer->getSite(), $validData['path'],
-                    $validData['name_in_path'], $validData['name'], (bool) $validData['create_hyperlink']);
+                if (isset($validData['create_hyperlink']) && $validData['create_hyperlink']) {
+                    $createHyperlink    = true;
+                } else {
+                    $createHyperlink    = false;
+                }
+                $movedDoc   = $this->documentApi->moveDocument($doc, $this->explorer->getSite(), $validData['path'],
+                    $validData['name_in_path'], $validData['name'], $createHyperlink);
                 $movedDocRelPath   = $this->cmsApi->getEntityRelPath($movedDoc);
-                $explorer->setEntity($movedDoc);
-                $explorer->setCurrent('editor');
+                $this->explorer->setEntity($movedDoc);
+                $this->explorer->setCurrent('editor');
                 $message = sprintf($this->translator->translate(
                     "Document at path '%s' has been moved to path '%s'"), $docRelPath, $movedDocRelPath);
                 $this->alert->addMessage($message, Alert::TYPE_SUCCESS);
@@ -117,7 +136,7 @@ class Move extends AbstractForm implements TranslatorAwareInterface
      */
     protected function doGetForm()
     {
-        $form   = new MoveForm();
+        $form   = new MoveForm($this->entity);
         $form->setAttribute('action', $this->request->getUri()->getPath());
         $form->add(array(
             'name'  => 'act',
@@ -126,16 +145,12 @@ class Move extends AbstractForm implements TranslatorAwareInterface
                 'value' => $this->getPath('move'),
             ),
         ));
-        /** @var $explorer Explorer */
-        $explorer   = $this->getParent();
-        /** @var $doc Document */
-        $doc        = $explorer->getEntity();
-        $relPath    = $this->cmsApi->getEntityRelPath($doc);
+        $relPath    = $this->cmsApi->getEntityRelPath($this->entity);
         $path       = $this->pathBuilder->dirname($relPath);
         $baseName   = $this->pathBuilder->basename($relPath);
 
         $form->get('path')->setValue($path);
-        $form->get('name')->setValue($doc->getTitle());
+        $form->get('name')->setValue($this->entity->getTitle());
         $form->get('name_in_path')->setValue($baseName);
         return $form;
     }

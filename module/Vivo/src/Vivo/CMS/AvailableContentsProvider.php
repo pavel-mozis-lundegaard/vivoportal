@@ -20,11 +20,12 @@ class AvailableContentsProvider
     }
 
     /**
-     * Returns name of content classes availbale for given document.
-     * @param \Vivo\CMS\Model\Document $document
+     * Returns name of content classes available for given document.
+     * @param \Vivo\CMS\Model\Document|\Vivo\CMS\Model\Folder $document
+     * @param string $documentPath
      * @return array Classnames of available content types.
      */
-    public function getAvailableContents(Model\Folder $document)
+    public function getAvailableContents(Model\Folder $document, $documentPath)
     {
         $this->contents = $this->config['available_contents'];
         $restrictions = $this->config['restrictions'];
@@ -41,11 +42,9 @@ class AvailableContentsProvider
         if (isset($restrictions['site'])){
             $this->intersect($restrictions['site']);
         }
-        if (isset($restrictions['document_path'])
-                && is_array($restrictions['document_path'])){
-
+        if (isset($restrictions['document_path']) && is_array($restrictions['document_path'])){
             foreach ($restrictions['document_path'] as $path => $contents) {
-                if(strpos($document->getPath(), $path) !== false) {
+                if(strpos($documentPath, $path) !== false) {
                     $this->intersect($contents);
                 }
             }
@@ -60,7 +59,8 @@ class AvailableContentsProvider
      */
     protected function intersect($restriction)
     {
-        if (is_array($restriction) && !empty($restriction)){
+//        if (is_array($restriction) && !empty($restriction)){
+        if (is_array($restriction)){
             $this->contents =  array_intersect($restriction, $this->contents);
         }
     }

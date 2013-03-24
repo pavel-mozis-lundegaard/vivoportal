@@ -3,6 +3,7 @@ namespace Vivo\UI;
 
 use Vivo\Service\Initializer\RequestAwareInterface;
 use Vivo\Service\Initializer\RedirectorAwareInterface;
+use Vivo\Service\Initializer\TranslatorAwareInterface;
 use Vivo\Util\Redirector;
 
 use Zend\EventManager\EventManagerAwareInterface;
@@ -11,13 +12,16 @@ use Zend\Form\FormInterface;
 use Zend\Form\Form as ZfForm;
 use Zend\Http\PhpEnvironment\Request;
 use Zend\Stdlib\RequestInterface;
+use Zend\I18n\Translator\Translator;
 
 /**
  * Form
  * Base abstract Vivo Form
  */
-abstract class AbstractForm extends ComponentContainer
-        implements RequestAwareInterface, RedirectorAwareInterface, EventManagerAwareInterface
+abstract class AbstractForm extends ComponentContainer implements RequestAwareInterface,
+                                                                  RedirectorAwareInterface,
+                                                                  EventManagerAwareInterface,
+                                                                  TranslatorAwareInterface
 {
     /**
      * @var ZfForm
@@ -81,6 +85,12 @@ abstract class AbstractForm extends ComponentContainer
      * @var EventManagerInterface
      */
     protected $events;
+
+    /**
+     * Translator instance
+     * @var Translator
+     */
+    protected $translator;
 
     public function init()
     {
@@ -316,5 +326,37 @@ abstract class AbstractForm extends ComponentContainer
     {
         return $this->events;
     }
+
+    /**
+     * Injects translator
+     * @param \Zend\I18n\Translator\Translator $translator
+     */
+    public function setTranslator(Translator $translator)
+    {
+        $this->translator   = $translator;
+    }
+
+    /**
+     * Performs validity check on a single form field, returns JSON
+     * @return \Zend\View\Model\JsonModel
+     */
+    public function ajaxValidateFormField()
+    {
+        $field      = $this->request->getPost('field');
+        $value      = $this->request->getPost('value');
+        $messages   = array();
+        $jsonModel  = new \Zend\View\Model\JsonModel();
+        $isValid    = $this->isFieldValid($field, $value, $messages);
+        if ($isValid) {
+            //Form field is valid
+            $jsonModel->setVariable('valid', true);
+        } else {
+            //Form field not valid
+            $jsonModel->setVariable('valid', false);
+        }
+        $jsonModel->setVariable('messages', $messages);
+        return $jsonModel;
+    }
+
 
 }

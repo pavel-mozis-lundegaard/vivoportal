@@ -7,7 +7,7 @@ use Vivo\CMS\Model;
 use Zend\View\Helper\AbstractHelper;
 
 /**
- * View helper for gettting document url
+ * View helper for getting document url
  */
 class Document extends AbstractHelper
 {
@@ -36,10 +36,14 @@ class Document extends AbstractHelper
     {
         $entityUrl = $this->cmsApi->getEntityRelPath($document);
         $urlHelper = $this->getView()->plugin('url');
-        $url = $urlHelper(null, array('path' => $entityUrl), false);
+        $urlParams  = array(
+            'path' => $entityUrl,
+        );
+        $options    = array();
+        $url = $urlHelper(null, $urlParams, $options, false);
 
         //Replace encoded slashes in the url. It's needed because apache
-        //returns 404 when the url contains encoded slashes. This behvaior
+        //returns 404 when the url contains encoded slashes. This behaviour
         //could be changed in apache config, but it is not possible to do that
         //in .htaccess context.
         //@see http://httpd.apache.org/docs/current/mod/core.html#allowencodedslashes

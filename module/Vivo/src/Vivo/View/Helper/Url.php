@@ -6,15 +6,12 @@ use Zend\Mvc\ModuleRouteListener;
 /**
  * Url view helper.
  *
- * Has a same function as \Zend\View\Helper\Url, it only modifies reused params.
- * Helper always reuse 'path' and 'host' router match param
- * and never reuse 'constroller' param.
- *
+ * Has the same function as \Zend\View\Helper\Url, it only modifies reused params.
+ * Helper always reuses 'path' and 'host' router match param and never reuses 'controller' param.
  */
 class Url extends \Zend\View\Helper\Url
 {
-    public function __invoke($name = null, array $params = array(),
-            $options = array(), $reuseMatchedParams = false)
+    public function __invoke($name = null, array $params = array(), $options = array(), $reuseMatchedParams = false)
     {
         if (null === $this->router) {
             throw new Exception\RuntimeException('No RouteStackInterface instance provided');
@@ -54,8 +51,8 @@ class Url extends \Zend\View\Helper\Url
 
         $options['name'] = $name;
 
-        //modify reused params for asembling routes.
-        //we don't want to resuse 'controller' param and
+        //modify reused params for assembling routes.
+        //we don't want to reuse 'controller' param and
         //we always want to reuse host and path params
         unset($params['controller']);
         if (!isset($params['host']))

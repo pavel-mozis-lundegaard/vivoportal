@@ -24,11 +24,11 @@ return array(
                             ),
                         ),
                         'may_terminate' => false,
-                        'child_routes' => array(
-                            'query' => array(
-                                'type' => 'Query',
-                            ),
-                        ),
+//                        'child_routes' => array(
+//                            'query' => array(
+//                                'type' => 'Query',
+//                            ),
+//                        ),
                     ),
                     //route for fronend resources
                     //@example http://<sitehost>/.<moduleName>.<resourceType>/<path>
@@ -110,11 +110,11 @@ return array(
                                 'host' => '',
                             ),
                         ),
-                        'child_routes' => array(
-                                'query' => array(
-                                        'type' => 'Query',
-                                ),
-                        ),
+//                        'child_routes' => array(
+//                                'query' => array(
+//                                        'type' => 'Query',
+//                                ),
+//                        ),
                     ),
                     //route for viewing site in backend
                     //@example http://<backendhost>/<sitehost>/view/<pathWithinSite>
@@ -129,11 +129,11 @@ return array(
                                 'path'   => '',
                             ),
                         ),
-                        'child_routes' => array(
-                            'query' => array(
-                                'type' => 'Query',
-                            ),
-                        ),
+//                        'child_routes' => array(
+//                            'query' => array(
+//                                'type' => 'Query',
+//                            ),
+//                        ),
                     ),
                     //route for site resources in backend view
                     //@example http://<backendhost>/<sitehost>/view/.<moduleName>.<resourceType>/<path>

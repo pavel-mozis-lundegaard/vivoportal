@@ -8,7 +8,7 @@ use Vivo\View\Helper\Exception\InvalidArgumentException;
 use Zend\View\Helper\AbstractHelper;
 
 /**
- * View helper for gettting resource url.
+ * View helper for getting resource url.
  */
 class Resource extends AbstractHelper
 {
@@ -17,7 +17,7 @@ class Resource extends AbstractHelper
      * @var array
      */
     private $options = array(
-            'check_resource' => false, // usefull for debuging sites
+            'check_resource' => false, // useful for debugging sites
             );
 
     /**
@@ -42,8 +42,8 @@ class Resource extends AbstractHelper
     }
 
     /**
-     * Sets route used for asembling resource url.
-     * @param string $route
+     * Sets route used for assembling resource url.
+     * @param string $resourceRouteName
      */
     public function setResourceRouteName($resourceRouteName)
     {
@@ -58,22 +58,25 @@ class Resource extends AbstractHelper
         $urlHelper = $this->view->plugin('url');
 
         if ($source instanceof Entity) {
-            $entityUrl = $this->cmsApi->getEntityRelPath($source);
-            $url = $urlHelper($this->resourceRouteName . '_entity',
-                            array('path' => $resourcePath,
-                                    'entity' => $entityUrl,
-                                    ));
+            $entityUrl  = $this->cmsApi->getEntityRelPath($source);
+            $urlParams  = array(
+                'path' => $resourcePath,
+                'entity' => $entityUrl,
+            );
+            $url = $urlHelper($this->resourceRouteName . '_entity', $urlParams);
         } elseif (is_string($source)) {
-            $url = $urlHelper($this->resourceRouteName ,
-                            array('source' => $source, 'path' => $resourcePath, 'type' => 'resource'), true);
+            $urlParams  = array(
+                'source'    => $source,
+                'path'      => $resourcePath,
+                'type'      => 'resource',
+            );
+            $url = $urlHelper($this->resourceRouteName, $urlParams, array(), true);
         } else {
-            throw new InvalidArgumentException(
-                    sprintf("%s: Invalid value for parameter 'source'.",
-                            __METHOD__), $code, $previous);
+            throw new InvalidArgumentException(sprintf("%s: Invalid value for parameter 'source'.", __METHOD__));
         }
-
-        //Replace encoded slashes in the url. It's needed because apache returns 404 when the url contains encoded slashes
-        //This behvaior could be changed in apache config, but it is not possible to do that in .htaccess context.
+        //Replace encoded slashes in the url.
+        //It's needed because apache returns 404 when the url contains encoded slashes
+        //This behaviour could be changed in apache config, but it is not possible to do that in .htaccess context.
         //@see http://httpd.apache.org/docs/current/mod/core.html#allowencodedslashes
         $url = str_replace('%2F', '/', $url);
 

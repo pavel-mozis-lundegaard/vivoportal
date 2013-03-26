@@ -6,18 +6,24 @@ use Vivo\UI\Component;
 use Zend\View\Helper\AbstractHelper;
 
 /**
- * View helper for gettting action url
+ * View helper for getting action url
  */
 class ActionUrl extends AbstractHelper
 {
 
-    public function __invoke($action, $params = array(), $reuseMatchedParams = false)
+    public function __invoke($action, array $queryArgs = array(),  $reuseMatchedParams = false)
     {
-        $model = $this->view->plugin('view_model')->getCurrent();
-        $component = $model->getVariable('component');
-        $act = $component['path'] . Component::COMPONENT_SEPARATOR . $action;
-        $urlHelper = $this->getView()->plugin('url');
-        return $urlHelper(null,
-                array('act' => $act, 'args' => $params), $reuseMatchedParams);
+        $actionHelper   = $this->view->plugin('action');
+        $act            = $actionHelper($action);
+        $options        = array(
+            'query' => array(
+                'act' => $act,
+                'args' => $queryArgs,
+            ),
+        );
+        $urlParams  = array();
+        $urlHelper  = $this->getView()->plugin('url');
+        $url        = $urlHelper(null, $urlParams, $options, $reuseMatchedParams);
+        return $url;
     }
 }

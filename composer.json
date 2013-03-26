@@ -10,7 +10,7 @@
     
     "require": {
         "php": ">=5.3.3",
-        "zendframework/zendframework": "=2.0.6",
+        "zendframework/zendframework": "=2.0.8",
         "doctrine/common": ">=2.2.0",
         "doctrine/orm": ">=2.2.0",
         "webino/zf2nette-debug": ">=1",

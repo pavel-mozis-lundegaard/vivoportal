@@ -23,14 +23,9 @@ return array(
                                 'path' => '',
                             ),
                         ),
-                        'may_terminate' => false,
-//                        'child_routes' => array(
-//                            'query' => array(
-//                                'type' => 'Query',
-//                            ),
-//                        ),
+                        'may_terminate' => true,
                     ),
-                    //route for fronend resources
+                    //route for frontend resources
                     //@example http://<sitehost>/.<moduleName>.<resourceType>/<path>
                     'resource' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
@@ -71,7 +66,7 @@ return array(
                     ),
                 ),
                 'child_routes' => array(
-                    //route for everithing else on backend hostname - controller redirects
+                    //route for everything else on backend hostname - controller redirects
                     'other' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'may_terminate' => true,
@@ -99,7 +94,7 @@ return array(
                     //@example http://<backendhost>/<sitehost>/<moduleName>/
                     'modules' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
-                        'may_terminate' => false,
+                        'may_terminate' => true,
                         'options' => array(
                             'regex'    => '/(?<host>.+?)/(?<module>.+?)/(?<path>.*)',
                             'spec'    => '/%host%/%module%/%path%',
@@ -110,17 +105,12 @@ return array(
                                 'host' => '',
                             ),
                         ),
-//                        'child_routes' => array(
-//                                'query' => array(
-//                                        'type' => 'Query',
-//                                ),
-//                        ),
                     ),
                     //route for viewing site in backend
                     //@example http://<backendhost>/<sitehost>/view/<pathWithinSite>
                     'cms' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
-                        'may_terminate' => false,
+                        'may_terminate' => true,
                         'options' => array(
                             'regex'    => '/(?<host>.*)/view(?<path>/.*)?',
                             'spec'    => '/%host%/view%path%',
@@ -129,11 +119,6 @@ return array(
                                 'path'   => '',
                             ),
                         ),
-//                        'child_routes' => array(
-//                            'query' => array(
-//                                'type' => 'Query',
-//                            ),
-//                        ),
                     ),
                     //route for site resources in backend view
                     //@example http://<backendhost>/<sitehost>/view/.<moduleName>.<resourceType>/<path>
@@ -197,6 +182,7 @@ return array(
             'Vivo\Http\Filter\OutputFilterListener' => 'Vivo\Http\Filter\OutputFilterListener',
         ),
         'factories' => array(
+            'RoutePluginManager'        => 'Vivo\Service\RoutePluginManagerFactory',
             'translator'                => 'Zend\I18n\Translator\TranslatorServiceFactory',
             'response'                  => 'Vivo\Service\ResponseFactory',
             'db_service_manager'        => 'Vivo\Service\DbServiceManagerFactory',

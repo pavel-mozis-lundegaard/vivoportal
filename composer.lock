@@ -1,5 +1,5 @@
 {
-    "hash": "c95184e462e3505c499bc9e462abde96",
+    "hash": "70f7bd5e306c981ddd94b7f2b112184c",
     "packages": [
         {
             "name": "dlu/dluphpsettings",
@@ -47,21 +47,21 @@
         },
         {
             "name": "dlu/dlutwbootstrap",
-            "version": "0.1.3",
+            "version": "0.1.4",
             "source": {
                 "type": "git",
                 "url": "https://bitbucket.org/dlu/dlutwbootstrap.git",
-                "reference": "release-0.1.3"
+                "reference": "release-0.1.4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://bitbucket.org/dlu/dlutwbootstrap/get/release-0.1.3.zip",
-                "reference": "release-0.1.3",
+                "url": "https://bitbucket.org/dlu/dlutwbootstrap/get/release-0.1.4.zip",
+                "reference": "release-0.1.4",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3",
-                "zendframework/zendframework": ">=2.0.5"
+                "zendframework/zendframework": ">=2.1.0"
             },
             "type": "library",
             "autoload": {
@@ -91,7 +91,7 @@
                 "zend framework 2",
                 "zf2"
             ],
-            "time": "2013-03-12 09:12:57"
+            "time": "2013-03-27 13:05:57"
         },
         {
             "name": "doctrine/common",
@@ -430,16 +430,16 @@
         },
         {
             "name": "zendframework/zendframework",
-            "version": "2.0.8",
+            "version": "2.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zendframework/zf2.git",
-                "reference": "release-2.0.8"
+                "reference": "release-2.1.4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/zf2/zipball/release-2.0.8",
-                "reference": "release-2.0.8",
+                "url": "https://api.github.com/repos/zendframework/zf2/zipball/release-2.1.4",
+                "reference": "release-2.1.4",
                 "shasum": ""
             },
             "require": {
@@ -480,6 +480,7 @@
                 "zendframework/zend-navigation": "self.version",
                 "zendframework/zend-paginator": "self.version",
                 "zendframework/zend-permissions-acl": "self.version",
+                "zendframework/zend-permissions-rbac": "self.version",
                 "zendframework/zend-progressbar": "self.version",
                 "zendframework/zend-serializer": "self.version",
                 "zendframework/zend-server": "self.version",
@@ -488,6 +489,7 @@
                 "zendframework/zend-soap": "self.version",
                 "zendframework/zend-stdlib": "self.version",
                 "zendframework/zend-tag": "self.version",
+                "zendframework/zend-test": "self.version",
                 "zendframework/zend-text": "self.version",
                 "zendframework/zend-uri": "self.version",
                 "zendframework/zend-validator": "self.version",
@@ -497,8 +499,8 @@
             },
             "require-dev": {
                 "doctrine/common": ">=2.1",
-                "ircmaxell/random-lib": "dev-master@dev",
-                "ircmaxell/security-lib": "dev-master@dev",
+                "ircmaxell/random-lib": "dev-master",
+                "ircmaxell/security-lib": "dev-master",
                 "phpunit/phpunit": "3.7.*"
             },
             "suggest": {
@@ -515,8 +517,8 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.0-dev",
-                    "dev-develop": "2.1-dev"
+                    "dev-master": "2.1-dev",
+                    "dev-develop": "2.2-dev"
                 }
             },
             "autoload": {
@@ -535,7 +537,7 @@
                 "framework",
                 "zf2"
             ],
-            "time": "2013-03-13 22:11:24"
+            "time": "2013-03-13 22:26:48"
         }
     ],
     "packages-dev": [

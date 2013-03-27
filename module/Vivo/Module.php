@@ -1,6 +1,7 @@
 <?php
 namespace Vivo;
 
+use Vivo\Http\StreamResponseSender;
 use Vivo\View\Helper as ViewHelper;
 
 use Zend\Console\Adapter\AdapterInterface as Console;
@@ -8,6 +9,9 @@ use Zend\ModuleManager\Feature\ConsoleBannerProviderInterface;
 use Zend\ModuleManager\Feature\ConsoleUsageProviderInterface;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
+use Zend\Mvc\ResponseSender\SendResponseEvent;
+use Zend\Mvc\SendResponseListener;
+use Zend\ServiceManager\ServiceManager;
 
 class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInterface
 {
@@ -17,16 +21,18 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
      */
     public function onBootstrap(MvcEvent $e)
     {
-        //initialize logger
-        $logger = $e->getApplication()->getServiceManager()->get('logger');
+        //Get basic objects
+        /** @var $sm ServiceManager */
+        $sm             = $e->getApplication()->getServiceManager();
+        $eventManager   = $e->getApplication()->getEventManager();
+        $config         = $sm->get('config');
+        //Initialize logger
+        $logger = $sm->get('logger');
+        //Initialize translator
+        $sm->get('translator');
 
-        $e->getApplication()->getServiceManager()->get('translator');
-        $eventManager        = $e->getApplication()->getEventManager();
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
-
-        $sm     = $e->getApplication()->getServiceManager();
-        $config = $sm->get('config');
 
         //Attach a listener to set up the SiteManager object
         $runSiteManagerListener = $sm->get('run_site_manager_listener');
@@ -39,13 +45,19 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
 
         $eventManager->attach(MvcEvent::EVENT_ROUTE, array ($this, 'registerTemplateResolver'));
         $eventManager->attach(MvcEvent::EVENT_ROUTE, array ($this, 'registerViewHelpers'));
-
         $eventManager->attach(MvcEvent::EVENT_ROUTE, function ($e) use ($logger){
             $logger->info('Matched route: '.$e->getRouteMatch()->getMatchedRouteName());
         });
 
         $filterListener = $sm->get('Vivo\Http\Filter\OutputFilterListener');
         $filterListener->attach($eventManager);
+
+        //Register response senders
+        /** @var $sendResponseListener SendResponseListener */
+        $sendResponseListener   = $sm->get('send_response_listener');
+        $srlEvents              = $sendResponseListener->getEventManager();
+        $streamResponseSender   = new StreamResponseSender();
+        $srlEvents->attach(SendResponseEvent::EVENT_SEND_RESPONSE, $streamResponseSender, -2500);
     }
 
     public function getConfig()
@@ -136,11 +148,6 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
             $helper = new ViewHelper\Document($serviceLocator->get('Vivo\CMS\Api\CMS'));
             return $helper;
         });
-    }
-
-    public function getServiceConfig()
-    {
-        return array();
     }
 
     public function getConsoleBanner(Console $console)

@@ -2,19 +2,16 @@
 namespace Vivo\Http;
 
 use Vivo\IO\ByteArrayInputStream;
-use Vivo\IO\CloseableInterface;
 use Vivo\IO\FileOutputStream;
 use Vivo\IO\InputStreamInterface;
-use Vivo\IO\IOUtil;
 use Vivo\IO\OutputStreamInterface;
 
-use Zend\Http\PhpEnvironment\Response as PHPResponse;
+use Zend\Http\Response as ZendHttpResponse;
 
 /**
  * Response object that supports setting stream as content.
- *
  */
-class StreamResponse extends PHPResponse
+class StreamResponse extends ZendHttpResponse
 {
 
     /**
@@ -60,29 +57,5 @@ class StreamResponse extends PHPResponse
      */
     public function setOutputStream(OutputStreamInterface $outputStream) {
         $this->outputStream = $outputStream;
-    }
-
-    /* (non-PHPdoc)
-     * @see Zend\Http\PhpEnvironment.Response::sendContent()
-     */
-    public function sendContent()
-    {
-        if ($this->contentSent()) {
-            return $this;
-        }
-
-        $source = $this->getInputStream();
-        $target = $this->getOutputStream();
-        $util = new IOUtil();
-        $util->copy($source, $target);
-        if ($source instanceof CloseableInterface) {
-            $source->close();
-        }
-        if ($target instanceof CloseableInterface) {
-            $target->close();
-        }
-
-        $this->contentSent = true;
-        return $this;
     }
 }

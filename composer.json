@@ -1,6 +1,6 @@
 {
-    "name": "vivoportal/v2",
-    "description": "Vivo 2",
+    "name": "vivoportal/vivo",
+    "description": "Vivo 2 Zend Framework module",
     "license": "BSD-3-Clause",
     "keywords": [
         "cms",

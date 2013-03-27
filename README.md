@@ -1,2 +1,2 @@
-Vivo Portal Module
-==================
+Vivo Portal Core Module
+=======================

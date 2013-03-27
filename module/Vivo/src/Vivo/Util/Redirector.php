@@ -3,7 +3,7 @@ namespace Vivo\Util;
 
 use Zend\EventManager\SharedEventManagerAwareInterface;
 use Zend\EventManager\SharedEventManagerInterface;
-use Zend\Http\PhpEnvironment\Response;
+use Zend\Http\Response;
 use Zend\Http\Request;
 
 /**
@@ -40,7 +40,7 @@ class Redirector implements SharedEventManagerAwareInterface
     /**
      * Constructor.
      * @param \Zend\Http\Request $request
-     * @param \Zend\Http\PhpEnvironment\Response $response
+     * @param \Zend\Http\Response $response
      */
     public function __construct(Request $request, Response $response)
     {

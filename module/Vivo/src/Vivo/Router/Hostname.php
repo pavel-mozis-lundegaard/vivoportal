@@ -6,7 +6,7 @@ use Zend\Mvc\Router\Http\RouteMatch;
 use Zend\Stdlib\RequestInterface as Request;
 
 /**
- * Simple router, that is used in routerchain only for setting hostname in RouteMatch.
+ * Simple router, that is used in router chain only for setting hostname in RouteMatch.
  */
 class Hostname implements RouteInterface
 {

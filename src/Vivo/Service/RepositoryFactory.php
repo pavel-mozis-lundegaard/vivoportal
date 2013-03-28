@@ -12,17 +12,17 @@ class RepositoryFactory implements FactoryInterface
     /**
      * Create service
      * @param ServiceLocatorInterface $serviceLocator
+     * @throws Exception\ConfigException
      * @return mixed
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $storageConfig          = array(
-            'class'     => 'Vivo\Storage\LocalFileSystemStorage',
-            'options'   => array(
-                'root'          => __DIR__ . '/../../../../../data/repository',
-                'path_builder'  => $serviceLocator->get('path_builder'),
-            ),
-        );
+        $config = $serviceLocator->get('config');
+        if (!isset($config['repository']['storage'])) {
+            throw new Exception\ConfigException(sprintf("%s: Repository storage configuration missing", __METHOD__));
+        }
+        $storageConfig  = $config['repository']['storage'];
+        $storageConfig['options']['path_builder']   = $serviceLocator->get('path_builder');
         $storageFactory         = $serviceLocator->get('storage_factory');
         /* @var $storageFactory \Vivo\Storage\Factory */
         $storage                = $storageFactory->create($storageConfig);

@@ -424,6 +424,11 @@ return array(
     ),
     //Vivo Modules configuration
     'modules'  => array(
+        //Storage for modules - configure in global/local config
+        'storage'              => array(
+            'class'     => '',
+            'options'   => array(),
+        ),
         //Name of stream (protocol) which will be registered for Vivo Module source file access in Storage
         'stream_name'   => 'vivo.module',
         //Vivo Module paths in Vivo Module Storage
@@ -451,6 +456,14 @@ return array(
         //Default db source used for modules
         //Configure in local config
         //'default_db_source'     => '',
+    ),
+    //Repository configuration
+    'repository'    => array(
+        //Storage for repository - configure in global/local config
+        'storage'              => array(
+            'class'     => '',
+            'options'   => array(),
+        ),
     ),
 
     'console' => array(

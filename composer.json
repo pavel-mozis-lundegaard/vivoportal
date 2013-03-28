@@ -7,7 +7,17 @@
         "zf2"
     ],
     "homepage": "http://vivoportal.org/",
-    
+    "autoload": {
+        "psr-0": {
+            "Vivo": "src/",
+            "VivoTest": "tests/"
+        },
+        "classmap": [
+            "./Module.php",
+            "src/"
+        ]
+    },
+
     "require": {
         "php": ">=5.3.3",
         "zendframework/zendframework": "=2.1.4",

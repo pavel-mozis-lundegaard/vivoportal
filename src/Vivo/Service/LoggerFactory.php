@@ -34,8 +34,18 @@ class LoggerFactory implements FactoryInterface
         if (!count($config['writers'])) {
             $logger->addWriter('null');
         } else {
-            foreach ($config['writers'] as $writer) {
-                    $logger->addWriter($writer);
+            foreach ($config['writers'] as $writer => $writerConfig) {
+                if (array_key_exists('priority', $writerConfig)) {
+                    $priority   = $writerConfig['priority'];
+                } else {
+                    $priority   = 1;
+                }
+                if (array_key_exists('options', $writerConfig)) {
+                    $options    = $writerConfig['options'];
+                } else {
+                    $options    = null;
+                }
+                $logger->addWriter($writer, $priority, $options);
             }
             $logger->log(Logger::INFO, 'Logger init.');
             $eventListener = new EventListener($logger, $config['listener']);

@@ -333,7 +333,12 @@ return array(
         ),
         'writers' => array (
             //writers from writer plugin manager or main service manager
-            'default_log',
+            'default_log'   => array(
+                'priority'  => 1,
+                'options'   => array(
+                    'log_dir'   => 'C:/work/logs',
+                ),
+            ),
             //'firephp',
         ),
     ),

@@ -222,8 +222,7 @@ return array(
             'metadata_manager'          => 'Vivo\Service\MetadataManagerFactory',
             'lookup_data_manager'       => 'Vivo\LookupData\LookupDataManagerFactory',
             'redirector'                => 'Vivo\Util\RedirectorFactory',
-            'logger'                    => 'Vivo\Service\LoggerFactory',
-            'default_log'               => 'Vivo\Service\LogFileWriterFactory',
+            'logger'                    => 'Vivo\Log\LoggerFactory',
             'template_resolver'         => 'Vivo\Service\TemplateResolverFactory',
             'di_proxy'                  => 'Vivo\Service\DiProxyFactory',
             'module_db_provider'        => 'Vivo\Service\ModuleDbProviderFactory',
@@ -239,6 +238,7 @@ return array(
             'sym_ref_convertor'         => 'Vivo\CMS\RefInt\SymRefConvertorFactory',
             'ref_int_listener'          => 'Vivo\CMS\RefInt\ListenerFactory',
             'mail_simple_renderer'      => 'Vivo\Mail\View\SimpleRendererFactory',
+            'log_writer_plugin_manager' => 'Vivo\Log\WriterPluginManagerFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -332,14 +332,19 @@ return array(
             ),
         ),
         'writers' => array (
-            //writers from writer plugin manager or main service manager
-            'default_log'   => array(
-                'priority'  => 1,
-                'options'   => array(
-                    'log_dir'   => 'C:/work/logs',
-                ),
+//            writers from writer plugin manager
+//            'default_log'   => array(
+//                'priority'  => 1,
+//                'options'   => array(
+//                    'log_dir'   => '',
+//                ),
+//            ),
+//            'firephp'       => array(),
+        ),
+        'writer_plugin_manager' => array(
+            'factories'     => array(
+                'default_log'               => 'Vivo\Log\LogFileWriterFactory',
             ),
-            //'firephp',
         ),
     ),
 

@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Service;
+namespace Vivo\Log;
 
 use Zend\Log\Writer\Stream;
 
@@ -36,8 +36,6 @@ class LogFileWriterFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        \Zend\Debug\Debug::dump($this->options);
-        die('dd');
         if (!$this->options['log_dir']) {
             throw new Exception\ConfigException(sprintf("%s: 'log_dir' option not set", __METHOD__));
         }

@@ -1,9 +1,9 @@
 <?php
-namespace Vivo\Service;
+namespace Vivo\Log;
 
 use Vivo\Log\EventListener;
 
-use Zend\Log\Logger;
+//use Zend\Log\Logger;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
 
@@ -19,14 +19,17 @@ class LoggerFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $logger = new \Vivo\Log\Logger();
+        $writerPluginManager    = $serviceLocator->get('log_writer_plugin_manager');
+        $logger                 = new Logger();
+        $logger->setWriterPluginManager($writerPluginManager);
+
 
         if (defined('REQUEST_START')) {
             $logger->setStart(REQUEST_START);
         }
 
         //add main service manager as peering sm
-        $logger->getWriterPluginManager()->addPeeringServiceManager($serviceLocator);
+        $writerPluginManager->addPeeringServiceManager($serviceLocator);
 
         $config = $serviceLocator->get('config');
         $config = $config['logger'];
@@ -35,6 +38,11 @@ class LoggerFactory implements FactoryInterface
             $logger->addWriter('null');
         } else {
             foreach ($config['writers'] as $writer => $writerConfig) {
+                if (is_int($writer)) {
+                    //No writer config specified, just a writer name (i.e. numeric indices)
+                    $writer         = $writerConfig;
+                    $writerConfig   = array();
+                }
                 if (array_key_exists('priority', $writerConfig)) {
                     $priority   = $writerConfig['priority'];
                 } else {
@@ -51,7 +59,6 @@ class LoggerFactory implements FactoryInterface
             $eventListener = new EventListener($logger, $config['listener']);
             $eventListener->setSharedManager($serviceLocator->get('shared_event_manager'));
         }
-
         return $logger;
     }
 }

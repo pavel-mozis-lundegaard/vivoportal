@@ -213,7 +213,6 @@ return array(
             'zdb_abstract_factory'      => 'Vivo\Service\ZdbAbstractFactoryFactory',
             'path_builder'              => 'Vivo\Service\PathBuilderFactory',
             'component_factory'         => 'Vivo\Service\ComponentFactoryFactory',
-            'phtml_rendering_strategy'  => 'Vivo\Service\PhtmlRenderingStrategyFactory',
             'solr_service'              => 'Vivo\Service\SolrServiceFactory',
             'indexer_adapter'           => 'Vivo\Service\IndexerAdapterFactory',
             'indexer_field_helper'      => 'Vivo\Service\IndexerFieldHelperFactory',

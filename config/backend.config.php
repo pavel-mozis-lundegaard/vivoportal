@@ -141,15 +141,14 @@ return array(
                 'icon'  => '.Vivo.resource/backend/img/icons/24x24/explorer.png',
             ),
         ),
-
-        //Backend modules
-        'modules'       => array(
-            'Bootstrap2_3_0'    => array(
-                'enabled'           => true,
-            ),
-            'TinyMCE3_5_6_Vivo' => array(
-                'enabled'           => true,
-            ),
+    ),
+    //Backend Vivo modules
+    'modules'       => array(
+        'Bootstrap2_3_0'    => array(
+            'enabled'           => true,
+        ),
+        'TinyMCE3_5_6_Vivo' => array(
+            'enabled'           => true,
         ),
     ),
 );

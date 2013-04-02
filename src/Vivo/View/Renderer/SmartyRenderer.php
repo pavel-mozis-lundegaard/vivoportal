@@ -1,7 +1,7 @@
 <?php
 namespace Vivo\View\Renderer;
 
-class PhtmlRenderer //implements Renderer
+class SmartyRenderer //implements Renderer
 {
     //TODO
 }

@@ -49,10 +49,10 @@ class CollectBackendModulesListener implements ListenerAggregateInterface
     public function onCollectModules(SiteEventInterface $e)
     {
         $backendConfig  = $e->getBackendConfig();
-        if ($backendConfig && isset($backendConfig['backend']['modules'])) {
+        if ($backendConfig && isset($backendConfig['modules'])) {
             //Add modules required by backend to the module stack
             $currentModules = $e->getModules();
-            $backendModules = $backendConfig['backend']['modules'];
+            $backendModules = $backendConfig['modules'];
             foreach ($backendModules as $moduleName => $moduleConfig) {
                 if ($moduleConfig['enabled']) {
                     $currentModules[]   = $moduleName;

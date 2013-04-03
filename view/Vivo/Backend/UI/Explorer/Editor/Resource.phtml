@@ -1,7 +1,6 @@
+<ul>
 <? foreach ($resources as $i => $resource) : ?>
-    <?=++$i?>. <?=$resource?> <a href="<?=$this->actionUrl('delete', array('name'=>$resource))?>" title="Delete?">X</a><br>
+    <li><?=++$i?>. <?=$resource?> <a href="<?=$this->actionUrl('delete', array('name'=>$resource))?>" title="Delete?">X</a></li>
 <? endforeach; ?>
-<?php
-$formType       = \DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
-echo $this->formTwb($form, $formType);
-?>
+</ul>
+<? echo $this->formTwb($form, DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL); ?>

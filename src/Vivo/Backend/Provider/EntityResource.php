@@ -20,6 +20,19 @@ class EntityResource extends AbstractLookupDataProvider
             $return[$name] = $name;
         }
 
+        if(isset($propertyMetadata['field_options']['allowed_types'])
+        && count($propertyMetadata['field_options']['allowed_types']))
+        {
+            $allowedTypes = $propertyMetadata['field_options']['allowed_types'];
+
+            foreach ($return as $key => $fileName) {
+                $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                if(!in_array($ext, $allowedTypes)) {
+                    unset($return[$key]);
+                }
+            }
+        }
+
         return $return;
     }
 

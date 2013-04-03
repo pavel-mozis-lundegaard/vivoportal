@@ -90,7 +90,7 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
     {
         $this->sm = $sm;
         $this->metadataManager = $metadataManager;
-        $this->lookupDataManager    = $lookupDataManager;
+        $this->lookupDataManager = $lookupDataManager;
         $this->documentApi = $documentApi;
         $this->availableContentsProvider = $availableContentsProvider;
     }
@@ -133,13 +133,13 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
             catch(\Vivo\Repository\Exception\PathNotSetException $e) {
             }
         }
-        $count = count($containers);
         foreach ($containers as $index => $contentContainer) {
             $contentTab = $this->createContentTab($contentContainer);
             $this->contentTab->addComponent($contentTab, "content_$index");
         }
         if (count($this->availableContents) > 0) {
             $contentTab = $this->createContentTab(new ContentContainer());
+            $count = count($containers);
             $this->contentTab->addComponent($contentTab, "content_$count");
         }
     }

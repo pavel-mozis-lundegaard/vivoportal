@@ -41,5 +41,9 @@ class DefaultInitializer implements InitializerInterface
         if ($instance instanceof SecurityManagerAwareInterface) {
             $instance->setSecurityManager($serviceLocator->get('security_manager'));
         }
+        //Inject input filter factory
+        if ($instance instanceof InputFilterFactoryAwareInterface) {
+            $instance->setInputFilterFactory($serviceLocator->get('input_filter_factory'));
+        }
     }
 }

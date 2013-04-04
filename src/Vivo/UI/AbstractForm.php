@@ -1,6 +1,7 @@
 <?php
 namespace Vivo\UI;
 
+use Vivo\Service\Initializer\InputFilterFactoryAwareInterface;
 use Vivo\Service\Initializer\RequestAwareInterface;
 use Vivo\Service\Initializer\RedirectorAwareInterface;
 use Vivo\Service\Initializer\TranslatorAwareInterface;
@@ -13,6 +14,7 @@ use Zend\Form\Form as ZfForm;
 use Zend\Http\PhpEnvironment\Request;
 use Zend\Stdlib\RequestInterface;
 use Zend\I18n\Translator\Translator;
+use Zend\InputFilter\Factory as InputFilterFactory;
 
 /**
  * Form
@@ -21,7 +23,8 @@ use Zend\I18n\Translator\Translator;
 abstract class AbstractForm extends ComponentContainer implements RequestAwareInterface,
                                                                   RedirectorAwareInterface,
                                                                   EventManagerAwareInterface,
-                                                                  TranslatorAwareInterface
+                                                                  TranslatorAwareInterface,
+                                                                  InputFilterFactoryAwareInterface
 {
     /**
      * @var ZfForm
@@ -67,6 +70,12 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     protected $autoLoadFromRequest  = true;
 
     /**
+     * When set to true, the customized InputFilterFactory will be injected into the form
+     * @var bool
+     */
+    protected $autoInjectInputFilterFactory = true;
+
+    /**
      * TTL for CSRF token
      * Redefine in descendant if necessary
      * @var int|null
@@ -91,6 +100,12 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
      * @var Translator
      */
     protected $translator;
+
+    /**
+     * Input filter factory
+     * @var InputFilterFactory
+     */
+    protected $inputFilterFactory;
 
     public function init()
     {
@@ -119,12 +134,16 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
 
     /**
      * Get ZF form
+     * @throws Exception\InvalidArgumentException
      * @return ZfForm
      */
     protected function getForm()
     {
         if($this->form == null) {
             $this->form = $this->doGetForm();
+            if ($this->autoInjectInputFilterFactory) {
+                $this->injectInputFilterFactory($this->form);
+            }
             if ($this->autoAddCsrf) {
                 //Add CSRF field
                 $formName           = $this->form->getName();
@@ -337,6 +356,16 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     }
 
     /**
+     * Sets the input filter factory
+     * @param InputFilterFactory $inputFilterFactory
+     * @return void
+     */
+    public function setInputFilterFactory(InputFilterFactory $inputFilterFactory)
+    {
+        $this->inputFilterFactory   = $inputFilterFactory;
+    }
+
+    /**
      * Performs validity check on a single form field, returns JSON
      * @return \Zend\View\Model\JsonModel
      */
@@ -358,5 +387,13 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
         return $jsonModel;
     }
 
-
+    /**
+     * Injects input filter factory into the form's form factory
+     * @param ZfForm $form
+     */
+    protected function injectInputFilterFactory(ZfForm $form)
+    {
+        $formFactory    = $form->getFormFactory();
+        $formFactory->setInputFilterFactory($this->inputFilterFactory);
+    }
 }

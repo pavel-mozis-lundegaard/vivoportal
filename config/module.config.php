@@ -238,6 +238,7 @@ return array(
             'ref_int_listener'          => 'Vivo\CMS\RefInt\ListenerFactory',
             'mail_simple_renderer'      => 'Vivo\Mail\View\SimpleRendererFactory',
             'log_writer_plugin_manager' => 'Vivo\Log\WriterPluginManagerFactory',
+            'input_filter_factory'      => 'Vivo\InputFilter\InputFilterFactoryFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -250,8 +251,9 @@ return array(
             'Zend\Session\SessionManager'       => 'session_manager',
         ),
         'shared' => array(
-            'view_model' => false,
+            'view_model'                => false,
             'component_tree_controller' => false,
+            'input_filter_factory'      => false,
         ),
         'initializers' => array(
             'component' => 'Vivo\Service\Initializer\ComponentInitializer',
@@ -316,7 +318,11 @@ return array(
             'cms'               => 'Vivo\View\Helper\CmsFactory',
         ),
     ),
-
+    'validators'    => array(
+        'factories' => array(
+            'conditional'   => 'Vivo\Validator\ConditionalFactory',
+        ),
+    ),
     'di' => array(
     ),
     'metadata_manager' => array(

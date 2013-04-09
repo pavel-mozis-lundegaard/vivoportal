@@ -1,42 +1,27 @@
+<?$doc = $this->cms('requestedDocument');?>
 <?php
 	foreach ($links as $link) {
-	    $this->headLink()->append($link);
+	    $this->headLink()->prepend($link);
 	}
-
 	foreach ($scripts as $script) {
 	    $this->headScript()->prepend($script);
 	}
-	?><?=$this->doctype($doctype);?>
-
+	?>
+	<?=$this->doctype($doctype);?>
+<html>
 	<head>
-
-<base href="<?php echo $this->basePath(); ?>/" />
-	<? foreach ($metas as $element): ?>
-	<meta<? foreach ($element as $name => $value) echo " $name=\"".htmlspecialchars($value).'"' ?> />
-	<? endforeach ?>
-
-	<?= $this->headLink()?>
-
-    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-      <script src="<?= $this->resource('js/html5.js','Vivo')?>"></script>
-    <![endif]-->
-
+		<? foreach ($metas as $element): ?>
+		<meta<? foreach ($element as $name => $value) echo " $name=\"".htmlspecialchars($value).'"' ?> />
+		<? endforeach ?>
+		<title><?= htmlspecialchars($doc->getTitle())?></title>
+		<base href="<?php echo $this->basePath(); ?>/" />
+		<?= $this->headLink()?>
+	  <!--[if lt IE 9]>
+	    <script src="<?= $this->resource('js/html5.js','Vivo')?>"></script>
+	  <![endif]-->
   </head>
-
   <body>
-
     <?=$main?>
-
-    <!-- Le javascript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <?=
-        $this->headScript()
-    ?>
-    <script src="<?= $this->resource('js/swiper/1.8.5/idangerous.swiper.js','Vivo')?>"></script>
-    <script src="<?= $this->resource('js/front-Overview.CarouselTouch.js','Vivo')?>"></script>
-
-
+    <?= $this->headScript()?>
   </body>
 </html>

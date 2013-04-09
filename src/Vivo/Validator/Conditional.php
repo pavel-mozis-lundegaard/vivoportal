@@ -1,6 +1,9 @@
 <?php
 namespace Vivo\Validator;
 
+use Vivo\InputFilter\Condition\ConditionAwareInterface;
+use Vivo\Service\Initializer\InputFilterFactoryAwareInterface;
+
 use Zend\InputFilter\Factory as InputFilterFactory;
 use Zend\Stdlib\ArrayUtils;
 use Zend\Validator\AbstractValidator;
@@ -12,30 +15,25 @@ use Traversable;
  * Validates conditionally
  * @package Vivo\validator
  */
-class Conditional extends AbstractValidator
+class Conditional extends AbstractValidator implements ConditionAwareInterface, InputFilterFactoryAwareInterface
 {
+    /**
+     * Default value of the condition - used when the condition is not set
+     * @var boolean
+     */
+    protected $defaultConditionValue    = true;
+
+    /**
+     * Value of the condition
+     * @var boolean
+     */
+    private $conditionValue;
+
     /**
      * Input filter factory
      * @var InputFilterFactory
      */
     protected $inputFilterFactory;
-
-    /**
-     * Name of the field on which the condition is based
-     * Ex. array('firstName'): The condition is based on the 'firstName' field
-     * Ex. array('address', 'street'): The condition is based on the 'street' field which is
-     * present in the 'address' fieldset (multiple nested fieldset may be specified in this manner)
-     * @var array
-     */
-    protected $condField;
-
-    /**
-     * Input configuration used for the cond field
-     * Input applied to the cond field
-     * The actual validation will either be or not be performed based on the validation result of this input
-     * @var array
-     */
-    protected $condInputConfig      = array();
 
     /**
      * Perform validation when the validation of the cond field input returns this value
@@ -71,21 +69,7 @@ class Conditional extends AbstractValidator
     public function isValid($value, $context = null)
     {
         $this->setValue($value);
-        if (!is_array($context)) {
-            throw new Exception\InvalidArgumentException(sprintf("%s: Context must be an array", __METHOD__));
-        }
-        $data       = $context;
-        $condField  = $this->getCondField();
-        while ($name = array_shift($condField)) {
-            if (!array_key_exists($name, $data)) {
-                throw new Exception\RuntimeException(
-                    sprintf("%s: The cond field part '%s' is missing in context", __METHOD__, $name));
-            }
-            $data   = $data[$name];
-        }
-        $condFieldInput = $this->inputFilterFactory->createInput($this->getCondInputConfig());
-        $condFieldInput->setValue($data);
-        if ($condFieldInput->isValid($context) === $this->getValidateWhenCondIs()) {
+        if ($this->getConditionValue() === $this->getValidateWhenCondIs()) {
             //Perform validation
             $input  = $this->inputFilterFactory->createInput($this->getInputConfig());
             $input->setValue($value);
@@ -108,59 +92,6 @@ class Conditional extends AbstractValidator
     public function setInputFilterFactory(InputFilterFactory $inputFilterFactory)
     {
         $this->inputFilterFactory   = $inputFilterFactory;
-    }
-
-    /**
-     * Sets conditional field
-     * @param string|array $condField
-     * @throws Exception\ConfigException
-     */
-    public function setCondField($condField)
-    {
-        if (is_string($condField)) {
-            $condField  = array($condField);
-        }
-        if (!is_array($condField)) {
-            //Unsupported cond field format
-            throw new Exception\ConfigException(
-                sprintf("%s: Cond field must be either a string or an array", __METHOD__));
-        }
-        $this->condField    = $condField;
-    }
-
-    /**
-     * Returns the conditional field
-     * @return array
-     */
-    public function getCondField()
-    {
-        return $this->condField;
-    }
-
-    /**
-     * Sets cond field input configuration
-     * @param array|Traversable $condInputConfig
-     * @throws Exception\InvalidArgumentException
-     */
-    public function setCondInputConfig($condInputConfig)
-    {
-        if ($condInputConfig instanceof Traversable) {
-            $condInputConfig = ArrayUtils::iteratorToArray($condInputConfig);
-        }
-        if (!is_array($condInputConfig)) {
-            throw new Exception\InvalidArgumentException(
-                sprintf("%s: Cond input config must be either an array or Traversable", __METHOD__));
-        }
-        $this->condInputConfig = $condInputConfig;
-    }
-
-    /**
-     * Returns cond field input configuration
-     * @return array
-     */
-    public function getCondInputConfig()
-    {
-        return $this->condInputConfig;
     }
 
     /**
@@ -204,5 +135,45 @@ class Conditional extends AbstractValidator
     public function getInputConfig()
     {
         return $this->inputConfig;
+    }
+
+    /**
+     * Returns the current condition value
+     * @return bool
+     */
+    public function getConditionValue()
+    {
+        if (is_null($this->conditionValue)) {
+            $this->conditionValue   = $this->defaultConditionValue;
+        }
+        return $this->conditionValue;
+    }
+
+    /**
+     * Sets the current value of the condition
+     * @param bool $condition
+     * @return void
+     */
+    public function setConditionValue($condition)
+    {
+        $this->conditionValue   = (bool) $condition;
+    }
+
+    /**
+     * Sets the default condition value
+     * @param boolean $defaultConditionValue
+     */
+    public function setDefaultConditionValue($defaultConditionValue)
+    {
+        $this->defaultConditionValue = (bool) $defaultConditionValue;
+    }
+
+    /**
+     * Returns the default condition value
+     * @return boolean
+     */
+    public function getDefaultConditionValue()
+    {
+        return $this->defaultConditionValue;
     }
 }

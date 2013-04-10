@@ -73,27 +73,7 @@ class Factory extends ZfInputFilterFactory
         }
         $inputFilter = new $class();
 
-        //Add conditions to the input filter and remove the conditions definition from the input filter specification
-        if (($inputFilter instanceof VivoInputFilter) && (isset($inputFilterSpecification[$this->conditionsKey]))) {
-            foreach ($inputFilterSpecification[$this->conditionsKey] as $condition) {
-                if (is_array($condition)) {
-                    $name   = $condition['name'];
-                    if (isset($condition['options'])) {
-                        $options    = $condition['options'];
-                    } else {
-                        $options    = null;
-                    }
-                    /** @var $newCondition ConditionInterface */
-                    $condition  = $this->conditionPluginManager->get($name, $options);
-                }
-                if (!$condition instanceof ConditionInterface) {
-                    throw new Exception\ConfigException(
-                        sprintf("%s: Condition must be either a ConditionInterface object or an array", __METHOD__));
-                }
-                $inputFilter->addCondition($condition);
-            }
-            unset($inputFilterSpecification[$this->conditionsKey]);
-        }
+        $this->addConditionsFromSpecification($inputFilter, $inputFilterSpecification);
 
         if (!$inputFilter instanceof InputFilterInterface) {
             throw new Exception\RuntimeException(sprintf(
@@ -114,6 +94,40 @@ class Factory extends ZfInputFilterFactory
             $inputFilter->add($input, $key);
         }
 
+        return $inputFilter;
+    }
+
+    /**
+     * Adds conditions to the input filter and removes the conditions definition from the input filter specification
+     * @param InputFilterInterface $inputFilter
+     * @param array $inputFilterSpecification
+     * @return VivoInputFilter|InputFilterInterface
+     * @throws Exception\ConfigException
+     */
+    public function addConditionsFromSpecification(InputFilterInterface $inputFilter, array &$inputFilterSpecification)
+    {
+        if (isset($inputFilterSpecification[$this->conditionsKey])) {
+            if ($inputFilter instanceof VivoInputFilter) {
+                foreach ($inputFilterSpecification[$this->conditionsKey] as $condition) {
+                    if (is_array($condition)) {
+                        $name   = $condition['name'];
+                        if (isset($condition['options'])) {
+                            $options    = $condition['options'];
+                        } else {
+                            $options    = null;
+                        }
+                        /** @var $newCondition ConditionInterface */
+                        $condition  = $this->conditionPluginManager->get($name, $options);
+                    }
+                    if (!$condition instanceof ConditionInterface) {
+                        throw new Exception\ConfigException(
+                            sprintf("%s: Condition must be either a ConditionInterface object or an array", __METHOD__));
+                    }
+                    $inputFilter->addCondition($condition);
+                }
+            }
+            unset($inputFilterSpecification[$this->conditionsKey]);
+        }
         return $inputFilter;
     }
 }

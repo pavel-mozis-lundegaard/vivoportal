@@ -240,6 +240,7 @@ return array(
             'log_writer_plugin_manager' => 'Vivo\Log\WriterPluginManagerFactory',
             'input_filter_factory'      => 'Vivo\InputFilter\InputFilterFactoryFactory',
             'input_filter_conditions'   => 'Vivo\InputFilter\Condition\ConditionPluginManagerFactory',
+            'form_factory'              => 'Vivo\Form\FactoryFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',

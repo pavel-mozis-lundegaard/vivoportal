@@ -22,7 +22,9 @@ class InputFilterFactoryFactory implements FactoryInterface
         $defaultFilterChain     = new \Zend\Filter\FilterChain();
         $defaultFilterChain->setPluginManager($filterPluginManager);
 
-        $inputFilterFactory     = new \Zend\InputFilter\Factory();
+        $conditionPluginManager = $serviceLocator->get('input_filter_conditions');
+
+        $inputFilterFactory     = new Factory($conditionPluginManager);
         $inputFilterFactory->setDefaultValidatorChain($defaultValidatorChain);
         $inputFilterFactory->setDefaultFilterChain($defaultFilterChain);
         return $inputFilterFactory;

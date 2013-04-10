@@ -239,6 +239,7 @@ return array(
             'mail_simple_renderer'      => 'Vivo\Mail\View\SimpleRendererFactory',
             'log_writer_plugin_manager' => 'Vivo\Log\WriterPluginManagerFactory',
             'input_filter_factory'      => 'Vivo\InputFilter\InputFilterFactoryFactory',
+            'input_filter_conditions'   => 'Vivo\InputFilter\Condition\ConditionPluginManagerFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -319,8 +320,22 @@ return array(
         ),
     ),
     'validators'    => array(
-        'factories' => array(
-            'conditional'   => 'Vivo\Validator\ConditionalFactory',
+        'invokables' => array(
+            'conditional'   => 'Vivo\Validator\Conditional',
+        ),
+        'initializers'      => array(
+            'validator_initializer'     => 'Vivo\Validator\Initializer',
+        ),
+    ),
+    //Input filter conditions plugin manager config
+    'input_filter_conditions'   => array(
+        'invokables'    => array(
+            'input'         => 'Vivo\InputFilter\Condition\Input',
+            'notEmpty'      => 'Vivo\InputFilter\Condition\NotEmpty',
+            'equals'        => 'Vivo\InputFilter\Condition\Equals',
+        ),
+        'initializers'  => array(
+            'condition_initializer' => 'Vivo\InputFilter\Condition\Initializer',
         ),
     ),
     'di' => array(

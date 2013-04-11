@@ -35,11 +35,14 @@ return array(
             'Vivo\UI\Ribbon\Group'              => __DIR__.'/../view/Vivo/UI/Ribbon/Group.phtml',
             'Vivo\UI\Ribbon\Item'               => __DIR__.'/../view/Vivo/UI/Ribbon/Item.phtml',
             'Vivo\UI\Alert'                     => __DIR__.'/../view/Vivo/UI/Alert.phtml',
+            'Vivo\CMS\UI\Content\Navigation'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Navigation.phtml',
+            'Vivo\CMS\UI\Content\Navigation:Breadcrumbs'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Navigation.Breadcrumbs.phtml',
 
             'Vivo\CMS\UI\Content\Editor\Editor'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Editor.phtml',
             'Vivo\CMS\UI\Content\Editor\File'      => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File.phtml',
             'Vivo\CMS\UI\Content\Editor\Layout'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Layout.phtml',
             'Vivo\CMS\UI\Content\Editor\Overview'  => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Overview.phtml',
+            'Vivo\CMS\UI\Content\Editor\Navigation' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Navigation.phtml',
         ),
         'custom_templates' => array (
             // custom selectable templates
@@ -57,6 +60,10 @@ return array(
                 'Vivo\CMS\UI\Content\Overview:ThumbDesc',
                 'Vivo\CMS\UI\Content\Overview:CarouselTouch'
             ),
+            'Vivo\CMS\Model\Content\Navigation'    => array(
+                'Vivo\CMS\UI\Content\Navigation',
+                'Vivo\CMS\UI\Content\Navigation:Breadcrumbs',
+            ),
         ),
     ),
     'component_mapping' => array (
@@ -67,6 +74,7 @@ return array(
             'Vivo\CMS\Model\Content\Overview'   => 'Vivo\CMS\UI\Content\Overview',
             'Vivo\CMS\Model\Content\Hyperlink'  => 'Vivo\CMS\UI\Content\Hyperlink',
             'Vivo\CMS\Model\Content\Logon'      => 'Vivo\CMS\UI\Content\Logon',
+            'Vivo\CMS\Model\Content\Navigation' => 'Vivo\CMS\UI\Content\Navigation',
         ),
         'editor_component' => array (
             'Vivo\CMS\Model\Content\Component'  => 'Vivo\CMS\UI\Content\Editor\Editor',
@@ -75,6 +83,7 @@ return array(
             'Vivo\CMS\Model\Content\Layout'     => 'Vivo\CMS\UI\Content\Editor\Layout',
             'Vivo\CMS\Model\Content\Link'       => 'Vivo\CMS\UI\Content\Editor\Editor',
             'Vivo\CMS\Model\Content\Hyperlink'  => 'Vivo\CMS\UI\Content\Editor\Editor',
+            'Vivo\CMS\Model\Content\Navigation' => 'Vivo\CMS\UI\Content\Editor\Navigation',
         ),
     ),
     'contents' => array (
@@ -85,6 +94,7 @@ return array(
             'Vivo\CMS\Model\Content\Hyperlink',
             'Vivo\CMS\Model\Content\Component',
             'Vivo\CMS\Model\Content\Layout',
+            'Vivo\CMS\Model\Content\Navigation',
         ),
         'restrictions' => array (
             'document_type' => array (
@@ -160,6 +170,7 @@ return array(
             'Vivo\CMS\UI\Content\Layout'    => 'Vivo\CMS\UI\Content\LayoutFactory',
             'Vivo\CMS\UI\Content\Overview'  => 'Vivo\CMS\UI\Content\OverviewFactory',
             'Vivo\CMS\UI\Content\Logon'     => 'Vivo\CMS\UI\Content\LogonFactory',
+            'Vivo\CMS\UI\Content\Navigation'=> 'Vivo\CMS\UI\Content\NavigationFactory',
             'Vivo\UI\Page'                  => 'Vivo\Service\UI\PageFactory',
             'Vivo\UI\Alert'                 => 'Vivo\UI\AlertFactory',
             'security_manager'              => 'Vivo\Service\SimpleSecurityManagerFactory',
@@ -189,6 +200,7 @@ return array(
             'Vivo\CMS\UI\Content\Editor\File'     => 'Vivo\CMS\UI\Content\Editor\FileFactory',
             'Vivo\CMS\UI\Content\Editor\Overview' => 'Vivo\CMS\UI\Content\Editor\OverviewFactory',
             'Vivo\CMS\UI\Content\Editor\Layout'   => 'Vivo\CMS\UI\Content\Editor\LayoutFactory',
+            'Vivo\CMS\UI\Content\Editor\Navigation' => 'Vivo\CMS\UI\Content\Editor\NavigationFactory',
         ),
         'aliases' => array(
         ),

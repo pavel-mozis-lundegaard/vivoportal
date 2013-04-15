@@ -74,7 +74,6 @@ class Navigation extends Component
     public function view()
     {
         $navigation = $this->getNavigation();
-        $this->getView()->testVar       = 'FooBar';
         $this->getView()->navigation    = $navigation;
         return parent::view();
     }
@@ -101,6 +100,9 @@ class Navigation extends Component
                     break;
                 case NavigationModel::TYPE_ENUM:
                     $documents  = $this->navModel->getEnumeratedDocs();
+                    break;
+                case NavigationModel::TYPE_BREADCRUMBS:
+                    $documents  = $this->getActiveDocuments($this->navModel->getRoot(), $this->navModel->includeRoot());
                     break;
                 default:
                     throw new Exception\DomainException(
@@ -150,6 +152,39 @@ class Navigation extends Component
                     ),
                 );
             }
+        }
+        return $docArray;
+    }
+
+    /**
+     * Builds document array only from documents on the active path
+     * @param string $rootDocPath
+     * @param bool $includeRoot
+     * @return array
+     */
+    protected function getActiveDocuments($rootDocPath, $includeRoot = false)
+    {
+        $currentDoc = $this->cmsEvent->getDocument();
+        $doc        = $currentDoc;
+        $docArray   = array();
+        while ($doc) {
+            $docPath    = $this->cmsApi->getEntityRelPath($doc);
+            if (($docPath != $rootDocPath) || $includeRoot) {
+                $rec    = array(
+                    'doc_path'  => $docPath,
+                    'children'  => $docArray,
+                );
+                $docArray   = array($rec);
+            }
+            if ($docPath == $rootDocPath) {
+                break;
+            }
+            if ($docPath == '/') {
+                //We arrived at root without finding the $rootDocPath => the $rootDocPath is not on the active doc path
+                $docArray   = array();
+                break;
+            }
+            $doc        = $this->documentApi->getParentDocument($doc);
         }
         return $docArray;
     }

@@ -25,10 +25,20 @@ class Navigation extends AbstractForm implements EditorInterface
      */
     private $documentApi;
 
+    /**
+     * When set to true, CSRF protection will be automatically added to the form
+     * Redefine in descendant if necessary
+     * @var bool
+     */
+    protected $autoAddCsrf  = false;
+
+    /**
+     * Constructor
+     * @param Api\Document $documentApi
+     */
     public function __construct(Api\Document $documentApi)
     {
         $this->documentApi = $documentApi;
-        $this->autoAddCsrf = false;
     }
 
     public function setContent(Model\Content $content)
@@ -68,9 +78,10 @@ class Navigation extends AbstractForm implements EditorInterface
             'options' => array(
                 'label' => 'Type',
                 'value_options' => array(
-                    NavigationModel::TYPE_ROOT      => 'Arbitrary root document',
-                    NavigationModel::TYPE_RQ_DOC    => 'Requested document',
-                    NavigationModel::TYPE_ENUM      => 'Enumerated documents',
+                    NavigationModel::TYPE_ROOT          => 'Arbitrary root document',
+                    NavigationModel::TYPE_RQ_DOC        => 'Requested document',
+                    NavigationModel::TYPE_BREADCRUMBS   => 'Breadcrumbs',
+                    NavigationModel::TYPE_ENUM          => 'Enumerated documents',
                 ),
             ),
         ));

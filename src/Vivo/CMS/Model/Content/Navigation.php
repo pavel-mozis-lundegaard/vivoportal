@@ -14,19 +14,26 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
      * Navigation type ROOT
      * Navigation tree starting at explicitly specified root path ($this->root)
      */
-    const TYPE_ROOT     = 'type_root';
+    const TYPE_ROOT         = 'type_root';
 
     /**
      * Navigation type REQUESTED DOC
      * Navigation tree starting at the currently requested document
      */
-    const TYPE_RQ_DOC   = 'type_rq_doc';
+    const TYPE_RQ_DOC       = 'type_rq_doc';
 
     /**
      * Navigation type ENUM
      * Explicitly named documents will be included in the navigation container
      */
-    const TYPE_ENUM = 'type_enum';
+    const TYPE_ENUM         = 'type_enum';
+
+    /**
+     * Navigation type BREADCRUMBS
+     * Only documents along the active path will be added to the navigation container
+     * Use this navigation type only with breadcrumbs templates
+     */
+    const TYPE_BREADCRUMBS  = 'type_breadcrumbs';
 
     /**
      * Array of supported navigation types
@@ -36,6 +43,7 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
         self::TYPE_ROOT,
         self::TYPE_RQ_DOC,
         self::TYPE_ENUM,
+        self::TYPE_BREADCRUMBS,
     );
 
     /**

@@ -1,0 +1,31 @@
+<? if ($this->showPaginator) : ?>
+<div class="paginator">
+	<? if ($this->isFirst): ?>
+		<span class="button">&laquo; <Messages::get(__NAMESPACE__.'\Paginator\previous')></span>
+	<? else: ?>
+		<a href="<?= $this->url(); ?>?<?= $this->prevPageQueryString; ?>">&laquo; <Messages::get(__NAMESPACE__.'\Paginator\previous')></a>
+
+		<!-- <?= $this->translate(__NAMESPACE__.'\Paginator\previous'); ?> -->
+
+
+	<? endif; ?>
+
+	<? foreach ($steps as $step => $queryString): ?>
+	<? if ($lastStep && $lastStep + 1 < $step): ?>
+		<span>&hellip;</span>
+	<? endif; ?>
+	<? if ($step == $this->page): ?>
+		<span class="current"><?= $step ?></span>
+	<? else: ?>
+		<a href="<?= $this->url(); ?>?<?= $queryString; ?>"><?= $step ?></a>
+	<? endif; ?>
+	<? $lastStep = $step; ?>
+	<? endforeach; ?>
+
+	<? if ($this->isLast): ?>
+		<span class="button"><Messages::get(__NAMESPACE__.'\Paginator\next')> &raquo;</span>
+	<? else: ?>
+		<a href="<?= $this->url(); ?>?<?= $this->nextPageQueryString ?>"><Messages::get(__NAMESPACE__.'\Paginator\next')> &raquo;</a>
+	<? endif; ?>
+</div>
+<? endif; ?>

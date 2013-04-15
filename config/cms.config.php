@@ -37,6 +37,7 @@ return array(
             'Vivo\UI\Alert'                     => __DIR__.'/../view/Vivo/UI/Alert.phtml',
             'Vivo\CMS\UI\Content\Navigation'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Navigation.phtml',
             'Vivo\CMS\UI\Content\Navigation:Breadcrumbs'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Navigation.Breadcrumbs.phtml',
+            'Vivo\UI\Paginator'                 => __DIR__.'/../view/Vivo/UI/Paginator.phtml',
 
             'Vivo\CMS\UI\Content\Editor\Editor'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Editor.phtml',
             'Vivo\CMS\UI\Content\Editor\File'      => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File.phtml',
@@ -174,6 +175,7 @@ return array(
             'Vivo\UI\Page'                  => 'Vivo\Service\UI\PageFactory',
             'Vivo\UI\Alert'                 => 'Vivo\UI\AlertFactory',
             'security_manager'              => 'Vivo\Service\SimpleSecurityManagerFactory',
+            'Vivo\UI\Paginator'                 => 'Vivo\UI\PaginatorFactory',
 //            'security_manager'              => 'Vivo\Service\DbSecurityManagerFactory',
 
             //backend

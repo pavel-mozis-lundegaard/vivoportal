@@ -257,6 +257,12 @@ return array(
                         'type' => 'text/css',
                         'media' => 'screen'
                     ),
+                    'print_css'     => array(
+                        'rel'  => 'stylesheet',
+                        'href' => '/.Vivo.resource/css/print.css',
+                        'type' => 'text/css',
+                        'media' => 'print'
+                    ),
                 ),
                 'scripts' => array (
                     /*array(

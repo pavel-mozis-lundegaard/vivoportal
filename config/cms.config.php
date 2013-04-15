@@ -228,12 +228,6 @@ return array(
         'Vivo\UI\Page' => array (
             'doctype' => 'HTML5',
                 'links' => array (
-                    'front_css'     => array(
-                        'rel'  => 'stylesheet',
-                        'href' => '/.Vivo.resource/css/front.css',
-                        'type' => 'text/css',
-                        'media' => 'screen'
-                    ),
                     'apple_touch_icon_144'  => array(
                         'rel'  => 'apple-touch-icon-precomposed',
                         'sizes' => '144x144',
@@ -256,6 +250,12 @@ return array(
                     'favicon'       => array(
                         'rel'  => 'shortcut icon',
                         'href' => '/.Vivo.resource/favicon.ico'
+                    ),
+                    'front_css'     => array(
+                        'rel'  => 'stylesheet',
+                        'href' => '/.Vivo.resource/css/front.css',
+                        'type' => 'text/css',
+                        'media' => 'screen'
                     ),
                 ),
                 'scripts' => array (

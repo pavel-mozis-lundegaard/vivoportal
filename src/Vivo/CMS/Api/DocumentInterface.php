@@ -118,7 +118,7 @@ interface DocumentInterface
 
     /**
      * Returns child documents.
-     * @param Model\Document $document
+     * @param \Vivo\CMS\Model\Folder $document
      * @return Model\Document[]
      */
     public function getChildDocuments(Model\Folder $document);
@@ -147,4 +147,16 @@ interface DocumentInterface
      * @return array
      */
     public function getAvailableLanguages();
+
+    /**
+     * Returns an array of documents on the branch from $rootPath to $document
+     * If root path is not on the branch, returns an empty array
+     * @param \Vivo\CMS\Model\Document $leaf
+     * @param string $rootPath
+     * @param bool $includeRoot
+     * @param bool $includeLeaf
+     * @return Model\Document[]
+     */
+    public function getDocumentsOnBranch(Model\Document $leaf, $rootPath = '/', $includeRoot = true,
+                                         $includeLeaf = true);
 }

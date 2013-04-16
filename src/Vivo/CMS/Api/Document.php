@@ -1,6 +1,7 @@
 <?php
 namespace Vivo\CMS\Api;
 
+use Vivo\CMS\Model\Document as Document0;
 use Vivo\Repository\RepositoryInterface;
 use Vivo\Repository\Exception\EntityNotFoundException;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
@@ -626,5 +627,39 @@ class Document implements DocumentInterface
     public function getAvailableLanguages()
     {
         return $this->options['languages'];
+    }
+
+    /**
+     * Returns an array of documents on the branch from $rootPath to $document
+     * If root path is not on the branch, returns an empty array
+     * @param \Vivo\CMS\Model\Document $leaf
+     * @param string $rootPath
+     * @param bool $includeRoot
+     * @param bool $includeLeaf
+     * @return Model\Document[]
+     */
+    public function getDocumentsOnBranch(Model\Document $leaf, $rootPath = '/', $includeRoot = true,
+                                         $includeLeaf = true)
+    {
+        $leafPath   = $this->cmsApi->getEntityRelPath($leaf);
+        $doc        = $leaf;
+        $docs       = array();
+        while ($doc) {
+            $docPath    = $this->cmsApi->getEntityRelPath($doc);
+            if (($includeRoot || ($docPath != $rootPath))
+                && ($includeLeaf || ($docPath != $leafPath))) {
+                array_unshift($docs, $doc);
+            }
+            if ($docPath == $rootPath) {
+                break;
+            }
+            if ($docPath == '/') {
+                //We arrived at site root without finding the $rootPath => the $rootPath is not on the branch
+                $docs   = array();
+                break;
+            }
+            $doc        = $this->getParentDocument($doc);
+        }
+        return $docs;
     }
 }

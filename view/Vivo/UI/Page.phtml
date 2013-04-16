@@ -13,7 +13,7 @@
 		<? foreach ($metas as $element): ?>
 		<meta<? foreach ($element as $name => $value) echo " $name=\"".htmlspecialchars($value).'"' ?> />
 		<? endforeach ?>
-		<title><?= htmlspecialchars($doc->getTitle())?></title>
+		<?php echo $this->vivoHeadTitle($doc) ?>
 		<base href="<?php echo $this->basePath(); ?>/" />
 		<?= $this->headLink()?>
 	  <!--[if lt IE 9]>

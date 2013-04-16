@@ -1,7 +1,6 @@
 <?php
 namespace Vivo\CMS\Api;
 
-use Vivo\CMS\Model\Document as Document0;
 use Vivo\Repository\RepositoryInterface;
 use Vivo\Repository\Exception\EntityNotFoundException;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;

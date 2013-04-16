@@ -318,6 +318,7 @@ return array(
         ),
         'factories' => array(
             'cms'               => 'Vivo\View\Helper\CmsFactory',
+            'vivo_head_title'   => 'Vivo\View\Helper\VivoHeadTitleFactory',
         ),
     ),
     'validators'    => array(

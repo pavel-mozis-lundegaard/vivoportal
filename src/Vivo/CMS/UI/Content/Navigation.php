@@ -157,34 +157,25 @@ class Navigation extends Component
     }
 
     /**
-     * Builds document array only from documents on the active path
+     * Builds document array only from documents on the active branch
      * @param string $rootDocPath
      * @param bool $includeRoot
      * @return array
      */
     protected function getActiveDocuments($rootDocPath, $includeRoot = false)
     {
-        $currentDoc = $this->cmsEvent->getDocument();
-        $doc        = $currentDoc;
-        $docArray   = array();
-        while ($doc) {
+        $currentDoc     = $this->cmsEvent->getDocument();
+        $branchDocs     = $this->documentApi->getDocumentsOnBranch($currentDoc, $rootDocPath, $includeRoot, true);
+        $branchDocsRev  = array_reverse($branchDocs);
+        $docArray       = array();
+        foreach ($branchDocsRev as $doc) {
             $docPath    = $this->cmsApi->getEntityRelPath($doc);
-            if (($docPath != $rootDocPath) || $includeRoot) {
-                $rec    = array(
+            $docArray   = array(
+                array(
                     'doc_path'  => $docPath,
                     'children'  => $docArray,
-                );
-                $docArray   = array($rec);
-            }
-            if ($docPath == $rootDocPath) {
-                break;
-            }
-            if ($docPath == '/') {
-                //We arrived at root without finding the $rootDocPath => the $rootDocPath is not on the active doc path
-                $docArray   = array();
-                break;
-            }
-            $doc        = $this->documentApi->getParentDocument($doc);
+                ),
+            );
         }
         return $docArray;
     }

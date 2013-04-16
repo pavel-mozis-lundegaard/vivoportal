@@ -199,7 +199,8 @@ class Page extends ComponentContainer
         foreach ($this->links as $link) {
             $links[] = (object) $link;
         }
-        $this->view->links = $links;
+        //$this->view->links = $links;
+        $this->view->links = array_reverse($links);
 
         //prepare scripts into HeadScript helper format
         $scripts = array();

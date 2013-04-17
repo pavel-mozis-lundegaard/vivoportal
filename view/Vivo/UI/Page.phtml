@@ -1,7 +1,7 @@
 <?$doc = $this->cms('requestedDocument');?>
 <?php
 	foreach ($links as $link) {
-	    $this->headLink()->prepend($link);
+        $this->headLink()->prepend($link);
 	}
 	foreach ($scripts as $script) {
 	    $this->headScript()->prepend($script);
@@ -21,7 +21,7 @@
 	  <![endif]-->
   </head>
   <body>
-    <?=$main?>
-    <?= $this->headScript()?>
+    <?= $main ?>
+    <?= $this->headScript() ?>
   </body>
 </html>

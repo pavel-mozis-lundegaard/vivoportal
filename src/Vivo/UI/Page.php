@@ -195,22 +195,45 @@ class Page extends ComponentContainer
     protected function prepareView()
     {
         //prepare links into HeadLink helper format
-        $links = array();
+        $maxOffset  = 0;
+        $links      = array();
         foreach ($this->links as $link) {
-            $links[] = (object) $link;
+            if (array_key_exists('offset', $link)) {
+                $offset = $link['offset'];
+                unset($link['offset']);
+                if ($offset > $maxOffset) {
+                    $maxOffset  = $offset;
+                }
+            } else {
+                $maxOffset++;
+                $offset = $maxOffset;
+            }
+            $links[$offset] = (object) $link;
         }
-        //$this->view->links = $links;
+        ksort($links);
         $this->view->links = array_reverse($links);
 
         //prepare scripts into HeadScript helper format
-        $scripts = array();
+        $maxOffset  = 0;
+        $scripts    = array();
         foreach ($this->scripts as $script) {
-            $data             = new \stdClass();
-            $data->type       = $script['type'];
+            if (array_key_exists('offset', $script)) {
+                $offset = $script['offset'];
+                unset($script['offset']);
+                if ($offset > $maxOffset) {
+                    $maxOffset  = $offset;
+                }
+            } else {
+                $maxOffset++;
+                $offset = $maxOffset;
+            }
+            $scriptObj          = new \stdClass();
+            $scriptObj->type    = $script['type'];
             unset($script['type']);
-            $data->attributes = $script;
-            $scripts[] = $data;
+            $scriptObj->attributes = $script;
+            $scripts[$offset]   = $scriptObj;
         }
+        ksort($scripts);
         $this->view->scripts = array_reverse($scripts);
 
         $this->view->metas = $this->metas;

@@ -10,36 +10,43 @@ use Vivo;
 class Paginator extends Component
 {
 	/**
+	 * Total items count
 	 * @var int
 	 */
 	private $itemCount;
 
 	/**
+	 * Items per page
 	 * @var int
 	 */
 	private $itemsPerPage;
 
 	/**
+	 * Number of page
 	 * @var int
 	 */
 	private $page;
 
 	/**
+	 * Page count
 	 * @var int
 	 */
 	private $pageCount;
 
 	/**
+	 * Page param name
 	 * @var string
 	 */
 	private $paramName;
 
 	/**
+	 * Http request
 	 * @var Zend\Http\Request
 	 */
 	private $request;
 
 	/**
+	 * Other parameters in URL
 	 * @var array
 	 */
 	private $params = array();
@@ -159,9 +166,8 @@ class Paginator extends Component
 		$this->pageCount = ceil($this->itemCount/$this->itemsPerPage);
 	}
 
-	/*** setters ***/
-
 	/**
+	 * Sets item count
 	 * @param int $itemCount
 	 */
 	public function setItemCount($itemCount)
@@ -171,6 +177,7 @@ class Paginator extends Component
 	}
 
 	/**
+	 * Sets items per page
 	 * @param int $itemsPerPage
 	 */
 	public function setItemsPerPage($itemsPerPage)
@@ -180,6 +187,7 @@ class Paginator extends Component
 	}
 
 	/**
+	 * sets number of page
 	 * @param int $page
 	 */
 	public function setPage($page)
@@ -188,6 +196,7 @@ class Paginator extends Component
 	}
 
 	/**
+	 * Sets page param name
 	 * @param string $name
 	 */
 	public function setParamName($name)
@@ -195,9 +204,8 @@ class Paginator extends Component
 		$this->paramName = $name;
 	}
 
-	/*** getters ***/
-
 	/**
+	 * gets page number
 	 * @return int
 	 */
 	public function getPage()
@@ -206,6 +214,7 @@ class Paginator extends Component
 	}
 
 	/**
+	 * Returns page index
 	 * @return int
 	 */
 	public function getPageIndex()
@@ -214,6 +223,7 @@ class Paginator extends Component
 	}
 
 	/**
+	 * Returns first page
 	 * @return int
 	 */
 	public function getFirstPage()
@@ -222,6 +232,7 @@ class Paginator extends Component
 	}
 
 	/**
+	 * Returns last page
 	 * @return int
 	 */
 	public function getLastPage()
@@ -230,6 +241,7 @@ class Paginator extends Component
 	}
 
 	/**
+	 * Returns next page
 	 * @return int
 	 */
 	public function getNextPage()
@@ -238,6 +250,7 @@ class Paginator extends Component
 	}
 
 	/**
+	 * Returns previous page
 	 * @return int
 	 */
 	public function getPrevPage()
@@ -246,6 +259,7 @@ class Paginator extends Component
 	}
 
 	/**
+	 * Returns page count
 	 * @return int
 	 */
 	public function getPageCount()
@@ -254,6 +268,7 @@ class Paginator extends Component
 	}
 
 	/**
+	 * Returns item count
 	 * @return int
 	 */
 	public function getItemCount()
@@ -262,6 +277,7 @@ class Paginator extends Component
 	}
 
 	/**
+	 * Returns items per page
 	 * @return int
 	 */
 	public function getItemsPerPage()
@@ -270,6 +286,7 @@ class Paginator extends Component
 	}
 
 	/**
+	 * Retuns offset
 	 * @return int
 	 */
 	public function getOffset()
@@ -278,6 +295,7 @@ class Paginator extends Component
 	}
 
 	/**
+	 * Returns limit
 	 * @return int
 	 */
 	public function getLength()
@@ -307,7 +325,7 @@ class Paginator extends Component
 
 		$stepsWithQueryStrings = array();
 
-		for($i = 0; $i < count($steps); $i++) {
+		for ($i = 0; $i < count($steps); $i++) {
 			$stepsWithQueryStrings[$steps[$i]] = $this->getQueryString($steps[$i]);
 		}
 

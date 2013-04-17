@@ -7,8 +7,8 @@ use Vivo;
 /**
  * Paginator is a componet for pagination.
  */
-class Paginator extends Component {
-
+class Paginator extends Component
+{
 	/**
 	 * @var int
 	 */
@@ -34,6 +34,9 @@ class Paginator extends Component {
 	 */
 	private $paramName;
 
+	/**
+	 * @var Zend\Http\Request
+	 */
 	private $request;
 
 	/**
@@ -41,37 +44,61 @@ class Paginator extends Component {
 	 */
 	private $params = array();
 
-	public function __construct($request) {
+	/**
+	 * Construct Paginator..
+	 * @param Zend\Http\Request $request
+	 */
+	public function __construct($request)
+	{
 		$this->request = $request;
 		$this->itemCount = 0;
 		$this->itemsPerPage = 10;
 		$this->page = 1;
 	}
 
-	public function __set($name, $value) {
+	/**
+	 * Property setter
+	 * @param string $name
+	 * @param string $value
+	 */
+	public function __set($name, $value)
+	{
 		method_exists($this, 'set'.ucfirst($name)) ?
 			$this->{'set'.ucfirst($name)}($value) :
 			parent::__set($name, $value);
 	}
 
-	public function __get($name) {
+	/**
+	 * Property getter
+	 * @param string $name
+	 */
+	public function __get($name)
+	{
 		return method_exists($this, 'get'.ucfirst($name)) ?
 			$this->{'get'.ucfirst($name)}() :
 			parent::__get($name);
 	}
 
-	public function initSetPage() {
-		if ($page = $this->request->getQuery($this->getParamName()))
+	/**
+	 * Sets page parameter from URL
+	 */
+	public function initSetPage()
+	{
+		if ($page = $this->request->getQuery($this->getParamName())) {
 			$this->setPage($page);
+		}
 	}
 
 	/**
 	 * Returns param name
 	 * @return string
 	 */
-	public function getParamName() {
-		if (!$this->paramName)
+	public function getParamName()
+	{
+		if (!$this->paramName) {
 			$this->paramName = 'page'.dechex(crc32($this->getPath()));
+		}
+
 		return $this->paramName;
 	}
 
@@ -80,7 +107,8 @@ class Paginator extends Component {
 	 * @param string $name Param name.
 	 * @param string $value Param value.
 	 */
-	public function addParam($name, $value) {
+	public function addParam($name, $value)
+	{
 		$this->params[$name] = $value;
 	}
 
@@ -89,13 +117,19 @@ class Paginator extends Component {
 	 * @param int $page Page number.
 	 * @param bool $htmlescape
 	 */
-	public function getQueryString($page = null, $htmlescape = true) {
+	public function getQueryString($page = null, $htmlescape = true)
+	{
 		$q = array();
 		$page = max(1, $page === null ? $this->page : (int) $page);
-		if ($page !== 1)
+
+		if ($page !== 1) {
 			$q[] = urlencode($this->getParamName()).'='.urlencode($page);
-		foreach ($this->params as $name=>$value)
+		}
+
+		foreach ($this->params as $name=>$value) {
 			$q[] = urlencode($name).'='.urlencode($value);
+		}
+
 		return implode($htmlescape ? '&amp;' : '&', $q);
 	}
 
@@ -103,7 +137,8 @@ class Paginator extends Component {
 	 * First page.
 	 * @return bool
 	 */
-	public function isFirst() {
+	public function isFirst()
+	{
 		return $this->page == $this->firstPage;
 	}
 
@@ -111,24 +146,26 @@ class Paginator extends Component {
 	 * Last page.
 	 * @return bool
 	 */
-	public function isLast() {
+	public function isLast()
+	{
 		return $this->page == $this->lastPage;
 	}
 
 	/**
 	 * Sets page counts.
 	 */
-	protected function recalculate() {
+	protected function recalculate()
+	{
 		$this->pageCount = ceil($this->itemCount/$this->itemsPerPage);
 	}
-
 
 	/*** setters ***/
 
 	/**
 	 * @param int $itemCount
 	 */
-	public function setItemCount($itemCount) {
+	public function setItemCount($itemCount)
+	{
 		$this->itemCount = max((int)$itemCount,0);
 		$this->recalculate();
 	}
@@ -136,7 +173,8 @@ class Paginator extends Component {
 	/**
 	 * @param int $itemsPerPage
 	 */
-	public function setItemsPerPage($itemsPerPage) {
+	public function setItemsPerPage($itemsPerPage)
+	{
 		$this->itemsPerPage = max((int)$itemsPerPage,1);
 		$this->recalculate();
 	}
@@ -144,14 +182,16 @@ class Paginator extends Component {
 	/**
 	 * @param int $page
 	 */
-	public function setPage($page) {
+	public function setPage($page)
+	{
 		$this->page = max((int)$page,1);
 	}
 
 	/**
 	 * @param string $name
 	 */
-	public function setParamName($name) {
+	public function setParamName($name)
+	{
 		$this->paramName = $name;
 	}
 
@@ -160,92 +200,107 @@ class Paginator extends Component {
 	/**
 	 * @return int
 	 */
-	public function getPage() {
+	public function getPage()
+	{
 		return $this->page;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getPageIndex() {
+	public function getPageIndex()
+	{
 		return $this->page-1;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getFirstPage() {
+	public function getFirstPage()
+	{
 		return 1;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getLastPage() {
+	public function getLastPage()
+	{
 		return $this->firstPage + $this->pageCount - 1;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getNextPage() {
+	public function getNextPage()
+	{
 		return $this->page < $this->lastPage ? $this->page+1 : $this->page;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getPrevPage() {
+	public function getPrevPage()
+	{
 		return $this->page > $this->firstPage ? $this->page-1 : $this->page;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getPageCount() {
+	public function getPageCount()
+	{
 		return $this->pageCount;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getItemCount() {
+	public function getItemCount()
+	{
 		return $this->itemCount;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getItemsPerPage() {
+	public function getItemsPerPage()
+	{
 		return $this->itemsPerPage;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getOffset() {
+	public function getOffset()
+	{
 		return ($this->page-1)*$this->itemsPerPage;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getLength() {
+	public function getLength()
+	{
 		return min($this->itemsPerPage, $this->itemCount-$this->offset);
 	}
 
-	private function prepareView() {
-
+	/**
+	 * Prepares View properties
+	 */
+	private function prepareView()
+	{
 		if ($this->pageCount < 2) {
 			$steps = array($this->page);
-		}
-		else {
+		} else {
 			$arr = range(max($this->firstPage, $this->page - 3), min($this->lastPage, $this->page + 3));
 			$count = 4;
 			$quotient = ($this->pageCount - 1) / $count;
+
 			for ($i = 0; $i <= $count; $i++) {
 				$arr[] = round($quotient * $i) + $this->firstPage;
 			}
+
 			sort($arr);
 			$steps = array_values(array_unique($arr));
 		}
@@ -263,13 +318,15 @@ class Paginator extends Component {
 		$this->getView()->nextPageQueryString = $this->getQueryString($this->getNextPage());
 		$this->getView()->prevPageQueryString = $this->getQueryString($this->getPrevPage());
 		$this->getView()->showPaginator = ($this->pageCount > 1);
-
 	}
 
-	public function view() {
-
+	/**
+	 * (non-PHPdoc)
+	 * @see Vivo\UI.Component::view()
+	 */
+	public function view()
+	{
 		$this->prepareView();
-
 		return parent::view();
 	}
 }

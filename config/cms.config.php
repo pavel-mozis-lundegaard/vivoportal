@@ -228,48 +228,49 @@ return array(
         'Vivo\UI\Page' => array (
             'doctype' => 'HTML5',
                 'links' => array (
-                    'apple_touch_icon_144'  => array(
+                    'apple_touch_icon_57'   => array(
                         'rel'  => 'apple-touch-icon-precomposed',
-                        'sizes' => '144x144',
-                        'href' => '/.Vivo.resource/apple-touch-icon-144.png'
-                    ),
-                    'apple_touch_icon_114'  => array(
-                        'rel'  => 'apple-touch-icon-precomposed',
-                        'sizes' => '114x114',
-                        'href' => '/.Vivo.resource/apple-touch-icon-114.png'
+                        'href' => '/.Vivo.resource/apple-touch-icon-57.png',
                     ),
                     'apple_touch_icon_72'   => array(
                         'rel'  => 'apple-touch-icon-precomposed',
                         'sizes' => '72x72',
-                        'href' => '/.Vivo.resource/apple-touch-icon-72.png'
+                        'href' => '/.Vivo.resource/apple-touch-icon-72.png',
                     ),
-                    'apple_touch_icon_57'   => array(
+                    'apple_touch_icon_114'  => array(
                         'rel'  => 'apple-touch-icon-precomposed',
-                        'href' => '/.Vivo.resource/apple-touch-icon-57.png'
+                        'sizes' => '114x114',
+                        'href' => '/.Vivo.resource/apple-touch-icon-114.png',
+                    ),
+                    'apple_touch_icon_144'  => array(
+                        'rel'  => 'apple-touch-icon-precomposed',
+                        'sizes' => '144x144',
+                        'href' => '/.Vivo.resource/apple-touch-icon-144.png',
                     ),
                     'favicon'       => array(
                         'rel'  => 'shortcut icon',
-                        'href' => '/.Vivo.resource/favicon.ico'
-                    ),
-                    'front_css'     => array(
-                        'rel'  => 'stylesheet',
-                        'href' => '/.Vivo.resource/css/front.css',
-                        'type' => 'text/css',
-                        'media' => 'screen'
+                        'href' => '/.Vivo.resource/favicon.ico',
                     ),
                     'print_css'     => array(
                         'rel'  => 'stylesheet',
                         'href' => '/.Vivo.resource/css/print.css',
                         'type' => 'text/css',
-                        'media' => 'print'
+                        'media' => 'print',
+                    ),
+                    'front_css'     => array(
+                        'rel'  => 'stylesheet',
+                        'href' => '/.Vivo.resource/css/front.css',
+                        'type' => 'text/css',
+                        'media' => 'screen',
+                        //'offset'    => 10000,
                     ),
                 ),
                 'scripts' => array (
-                    /*array(
-                        'src' => '/.Vivo.resource/js/jquery/1-9-1/jquery.js',
-                        'type' => 'text/javascript',
-                    ),
-                    */
+//                    'script1'    => array(
+//                        'src' => '/.Vivo.resource/js/...',
+//                        'type' => 'text/javascript',
+//                        'offset'    => 1000,
+//                    ),
                 ),
             'metas' => array (
                     array (

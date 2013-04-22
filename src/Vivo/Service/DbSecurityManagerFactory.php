@@ -24,7 +24,12 @@ class DbSecurityManagerFactory implements FactoryInterface
         } else {
             $options    = array();
         }
-        $remoteAddress          = $_SERVER['REMOTE_ADDR'];
+        if (isset($_SERVER['REMOTE_ADDR'])) {
+            $remoteAddress  = $_SERVER['REMOTE_ADDR'];
+        } else {
+            $remoteAddress  = null;
+        }
+
         $securityManager        = new \Vivo\CMS\Security\Manager\Db($sessionManager, $dbTableGatewayProvider,
                                                                     $remoteAddress, $options);
         return $securityManager;

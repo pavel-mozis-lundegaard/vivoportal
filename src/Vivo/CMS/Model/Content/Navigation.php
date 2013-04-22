@@ -11,16 +11,12 @@ use Vivo\CMS\Exception;
 class Navigation extends Model\Content implements Model\SymRefDataExchangeInterface
 {
     /**
-     * Navigation type ROOT
-     * Navigation tree starting at explicitly specified root path ($this->root)
+     * Navigation type ORIGIN
+     * Navigation tree will be calculated from the document graph
+     * The starting point for calculation is the specified origin path ($this->origin)
+     * or the current document if $this->root is not set
      */
-    const TYPE_ROOT         = 'type_root';
-
-    /**
-     * Navigation type REQUESTED DOC
-     * Navigation tree starting at the currently requested document
-     */
-    const TYPE_RQ_DOC       = 'type_rq_doc';
+    const TYPE_ORIGIN       = 'type_origin';
 
     /**
      * Navigation type ENUM
@@ -29,21 +25,12 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
     const TYPE_ENUM         = 'type_enum';
 
     /**
-     * Navigation type BREADCRUMBS
-     * Only documents along the active path will be added to the navigation container
-     * Use this navigation type only with breadcrumbs templates
-     */
-    const TYPE_BREADCRUMBS  = 'type_breadcrumbs';
-
-    /**
      * Array of supported navigation types
      * @var array
      */
     protected $supportedTypes   = array(
-        self::TYPE_ROOT,
-        self::TYPE_RQ_DOC,
+        self::TYPE_ORIGIN,
         self::TYPE_ENUM,
-        self::TYPE_BREADCRUMBS,
     );
 
     /**
@@ -53,26 +40,40 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
     protected $type;
 
     /**
-     * Root path of an entity which is the navigation root
-     * Relevant for the TYPE_ROOT navigation type
+     * Path of an entity which is the origin for the navigation tree calculation
+     * If null, the current document is assumed as origin
      * @var string
      */
-    protected $root;
+    protected $origin;
+
+    /**
+     * Where to start building the navigation?
+     * Zero     = Current document or origin
+     * Positive = This absolute level (levels start at 1)
+     * Negative = This number of levels up from the origin
+     * @var integer
+     */
+    protected $startLevel   = 0;
 
     /**
      * Number of levels scanned from root
      * Null means unlimited
-     * Relevant for the TYPE_ROOT, TYPE_RQ_DOC and TYPE_ENUM navigation types
      * @var int
      */
     protected $levels;
 
     /**
      * Should the root document be included in the navigation container?
-     * Relevant for the TYPE_ROOT, TYPE_RQ_DOC navigation types
      * @var bool
      */
     protected $includeRoot  = false;
+
+    /**
+     * Only a single branch of documents should be included in the navigation tree
+     * Used for breadcrumbs
+     * @var bool
+     */
+    protected $branchOnly   = false;
 
     /**
      * Array of explicitly enumerated documents to include in the navigation
@@ -89,15 +90,6 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
      * @var array
      */
     protected $enumeratedDocs   = array();
-
-    /**
-     * Constructor
-     * @param string $path Path to entity; If not set, it will be undefined and can be set later before persisting
-     */
-    public function __construct($path = null)
-    {
-        parent::__construct($path);
-    }
 
     /**
      * Sets if root should be included in the navigation
@@ -150,21 +142,24 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
     }
 
     /**
-     * Sets root path where navigation starts
+     * Sets origin path where navigation calculation starts
      * @param string $root
      */
-    public function setRoot($root)
+    public function setOrigin($root = null)
     {
-        $this->root = $root;
+        if ($root == '') {
+            $root = null;
+        }
+        $this->origin = $root;
     }
 
     /**
-     * Returns root path where the navigation starts
+     * Returns origin path where the navigation calculation starts
      * @return string
      */
-    public function getRoot()
+    public function getOrigin()
     {
-        return $this->root;
+        return $this->origin;
     }
 
     /**
@@ -208,6 +203,43 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
         return $this->enumeratedDocs;
     }
 
+    /**
+     * Sets the start level
+     * @param int $startLevel
+     */
+    public function setStartLevel($startLevel)
+    {
+        $startLevel         = (int) $startLevel;
+        $this->startLevel   = $startLevel;
+    }
+
+    /**
+     * Returns the start level
+     * @return int
+     */
+    public function getStartLevel()
+    {
+        return $this->startLevel;
+    }
+
+    /**
+     * Sets if only a single branch of documents should be included in the navigation
+     * @param boolean $branchOnly
+     */
+    public function setBranchOnly($branchOnly)
+    {
+        $this->branchOnly = (bool) $branchOnly;
+    }
+
+    /**
+     * Returns if only a single branch of documents should be included in the navigation
+     * @return boolean
+     */
+    public function getBranchOnly()
+    {
+        return $this->branchOnly;
+    }
+
 
 
     /**
@@ -218,8 +250,8 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
     public function exchangeArraySymRef(array $data)
     {
         //Root
-        if (array_key_exists('root', $data)) {
-            $this->setRoot($data['root']);
+        if (array_key_exists('origin', $data)) {
+            $this->setOrigin($data['origin']);
         }
         //Enumerated docs
         if (array_key_exists('enumeratedDocs', $data)) {
@@ -234,7 +266,7 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
     public function getArrayCopySymRef()
     {
         $data                   = array();
-        $data['root']           = $this->getRoot();
+        $data['origin']         = $this->getOrigin();
         $data['enumeratedDocs'] = $this->getEnumeratedDocs();
         return $data;
     }

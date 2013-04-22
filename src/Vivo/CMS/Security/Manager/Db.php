@@ -52,7 +52,7 @@ class Db extends AbstractManager
      * @param array $options
      */
     public function __construct(SessionManager $sessionManager, DbTableGatewayProvider $dbTableGatewayProvider,
-                                $remoteAddress, array $options = array())
+                                $remoteAddress = null, array $options = array())
     {
         parent::__construct($sessionManager);
         $this->dbTableGatewayProvider   = $dbTableGatewayProvider;

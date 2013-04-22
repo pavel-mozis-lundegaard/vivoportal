@@ -8,7 +8,6 @@ use Vivo\CMS\Model\Document;
 use Vivo\CMS\Model\Content\Navigation as NavigationModel;
 use Vivo\CMS\UI\Exception;
 use Vivo\CMS\Navigation\Page\Cms as CmsNavPage;
-
 use Vivo\CMS\UI\Component;
 
 use Zend\Navigation\AbstractContainer as AbstractNavigationContainer;
@@ -73,8 +72,7 @@ class Navigation extends Component
 
     public function view()
     {
-        $navigation = $this->getNavigation();
-        $this->getView()->navigation    = $navigation;
+        $this->getView()->navigation    = $this->getNavigation();
         return parent::view();
     }
 
@@ -87,22 +85,34 @@ class Navigation extends Component
     {
         if (is_null($this->navigation)) {
             switch ($this->navModel->getType()) {
-                case NavigationModel::TYPE_ROOT:
-                    $rootDoc    = $this->cmsApi->getSiteEntity($this->navModel->getRoot(), $this->site);
-                    $documents  = $this->buildDocArray($rootDoc,
-                                                       $this->navModel->getLevels(),
-                                                       $this->navModel->includeRoot());
-                    break;
-                case NavigationModel::TYPE_RQ_DOC:
-                    $documents  = $this->buildDocArray($this->cmsEvent->getDocument(),
-                                                       $this->navModel->getLevels(),
-                                                       $this->navModel->includeRoot());
+                case NavigationModel::TYPE_ORIGIN:
+                    if ($this->navModel->getOrigin()) {
+                        //Origin explicitly specified
+                        $origin = $this->cmsApi->getSiteEntity($this->navModel->getOrigin(), $this->site);
+                    } else {
+                        //Origin not specified, use the current doc
+                        $origin = $this->cmsEvent->getDocument();
+                    }
+                    $rootDoc    = $this->getNavigationRoot($origin, $this->navModel->getStartLevel());
+                    if ($rootDoc) {
+                        //Root doc found
+                        if ($this->navModel->getBranchOnly()) {
+                            //Get only documents from a single branch (e.g. for breadcrumbs)
+                            $documents  = $this->getActiveDocuments($this->cmsApi->getEntityRelPath($rootDoc),
+                                                                    $this->navModel->includeRoot());
+                        } else {
+                            //GET all documents in a subtree
+                            $documents  = $this->buildDocArray($rootDoc,
+                                                               $this->navModel->getLevels(),
+                                                               $this->navModel->includeRoot());
+                        }
+                    } else {
+                        //Root doc not found
+                        $documents  = array();
+                    }
                     break;
                 case NavigationModel::TYPE_ENUM:
                     $documents  = $this->navModel->getEnumeratedDocs();
-                    break;
-                case NavigationModel::TYPE_BREADCRUMBS:
-                    $documents  = $this->getActiveDocuments($this->navModel->getRoot(), $this->navModel->includeRoot());
                     break;
                 default:
                     throw new Exception\DomainException(
@@ -115,6 +125,44 @@ class Navigation extends Component
             $this->navigation->setPages($pages);
         }
         return $this->navigation;
+    }
+
+    /**
+     * Returns document where the navigation starts
+     * It is a document at the specified startLevel (+ means absolute level, - means relative level from $doc)
+     * on the branch from root to $doc
+     * If a document at the specified level does not exist, returns null
+     * @param \Vivo\CMS\Model\Document $doc Document from which the navigation root document is calculated
+     * @param int $startLevel
+     * @return Document|null
+     */
+    public function getNavigationRoot(Document $doc, $startLevel)
+    {
+        if ($startLevel == 0) {
+            //Start at the current doc
+            $navRoot    = $doc;
+        } else {
+            $branchDocs     = $this->documentApi->getDocumentsOnBranch($doc, '/', true, true);
+            if ($startLevel > 0) {
+                //Start at $startLevel absolute level
+                if (isset($branchDocs[$startLevel - 1])) {
+                    //Document at the specified absolute level found on the current branch
+                    $navRoot    = $branchDocs[$startLevel - 1];
+                } else {
+                    //Document at the specified level NOT found on the current branch
+                    $navRoot    = null;
+                }
+            } else {
+                //Start by -$startLevel levels up
+                $absStartLevel  = count($branchDocs) + $startLevel - 1;
+                if (isset($branchDocs[$absStartLevel])) {
+                    $navRoot    = $branchDocs[$absStartLevel];
+                } else {
+                    $navRoot    = null;
+                }
+            }
+        }
+        return $navRoot;
     }
 
     /**

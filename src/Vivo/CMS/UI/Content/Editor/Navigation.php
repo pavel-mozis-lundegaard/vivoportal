@@ -78,19 +78,40 @@ class Navigation extends AbstractForm implements EditorInterface
             'options' => array(
                 'label' => 'Type',
                 'value_options' => array(
-                    NavigationModel::TYPE_ROOT          => 'Arbitrary root document',
-                    NavigationModel::TYPE_RQ_DOC        => 'Requested document',
-                    NavigationModel::TYPE_BREADCRUMBS   => 'Breadcrumbs',
-                    NavigationModel::TYPE_ENUM          => 'Enumerated documents',
+                    NavigationModel::TYPE_ORIGIN    => 'Specified origin or current document',
+                    NavigationModel::TYPE_ENUM      => 'Enumerated documents',
                 ),
             ),
         ));
-        //Root
+        //Origin
         $form->add(array(
-            'name'      => 'root',
+            'name'      => 'origin',
             'type'      => 'Vivo\Form\Element\Text',
             'options'   => array(
-                'label' => 'Root document path',
+                'label' => 'Origin document path',
+                'description'   => 'Path of an entity which is the origin for the navigation tree calculation. '
+                                    . 'If not set, the current document is assumed as origin.',
+            ),
+        ));
+        //Start Level
+        $form->add(array(
+            'name'      => 'startLevel',
+            'type'      => 'Vivo\Form\Element\Text',
+            'options'   => array(
+                'label' => 'Start level',
+                'description'   => 'Where to start building the navigation? Zero = Current document or origin, '
+                                   . 'Positive = Absolute level (levels start at 1), '
+                                   . 'Negative = Relative level - this number of levels up from the origin',
+            ),
+        ));
+        //Branch only
+        $form->add(array(
+            'name'      => 'branchOnly',
+            'type'      => 'Vivo\Form\Element\Checkbox',
+            'options'   => array(
+                'label' => 'Branch only',
+                'description'   => 'Only a single branch of documents will be included in the navigation tree. '
+                                   . 'Used mainly for breadcrumbs.',
             ),
         ));
         //Levels
@@ -99,6 +120,7 @@ class Navigation extends AbstractForm implements EditorInterface
             'type'      => 'Vivo\Form\Element\Text',
             'options'   => array(
                 'label' => 'Number of levels',
+                'description'   => 'Number of levels to include in the navigation',
             ),
         ));
         //Include root
@@ -107,6 +129,7 @@ class Navigation extends AbstractForm implements EditorInterface
             'type'      => 'Vivo\Form\Element\Checkbox',
             'options'   => array(
                 'label' => 'Include root',
+                'description'   => 'Should the root document be included in the navigation?',
             ),
         ));
         return $form;

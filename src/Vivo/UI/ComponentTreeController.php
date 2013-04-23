@@ -40,6 +40,7 @@ class ComponentTreeController implements EventManagerAwareInterface
     /**
      * Constructor.
      * @param SessionManager $sessionManager
+     * @param \Zend\Http\PhpEnvironment\Request $request
      */
     public function __construct(SessionManager $sessionManager, Request $request)
     {
@@ -98,10 +99,13 @@ class ComponentTreeController implements EventManagerAwareInterface
      */
     public function init()
     {
-        foreach ($this->getTreeIterator() as $name => $component){
+        $components = array();
+        foreach ($this->getTreeIterator() as $component){
+            $components[]   = $component;
+        }
+        foreach ($components as $component) {
             $message = 'Init component: ' . $component->getPath();
-            $this->events->trigger('log', $this, array('message' => $message,
-                'priority'=> \Vivo\Log\Logger::INFO));
+            $this->events->trigger('log', $this, array('message' => $message, 'priority'=> \Vivo\Log\Logger::INFO));
             $component->init();
         }
     }
@@ -171,8 +175,9 @@ class ComponentTreeController implements EventManagerAwareInterface
      * Invokes action on component.
      * @param string $path
      * @param string $action
+     * @throws Exception\RuntimeException
      * @param array $params
-     * @throws RuntimeException
+     * @return mixed
      */
     public function invokeAction($path, $action, $params)
     {

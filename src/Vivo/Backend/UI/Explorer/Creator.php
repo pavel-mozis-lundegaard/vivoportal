@@ -25,7 +25,7 @@ class Creator extends Editor
         $this->parentFolder = $this->explorer->getEntity();
         $this->doCreate();
 
-        parent::initForm();
+        $this->initForm();
     }
 
     public function create()

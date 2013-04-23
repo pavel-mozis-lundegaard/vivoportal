@@ -136,11 +136,15 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
         foreach ($containers as $index => $contentContainer) {
             $contentTab = $this->createContentTab($contentContainer);
             $this->contentTab->addComponent($contentTab, "content_$index");
+            //Init the component
+            $contentTab->init();
         }
         if (count($this->availableContents) > 0) {
             $contentTab = $this->createContentTab(new ContentContainer());
             $count = count($containers);
             $this->contentTab->addComponent($contentTab, "content_$count");
+            //Init the component
+            $contentTab->init();
         }
     }
 

@@ -14,7 +14,7 @@ class ComponentTreeIterator implements \RecursiveIterator
 
     /**
      * Constructor.
-     * @param ComponentContainerInterface|array $root
+     * @param $components
      */
     public function __construct($components)
     {
@@ -43,7 +43,7 @@ class ComponentTreeIterator implements \RecursiveIterator
     }
 
     /**
-     * Returns curent component.
+     * Returns current component.
      * @return ComponentInterface
      */
     public function current()

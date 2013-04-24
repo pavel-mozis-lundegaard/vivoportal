@@ -20,10 +20,10 @@ class AvailableContentsProvider
     }
 
     /**
-     * Returns name of content classes available for given document.
+     * Returns content classes, labels and options available for given document.
      * @param \Vivo\CMS\Model\Document|\Vivo\CMS\Model\Folder $document
      * @param string $documentPath
-     * @return array Classnames of available content types.
+     * @return array
      */
     public function getAvailableContents(Model\Folder $document, $documentPath)
     {
@@ -53,15 +53,15 @@ class AvailableContentsProvider
     }
 
     /**
-     *
-     * @param type $restriction
-     * @return type
+     * 'Intersects' current contents with restrictions
+     * @param array $restriction
      */
-    protected function intersect($restriction)
+    protected function intersect(array $restriction)
     {
-//        if (is_array($restriction) && !empty($restriction)){
-        if (is_array($restriction)){
-            $this->contents =  array_intersect($restriction, $this->contents);
+        foreach ($this->contents as $key => $contentsConfig) {
+            if (!in_array($key, $restriction)) {
+                unset($this->contents[$key]);
+            }
         }
     }
 }

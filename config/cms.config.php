@@ -89,13 +89,41 @@ return array(
     ),
     'contents' => array (
         'available_contents' => array (
-            'Vivo\CMS\Model\Content\File',
-            'Vivo\CMS\Model\Content\Overview',
-            'Vivo\CMS\Model\Content\Link',
-            'Vivo\CMS\Model\Content\Hyperlink',
-            'Vivo\CMS\Model\Content\Component',
-            'Vivo\CMS\Model\Content\Layout',
-            'Vivo\CMS\Model\Content\Navigation',
+            'file'    => array(
+                'class'     => 'Vivo\CMS\Model\Content\File',
+                'label'     => 'Vivo\CMS\Model\Content\File - general file',
+            ),
+            'file_text/html'    => array(
+                'class'     => 'Vivo\CMS\Model\Content\File',
+                'label'     => 'Vivo\CMS\Model\Content\File - HTML file',
+                'options'   => array(
+                    'mimeType'  => 'text/html',
+                ),
+            ),
+            'overview'    => array(
+                'class'     => 'Vivo\CMS\Model\Content\Overview',
+                'label'     => 'Vivo\CMS\Model\Content\Overview',
+            ),
+            'link'    => array(
+                'class'     => 'Vivo\CMS\Model\Content\Link',
+                'label'     => 'Vivo\CMS\Model\Content\Link',
+            ),
+            'hyperlink'    => array(
+                'class'     => 'Vivo\CMS\Model\Content\Hyperlink',
+                'label'     => 'Vivo\CMS\Model\Content\Hyperlink',
+            ),
+            'component'    => array(
+                'class'     => 'Vivo\CMS\Model\Content\Component',
+                'label'     => 'Vivo\CMS\Model\Content\Component',
+            ),
+            'layout'    => array(
+                'class'     => 'Vivo\CMS\Model\Content\Layout',
+                'label'     => 'Vivo\CMS\Model\Content\Layout',
+            ),
+            'navigation'    => array(
+                'class'     => 'Vivo\CMS\Model\Content\Navigation',
+                'label'     => 'Vivo\CMS\Model\Content\Navigation',
+            ),
         ),
         'restrictions' => array (
             'document_type' => array (
@@ -105,12 +133,12 @@ return array(
             ),
             'document_path' => array (
                 '/Layouts' => array (
-                    'Vivo\CMS\Model\Content\Layout',
+                    'layout',
                 ),
             ),
             'user_role' => array (
-                'managers' => array (
-                ),
+//                'managers' => array (
+//                ),
             ),
 //            'site' => array (
 //               //Whitelist of allowed contents in current site.

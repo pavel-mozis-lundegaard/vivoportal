@@ -35,11 +35,6 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
     private $documentApi;
 
     /**
-     * @var \Vivo\CMS\AvailableContentsProvider
-     */
-    private $contentsProvider;
-
-    /**
      * @param \Zend\ServiceManager\ServiceManager $sm
      * @param \Vivo\CMS\Api\Document $documentApi
      */
@@ -97,8 +92,8 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
                 $k, $content->getState(), get_class($content), $content->getUuid());
         }
 
-        foreach ($this->availableContents as $ac) {
-            $options['NEW:'.$ac] = $ac;
+        foreach ($this->availableContents as $ctKey => $ac) {
+            $options['NEW:' . $ctKey]   = (isset($ac['label']) ? $ac['label'] : $ac['class']);
         }
 
         $values = array_keys($options);
@@ -126,7 +121,18 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
         list($type, $param) = explode(':', $version);
 
         if($type == 'NEW') {
-            $content = new $param;
+            $class  = $this->availableContents[$param]['class'];
+            $content = new $class();
+            //Set options to the newly created instance, if they have been set  in config
+            if (isset($this->availableContents[$param]['options'])
+                    && is_array($this->availableContents[$param]['options'])) {
+                foreach ($this->availableContents[$param]['options'] as $optKey => $optValue) {
+                    $methodName = 'set' . ucfirst($optKey);
+                    if (method_exists($content, $methodName)) {
+                        $content->$methodName($optValue);
+                    }
+                }
+            }
         }
         elseif($type == 'EDIT') {
             foreach ($this->contents as $c) {

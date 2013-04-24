@@ -10,4 +10,11 @@ interface ComponentContainerInterface
     public function removeComponent($name);
     public function getComponent($name);
     public function getComponents();
+
+    /**
+     * Returns if the container contains component with the specified name
+     * @param string $name
+     * @return bool
+     */
+    public function hasComponent($name);
 }

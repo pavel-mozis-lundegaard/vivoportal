@@ -99,15 +99,31 @@ class ComponentTreeController implements EventManagerAwareInterface
      */
     public function init()
     {
+        $components = $this->getCurrentComponents();
+        foreach ($components as $component) {
+            //A component might have been removed from the tree in an init() (as is the case with ResourceEditor
+            //=> check the component is still in the tree, if not, do not try to initialize it
+            //TODO - Optimization? This is n^2, as all components are read for every component
+            $currentComponents  = $this->getCurrentComponents();
+            if (in_array($component, $currentComponents)) {
+                $message = 'Init component: ' . $component->getPath();
+                $this->events->trigger('log', $this, array('message' => $message, 'priority'=> \Vivo\Log\Logger::INFO));
+                $component->init();
+            }
+        }
+    }
+
+    /**
+     * Returns an array of components currently present in the component tree
+     * @return ComponentInterface[]
+     */
+    protected function getCurrentComponents()
+    {
         $components = array();
         foreach ($this->getTreeIterator() as $component){
             $components[]   = $component;
         }
-        foreach ($components as $component) {
-            $message = 'Init component: ' . $component->getPath();
-            $this->events->trigger('log', $this, array('message' => $message, 'priority'=> \Vivo\Log\Logger::INFO));
-            $component->init();
-        }
+        return $components;
     }
 
     /**

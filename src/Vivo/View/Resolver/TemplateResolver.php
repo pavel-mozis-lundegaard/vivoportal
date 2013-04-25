@@ -91,11 +91,9 @@ class TemplateResolver implements ResolverInterface
         } else {
             try {
                 //load template from module
-                $parts = $this->parser->parse($path);
-                $is = $this->resourceManager
-                        ->readResource($parts['module'], $parts['path'],
-                                'view');
-                $path = InputStreamWrapper::registerInputStream($is, $path);
+                $parts  = $this->parser->parse($path);
+                $is     = $this->resourceManager->readResource($parts['module'], $parts['path'], 'view');
+                $path   = InputStreamWrapper::registerInputStream($is, $path);
                 $this->resolved[$name] = $path;
             } catch (\Exception $e) {
                 if ($e instanceof \Vivo\Module\Exception\ExceptionInterface

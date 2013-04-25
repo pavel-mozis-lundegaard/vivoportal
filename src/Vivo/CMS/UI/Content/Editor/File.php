@@ -10,7 +10,7 @@ use Vivo\CMS\RefInt\SymRefConvertorInterface;
 
 use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
 
-class File extends AbstractForm implements EditorInterface
+class File extends AbstractForm implements EditorInterface, AdapterAwareInterface
 {
     const ADAPTER_COMPONENT_NAME    = 'dataAdapter';
 
@@ -34,9 +34,10 @@ class File extends AbstractForm implements EditorInterface
     protected $symRefConvertor;
 
     /**
-     * Render aditional UI interface for File
+     * Editor adapter
+     * @var AdapterInterface
      */
-    protected $dataAdapter;
+    protected $editorAdapter;
 
     /**
      * Constructor
@@ -108,8 +109,6 @@ class File extends AbstractForm implements EditorInterface
 
     public function doGetForm()
     {
-        //$this->dataAdapter->setName('editor-'.$this->content->getUuid());
-
         $form = new Form('editor-'.$this->content->getUuid());
         $form->setWrapElements(true);
         $form->setHydrator(new ClassMethodsHydrator(false));
@@ -126,9 +125,25 @@ class File extends AbstractForm implements EditorInterface
                 'label' => 'resource',
             ),
         ));
-
-        $form = $this->dataAdapter->configureForm($form);
-
         return $form;
+    }
+
+    /**
+     * Sets the editor adapter
+     * @param AdapterInterface $adapter
+     * @return void
+     */
+    public function setAdapter(AdapterInterface $adapter = null)
+    {
+        $this->editorAdapter    = $adapter;
+    }
+
+    /**
+     * Returns key under which an editor adapter is searched in configuration
+     * @return string
+     */
+    public function getAdapterKey()
+    {
+        return $this->content->getMimeType();
     }
 }

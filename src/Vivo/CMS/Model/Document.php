@@ -135,6 +135,13 @@ class Document extends Folder
     protected $internalNotice;
 
     /**
+     * Template used to render the content container
+     * If not set, uses the default template
+     * @var string
+     */
+    protected $contentContainerTemplate;
+
+    /**
      * @param string $path Repository path.
      * @param null $security
      */
@@ -368,6 +375,24 @@ class Document extends Folder
 
     public function setInternalNotice($internalNotice) {
         $this->internalNotice = $internalNotice;
+    }
+
+    /**
+     * Sets the content container template
+     * @param string $contentContainerTemplate
+     */
+    public function setContentContainerTemplate($contentContainerTemplate)
+    {
+        $this->contentContainerTemplate = $contentContainerTemplate;
+    }
+
+    /**
+     * Returns the content container template
+     * @return string
+     */
+    public function getContentContainerTemplate()
+    {
+        return $this->contentContainerTemplate;
     }
 
     /**

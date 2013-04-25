@@ -308,13 +308,13 @@ return array(
     ),
     'view_helpers' => array(
         'invokables' => array(
-            'action'            => 'Vivo\View\Helper\Action',
-            'action_link'       => 'Vivo\View\Helper\ActionLink',
-            'action_url'        => 'Vivo\View\Helper\ActionUrl',
-            'vivoform'          => 'Vivo\View\Helper\VivoForm',
-            'vivoformfieldset'  => 'Vivo\View\Helper\VivoFormFieldset',
-            'tiny_mce'          => 'Vivo\View\Helper\TinyMce',
-            'logical_content'   => 'Vivo\View\Helper\LogicalContent',
+            'action'                => 'Vivo\View\Helper\Action',
+            'action_link'           => 'Vivo\View\Helper\ActionLink',
+            'action_url'            => 'Vivo\View\Helper\ActionUrl',
+            'vivoform'              => 'Vivo\View\Helper\VivoForm',
+            'vivoformfieldset'      => 'Vivo\View\Helper\VivoFormFieldset',
+            'tiny_mce'              => 'Vivo\View\Helper\TinyMce',
+            'container_component'   => 'Vivo\View\Helper\ContainerComponent',
           //  'url' => 'Vivo\View\Helper\Url',
         ),
         'factories' => array(

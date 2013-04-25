@@ -123,7 +123,7 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
         if($type == 'NEW') {
             $class  = $this->availableContents[$param]['class'];
             $content = new $class();
-            //Set options to the newly created instance, if they have been set  in config
+            //Set options to the newly created instance, if they have been set in config
             if (isset($this->availableContents[$param]['options'])
                     && is_array($this->availableContents[$param]['options'])) {
                 foreach ($this->availableContents[$param]['options'] as $optKey => $optValue) {

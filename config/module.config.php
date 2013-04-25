@@ -314,6 +314,7 @@ return array(
             'vivoform'          => 'Vivo\View\Helper\VivoForm',
             'vivoformfieldset'  => 'Vivo\View\Helper\VivoFormFieldset',
             'tiny_mce'          => 'Vivo\View\Helper\TinyMce',
+            'logical_content'   => 'Vivo\View\Helper\LogicalContent',
           //  'url' => 'Vivo\View\Helper\Url',
         ),
         'factories' => array(

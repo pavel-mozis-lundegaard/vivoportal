@@ -105,8 +105,13 @@ class ComponentFactory implements EventManagerAwareInterface
         $contents = $this->documentApi->getPublishedContents($document);
 
         if (count($contents) > 1) {
-            $frontComponent = $this
-                    ->createComponent('Vivo\UI\ComponentContainer');
+            $frontComponent = $this->createComponent('Vivo\UI\ComponentContainer');
+
+            //Set template for the content container, if available
+            if ($document->getContentContainerTemplate()) {
+                $frontComponent->getView()->setTemplate($document->getContentContainerTemplate());
+            }
+
             $i = 1;
             foreach ($contents as $content) {
                 $cc = $this->getContentFrontComponent($content, $document);
@@ -128,10 +133,9 @@ class ComponentFactory implements EventManagerAwareInterface
 
         if (!isset($parameters['noLayout']) || !$parameters['noLayout'] == true) {
             if ($layoutPath = $document->getLayout()) {
-                $layout = $this->cmsApi->getSiteEntity($layoutPath, $this->site);
-                $panels = $this->getDocumentLayoutPanels($document);
-                $frontComponent = $this
-                        ->applyLayout($layout, $frontComponent, $panels);
+                $layout         = $this->cmsApi->getSiteEntity($layoutPath, $this->site);
+                $panels         = $this->getDocumentLayoutPanels($document);
+                $frontComponent = $this->applyLayout($layout, $frontComponent, $panels);
             }
         }
 

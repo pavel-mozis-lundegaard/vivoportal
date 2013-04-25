@@ -82,7 +82,7 @@ class Document implements DocumentInterface
             });
         foreach ($containers as $container) {
             if ($content = $this->getPublishedContent($container)) {
-                $contents[] = $content;
+                $contents[$container->getContainerName()] = $content;
             }
         }
         return $contents;

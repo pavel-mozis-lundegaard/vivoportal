@@ -44,6 +44,7 @@ return array(
             'Vivo\CMS\UI\Content\Editor\Layout'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Layout.phtml',
             'Vivo\CMS\UI\Content\Editor\Overview'  => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Overview.phtml',
             'Vivo\CMS\UI\Content\Editor\Navigation' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Navigation.phtml',
+            'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapter' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File/WysiwigAdapter.phtml',
         ),
         'custom_templates' => array (
             // custom selectable templates
@@ -91,7 +92,7 @@ return array(
         'available_contents' => array (
             'file'    => array(
                 'class'     => 'Vivo\CMS\Model\Content\File',
-                'label'     => 'Vivo\CMS\Model\Content\File - general file',
+                'label'     => 'Vivo\CMS\Model\Content\File - general file',                
             ),
             'file_text/html'    => array(
                 'class'     => 'Vivo\CMS\Model\Content\File',
@@ -123,6 +124,14 @@ return array(
             'navigation'    => array(
                 'class'     => 'Vivo\CMS\Model\Content\Navigation',
                 'label'     => 'Vivo\CMS\Model\Content\Navigation',
+            ),
+        ),
+        'adapters' => array (
+            'Vivo\CMS\Model\Content\File'    => array(
+            	'default'		=> 'adapterFactoryClass for default',
+            	'factories'		=> array(
+                	'text/html'     => 'adapterFactoryClass...',
+				),                                
             ),
         ),
         'restrictions' => array (
@@ -231,6 +240,7 @@ return array(
             'Vivo\CMS\UI\Content\Editor\Overview' => 'Vivo\CMS\UI\Content\Editor\OverviewFactory',
             'Vivo\CMS\UI\Content\Editor\Layout'   => 'Vivo\CMS\UI\Content\Editor\LayoutFactory',
             'Vivo\CMS\UI\Content\Editor\Navigation' => 'Vivo\CMS\UI\Content\Editor\NavigationFactory',
+        	'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapter'   => 'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapterFactory',
         ),
         'aliases' => array(
         ),

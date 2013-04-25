@@ -41,9 +41,10 @@ class File extends Model\Content
     /**
      * Returns file mimetype.
      *
-     * @return string
+  						   * @return string
      */
-    public function getMimeType() {
+    public function getMimeType()
+    {
     	return $this->mimeType;
     }
 
@@ -62,7 +63,8 @@ class File extends Model\Content
      *
      * @param string $filename
      */
-    public function setFilename($filename) {
+    public function setFilename($filename)
+    {
         $this->filename = $filename;
     }
 }

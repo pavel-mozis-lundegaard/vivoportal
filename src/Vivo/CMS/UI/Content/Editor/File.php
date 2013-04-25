@@ -12,6 +12,8 @@ use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
 
 class File extends AbstractForm implements EditorInterface
 {
+    const ADAPTER_COMPONENT_NAME    = 'dataAdapter';
+
     /**
      * @var \Vivo\CMS\Model\Content\File
      */
@@ -32,6 +34,11 @@ class File extends AbstractForm implements EditorInterface
     protected $symRefConvertor;
 
     /**
+     * Render aditional UI interface for File
+     */
+    protected $dataAdapter;
+
+    /**
      * Constructor
      * @param Api\CMS $cmsApi
      * @param Api\Document $documentApi
@@ -50,6 +57,16 @@ class File extends AbstractForm implements EditorInterface
         $this->content = $content;
     }
 
+    public function setAdapter($adapter)
+    {
+        $this->addComponent($adapter, self::ADAPTER_COMPONENT_NAME);
+    }
+
+    public function getAdapter()
+    {
+        return $this->getComponent(self::ADAPTER_COMPONENT_NAME);
+    }
+
     public function init()
     {
         try {
@@ -60,7 +77,6 @@ class File extends AbstractForm implements EditorInterface
         catch (PathNotSetException $e) {
 
         }
-
         parent::init();
     }
 
@@ -92,6 +108,8 @@ class File extends AbstractForm implements EditorInterface
 
     public function doGetForm()
     {
+        //$this->dataAdapter->setName('editor-'.$this->content->getUuid());
+
         $form = new Form('editor-'.$this->content->getUuid());
         $form->setWrapElements(true);
         $form->setHydrator(new ClassMethodsHydrator(false));
@@ -108,6 +126,8 @@ class File extends AbstractForm implements EditorInterface
                 'label' => 'resource',
             ),
         ));
+
+        $form = $this->dataAdapter->configureForm($form);
 
         return $form;
     }

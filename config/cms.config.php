@@ -144,6 +144,16 @@ return array(
 //               //Whitelist of allowed contents in current site.
 //            ),
         ),
+        //Editor adapters for specific content types
+        'adapters' => array (
+            'Vivo\CMS\Model\Content\File'    => array(
+                //TODO - set service name of the default adapter for File content
+                //'default'       => '',
+                'service_map'   => array(
+                    'text/html'     => 'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapter',
+                ),
+            ),
+        ),
     ),
     'workflow' => array (
         'states' => array(
@@ -231,6 +241,10 @@ return array(
             'Vivo\CMS\UI\Content\Editor\Overview' => 'Vivo\CMS\UI\Content\Editor\OverviewFactory',
             'Vivo\CMS\UI\Content\Editor\Layout'   => 'Vivo\CMS\UI\Content\Editor\LayoutFactory',
             'Vivo\CMS\UI\Content\Editor\Navigation' => 'Vivo\CMS\UI\Content\Editor\NavigationFactory',
+
+            //Content editor adapters
+            'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapter'
+                    => 'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapterFactory',
         ),
         'aliases' => array(
         ),

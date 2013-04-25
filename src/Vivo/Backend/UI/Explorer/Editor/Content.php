@@ -7,6 +7,9 @@ use Vivo\Backend\UI\Form\Fieldset\EntityEditor;
 use Vivo\CMS\Model;
 use Vivo\CMS\ComponentResolver;
 use Vivo\CMS\Exception\InvalidArgumentException;
+use Vivo\Backend\Exception\ConfigException;
+use Vivo\CMS\UI\Content\Editor\AdapterAwareInterface as EditorAdapterAwareInterface;
+
 use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
 
 class Content extends AbstractForm
@@ -88,13 +91,37 @@ class Content extends AbstractForm
             }
 
             try {
+                $contentClass   = get_class($this->content);
                 $resolver = new ComponentResolver($this->sm->get('cms_config'));
-                $editorClass = $resolver->resolve(get_class($this->content), ComponentResolver::EDITOR_COMPONENT);
+                $editorClass = $resolver->resolve($contentClass, ComponentResolver::EDITOR_COMPONENT);
 
                 /* @var $editor \Vivo\CMS\UI\Content\Editor\EditorInterface */
                 $editor = $this->sm->create($editorClass);
                 $editor->setContent($this->content);
-
+                //Set editor adapter
+                if ($editor instanceof EditorAdapterAwareInterface) {
+                    /** @var $editor EditorAdapterAwareInterface */
+                    $cmsConfig          = $this->sm->get('cms_config');
+                    $adaptersConfig     = $cmsConfig['contents']['adapters'];
+                    if (!array_key_exists($contentClass, $adaptersConfig)) {
+                        throw new ConfigException(
+                            sprintf("%s: Key '%s' missing in cms_config['contents']['adapters']",
+                                __METHOD__, $contentClass));
+                    }
+                    $contentAdaptersConfig  = $adaptersConfig[$contentClass];
+                    $adapterKey             = $editor->getAdapterKey();
+                    if (isset($contentAdaptersConfig['service_map'][$adapterKey])) {
+                        $adapterServiceName = $contentAdaptersConfig['service_map'][$adapterKey];
+                        $adapter            = $this->sm->create($adapterServiceName);
+                    } elseif (array_key_exists('default', $contentAdaptersConfig)) {
+                        $adapterServiceName = $contentAdaptersConfig['default'];
+                        $adapter            = $this->sm->create($adapterServiceName);
+                    } else {
+                        //Adapter not found
+                        $adapter            = null;
+                    }
+                    $editor->setAdapter($adapter);
+                }
                 $this->addComponent($editor, 'editorComponent');
 
                 $editor->init();

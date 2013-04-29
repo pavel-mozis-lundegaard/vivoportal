@@ -207,6 +207,7 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
         }
         $data   = $this->request->getQuery()->toArray();
         $data   = array_merge($data, $this->request->getPost()->toArray());
+        $data   = array_merge($data, $this->request->getFiles()->toArray());
 
         //Unset act field to prevent mix up with an unrelated act field
         unset($data['act']);

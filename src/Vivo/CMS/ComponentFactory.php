@@ -112,10 +112,9 @@ class ComponentFactory implements EventManagerAwareInterface
                 $frontComponent->getView()->setTemplate($document->getContentContainerTemplate());
             }
 
-            $i = 1;
-            foreach ($contents as $content) {
+            foreach ($contents as $contentContainerName => $content) {
                 $cc = $this->getContentFrontComponent($content, $document);
-                $frontComponent->addComponent($cc, 'content' . $i++);
+                $frontComponent->addComponent($cc, $contentContainerName);
             }
 
         } elseif (count($contents) === 1) {

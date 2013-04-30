@@ -165,7 +165,7 @@ class Overview extends Model\Content implements Model\SymRefDataExchangeInterfac
     /**
      * @param array $overviewItems
      */
-    public function setOverviewItems($overviewItems) {
+    public function setOverviewItems(array $overviewItems) {
         $this->overviewItems = $overviewItems;
     }
 

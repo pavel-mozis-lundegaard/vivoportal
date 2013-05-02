@@ -11,8 +11,16 @@ use Vivo\CMS\UI\Content\Editor\AdapterInterface;
 abstract class AbstractAdapter extends AbstractForm implements AdapterInterface
 {
 
+    /**
+     * Content
+     * @var Content
+     */
     protected $content;
 
+    /**
+     * Sets Content
+     * @param Content $content
+     */
     public function setContent(Content $content)
     {
         $this->content = $content;

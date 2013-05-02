@@ -173,7 +173,7 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
         $form->setHydrator(new ClassMethodsHydrator(false));
         $form->setOptions(array('use_as_base_fieldset' => true));
         $form->add(array(
-        			'name' => 'upload-file',
+                    'name' => 'upload-file',
                     'type' => 'Vivo\Form\Element\File',
                     'attributes' => array(
                         'id'   => 'content-resource-upload-'.$this->content->getUuid(),

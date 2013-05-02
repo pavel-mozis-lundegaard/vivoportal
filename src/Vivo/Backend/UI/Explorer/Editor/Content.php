@@ -113,17 +113,16 @@ class Content extends AbstractForm
                     if (isset($contentAdaptersConfig['service_map'][$adapterKey])) {
                         $adapterServiceName = $contentAdaptersConfig['service_map'][$adapterKey];
                         $adapter            = $this->sm->create($adapterServiceName);
-                        $adapter->setContent($this->content);
                     } elseif (array_key_exists('default', $contentAdaptersConfig)) {
                         $adapterServiceName = $contentAdaptersConfig['default'];
                         $adapter            = $this->sm->create($adapterServiceName);
-                        $adapter->setContent($this->content);
                     } else {
                         //Adapter not found
                         throw new ConfigException(
                             sprintf("%s: Content adapter not found for content class '%s', adapterKey: '%s'",
                                 __METHOD__, $contentClass, $adapterKey));
                     }
+                    $adapter->setContent($this->content);
                     $editor->setAdapter($adapter);
                 }
                 $this->addComponent($editor, 'editorComponent');

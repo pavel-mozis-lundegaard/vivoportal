@@ -53,6 +53,7 @@ class DefaultAdapter extends AbstractAdapter
 	 */
     protected function doGetForm()
     {
+        // NOT USED
     	return new Form('download-resource'.$this->content->getUuid());
     }
 

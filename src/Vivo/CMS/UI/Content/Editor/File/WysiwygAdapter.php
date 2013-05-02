@@ -2,7 +2,7 @@
 namespace Vivo\CMS\UI\Content\Editor\File;
 
 use Vivo\CMS\Api;
-use Vivo\Form\Factory;
+use Vivo\Form\Factory as FormFactory;
 use Vivo\CMS\RefInt\SymRefConvertorInterface;
 use Vivo\CMS\UI\Content\Editor\AbstractAdapter;
 use Vivo\CMS\UI\Content\Editor\ResourceEditorInterface;
@@ -25,13 +25,17 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
 	protected $data;
 
 	/**
-	 * Constructs Adapter
+	 * Constructor
+	 * @param Api\CMS $cmsApi
+	 * @param SymRefConvertorInterface $symRefConvertor
+	 * @param FormFactory $formFactory
 	 */
-	public function __construct(Api\CMS $cmsApi, SymRefConvertorInterface $symRefConvertor)
+	public function __construct(Api\CMS $cmsApi, SymRefConvertorInterface $symRefConvertor, FormFactory $formFactory)
 	{
 	    $this->cmsApi           = $cmsApi;
 	    $this->symRefConvertor  = $symRefConvertor;
 	    $this->autoAddCsrf      = false;
+	    $this->formFactory      = $formFactory;
 	}
 
     /**
@@ -61,8 +65,7 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
 	 */
 	protected function doGetForm()
     {
-        $factory = new Factory();
-        return $factory->createForm(array(
+        return $this->formFactory->createForm(array(
             'name' => 'editor-'.$this->content->getUuid(),
             'hydrator' => 'Zend\Stdlib\Hydrator\ArraySerializable',
                 'elements' => array(

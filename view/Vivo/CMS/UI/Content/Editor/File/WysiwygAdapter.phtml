@@ -1,1 +1,7 @@
-<?=$this->vivoForm($form)?>
+<?
+    use Vivo\CMS\UI\Content\Editor;
+
+    $formType       = \DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
+    $this->tinyMce('exact', $form->get('resource')->getAttribute('id'), true, 'en');
+    echo $this->formFieldsetTwb($form, $formType, array(), false, false);
+?>

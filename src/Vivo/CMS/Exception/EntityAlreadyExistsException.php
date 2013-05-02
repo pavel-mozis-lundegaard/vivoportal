@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\CMS\Exception;
+namespace  Vivo\Backend\CMS\Exception;
 
 /**
  * EntityAlreadyExistsException

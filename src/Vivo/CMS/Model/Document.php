@@ -142,6 +142,14 @@ class Document extends Folder
     protected $contentContainerTemplate;
 
     /**
+     * Should the view model of the corresponding front UI component be injected into the Layout view model?
+     * This is useful when direct manipulation of the front component view model vars is necessary in the
+     * layout template (e.g. when placing individual logical contents in specific places in the layout)
+     * @var bool
+     */
+    protected $injectComponentViewModelToLayout     = false;
+
+    /**
      * @param string $path Repository path.
      * @param null $security
      */
@@ -393,6 +401,24 @@ class Document extends Folder
     public function getContentContainerTemplate()
     {
         return $this->contentContainerTemplate;
+    }
+
+    /**
+     * Sets if the component view model should be injected into the layout view model
+     * @param boolean $injectComponentViewModelToLayout
+     */
+    public function setInjectComponentViewModelToLayout($injectComponentViewModelToLayout)
+    {
+        $this->injectComponentViewModelToLayout = $injectComponentViewModelToLayout;
+    }
+
+    /**
+     * Returns if the component view model should be injected into the layout view model
+     * @return boolean
+     */
+    public function getInjectComponentViewModelToLayout()
+    {
+        return $this->injectComponentViewModelToLayout;
     }
 
     /**

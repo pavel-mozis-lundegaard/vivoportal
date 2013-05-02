@@ -1,0 +1,27 @@
+<div class="overviewExpandable">
+    <?php if(count($this->children)) : ?>
+    <dl class="overviewExpandable">
+	<?php
+        /** @var $child \Vivo\CMS\Model\Entity */
+        foreach($this->children as $child) :
+            if ($child instanceof \Vivo\CMS\Model\Document) {
+                //Document
+                /** @var $child \Vivo\CMS\Model\Document  */
+                $dt = $this->overviewTitle($child);
+                $dd = $this->renderDocument($child);
+            } elseif ($child instanceof \Vivo\CMS\Model\Folder) {
+                //Folder
+                /** @var $child \Vivo\CMS\Model\Folder  */
+                $dt = $this->overviewTitle($child);
+                $dd = $this->escapeHtml($this->translate('Folder') . ': ' . $child->getPath());
+            } else {
+                //Unsupported element type
+                continue;
+            }
+    ?>
+            <dt><strong><?php echo $this->escapeHtml($dt) ?></strong></dt>
+            <dd><?php echo $dd ?></dd>
+	    <?php endforeach; ?>
+	</dl>
+<?php endif; ?>
+</div>

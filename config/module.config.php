@@ -315,11 +315,13 @@ return array(
             'vivoformfieldset'      => 'Vivo\View\Helper\VivoFormFieldset',
             'tiny_mce'              => 'Vivo\View\Helper\TinyMce',
             'container_component'   => 'Vivo\View\Helper\ContainerComponent',
+            'overview_title'        => 'Vivo\View\Helper\OverviewTitle',
           //  'url' => 'Vivo\View\Helper\Url',
         ),
         'factories' => array(
             'cms'               => 'Vivo\View\Helper\CmsFactory',
             'vivo_head_title'   => 'Vivo\View\Helper\VivoHeadTitleFactory',
+            'render_document'   => 'Vivo\View\Helper\RenderDocumentFactory',
         ),
     ),
     'validators'    => array(

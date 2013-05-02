@@ -45,6 +45,8 @@ return array(
             'Vivo\CMS\UI\Content\Editor\Layout'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Layout.phtml',
             'Vivo\CMS\UI\Content\Editor\Overview'  => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Overview.phtml',
             'Vivo\CMS\UI\Content\Editor\Navigation' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Navigation.phtml',
+            'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapter' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File/WysiwygAdapter.phtml',
+            'Vivo\CMS\UI\Content\Editor\File\DefaultAdapter' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File/DefaultAdapter.phtml',
         ),
         'custom_templates' => array (
             // custom selectable templates
@@ -150,9 +152,9 @@ return array(
         'adapters' => array (
             'Vivo\CMS\Model\Content\File'    => array(
                 //TODO - set service name of the default adapter for File content
-                //'default'       => '',
+                'default'       => 'Vivo\CMS\UI\Content\Editor\File\DefaultAdapter',
                 'service_map'   => array(
-                    'text/html'     => 'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapter',
+                    'text/html'     => 'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapter',                    
                 ),
             ),
         ),
@@ -247,6 +249,8 @@ return array(
             //Content editor adapters
             'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapter'
                     => 'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapterFactory',
+            'Vivo\CMS\UI\Content\Editor\File\DefaultAdapter'
+                    => 'Vivo\CMS\UI\Content\Editor\File\DefaultAdapterFactory',
         ),
         'aliases' => array(
         ),

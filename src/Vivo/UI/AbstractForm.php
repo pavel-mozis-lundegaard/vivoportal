@@ -141,6 +141,8 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     {
         if($this->form == null) {
             $this->form = $this->doGetForm();
+            // TODO remove enctype setting when forms are refactored to fieldsets
+            $this->form->setAttribute('enctype', 'multipart/form-data');
             if ($this->autoInjectInputFilterFactory) {
                 $this->injectInputFilterFactory($this->form);
             }

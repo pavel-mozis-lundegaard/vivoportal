@@ -103,7 +103,6 @@ class ComponentFactory implements EventManagerAwareInterface
     public function getFrontComponent(Document $document, $parameters = array())
     {
         $contents = $this->documentApi->getPublishedContents($document);
-
         if (count($contents) > 1) {
             $frontComponent = $this->createComponent('Vivo\UI\ComponentContainer');
 
@@ -118,12 +117,11 @@ class ComponentFactory implements EventManagerAwareInterface
             }
 
         } elseif (count($contents) === 1) {
-            $frontComponent = $this
-                    ->getContentFrontComponent(reset($contents), $document);
+            $frontComponent = $this->getContentFrontComponent(reset($contents), $document);
         } else {
             throw new Exception(
-                    sprintf("%s: Document '%s' hasn't any published content.",
-                            __METHOD__, $document->getPath()));
+                sprintf("%s: Document '%s' hasn't any published content.",
+                    __METHOD__, $document->getPath()));
         }
 
         if ($frontComponent instanceof RawComponentInterface) {
@@ -134,7 +132,10 @@ class ComponentFactory implements EventManagerAwareInterface
             if ($layoutPath = $document->getLayout()) {
                 $layout         = $this->cmsApi->getSiteEntity($layoutPath, $this->site);
                 $panels         = $this->getDocumentLayoutPanels($document);
-                $frontComponent = $this->applyLayout($layout, $frontComponent, $panels);
+                $frontComponent = $this->applyLayout($layout,
+                                                     $frontComponent,
+                                                     $panels,
+                                                     $document->getInjectComponentViewModelToLayout());
             }
         }
 
@@ -147,12 +148,14 @@ class ComponentFactory implements EventManagerAwareInterface
      * @param Document $layout
      * @param ComponentInterface $component
      * @param array $panels
+     * @param bool $injectComponentViewModelToLayout Inject component view model into the layout view model?
      * @throws LogicException
      * @return \Vivo\UI\Component
      */
     protected function applyLayout(Document $layout,
                                    ComponentInterface $component,
-                                   $panels = array())
+                                   $panels = array(),
+                                   $injectComponentViewModelToLayout = false)
     {
         $layoutComponent = $this->getFrontComponent($layout);
 
@@ -167,6 +170,12 @@ class ComponentFactory implements EventManagerAwareInterface
 
         $layoutComponent->setMain($component);
         $layoutPanels = $layoutComponent->getPanels();
+
+        if ($injectComponentViewModelToLayout) {
+            //Inject component view model into layout view model
+            $componentViewModel = $component->view();
+            $layoutComponent->getView()->setVariable('paramViewModel', $componentViewModel);
+        }
 
         //document could override only panels that are defined in layout, other panels are ignored
         //TODO log warning when document tries to set panel that is not defined in layout

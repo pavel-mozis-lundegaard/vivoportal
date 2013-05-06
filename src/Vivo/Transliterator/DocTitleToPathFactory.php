@@ -5,9 +5,9 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
 
 /**
- * UrlFactory
+ * DocTitleToPathFactory
  */
-class UrlFactory implements FactoryInterface
+class DocTitleToPathFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -17,8 +17,8 @@ class UrlFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $config     = $serviceLocator->get('config');
-        if (isset($config['transliterator']['url']['options'])) {
-            $options    = $config['transliterator']['url']['options'];
+        if (isset($config['transliterator']['doc_title_to_path']['options'])) {
+            $options    = $config['transliterator']['doc_title_to_path']['options'];
         } else {
             $options    = array();
         }

@@ -22,7 +22,7 @@ class PathFactory implements FactoryInterface
         } else {
             $options    = array();
         }
-        $translit   = new Path($options);
+        $translit   = new Transliterator($options);
         return $translit;
     }
 }

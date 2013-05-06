@@ -8,6 +8,8 @@ use Vivo\Uuid\GeneratorInterface as UuidGeneratorInterface;
 use Vivo\CMS\Exception as CMSException;
 use Vivo\CMS\Model;
 use Vivo\CMS\Model\Content;
+use Vivo\Transliterator\TransliteratorInterface;
+
 use DateTime;
 
 /**
@@ -41,6 +43,12 @@ class Document implements DocumentInterface
     protected $uuidGenerator;
 
     /**
+     * Transliterator for document title to path conversion
+     * @var TransliteratorInterface
+     */
+    protected $transliteratorDocTitleToPath;
+
+    /**
      * @var array
      */
     protected $options = array();
@@ -51,18 +59,21 @@ class Document implements DocumentInterface
      * @param \Vivo\Repository\RepositoryInterface $repository
      * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
      * @param \Vivo\Uuid\GeneratorInterface $uuidGenerator
+     * @param \Vivo\Transliterator\TransliteratorInterface $transliteratorDocTitleToPath
      * @param array $options
      */
     public function __construct(CMS $cmsApi,
                                 RepositoryInterface $repository,
                                 PathBuilderInterface $pathBuilder,
                                 UuidGeneratorInterface $uuidGenerator,
+                                TransliteratorInterface $transliteratorDocTitleToPath,
                                 array $options)
     {
-        $this->cmsApi           = $cmsApi;
-        $this->repository       = $repository;
-        $this->pathBuilder      = $pathBuilder;
-        $this->uuidGenerator    = $uuidGenerator;
+        $this->cmsApi                       = $cmsApi;
+        $this->repository                   = $repository;
+        $this->pathBuilder                  = $pathBuilder;
+        $this->uuidGenerator                = $uuidGenerator;
+        $this->transliteratorDocTitleToPath = $transliteratorDocTitleToPath;
         $this->options = array_merge($this->options, $options);
     }
 
@@ -267,8 +278,9 @@ class Document implements DocumentInterface
         }
         $document->setTitle($title);
 
-        $titleLc = mb_strtolower($document->getTitle());
-        $path = $this->pathBuilder->buildStoragePath(array($parent->getPath(), $titleLc));
+        $titleTranslit  = $this->transliteratorDocTitleToPath->transliterate($document->getTitle());
+//        $titleLc = mb_strtolower($document->getTitle());
+        $path = $this->pathBuilder->buildStoragePath(array($parent->getPath(), $titleTranslit));
 
         $document->setPath($path);
         $document = $this->cmsApi->prepareEntityForSaving($document);
@@ -459,6 +471,7 @@ class Document implements DocumentInterface
             throw new CMSException\Exception(
                 sprintf("%s: Target location '%s' does not exist", __METHOD__, $targetUrl));
         }
+        $targetName = $this->transliteratorDocTitleToPath->transliterate($targetName);
         $targetUrl  .= $targetName . '/';
         $targetPath = $this->cmsApi->getEntityAbsolutePath($targetUrl, $site);
         if ($this->repository->hasEntity($targetPath)) {
@@ -525,6 +538,7 @@ class Document implements DocumentInterface
             throw new CMSException\Exception(
                 sprintf("%s: Target location '%s' does not exist", __METHOD__, $targetUrl));
         }
+        $targetName = $this->transliteratorDocTitleToPath->transliterate($targetName);
         $targetUrl  .= $targetName . '/';
         $targetPath = $this->cmsApi->getEntityAbsolutePath($targetUrl, $site);
         if ($this->repository->hasEntity($targetPath)) {

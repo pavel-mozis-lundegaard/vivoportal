@@ -1,5 +1,5 @@
 <?php
-namespace  Vivo\Backend\CMS\Exception;
+namespace  Vivo\CMS\Exception;
 
 /**
  * ResourceNotFoundException

@@ -4,58 +4,34 @@ namespace Vivo\Transliterator;
 use Zend\Stdlib\ArrayUtils;
 
 /**
- * Url
- * Url transliterator. Transliterates strings to be usable as URLs
+ * Transliterator
+ * General transliterator implementation
  */
-class Url implements TransliteratorInterface
+class Transliterator implements TransliteratorInterface
 {
+    /**#@+
+     * Constant signalling required case change
+     */
+    const CASE_CHANGE_TO_LOWER  = -1;
+    const CASE_CHANGE_TO_UPPER  = 1;
+    const CASE_CHANGE_NONE      = 0;
+    /**#@-*/
+
     /**
      * Transliterator options
      * @var array
      */
     protected $options  = array(
         //Transliteration map
-        'map'               => array(
-            //Cyrillic
-            'а' => 'a', 'б' => 'b', 'в' => 'v', 'г' => 'g', 'д' => 'd', 'е' => 'e', 'ё' => 'jo', 'ж' => 'zh',
-            'з' => 'z', 'и' =>'i', 'й' => 'j', 'к' => 'k', 'л' => 'l', 'м' => 'm', 'н' => 'n', 'о' => 'o', 'п' => 'p',
-            'р' => 'r', 'с' => 's', 'т' => 't', 'у' => 'u', 'ф' => 'f', 'х' => 'kh', 'ц' => 'c', 'ч' => 'ch',
-            'ш' => 'sh', 'щ' => 'shh', 'ъ' => '', 'ы' => 'y', 'ь' => '', 'э' => 'eh', 'ю' => 'ju', 'я' => 'ja',
-            //Doubles
-            'ß' => 'ss', 'æ' => 'ae', 'œ' => 'oe',
-            //A
-            'á' => 'a', 'ä' => 'a', 'ą' => 'a', 'à' => 'a', 'â' => 'a', 'å' => 'a', 'ă' => 'a',
-            //C
-            'č' => 'c', 'ć' => 'c', 'ç' => 'c',
-            //D
-            'ď' => 'd', 'ð' => 'd',
-            //E
-            'é' => 'e', 'ě' => 'e', 'ë' => 'e', 'ę' => 'e', 'è' => 'e', 'ê' => 'e',
-            //I
-            'í' => 'i', 'ï' => 'i', 'î' => 'i',
-            //L
-            'ľ' => 'l', 'ĺ' => 'l', 'ł' => 'l',
-            //N
-            'ň' => 'n', 'ń' => 'n', 'ñ' => 'n',
-            //O
-            'ó' => 'o', 'ö' => 'o', 'ô' => 'o', 'ő' => 'o',
-            //R
-            'ř' => 'r', 'ŕ' => 'r',
-            //S
-            'š' => 's', 'ś' => 's', 'ş' => 's',
-            //T
-            'ť' => 't', 'ţ' => 't',
-            //U
-            'ú' => 'u', 'ů' => 'u', 'ü' => 'u', 'ű' => 'u', 'û' => 'u', 'ù' => 'u',
-            //Y
-            'ý' => 'y', 'ÿ' => 'y',
-            //Z
-            'ž' => 'z', 'ź' => 'z', 'ż' => 'z',
-        ),
+        'map'               => array(),
         //String with all allowed characters
-        'allowedChars'      => 'abcdefghijklmnopqrstuvwxyz-/',
+        'allowedChars'      => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_',
         //Character used to replace illegal characters
         'replacementChar'   => '-',
+        //Change case before processing
+        'caseChangePre'     => self::CASE_CHANGE_NONE,
+        //Change case after processing
+        'caseChangePost'    => self::CASE_CHANGE_NONE,
     );
 
     /**
@@ -80,7 +56,15 @@ class Url implements TransliteratorInterface
      */
     public function transliterate($str)
     {
-        $str    = mb_strtolower($str);
+        //Change case PRE
+        switch ($this->options['caseChangePre']) {
+            case self::CASE_CHANGE_TO_LOWER:
+                $str    = mb_strtolower($str);
+                break;
+            case self::CASE_CHANGE_TO_UPPER:
+                $str    = mb_strtoupper($str);
+                break;
+        }
         //Replace according to the map
         foreach ($this->options['map'] as $from => $to) {
             $re     = sprintf('\\%s', $from);
@@ -103,6 +87,15 @@ class Url implements TransliteratorInterface
         //Remove trailing replacement char
         $re         = sprintf('\\%s$', $this->options['replacementChar']);
         $translit   = mb_ereg_replace($re, '', $translit);
+        //Change case POST
+        switch ($this->options['caseChangePost']) {
+            case self::CASE_CHANGE_TO_LOWER:
+                $translit   = mb_strtolower($translit);
+                break;
+            case self::CASE_CHANGE_TO_UPPER:
+                $translit   = mb_strtoupper($translit);
+                break;
+        }
         return $translit;
     }
 }

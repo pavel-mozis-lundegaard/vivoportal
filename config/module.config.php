@@ -234,6 +234,8 @@ return array(
             'Vivo\Util\UrlHelper'       =>  'Vivo\Util\UrlHelperFactory',
             'Vivo\Http\HeaderHelper'    => 'Vivo\Http\HeaderHelperFactory',
             'Vivo\Transliterator\Path'  => 'Vivo\Transliterator\PathFactory',
+            'Vivo\Transliterator\Url'   => 'Vivo\Transliterator\UrlFactory',
+            'Vivo\Transliterator\DocTitleToPath'    => 'Vivo\Transliterator\DocTitleToPathFactory',
             'sym_ref_convertor'         => 'Vivo\CMS\RefInt\SymRefConvertorFactory',
             'ref_int_listener'          => 'Vivo\CMS\RefInt\ListenerFactory',
             'mail_simple_renderer'      => 'Vivo\Mail\View\SimpleRendererFactory',
@@ -369,6 +371,177 @@ return array(
         'writer_plugin_manager' => array(
             'factories'     => array(
                 'default_log'               => 'Vivo\Log\LogFileWriterFactory',
+            ),
+        ),
+    ),
+
+    'transliterator'    => array(
+        'path'              => array(
+            'options'           => array(
+                //Transliteration map
+                'map'               => array(
+                    //Cyrillic
+                    'а' => 'a', 'б' => 'b', 'в' => 'v', 'г' => 'g', 'д' => 'd', 'е' => 'e', 'ё' => 'jo', 'ж' => 'zh',
+                    'з' => 'z', 'и' =>'i', 'й' => 'j', 'к' => 'k', 'л' => 'l', 'м' => 'm', 'н' => 'n', 'о' => 'o', 'п' => 'p',
+                    'р' => 'r', 'с' => 's', 'т' => 't', 'у' => 'u', 'ф' => 'f', 'х' => 'kh', 'ц' => 'c', 'ч' => 'ch',
+                    'ш' => 'sh', 'щ' => 'shh', 'ъ' => '', 'ы' => 'y', 'ь' => '', 'э' => 'eh', 'ю' => 'ju', 'я' => 'ja',
+                    'А' => 'A', 'Б' => 'B', 'В' => 'V', 'Г' => 'G', 'Д' => 'D', 'Е' => 'E', 'Ё' => 'JO', 'Ж' => 'ZH',
+                    'З' => 'Z', 'И' => 'I', 'Й' => 'J', 'К' => 'K', 'Л' => 'L', 'М' => 'M', 'Н' => 'N', 'О' => 'O', 'П' => 'P',
+                    'Р' => 'R', 'С' => 'S', 'Т' => 'T', 'У' => 'U', 'Ф' => 'F', 'Х' => 'KH', 'Ц' => 'C', 'Ч' => 'CH',
+                    'Ш' => 'SH', 'Щ' => 'SHH', 'Ъ' => '', 'Ы' => 'Y', 'Ь' => '', 'Э' => 'EH', 'Ю' => 'JU', 'Я' => 'JA',
+                    //Doubles
+                    'ß' => 'ss', 'æ' => 'ae', 'Æ' => 'AE', 'œ' => 'oe', 'Œ' => 'OE',
+                    //A
+                    'á' => 'a', 'Á' => 'A', 'ä' => 'a', 'Ä' => 'A', 'ą' => 'a', 'à' => 'a', 'À' => 'A', 'â' => 'a', 'Â' => 'A',
+                    'å' => 'a', 'Å' => 'A', 'ă' => 'a', 'Ă' => 'A',
+                    //C
+                    'č' => 'c', 'Č' => 'C', 'ć' => 'c', 'Ć' => 'C', 'ç' => 'c', 'Ç' => 'C',
+                    //D
+                    'ď' => 'd', 'Ď' => 'D', 'ð' => 'd', 'Ð' => 'D',
+                    //E
+                    'é' => 'e', 'É' => 'E', 'ě' => 'e', 'Ě' => 'E', 'ë' => 'e', 'Ë' => 'E', 'ę' => 'e', 'Ę' => 'E',
+                    'è' => 'e', 'È' => 'E', 'ê' => 'e', 'Ê' => 'E',
+                    //I
+                    'í' => 'i', 'Í' => 'I', 'ï' => 'i', 'Ï' => 'I', 'î' => 'i', 'Î' => 'I',
+                    //L
+                    'ľ' => 'l', 'Ľ' => 'L', 'ĺ' => 'l', 'Ĺ' => 'L', 'ł' => 'l', '£' => 'L',
+                    //N
+                    'ň' => 'n', 'Ň' => 'N', 'ń' => 'n', 'Ń' => 'N', 'ñ' => 'n', 'Ñ' => 'N',
+                    //O
+                    'ó' => 'o', 'Ó' => 'O', 'ö' => 'o', 'Ö' => 'O', 'ô' => 'o', 'Ô' => 'O', 'ő' => 'o', 'Ő' => 'O',
+                    //R
+                    'ř' => 'r', 'Ř' => 'R', 'ŕ' => 'r', 'Ŕ' => 'R',
+                    //S
+                    'š' => 's', 'Š' => 'S', 'ś' => 's', 'Ś' => 'S', 'ş' => 's', 'Ş' => 'S',
+                    //T
+                    'ť' => 't', 'Ť' => 'T', 'ţ' => 't', 'Ţ' => 'T',
+                    //U
+                    'ú' => 'u', 'Ú' => 'U', 'ů' => 'u', 'Ů' => 'U', 'ü' => 'u', 'Ü' => 'U', 'ű' => 'u', 'Ű' => 'U',
+                    'û' => 'u', 'Û' => 'U', 'ù' => 'u',
+                    //Y
+                    'ý' => 'y', 'Ý' => 'Y', 'ÿ' => 'y', 'Ÿ' => 'Y',
+                    //Z
+                    'ž' => 'z', 'Ž' => 'Z', 'ź' => 'z', 'Ź' => 'Z', 'ż' => 'z', 'Ż' => 'Z',
+                    //Symbols
+                    '\\' => '/',
+                ),
+                //String with all allowed characters
+                'allowedChars'      => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_/.',
+                //Character used to replace illegal characters
+                'replacementChar'   => '-',
+                //Change case before processing
+                'caseChangePre'     => \Vivo\Transliterator\Transliterator::CASE_CHANGE_NONE,
+                //Change case after processing
+                'caseChangePost'    => \Vivo\Transliterator\Transliterator::CASE_CHANGE_NONE,
+            ),
+        ),
+        'url'               => array(
+            'options'           => array(
+                //Transliteration map
+                'map'               => array(
+                    //Cyrillic
+                    'а' => 'a', 'б' => 'b', 'в' => 'v', 'г' => 'g', 'д' => 'd', 'е' => 'e', 'ё' => 'jo', 'ж' => 'zh',
+                    'з' => 'z', 'и' =>'i', 'й' => 'j', 'к' => 'k', 'л' => 'l', 'м' => 'm', 'н' => 'n', 'о' => 'o', 'п' => 'p',
+                    'р' => 'r', 'с' => 's', 'т' => 't', 'у' => 'u', 'ф' => 'f', 'х' => 'kh', 'ц' => 'c', 'ч' => 'ch',
+                    'ш' => 'sh', 'щ' => 'shh', 'ъ' => '', 'ы' => 'y', 'ь' => '', 'э' => 'eh', 'ю' => 'ju', 'я' => 'ja',
+                    //Doubles
+                    'ß' => 'ss', 'æ' => 'ae', 'œ' => 'oe',
+                    //A
+                    'á' => 'a', 'ä' => 'a', 'ą' => 'a', 'à' => 'a', 'â' => 'a', 'å' => 'a', 'ă' => 'a',
+                    //C
+                    'č' => 'c', 'ć' => 'c', 'ç' => 'c',
+                    //D
+                    'ď' => 'd', 'ð' => 'd',
+                    //E
+                    'é' => 'e', 'ě' => 'e', 'ë' => 'e', 'ę' => 'e', 'è' => 'e', 'ê' => 'e',
+                    //I
+                    'í' => 'i', 'ï' => 'i', 'î' => 'i',
+                    //L
+                    'ľ' => 'l', 'ĺ' => 'l', 'ł' => 'l',
+                    //N
+                    'ň' => 'n', 'ń' => 'n', 'ñ' => 'n',
+                    //O
+                    'ó' => 'o', 'ö' => 'o', 'ô' => 'o', 'ő' => 'o',
+                    //R
+                    'ř' => 'r', 'ŕ' => 'r',
+                    //S
+                    'š' => 's', 'ś' => 's', 'ş' => 's',
+                    //T
+                    'ť' => 't', 'ţ' => 't',
+                    //U
+                    'ú' => 'u', 'ů' => 'u', 'ü' => 'u', 'ű' => 'u', 'û' => 'u', 'ù' => 'u',
+                    //Y
+                    'ý' => 'y', 'ÿ' => 'y',
+                    //Z
+                    'ž' => 'z', 'ź' => 'z', 'ż' => 'z',
+                ),
+                //String with all allowed characters
+                'allowedChars'      => 'abcdefghijklmnopqrstuvwxyz-/',
+                //Character used to replace illegal characters
+                'replacementChar'   => '-',
+                //Change case before processing
+                'caseChangePre'     => \Vivo\Transliterator\Transliterator::CASE_CHANGE_TO_LOWER,
+                //Change case after processing
+                'caseChangePost'    => \Vivo\Transliterator\Transliterator::CASE_CHANGE_NONE,
+            ),
+        ),
+        'doc_title_to_path' => array(
+            'options'           => array(
+                //Transliteration map
+                'map'               => array(
+                    //Cyrillic
+                    'а' => 'a', 'б' => 'b', 'в' => 'v', 'г' => 'g', 'д' => 'd', 'е' => 'e', 'ё' => 'jo', 'ж' => 'zh',
+                    'з' => 'z', 'и' =>'i', 'й' => 'j', 'к' => 'k', 'л' => 'l', 'м' => 'm', 'н' => 'n', 'о' => 'o', 'п' => 'p',
+                    'р' => 'r', 'с' => 's', 'т' => 't', 'у' => 'u', 'ф' => 'f', 'х' => 'kh', 'ц' => 'c', 'ч' => 'ch',
+                    'ш' => 'sh', 'щ' => 'shh', 'ъ' => '', 'ы' => 'y', 'ь' => '', 'э' => 'eh', 'ю' => 'ju', 'я' => 'ja',
+                    'А' => 'A', 'Б' => 'B', 'В' => 'V', 'Г' => 'G', 'Д' => 'D', 'Е' => 'E', 'Ё' => 'JO', 'Ж' => 'ZH',
+                    'З' => 'Z', 'И' => 'I', 'Й' => 'J', 'К' => 'K', 'Л' => 'L', 'М' => 'M', 'Н' => 'N', 'О' => 'O', 'П' => 'P',
+                    'Р' => 'R', 'С' => 'S', 'Т' => 'T', 'У' => 'U', 'Ф' => 'F', 'Х' => 'KH', 'Ц' => 'C', 'Ч' => 'CH',
+                    'Ш' => 'SH', 'Щ' => 'SHH', 'Ъ' => '', 'Ы' => 'Y', 'Ь' => '', 'Э' => 'EH', 'Ю' => 'JU', 'Я' => 'JA',
+                    //Doubles
+                    'ß' => 'ss', 'æ' => 'ae', 'Æ' => 'AE', 'œ' => 'oe', 'Œ' => 'OE',
+                    //A
+                    'á' => 'a', 'Á' => 'A', 'ä' => 'a', 'Ä' => 'A', 'ą' => 'a', 'à' => 'a', 'À' => 'A', 'â' => 'a', 'Â' => 'A',
+                    'å' => 'a', 'Å' => 'A', 'ă' => 'a', 'Ă' => 'A',
+                    //C
+                    'č' => 'c', 'Č' => 'C', 'ć' => 'c', 'Ć' => 'C', 'ç' => 'c', 'Ç' => 'C',
+                    //D
+                    'ď' => 'd', 'Ď' => 'D', 'ð' => 'd', 'Ð' => 'D',
+                    //E
+                    'é' => 'e', 'É' => 'E', 'ě' => 'e', 'Ě' => 'E', 'ë' => 'e', 'Ë' => 'E', 'ę' => 'e', 'Ę' => 'E',
+                    'è' => 'e', 'È' => 'E', 'ê' => 'e', 'Ê' => 'E',
+                    //I
+                    'í' => 'i', 'Í' => 'I', 'ï' => 'i', 'Ï' => 'I', 'î' => 'i', 'Î' => 'I',
+                    //L
+                    'ľ' => 'l', 'Ľ' => 'L', 'ĺ' => 'l', 'Ĺ' => 'L', 'ł' => 'l', '£' => 'L',
+                    //N
+                    'ň' => 'n', 'Ň' => 'N', 'ń' => 'n', 'Ń' => 'N', 'ñ' => 'n', 'Ñ' => 'N',
+                    //O
+                    'ó' => 'o', 'Ó' => 'O', 'ö' => 'o', 'Ö' => 'O', 'ô' => 'o', 'Ô' => 'O', 'ő' => 'o', 'Ő' => 'O',
+                    //R
+                    'ř' => 'r', 'Ř' => 'R', 'ŕ' => 'r', 'Ŕ' => 'R',
+                    //S
+                    'š' => 's', 'Š' => 'S', 'ś' => 's', 'Ś' => 'S', 'ş' => 's', 'Ş' => 'S',
+                    //T
+                    'ť' => 't', 'Ť' => 'T', 'ţ' => 't', 'Ţ' => 'T',
+                    //U
+                    'ú' => 'u', 'Ú' => 'U', 'ů' => 'u', 'Ů' => 'U', 'ü' => 'u', 'Ü' => 'U', 'ű' => 'u', 'Ű' => 'U',
+                    'û' => 'u', 'Û' => 'U', 'ù' => 'u',
+                    //Y
+                    'ý' => 'y', 'Ý' => 'Y', 'ÿ' => 'y', 'Ÿ' => 'Y',
+                    //Z
+                    'ž' => 'z', 'Ž' => 'Z', 'ź' => 'z', 'Ź' => 'Z', 'ż' => 'z', 'Ż' => 'Z',
+                    //Symbols
+                    '\\' => '/',
+                ),
+                //String with all allowed characters
+                'allowedChars'      => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_',
+                //Character used to replace illegal characters
+                'replacementChar'   => '-',
+                //Change case before processing
+                'caseChangePre'     => \Vivo\Transliterator\Transliterator::CASE_CHANGE_TO_LOWER,
+                //Change case after processing
+                'caseChangePost'    => \Vivo\Transliterator\Transliterator::CASE_CHANGE_NONE,
             ),
         ),
     ),

@@ -151,8 +151,7 @@ class ComponentTreeController implements EventManagerAwareInterface
         foreach ($this->getTreeIterator() as $component) {
             if ($component instanceof PersistableInterface){
                 $message = 'Save component state: ' . $component->getPath();
-                $this->events->trigger('log', $this, array('message' => $message,
-                'priority'=> \Vivo\Log\Logger::INFO));
+                $this->events->trigger('log', $this, array('message' => $message, 'priority'=> \Vivo\Log\Logger::INFO));
                 $key = $this->request->getUri()->getPath(). $component->getPath();
                 $this->session[$key] = $component->saveState();
             }

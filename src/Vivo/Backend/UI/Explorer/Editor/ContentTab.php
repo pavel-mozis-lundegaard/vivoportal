@@ -86,24 +86,38 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
 
     protected function doGetForm()
     {
-        $options = array();
-        foreach ($this->contents as $k => $content) { /* @var $content \Vivo\CMS\Model\Content */
-            $options['EDIT:'.$content->getUuid()] = sprintf('1.%d [%s] %s {%s}',
-                $k, $content->getState(), get_class($content), $content->getUuid());
+        $options    = array();
+        //$optionKey will be used to initialize the select value
+        $optionKey = null;
+        /** @var $content \Vivo\CMS\Model\Content */
+        foreach ($this->contents as $k => $content) {
+            $optionKey  = 'EDIT:' . $content->getUuid();
+            $options[$optionKey] = sprintf('1.%d [%s] %s {%s}',
+                    $k, $content->getState(), get_class($content), $content->getUuid());
         }
 
         foreach ($this->availableContents as $ctKey => $ac) {
             $options['NEW:' . $ctKey]   = (isset($ac['label']) ? $ac['label'] : $ac['class']);
         }
 
-        $values = array_keys($options);
+        if (is_null($optionKey) && !empty($options)) {
+            //Only NEW contents available, preselect the first one
+            $keys       = array_keys($options);
+            $optionKey  = $keys[0];
+        }
 
         $form = new Form('container-'.$this->contentContainer->getUuid());
         $form->setWrapElements(true);
         $form->add(array(
                 'name' => 'version',
                 'type' => 'Vivo\Form\Element\Select',
-                'attributes' => array('options' => $options, 'value' => $values[0]),
+                'options'   => array(
+                    'label'         => 'Content version',
+                    'value_options' => $options,
+                ),
+                'attributes' => array(
+                    'value' => $optionKey,
+                ),
         ));
 
         return $form;

@@ -115,6 +115,28 @@ class FrontController implements DispatchableInterface,
                             __METHOD__ , $this->siteEvent->getHost()));
         }
 
+        //Redirect when path does not end with a slash
+        /** @var $routeMatch \Zend\Mvc\Router\Http\RouteMatch */
+        $routeMatch = $this->getEvent()->getRouteMatch();
+        if ($routeMatch->getMatchedRouteName() == 'vivo/cms') {
+            $path   = $routeMatch->getParam('path');
+            $lastChar   = substr($path, -1);
+            if ($lastChar != '/') {
+                $routeParams    = $routeMatch->getParams();
+                $routeParams['path']    = $path . '/';
+                $routeOptions   = array(
+                    'query'     => $this->request->getQuery()->toArray(),
+                );
+                $url            = $this->urlHelper->fromRoute('vivo/cms', $routeParams, $routeOptions);
+                //TODO - There is a bug in the redirector, the immediate redirection does not work
+                //TODO - Change the 'immediately' option to true when fixed
+                $params         = array('status_code' => 301, 'immediately' => false);
+                $redirectEvent  = new RedirectEvent($url, $params);
+                $this->redirector->redirect($redirectEvent);
+            }
+        }
+
+
         //fetch document
         $eventResult = $this->events->trigger(CMSEvent::EVENT_FETCH_DOCUMENT, $this->getCmsEvent(),
             function ($result) {

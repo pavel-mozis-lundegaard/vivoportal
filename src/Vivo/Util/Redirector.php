@@ -77,6 +77,7 @@ class Redirector implements SharedEventManagerAwareInterface
         $this->response->setStatusCode($event->getParam('status_code') ?: Response::STATUS_CODE_302);
         $this->response->getHeaders()->addHeaderLine('Location', $url);
         if($event->getParam('immediately')) {
+            //TODO - FixMe: The Zend\Http\Response object does not have the sendHeaders() method!
             $this->response->sendHeaders();
             die();
         }

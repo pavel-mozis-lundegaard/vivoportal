@@ -7,7 +7,7 @@ return array(
         'routes' => array(
             //routes for frontend
             'vivo' => array(
-                //only add hostname to routermatch
+                //only add hostname to routematch
                 'type' => 'Vivo\Router\Hostname',
                 'may_terminate' => false,
                 'child_routes' => array(

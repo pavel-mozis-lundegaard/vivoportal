@@ -6,7 +6,7 @@ use Zend\Mvc\Router\RouteMatch;
 use Zend\Mvc\Router\RouteStackInterface;
 
 /**
- * Helper class for asembling urls.
+ * Helper class for assembling urls.
  *
  * @see \Zend\Mvc\Controller\Plugin\Url
  */
@@ -35,7 +35,7 @@ class UrlHelper
     }
 
     /**
-     * Asemble url using route and router params.
+     * Assemble url using route and router params.
      *
      * @param string $route
      * @param array $params

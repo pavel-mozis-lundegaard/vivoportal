@@ -113,11 +113,16 @@ class LoadModulesListener implements ListenerAggregateInterface
         $this->serviceManager->setService('cms_config', $cmsConfig);
         //Prepare Vivo service manager
         $this->initializeVivoServiceManager($cmsConfig);
+        //Prepare Vivo controller loader
+        $this->initializeVivoControllerLoader($cmsConfig);
+        //Prepare Vivo view helpers manager
+        $this->initializeVivoViewHelperManager($cmsConfig);
         $e->stopPropagation(true);
     }
 
     /**
      * Initialize vivo service manager
+     * @param array $cmsConfig
      */
     protected function initializeVivoServiceManager(array $cmsConfig)
     {
@@ -127,6 +132,41 @@ class LoadModulesListener implements ListenerAggregateInterface
         $di = $this->serviceManager->get('di');
         $di->configure(new DiConfig($cmsConfig['di']));
         $smConfig->configureServiceManager($this->serviceManager);
+    }
+
+    /**
+     * Initialize Vivo view helper manager
+     * @param array $cmsConfig
+     */
+    protected function initializeVivoViewHelperManager(array $cmsConfig)
+    {
+        if (isset($cmsConfig['view_helpers'])) {
+            $viewHelperConfig   = new SmConfig($cmsConfig['view_helpers']);
+            /** @var $viewHelperManager \Zend\View\HelperPluginManager */
+            $viewHelperManager  = $this->serviceManager->get('view_helper_manager');
+
+            //TODO - check: Do we really want to disable view helper overriding?
+            //Disable overriding - modules & sites are not supposed to override existing view helpers (?)
+            $viewHelperManager->setAllowOverride(false);
+
+            $viewHelperConfig->configureServiceManager($viewHelperManager);
+        }
+    }
+
+    /**
+     * Initialize Vivo controller loader
+     * @param array $cmsConfig
+     */
+    protected function initializeVivoControllerLoader(array $cmsConfig)
+    {
+        if (isset($cmsConfig['controllers'])) {
+            $controllerConfig   = new SmConfig($cmsConfig['controllers']);
+            /** @var $controllerLoader \Zend\Mvc\Controller\ControllerManager */
+            $controllerLoader  = $this->serviceManager->get('controller_loader');
+            //Disable overriding - modules & sites are not supposed to override existing controllers
+            $controllerLoader->setAllowOverride(false);
+            $controllerConfig->configureServiceManager($controllerLoader);
+        }
     }
 
     /**

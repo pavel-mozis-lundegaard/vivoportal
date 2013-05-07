@@ -820,6 +820,15 @@ return array(
                         ),
                     ),
                 ),
+                'cms_create_site'   => array(
+                    'options' => array(
+                        'route'    => 'cms createsite <name> <secdomain> <hosts> [<title>]',
+                        'defaults' => array(
+                            'controller' => 'cli_cms',
+                            'action'     => 'create-site',
+                        ),
+                    ),
+                ),
                 'setup' => array(
                     'options' => array(
                         'route'    => 'setup [<action>]',

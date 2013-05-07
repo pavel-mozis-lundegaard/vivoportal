@@ -6,6 +6,7 @@ use Vivo\CMS\Model;
 use Vivo\CMS\Api\IndexerInterface as IndexerApiInterface;
 use Vivo\Indexer\QueryBuilder;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
+use Vivo\Repository\Exception\EntityNotFoundException;
 
 use Zend\Config;
 
@@ -109,25 +110,44 @@ class Site
     }
 
     /**
-     * Creates new site with tamplate structure.
+     * Creates new site with template structure.
      * @param string $name Site name.
      * @param string $domain Security domain.
      * @param array $hosts
+     * @param string $title Site title, if not set, site name will be used
+     * @throws Exception\SiteAlreadyExistsException
      * @return Model\Site
      */
-    public function createSite($name, $domain, array $hosts)
+    public function createSite($name, $domain, array $hosts, $title = null)
     {
+        //Check if a site with this name already exists
+        if ($this->siteExists($name)) {
+            throw new Exception\SiteAlreadyExistsException(sprintf("%s: Site '%s' already exists", __METHOD__, $name));
+        }
+        //Check if any of the hosts is already used with another site
+        foreach ($hosts as $host) {
+            $site   = $this->getSiteByHost($host);
+            if (!is_null($site)) {
+                throw new Exception\SiteAlreadyExistsException(
+                    sprintf("%s: Host '%s' already used for site '%s'", __METHOD__, $host, $site->getName()));
+            }
+        }
+        //Create site
+        if (is_null($title)) {
+            $title  = $name;
+        }
         $sitePath   = $this->pathBuilder->buildStoragePath(array($name), true);
         $site       = new Model\Site($sitePath);
         $site->setDomain($domain);
         $site->setHosts($hosts);
+        $site->setTitle($title);
         $rootPath   = $this->pathBuilder->buildStoragePath(array($name, 'ROOT'), true);
         $root = new Model\Document($rootPath);
         $root->setTitle('Home');
         $root->setWorkflow('Vivo\CMS\Workflow\Basic');
-        $this->saveEntity($site, false);
+        $this->cmsApi->saveEntity($site, false);
         $this->setSiteConfig(array(), $site);
-        $this->saveEntity($root,  false);
+        $this->cmsApi->saveEntity($root,  false);
         $this->repository->commit();
         return $site;
     }
@@ -172,7 +192,7 @@ class Site
     public function getSite($siteName)
     {
         $path   = $this->pathBuilder->buildStoragePath(array($siteName), true);
-        $site   = $this->getEntity($path);
+        $site   = $this->cmsApi->getEntity($path);
         if (!$site instanceof Model\Site) {
             throw new Exception\DomainException(
                     sprintf("%s: Returned object is not of '%s' type", __METHOD__, '\Vivo\CMS\Model\Site'));

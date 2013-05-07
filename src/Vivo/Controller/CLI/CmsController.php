@@ -2,10 +2,12 @@
 namespace Vivo\Controller\CLI;
 
 use Vivo\CMS\Api\CMS;
+use Vivo\CMS\Api\Site as SiteApi;
 use Vivo\SiteManager\Event\SiteEvent;
 use Vivo\Repository\RepositoryInterface;
 use Vivo\Uuid\GeneratorInterface as UuidGeneratorInterface;
 use Vivo\CMS\Api\IndexerInterface as IndexerApiInterface;
+use Vivo\CMS\Api\Exception\SiteAlreadyExistsException;
 
 /**
  * CmsController
@@ -19,7 +21,13 @@ class CmsController extends AbstractCliController
      * CMS Api
      * @var CMS
      */
-    protected $cms;
+    protected $cmsApi;
+
+    /**
+     * Site API
+     * @var SiteApi
+     */
+    protected $siteApi;
 
     /**
      * SiteEvent
@@ -47,19 +55,22 @@ class CmsController extends AbstractCliController
 
     /**
      * Constructor
-     * @param \Vivo\CMS\Api\CMS $cms
+     * @param \Vivo\CMS\Api\CMS $cmsApi
+     * @param \Vivo\CMS\Api\Site $siteApi
      * @param \Vivo\SiteManager\Event\SiteEvent $siteEvent
      * @param \Vivo\Repository\RepositoryInterface $repository
      * @param \Vivo\Uuid\GeneratorInterface $uuidGenerator
      * @param \Vivo\CMS\Api\IndexerInterface $indexerApi
      */
-    public function __construct(CMS $cms,
+    public function __construct(CMS $cmsApi,
+                                SiteApi $siteApi,
                                 SiteEvent $siteEvent,
                                 RepositoryInterface $repository,
                                 UuidGeneratorInterface $uuidGenerator,
                                 IndexerApiInterface $indexerApi)
     {
-        $this->cms              = $cms;
+        $this->cmsApi           = $cmsApi;
+        $this->siteApi          = $siteApi;
         $this->siteEvent        = $siteEvent;
         $this->repository       = $repository;
         $this->uuidGenerator    = $uuidGenerator;
@@ -71,7 +82,7 @@ class CmsController extends AbstractCliController
         $output = "\nCMS usage:";
         $output .= "\ncms duplicateuuids <host>";
         $output .= "\ncms uniqueuuids <host> [--force|-f]";
-
+        $output .= "\ncms createsite <name> <secdomain> <hosts> [<site_title>]";
         return $output;
     }
 
@@ -91,7 +102,7 @@ class CmsController extends AbstractCliController
         }
         $site   = $this->siteEvent->getSite();
         $path   = $site->getPath();
-        $duplicateUuids = $this->cms->getDuplicateUuidsInStorage($path);
+        $duplicateUuids = $this->cmsApi->getDuplicateUuidsInStorage($path);
         $numOfDuplicates    = count($duplicateUuids);
         if ($numOfDuplicates == 0) {
             $output = "\nThere are no duplicate uuids";
@@ -140,14 +151,14 @@ class CmsController extends AbstractCliController
             foreach ($entities as $entity) {
                 $newUuid    = $this->uuidGenerator->create();
                 $entity->setUuid($newUuid);
-                $this->cms->saveEntity($entity, false);
+                $this->cmsApi->saveEntity($entity, false);
                 $count++;
             }
             $this->repository->commit();
             $output     .= sprintf("\nCommitted %s updated entities into repository", $count);
         } else {
             //Replace only duplicate UUIDs
-            $duplicateUuids     = $this->cms->getDuplicateUuidsInStorage($path);
+            $duplicateUuids     = $this->cmsApi->getDuplicateUuidsInStorage($path);
             $numOfDuplicates    = count($duplicateUuids);
             if ($numOfDuplicates == 0) {
                 $output = "\nThere are no duplicate uuids";
@@ -160,7 +171,7 @@ class CmsController extends AbstractCliController
                         $entity = $this->repository->getEntity($pathOfDup);
                         $newUuid    = $this->uuidGenerator->create();
                         $entity->setUuid($newUuid);
-                        $this->cms->saveEntity($entity, false);
+                        $this->cmsApi->saveEntity($entity, false);
                         $output .= sprintf("\n    %s -> %s", $pathOfDup, $newUuid);
                     }
                 }
@@ -171,5 +182,39 @@ class CmsController extends AbstractCliController
         $reindexedNum   = $this->indexerApi->reindex($site, '/', true);
         $output         .= sprintf("\n\nReindexed %s", $reindexedNum);
         return $output;
+    }
+
+    /**
+     * Creates site
+     * @return string
+     */
+    public function createSiteAction()
+    {
+        $output     = 'Create site';
+        //Prepare params
+        $request    = $this->getRequest();
+        /* @var $request \Zend\Console\Request */
+        $name       = $request->getParam('name');
+        $output     .= "\nName: " . $name;
+        $secDomain  = $request->getParam('secdomain');
+        $output     .= "\nSecurity domain: " . $secDomain;
+        $hosts      = $request->getParam('hosts');
+        $hosts      = explode(',', $hosts);
+        foreach ($hosts as $key => $host) {
+            $hosts[$key] = trim($host);
+        }
+        $output     .= "\nHosts: " . implode(', ', $hosts);
+        if ($request->getParam('title')) {
+            $title  = $request->getParam('title');
+        } else {
+            $title  = null;
+        }
+        try {
+            $this->siteApi->createSite($name, $secDomain, $hosts, $title);
+            $output     .= "\nSITE CREATED";
+        } catch (SiteAlreadyExistsException $e) {
+            $output .= "\nERROR: " . $e->getMessage();
+        }
+        return $output;;
     }
 }

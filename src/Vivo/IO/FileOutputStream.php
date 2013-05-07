@@ -6,7 +6,7 @@ use Vivo\IO\Exception\RuntimeException;
 /**
  *
  */
-class FileOutputStream implements OutputStreamInterface, CloseableInterface
+class FileOutputStream implements OutputStreamInterface
 {
 
     /**

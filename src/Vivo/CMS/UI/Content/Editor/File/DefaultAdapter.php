@@ -3,11 +3,11 @@ namespace Vivo\CMS\UI\Content\Editor\File;
 
 use Vivo\CMS\Api;
 use Vivo\Form\Form;
-use Vivo\Form\Factory;
 use Vivo\CMS\UI\Content\Editor\AbstractAdapter;
+use Vivo\Repository\Exception\PathNotSetException;
 
 /**
- * Editor Adapter for editing HTML code via WYSIWYG Editor
+ * Editor Adapter for general files
  */
 class DefaultAdapter extends AbstractAdapter
 {
@@ -36,6 +36,7 @@ class DefaultAdapter extends AbstractAdapter
 	*/
     public function init()
     {
+        parent::init();
         try {
             if($this->content->getFileName()) {
                 $this->showDownload = true;
@@ -44,8 +45,6 @@ class DefaultAdapter extends AbstractAdapter
         catch (PathNotSetException $e) {
 
         }
-
-        parent::init();
     }
 
 	/**

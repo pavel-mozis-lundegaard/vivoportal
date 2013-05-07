@@ -5,7 +5,7 @@ namespace Vivo\IO;
  * @author kormik
  *
  */
-interface OutputStreamInterface {
+interface OutputStreamInterface extends CloseableInterface {
 
 	/**
 	 * Writes to stream

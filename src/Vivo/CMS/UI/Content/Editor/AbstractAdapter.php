@@ -18,6 +18,20 @@ abstract class AbstractAdapter extends AbstractForm implements AdapterInterface
     protected $content;
 
     /**
+     * When set to true, CSRF protection will be automatically added to the form
+     * Redefine in descendant if necessary
+     * @var bool
+     */
+    protected $autoAddCsrf          = false;
+
+    /**
+     * When set to true, data will be automatically loaded to the form from request
+     * Redefine in descendant if necessary
+     * @var bool
+     */
+    protected $autoLoadFromRequest  = false;
+
+    /**
      * Sets Content
      * @param Content $content
      */

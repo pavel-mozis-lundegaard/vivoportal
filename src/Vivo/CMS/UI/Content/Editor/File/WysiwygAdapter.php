@@ -6,6 +6,7 @@ use Vivo\Form\Factory as FormFactory;
 use Vivo\CMS\RefInt\SymRefConvertorInterface;
 use Vivo\CMS\UI\Content\Editor\AbstractAdapter;
 use Vivo\CMS\UI\Content\Editor\ResourceEditorInterface;
+use Vivo\Repository\Exception\PathNotSetException;
 
 /**
  * Editor Adapter for editing HTML code via WYSIWYG Editor
@@ -34,7 +35,6 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
 	{
 	    $this->cmsApi           = $cmsApi;
 	    $this->symRefConvertor  = $symRefConvertor;
-	    $this->autoAddCsrf      = false;
 	    $this->formFactory      = $formFactory;
 	}
 
@@ -43,9 +43,9 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
 	*/
     public function init()
     {
+        parent::init();
         $form = $this->getForm();
         $form->setAttribute('method', 'post');
-
         try {
             if($this->content->getUuid()) {
                 $data = $this->cmsApi->getResource($this->content, 'resource.html');
@@ -57,7 +57,6 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
         catch (PathNotSetException $e) {
 
         }
-        parent::init();
     }
 
 	/**
@@ -101,8 +100,8 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
 	 */
     public function getData()
     {
+        $this->loadFromRequest();
         $form = $this->getForm();
-
         if($form->isValid()) {
             $data = $form->get("resource")->getValue();
             $data   = $this->symRefConvertor->convertUrlsToReferences($data);

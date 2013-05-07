@@ -65,13 +65,15 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
     {
         $this->loadContents();
         parent::init();
-        $this->doChangeVersion();
+        $version = $this->getForm()->get('version')->getValue();
+        $this->doChangeVersion($version);
     }
 
     public function initForm()
     {
         $this->loadContents();
-        $this->doChangeVersion();
+        $version = $this->getForm()->get('version')->getValue();
+        $this->doChangeVersion($version);
     }
 
     private function loadContents()
@@ -125,15 +127,11 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
 
     public function changeVersion() { }
 
-    private function doChangeVersion()
+    private function doChangeVersion($version)
     {
         /* @var $content \Vivo\CMS\Model\Content */
         $content = null;
-
-        $version = $this->getForm()->get('version')->getValue();
-
         list($type, $param) = explode(':', $version);
-
         if($type == 'NEW') {
             $class  = $this->availableContents[$param]['class'];
             $content = new $class();
@@ -156,14 +154,11 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
                 }
             }
         }
-
         /* @var $component \Vivo\Backend\UI\Explorer\Editor\Content */
         $component = $this->sm->create('Vivo\Backend\UI\Explorer\Editor\Content');
         $component->setContentContainer($this->contentContainer);
         $component->setContent($content);
-
         $this->addComponent($component, 'contentEditor');
-
         $component->init();
     }
 

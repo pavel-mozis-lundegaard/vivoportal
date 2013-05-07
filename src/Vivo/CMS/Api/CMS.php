@@ -10,6 +10,7 @@ use Vivo\Indexer\QueryBuilder;
 use Vivo\Uuid\GeneratorInterface as UuidGeneratorInterface;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
 use Vivo\Security\Manager\AbstractManager as AbstractSecurityManager;
+use Vivo\IO\InputStreamInterface;
 
 use DateTime;
 
@@ -220,6 +221,18 @@ class CMS
 //
 //         return $this->repository->getChildren($document->getPath().'/Contents.'.$index);
 //     }
+
+    /**
+     * Writes resource represented by a stream into the repository
+     * @param Model\Entity $entity 'Owner' of the resource
+     * @param string $name Resource name
+     * @param InputStreamInterface $inputStream
+     */
+    public function writeResource(Model\Entity $entity, $name, InputStreamInterface $inputStream)
+    {
+        $this->repository->writeResource($entity, $name, $inputStream);
+        $this->repository->commit();
+    }
 
     /**
      * @param Model\Entity $entity

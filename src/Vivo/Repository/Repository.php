@@ -707,7 +707,8 @@ class Repository implements RepositoryInterface
                 $tmpPath                = $path . '.' . uniqid('tmp-');
                 $this->tmpFiles[$path]  = $tmpPath;
                 $output                 = $this->storage->write($tmpPath);
-                $this->ioUtil->copy($stream, $output, 1024);
+                $this->ioUtil->copy($stream, $output, 4096);
+                $output->close();
             }
 
             //Delete - Phase 2 (delete the temp files) - this is done in removeTempFiles

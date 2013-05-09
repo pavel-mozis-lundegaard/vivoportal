@@ -8,9 +8,9 @@ use Vivo\Indexer\Query\BooleanNot;
 use Vivo\Indexer\Term as IndexerTerm;
 use Vivo\Indexer\QueryParams;
 
-use ApacheSolr\Service as SolrService;
-use ApacheSolr\Response as SolrResponse;
-use ApacheSolr\HttpTransport\Response as SolrHttpResponse;
+use VpApacheSolr\Service as SolrService;
+use VpApacheSolr\Response as SolrResponse;
+use VpApacheSolr\HttpTransport\Response as SolrHttpResponse;
 
 class SolrResponseMock
 {
@@ -45,7 +45,7 @@ class SolrTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->solrService  = $this->getMock('ApacheSolr\Service', array('search'), array(), '', false);
+        $this->solrService  = $this->getMock('VpApacheSolr\Service', array('search'), array(), '', false);
         $this->adapter      = new SolrAdapter($this->solrService, 'uuid');
     }
 

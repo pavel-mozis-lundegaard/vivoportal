@@ -26,13 +26,10 @@ class IndexerAdapterFactory implements FactoryInterface
                 $adapter    = new \Vivo\Indexer\Adapter\Dummy();
                 break;
             case 'solr':
-                $fieldHelper    = $serviceLocator->get('indexer_field_helper');
                 $options        = $idxAdapterCfg['options'];
                 $idField        = $options['id_field'];
-                $solrSvcOpts    = $options['solr_service'];
-                $solrService    = new \ApacheSolr\Service($solrSvcOpts['host'],
-                                                          $solrSvcOpts['port'],
-                                                          $solrSvcOpts['path']);
+                $fieldHelper    = $serviceLocator->get('indexer_field_helper');
+                $solrService    = $serviceLocator->get('VpApacheSolr\solr_service');
                 $adapter        =  new \Vivo\Indexer\Adapter\Solr($solrService, $idField, $fieldHelper);
                 break;
             default:

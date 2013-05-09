@@ -11,8 +11,8 @@ use Vivo\CMS\Indexer\FieldHelperInterface;
 use Vivo\Indexer\IndexerInterface;
 use Vivo\CMS\Indexer\Exception\CannotDecomposeFieldnameException;
 
-use ApacheSolr\Document as SolrDocument;
-use ApacheSolr\Service as SolrService;
+use VpApacheSolr\Document as SolrDocument;
+use VpApacheSolr\Service as SolrService;
 
 use \DateTime;
 

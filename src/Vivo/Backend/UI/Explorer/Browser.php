@@ -3,7 +3,6 @@ namespace Vivo\Backend\UI\Explorer;
 
 use Vivo\CMS\Api;
 use Vivo\UI\Component;
-use ZendSearch\Lucene\Document;
 
 /**
  * Browser component shows list of documents.
@@ -28,7 +27,7 @@ class Browser extends Component
 
     /**
      * Constructor.
-     * @param Document $documentApi
+     * @param Api\Document $documentApi
      */
     public function __construct(Api\CMS $cmsApi,  Api\Document $documentApi)
     {

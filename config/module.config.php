@@ -213,7 +213,6 @@ return array(
             'zdb_abstract_factory'      => 'Vivo\Service\ZdbAbstractFactoryFactory',
             'path_builder'              => 'Vivo\Service\PathBuilderFactory',
             'component_factory'         => 'Vivo\Service\ComponentFactoryFactory',
-            'solr_service'              => 'Vivo\Service\SolrServiceFactory',
             'indexer_adapter'           => 'Vivo\Service\IndexerAdapterFactory',
             'indexer_field_helper'      => 'Vivo\Service\IndexerFieldHelperFactory',
             'indexer_query_parser'      => 'Vivo\Service\IndexerQueryParserFactory',
@@ -602,14 +601,9 @@ return array(
     'indexer'   => array(
         'adapter'   => array(
             'type'      => 'dummy',
-            //Solr options
+                //Solr options
 //                'options'   => array(
 //                    'id_field'      => 'uuid',
-//                    'solr_service'  => array(
-//                        'host'          => 'localhost',
-//                        'port'          => 8983,
-//                        'path'          => '/solr/',
-//                    ),
 //                ),
         ),
         'default_indexing_options'  => array(

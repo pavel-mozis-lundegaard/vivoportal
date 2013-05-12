@@ -1,20 +1,58 @@
 <?php
-
 namespace Vivo\Util;
 
 /**
  * Images class provides methods to works with images as is resample.
- *
- * @todo: PNG quality if > 7...
  */
-class Images {
+class Images
+{
 
-    public function resample($inputFile, $options) {
+    /**
+     * Default optons
+     * @var array
+     */
+    protected $defaultOptions = array(
+        'size' => null,
+        'height' => null,
+        'width' => null,
+        'bw' => false,
+        'crop' => false,
+        'bgcolor' => null,
+        'radius' => 0,
+        'outputType' => 'image/jpeg',
+        'quality' => 95,
+        'transparency' => null, //0 = full opaque, 127 = full transparent.
+        'useTransparency' => false,
+    );
+
+    /**
+     * Resample image
+     * @param string $inputFile Input file path
+     * @param string $outputFile Output file path
+     * @param array $options Resampling options (@see $defaulOptions)
+     * @throws \Exception
+     */
+    public function resample($inputFile, $outputFile, array $options = array())
+    {
         if (!file_exists($inputFile)) {
-            throw new \Exception('File not exist');
+            throw new \Exception(sprintf('%s: Input file doesn\'t exists.', __METHOD__));
         }
+        $options = array_merge($this->defaultOptions, $options);
 
-        $image = $this->loadImage($inputFile);
+        //load image
+        $image = $this->loadImage($inputFile, $options);
+
+        //setup transparency
+        if ($options['transparency'] === null) {
+            if (!$options['bgcolor']) {
+                $options['transparency'] = 127;
+            } else {
+                $options['transparency'] = 0;
+            }
+        }
+        if ($options['imageType'] == IMAGETYPE_PNG) {
+            $options['useTransparency'] = true;
+        }
 
         //convert to black&white
         if ($options['bw'] == true) {
@@ -22,47 +60,59 @@ class Images {
         }
 
         //resize
-        if ($options['size'] > 0 || $options['height'] || $options['width']) {
+        if ($options['size'] || $options['height'] || $options['width']) {
             $image = $this->resize($image, $options);
         }
 
         //round corners
-
-        if (!$options['bgcolor'] && $png) {
-            $transparency = 127;
-        } else {
-            $transparency = 0;
+        if ($options['radius']) {
+            $image = $this->roundCorners($image, $options);
         }
 
-        if ($options['radius'] > 0) {
-            $image = $this->roundCorners($image, $options['radius'], $options['bgcolor'], $transparency);
-        }
-
-        $this->saveImage($image, $path);
-
-        return $outputFile;
+        $this->saveImage($image, $outputFile, $options);
     }
 
-    protected function saveImage($image, $path) {
-        //TODO
+    /**
+     * Save image to file.
+     * @param type $image
+     * @param type $path
+     * @param type $options
+     * @throws Exception
+     */
+    protected function saveImage($image, $path, $options)
+    {
+        switch ($options['outputType']) {
+            case 'image/png':
+                imagepng($image, $path);
+                break;
+            case 'image/gif':
+                imagegif($image, $path);
+                break;
+            case 'image/jpeg':
+                imagejpeg($image, $path, $options['quality']);
+                break;
+            default:
+                throw new \Exception(sprintf('%s: Unsupported output type.', __METHOD__));
+        }
     }
 
     /**
      * Function creates a transparent rounded corners to image.
      *
      * @param resource $inputImage Input image
-     * @param int $radius Radius of rounded corners
-     * @param string $color Color to make transparent
-     * @param int $transparency Transparency. 0 = full opaque, 127 = full transparent.
+     * @param array $options
      * @return resource Image with rounded and transparent corners
      */
-    public function roundCorners($inputImage, $radius = 20, $color = false, $transparency = 127) {
+    protected function roundCorners($inputImage, array $options)
+    {
         $width = imagesx($inputImage);
         $height = imagesy($inputImage);
+        $color = $options['bgcolor'];
+        $transparency = $options['transparency'];
+        $radius = $options['radius'];
 
         $outputImage = imagecreatetruecolor($width, $height);
         imagecopy($outputImage, $inputImage, 0, 0, 0, 0, $width, $height);
-
         imagealphablending($outputImage, false);
         imagesavealpha($outputImage, true);
 
@@ -107,7 +157,8 @@ class Images {
      * @param int $transparency Transparency level 0..127
      * @return int A color identifier or false if the allocation failed
      */
-    public function allocateCornerColor($image, $color, $transparency) {
+    protected function allocateCornerColor($image, $color, $transparency)
+    {
         $r = $g = $b = '';
         if (!$color) {
             $found = false;
@@ -126,13 +177,15 @@ class Images {
             $b = hexdec(substr($color, 4, 2));
         }
 
-        if ($transparency > 127)
+        if ($transparency > 127) {
             $transparency = 127;
+        }
 
-        if ($transparency <= 0)
+        if ($transparency <= 0) {
             return imagecolorallocate($image, $r, $g, $b);
-        else
+        } else {
             return imagecolorallocatealpha($image, $r, $g, $b, $transparency);
+        }
     }
 
     /**
@@ -144,13 +197,13 @@ class Images {
      * @param float $weight Index of transparency (0.0..1.0) for antialiasing
      * @return int A color identifier or false if the allocation failed
      */
-    protected function antialiasPixel($image, $x = 0, $y = 0, $color = false, $weight = 0.5) {
+    protected function antialiasPixel($image, $x = 0, $y = 0, $color = false, $weight = 0.5)
+    {
         $c = imagecolorsforindex($image, $color);
         $r1 = $c['red'];
         $g1 = $c['green'];
         $b1 = $c['blue'];
         $t1 = $c['alpha'];
-
         $color2 = imagecolorat($image, $x, $y);
         $c = imagecolorsforindex($image, $color2);
         $r2 = $c['red'];
@@ -173,15 +226,14 @@ class Images {
      * @param type $inputImage
      * @param type $options
      */
-    protected function resize($inputImage, $options) {
-
-        $width   = $options['width'];
-        $height  = $options['height'];
-        $size    = $options['size'];
+    protected function resize($inputImage, $options)
+    {
+        $width = $options['width'];
+        $height = $options['height'];
+        $size = $options['size'];
         $bgcolor = $options['bgcolor'];
-        $cropX    = $options['crop'];
-
-        $isPNG  = true; //TODO
+        $crop = $options['crop'];
+        $useTransparency = $options['useTransparency'];
 
         $h1 = imagesy($inputImage);
         $w1 = imagesx($inputImage);
@@ -190,24 +242,17 @@ class Images {
             $c = $size / ($w1 > $h1 ? $w1 : $h1);
             $w2 = floor($w1 * $c);
             $h2 = floor($h1 * $c);
-            $i2 = imagecreatetruecolor($w2, $h2);
+            $outputImage = imagecreatetruecolor($w2, $h2);
 
-            imagecopyresampled($i2, $inputImage, 0, 0, 0, 0, $w2, $h2, $w1, $h1);
+            imagecopyresampled($outputImage, $inputImage, 0, 0, 0, 0, $w2, $h2, $w1, $h1);
 
-            if ($isPNG) {
-                imagecolortransparent($i2, imagecolorallocatealpha($i2, 0, 0, 0, 127));
-                imagealphablending($i2, false);
-                imagesavealpha($i2, true);
-
-//                if (!$bgcolor) {
-//                    $transparency = 127;
-//                }
+            if ($useTransparency) {
+                imagecolortransparent($outputImage, imagecolorallocatealpha($outputImage, 0, 0, 0, 127));
+                imagealphablending($outputImage, false);
+                imagesavealpha($outputImage, true);
             }
-//            if ($radius > 0) {
-//                $i2 = self::roundCorners($i2, $radius, $bgcolor, $transparency);
-//            }
-        } elseif ($width && $height && $cropX && $w1 / $h1 != $width / $height) {
-            $i2 = imagecreatetruecolor($width, $height);
+        } elseif ($width && $height && $crop && $w1 / $h1 != $width / $height) {
+            $outputImage = imagecreatetruecolor($width, $height);
 
             // find the right scale to use
             $scale = min((float) ($w1 / $width), (float) ($h1 / $height));
@@ -219,29 +264,21 @@ class Images {
             $cropH = (float) ($h1 - $cropY);
             $i3 = imagecreatetruecolor($cropW, $cropH);
 
-            if ($isPNG) {
-                imagecolortransparent($i2, imagecolorallocatealpha($i2, 0, 0, 0, 127));
-                imagealphablending($i2, false);
-                imagesavealpha($i2, true);
+            if ($useTransparency) {
+                imagecolortransparent($outputImage, imagecolorallocatealpha($outputImage, 0, 0, 0, 127));
+                imagealphablending($outputImage, false);
+                imagesavealpha($outputImage, true);
 
                 imagealphablending($i3, false);
                 $color = imagecolortransparent($i3, imagecolorallocatealpha($i3, 0, 0, 0, 127));
                 imagefill($i3, 0, 0, $color);
                 imagesavealpha($i3, true);
-
-//                if (!$bgcolor) {
-//                    $transparency = 127;
-//                }
             }
 
             // crop the middle part of the image to fit proportions
             imagecopy($i3, $inputImage, 0, 0, (int) ($cropX / 2), (int) ($cropY / 2), $cropW, $cropH);
-            imagecopyresampled($i2, $i3, 0, 0, 0, 0, $width, $height, $cropW, $cropH);
+            imagecopyresampled($outputImage, $i3, 0, 0, 0, 0, $width, $height, $cropW, $cropH);
             imagedestroy($i3);
-
-//            if ($radius > 0) {
-//                $i2 = self::roundCorners($i2, $radius, $bgcolor, $transparency);
-//            }
         } elseif ($width || $height) {
             if (!is_numeric($width)) {//preserves aspect ratio
                 $width = $height / imagesy($inputImage) * imagesx($inputImage);
@@ -250,24 +287,26 @@ class Images {
                 $height = $width / imagesx($inputImage) * imagesy($inputImage);
             }
 
-            $i2 = imagecreatetruecolor($width, $height);
+            $outputImage = imagecreatetruecolor($width, $height);
 
             if ($bgcolor) {
-                if ($isPNG) {
-                    imagealphablending($i2, false);
-                    $color = imagecolortransparent($i2, imagecolorallocate($i2, hexdec(substr($bgcolor, 0, 2)), hexdec(substr($bgcolor, 2, 2)), hexdec(substr($bgcolor, 4, 2))));
-                    imagefill($i2, 0, 0, $color);
-                    imagesavealpha($i2, true);
+                if ($useTransparency) {
+                    imagealphablending($outputImage, false);
+                    $color = imagecolortransparent($outputImage,
+                            imagecolorallocate($outputImage, hexdec(substr($bgcolor, 0, 2)),
+                                    hexdec(substr($bgcolor, 2, 2)), hexdec(substr($bgcolor, 4, 2))));
+                    imagefill($outputImage, 0, 0, $color);
+                    imagesavealpha($outputImage, true);
                 } else {
-                    imagefill($i2, 0, 0, imagecolorallocate($i2, hexdec(substr($bgcolor, 0, 2)), hexdec(substr($bgcolor, 2, 2)), hexdec(substr($bgcolor, 4, 2))));
+                    imagefill($outputImage, 0, 0,
+                            imagecolorallocate($outputImage, hexdec(substr($bgcolor, 0, 2)),
+                                    hexdec(substr($bgcolor, 2, 2)), hexdec(substr($bgcolor, 4, 2))));
                 }
-            } elseif ($isPNG) {
-                imagealphablending($i2, false);
-                $color = imagecolortransparent($i2, imagecolorallocatealpha($i2, 0, 0, 0, 127));
-                imagefill($i2, 0, 0, $color);
-                imagesavealpha($i2, true);
-
-//                $transparency = 127;
+            } elseif ($useTransparency) {
+                imagealphablending($outputImage, false);
+                $color = imagecolortransparent($outputImage, imagecolorallocatealpha($outputImage, 0, 0, 0, 127));
+                imagefill($outputImage, 0, 0, $color);
+                imagesavealpha($outputImage, true);
             }
 
             $cw = $width / $w1;
@@ -275,25 +314,20 @@ class Images {
             $w2 = floor($w1 * ($cw > $ch ? $ch : $cw));
             $h2 = floor($h1 * ($cw > $ch ? $ch : $cw));
 
-            imagecopyresampled($i2, $inputImage, floor($width / 2 - $w2 / 2), floor($height / 2 - $h2 / 2), 0, 0, $w2, $h2, $w1, $h1);
-
-//            if ($radius > 0) {
-//                if ($bgcolor)
-//                    $i2 = self::roundCorners($i2, $radius, $bgcolor, $transparency);
-//                else
-//                    $i2 = self::roundCorners($i2, $radius, false, $transparency);
-//            }
+            imagecopyresampled($outputImage, $inputImage, floor($width / 2 - $w2 / 2), floor($height / 2 - $h2 / 2), 0,
+                    0, $w2, $h2, $w1, $h1);
         }
+        return $outputImage;
     }
 
-    protected function loadImage($fileName) {
+    protected function loadImage($fileName, &$options)
+    {
         list($w, $h, $imageType) = getimagesize($fileName);
-
+        $options['imageType'] = $imageType;
         switch ($imageType) {
             case IMAGETYPE_GIF:
                 $imageResource = imagecreatefromgif($fileName);
                 break;
-            case IMAGETYPE_JPG:
             case IMAGETYPE_JPEG:
                 $imageResource = imagecreatefromjpeg($fileName);
                 break;
@@ -301,7 +335,7 @@ class Images {
                 $imageResource = imagecreatefrompng($fileName);
                 break;
             default:
-                throw new \Exception('Unsupported file type ' . $image_type);
+                throw new \Exception('Unsupported file type. ');
                 break;
         }
         return $imageResource;

@@ -3,7 +3,7 @@ namespace Vivo\Util;
 
 use Zend\EventManager\SharedEventManagerAwareInterface;
 use Zend\EventManager\SharedEventManagerInterface;
-use Zend\Http\Response;
+use Zend\Http\PhpEnvironment\Response;
 use Zend\Http\Request;
 
 /**
@@ -40,7 +40,7 @@ class Redirector implements SharedEventManagerAwareInterface
     /**
      * Constructor.
      * @param \Zend\Http\Request $request
-     * @param \Zend\Http\Response $response
+     * @param \Zend\Http\PhpEnvironment\Response $response
      */
     public function __construct(Request $request, Response $response)
     {
@@ -77,7 +77,6 @@ class Redirector implements SharedEventManagerAwareInterface
         $this->response->setStatusCode($event->getParam('status_code') ?: Response::STATUS_CODE_302);
         $this->response->getHeaders()->addHeaderLine('Location', $url);
         if($event->getParam('immediately')) {
-            //TODO - FixMe: The Zend\Http\Response object does not have the sendHeaders() method!
             $this->response->sendHeaders();
             die();
         }

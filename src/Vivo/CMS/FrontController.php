@@ -128,11 +128,9 @@ class FrontController implements DispatchableInterface,
                     'query'     => $this->request->getQuery()->toArray(),
                 );
                 $url            = $this->urlHelper->fromRoute('vivo/cms', $routeParams, $routeOptions);
-                //TODO - There is a bug in the redirector, the immediate redirection does not work
-                //TODO - Change the 'immediately' option to true when fixed
-                $params         = array('status_code' => 301, 'immediately' => false);
-                $redirectEvent  = new RedirectEvent($url, $params);
-                $this->redirector->redirect($redirectEvent);
+                $params         = array('status_code' => 301, 'immediately' => true);
+                $this->events->trigger(new RedirectEvent($url, $params));
+
             }
         }
 

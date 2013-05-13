@@ -35,11 +35,12 @@ class SelectableTemplatesProvider implements \Vivo\Metadata\MetadataValueProvide
      */
     public function getValue($entityClass)
     {
+        $options = array(self::DEFAULT_TEMPLATE => 'default'); //template is selected automaticaly
+
         if (isset($this->config['custom_templates'][$entityClass])) {
-            return array_combine($this->config['custom_templates'][$entityClass],
-                    $this->config['custom_templates'][$entityClass]);
-        } else {
-            return array(self::DEFAULT_TEMPLATE => 'default');
+            $options = array_merge($options, array_combine($this->config['custom_templates'][$entityClass],
+                    $this->config['custom_templates'][$entityClass]));
         }
+        return $options;
     }
 }

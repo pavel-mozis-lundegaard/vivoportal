@@ -250,22 +250,19 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
      */
     public function save()
     {
-        $success = true;
         $form = $this->getForm();
 
         if ($form->isValid()) {
-            $this->entity = $this->documentApi->saveDocument($this->entity);
+            //Save contents first, otherwise indexing published contents are not updated in indexer
+            $successContents    = $this->saveContents();
+            $this->documentApi->saveDocument($this->entity);
+            if ($successContents) {
+                $this->events->trigger(new RedirectEvent());
+            }
         }
         else {
-            $success = false;
             $message = $this->translator->translate("Document data is not valid");
             $this->alert->addMessage($message, Alert::TYPE_ERROR);
-        }
-
-        $success = $success && $this->saveContents();
-
-        if($success) {
-            $this->events->trigger(new RedirectEvent());
         }
     }
 
@@ -301,7 +298,7 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
         }
         if($success) {
             $tabContainer->removeAllComponents();
-            $this->init();
+            $this->initForm();
             foreach ($tabContainer->getComponents() as $component) {
                 $component->initForm();
             }

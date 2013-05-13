@@ -341,6 +341,7 @@ return array(
     'output_filters' => array (
         //register output filters
         //'Vivo\Http\Filter\UpperCase',
+        'Vivo\Http\Filter\ImageTransform',
     ),
     'security_manager_simple'  => array(
         //Define your options in your local.php config

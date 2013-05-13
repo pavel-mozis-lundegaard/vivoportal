@@ -102,7 +102,6 @@ class FrontController implements DispatchableInterface,
      * Dispatches CMS request.
      * @param Request $request
      * @param Response $response
-     * @todo should we render UI in controller dispatch action?
      */
     public function dispatch(Request $request, Response $response = null)
     {
@@ -183,7 +182,11 @@ class FrontController implements DispatchableInterface,
             return $response;
         }
         if ($result instanceof ModelInterface) {
-            $this->mvcEvent->setViewModel($result);
+            //render view model
+            $view = $this->serviceManager->get('view');
+            $view->setResponse($response);
+            $result = $view->render($result);
+            return $response;
         } elseif ($result instanceof InputStreamInterface) {
             //skip rendering phase
             $response->setInputStream($result);

@@ -6,12 +6,12 @@ use Vivo\IO\FileOutputStream;
 use Vivo\IO\InputStreamInterface;
 use Vivo\IO\OutputStreamInterface;
 
-use Zend\Http\Response as ZendHttpResponse;
+use Zend\Http\PhpEnvironment\Response;
 
 /**
  * Response object that supports setting stream as content.
  */
-class StreamResponse extends ZendHttpResponse
+class StreamResponse extends Response
 {
 
     /**

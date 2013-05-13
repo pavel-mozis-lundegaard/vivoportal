@@ -22,8 +22,9 @@ class CreatorFactory implements FactoryInterface
         $documentApi        = $sm->get('Vivo\CMS\Api\Document');
         $provider           = $sm->get('Vivo\CMS\AvailableContentsProvider');
         $alert              = $sm->get('Vivo\UI\Alert');
+        $indexerApi         = $sm->get('Vivo\CMS\Api\Indexer');
 
-        $editor = new Creator($sm, $metadataManager, $lookupDataManager, $documentApi, $provider);
+        $editor = new Creator($sm, $metadataManager, $lookupDataManager, $documentApi, $provider, $indexerApi);
         $editor->setTabContainer($sm->create('Vivo\UI\TabContainer'));
         $editor->setAlert($alert);
 

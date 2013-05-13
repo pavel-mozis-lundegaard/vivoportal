@@ -355,30 +355,31 @@ class Document implements DocumentInterface
         $path = $this->pathBuilder->buildStoragePath(array($container->getPath(), ++$highest));
         $content->setPath($path);
         $this->updateContentStates($container, $content);
-        $content = $this->cmsApi->prepareEntityForSaving($content);
-        $this->repository->saveEntity($content);
-        $this->repository->commit();
+        $this->cmsApi->saveEntity($content, true);
+
+        //Save document to reflect content state
+        $document   = $this->getContentDocument($content);
+        $this->saveDocument($document, true);
+
         return $content;
     }
 
     /**
      * Saves content
      * The entity is prepared before saving into repository
-     *
      * @param Model\Content $content
      * @return Model\Content
      */
     public function saveContent(Model\Content $content)
     {
+        //Save content
         $container = $this->cmsApi->getEntityParent($content);
-
         $this->updateContentStates($container, $content);
+        $this->cmsApi->saveEntity($content, true);
 
-        $content = $this->cmsApi->prepareEntityForSaving($content);
-
-        $this->repository->saveEntity($content);
-        $this->repository->commit();
-
+        //Save document to reflect content stated
+        $document   = $this->getContentDocument($content);
+        $this->saveDocument($document, true);
         return $content;
     }
 

@@ -120,25 +120,6 @@ class FrontController implements DispatchableInterface,
                             __METHOD__ , $this->siteEvent->getHost()));
         }
 
-        //Redirect when path does not end with a slash
-        /** @var $routeMatch \Zend\Mvc\Router\Http\RouteMatch */
-        $routeMatch = $this->getEvent()->getRouteMatch();
-        if ($routeMatch->getMatchedRouteName() == 'vivo/cms') {
-            $path   = $routeMatch->getParam('path');
-            $lastChar   = substr($path, -1);
-            if ($lastChar != '/') {
-                $routeParams    = $routeMatch->getParams();
-                $routeParams['path']    = $path . '/';
-                $routeOptions   = array(
-                    'query'     => $this->request->getQuery()->toArray(),
-                );
-                $url            = $this->urlHelper->fromRoute('vivo/cms', $routeParams, $routeOptions);
-                $params         = array('status_code' => 301, 'immediately' => true);
-                $this->events->trigger(new RedirectEvent($url, $params));
-
-            }
-        }
-
         try {
             //fetch document
             $eventResult = $this->events->trigger(CMSEvent::EVENT_FETCH_DOCUMENT, $this->getCmsEvent(),
@@ -189,6 +170,7 @@ class FrontController implements DispatchableInterface,
 
         } catch (\Exception $e) {
             $this->cmsEvent->setException($e);
+
             //trigger error event
             $this->events->trigger(CMSEvent::EVENT_ERROR, $this->getCmsEvent());
 
@@ -226,8 +208,23 @@ class FrontController implements DispatchableInterface,
                 //skip rendering phase
                 $response->setContent($result);
             }
+
+            if ($e->getCode()) {
+                $response->setStatusCode($e->getCode());
+            } else {
+                $response->setStatusCode(\Zend\Http\Response::STATUS_CODE_500);
+            }
         }
         return $response;
+    }
+
+    /**
+     * Sets error status code to response.
+     * @param \Vivo\CMS\Event\CMSEvent $cmsEvent
+     */
+    public function setErrorStatusCode(CMSEvent $cmsEvent)
+    {
+
     }
 
     /**
@@ -317,6 +314,9 @@ class FrontController implements DispatchableInterface,
                     $url = $this->urlHelper->fromRoute(null, array('path' => $document->getUrl()));
                     $this->events->trigger(new RedirectEvent($url));
                     return;
+                } else {
+                    //Do not redirect if the document url==requestedurl, doesn't matter whether ends by slash or not
+                    return;
                 }
             } else {
                 if ($document->getUrl() == $this->cmsEvent->getRequestedPath()) {
@@ -325,6 +325,23 @@ class FrontController implements DispatchableInterface,
                     $this->events->trigger(new RedirectEvent($url));
                     return;
                 }
+            }
+        }
+        //Redirect when path does not end with a slash.
+        /** @var $routeMatch \Zend\Mvc\Router\Http\RouteMatch */
+        $routeMatch = $this->getEvent()->getRouteMatch();
+        if ($routeMatch->getMatchedRouteName() == 'vivo/cms') {
+            $path   = $cmsEvent->getRequestedPath();
+            $lastChar   = substr($path, -1);
+            if ($lastChar != '/') {
+                $routeParams    = $routeMatch->getParams();
+                $routeParams['path']    = $path . '/';
+                $routeOptions   = array(
+                    'query'     => $this->request->getQuery()->toArray(),
+                );
+                $url            = $this->urlHelper->fromRoute('vivo/cms', $routeParams, $routeOptions);
+                $params         = array('status_code' => 301, 'immediately' => false);
+                $this->events->trigger(new RedirectEvent($url, $params));
             }
         }
     }

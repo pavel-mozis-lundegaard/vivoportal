@@ -55,6 +55,11 @@ class ComponentFactory implements EventManagerAwareInterface
      */
     private $eventManager;
 
+    private $specialComponents = array (
+        'unpublished_document' => 'Vivo\UI\Text',
+        'empty_layout_panel'   => 'Vivo\UI\Text',
+    );
+
     /**
      * Constructor
      * @param \Zend\ServiceManager\ServiceManager $sm
@@ -70,6 +75,8 @@ class ComponentFactory implements EventManagerAwareInterface
         $this->di           = $di;
         $this->documentApi  = $documentApi;
         $this->site         = $site;
+        $cfg = $this->sm->get('cms_config');
+        $this->specialComponents = array_merge($this->specialComponents, $cfg[__CLASS__]['specialComponents']);
     }
 
     /**
@@ -119,9 +126,9 @@ class ComponentFactory implements EventManagerAwareInterface
         } elseif (count($contents) === 1) {
             $frontComponent = $this->getContentFrontComponent(reset($contents), $document);
         } else {
-            throw new Exception(
-                sprintf("%s: Document '%s' hasn't any published content.",
-                    __METHOD__, $document->getPath()));
+            $frontComponent = $this->createComponent($this->specialComponents['unpublished_document']);
+            $message = "Document hasn`t any published content('".$document->getPath()."').";
+            $this->eventManager->trigger('log', $this, array ('message' => $message, 'level' => \Zend\Log\Logger::WARN));
         }
 
         if ($frontComponent instanceof RawComponentInterface) {
@@ -196,7 +203,7 @@ class ComponentFactory implements EventManagerAwareInterface
         foreach ($mergedPanels as $name => $path) {
             if ($path == '') {
                 //if panel is not defined we use 'layout_empty_panel' component
-                $panelComponent = $this->createComponent('layout_empty_panel');
+                $panelComponent = $this->createComponent($this->specialComponents['layout_empty_panel']);
 
             } else {
                 $panelDocument = $this->cmsApi->getSiteEntity($path, $this->site);

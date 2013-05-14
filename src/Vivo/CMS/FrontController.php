@@ -1,6 +1,7 @@
 <?php
 namespace Vivo\CMS;
 
+use Vivo\CMS\Api;
 use Vivo\CMS\Api\CMS;
 use Vivo\CMS\ComponentFactory;
 use Vivo\CMS\Event\CMSEvent;
@@ -58,6 +59,11 @@ class FrontController implements DispatchableInterface,
      * @var CMS
      */
     protected $cmsApi;
+
+    /**
+     * @var Api\Document
+     */
+    protected $documentApi;
 
     /**
      * @var ComponentFactory
@@ -141,6 +147,7 @@ class FrontController implements DispatchableInterface,
             return ($result instanceof \Vivo\CMS\Model\Document);
         });
 
+
         $document = $eventResult->last();
         if (!$document) {
             throw new \Exception(sprintf('%s: Document for requested path `%s` can not be fetched.',
@@ -149,6 +156,13 @@ class FrontController implements DispatchableInterface,
                     \Zend\Http\Response::STATUS_CODE_404);
         } else {
             $this->cmsEvent->setDocument($document);
+        }
+
+        if (!$this->documentApi->isPublished($document)) {
+            throw new \Exception(sprintf('%s: Document `%s` is not published.',
+                        __METHOD__,
+                        $document->getPath()),
+                    \Zend\Http\Response::STATUS_CODE_404);
         }
 
         //perform redirects
@@ -393,5 +407,14 @@ class FrontController implements DispatchableInterface,
     public function setCmsEvent(CMSEvent $cmsEvent)
     {
         $this->cmsEvent = $cmsEvent;
+    }
+
+    /**
+     * Inject Document Api
+     * @param \Vivo\CMS\Api\Document $documentApi
+     */
+    public function setDocumentApi(Api\Document $documentApi)
+    {
+        $this->documentApi = $documentApi;
     }
 }

@@ -205,7 +205,6 @@ return array(
             'Vivo\UI\ComponentContainer'    => 'Vivo\UI\ComponentContainer',
             'Vivo\UI\TabContainer'          => 'Vivo\UI\TabContainer',
             'Vivo\CMS\UI\Manager\Explorer\Ribbon'  => 'Vivo\CMS\UI\Manager\Explorer\Ribbon',
-            'layout_empty_panel'            => 'Vivo\UI\Text',
         ),
         'factories' => array (
             'Vivo\CMS\UI\Content\File'      => 'Vivo\CMS\UI\Content\FileFactory',
@@ -374,6 +373,13 @@ return array(
                     'translate',
                 ),
             ),
+        ),
+    ),
+    'Vivo\CMS\ComponentFactory' => array (
+        'specialComponents' => array (
+            //theese component are used instead of missing component
+            'layout_empty_panel'    => 'Vivo\CMS\UI\LayoutEmptyPanel',
+            'unpublished_document'  => 'Vivo\CMS\UI\UnpublishedDocument',
         ),
     ),
 );

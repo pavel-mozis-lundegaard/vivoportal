@@ -96,6 +96,10 @@ class FrontController implements DispatchableInterface,
     {
         $this->events->attachAggregate($this->serviceManager->get('Vivo\CMS\FetchDocumentListener'), 100);
         $this->events->attachAggregate($this->serviceManager->get('Vivo\CMS\FetchDocumentByUrlListener'), 200);
+
+        $this->events->attach(CMSEvent::EVENT_REDIRECT, array($this, 'performRedirects'), 100);
+        $this->events->attach(CMSEvent::EVENT_CREATE, array($this, 'createTreeFromDocument'), 100);
+        $this->events->attach(CMSEvent::EVENT_RENDER, array($this, 'render'), 100);
     }
 
     /**
@@ -106,7 +110,9 @@ class FrontController implements DispatchableInterface,
     public function dispatch(Request $request, Response $response = null)
     {
         $this->request = $request;
+        $this->response = $response;
         $this->attachListeners();
+        $redirector = $this->redirector;
 
         if (!$this->siteEvent->getSite()) {
             throw new Exception\SiteNotFoundException(
@@ -133,42 +139,133 @@ class FrontController implements DispatchableInterface,
             }
         }
 
+        try {
+            //fetch document
+            $eventResult = $this->events->trigger(CMSEvent::EVENT_FETCH_DOCUMENT, $this->getCmsEvent(),
+                    function ($result) {
+                        //stop event propagation when document is fetched
+                        return ($result instanceof \Vivo\CMS\Model\Document);
+                    });
+            $this->cmsEvent->setDocument($eventResult->last());
 
-        //fetch document
-        $eventResult = $this->events->trigger(CMSEvent::EVENT_FETCH_DOCUMENT, $this->getCmsEvent(),
-            function ($result) {
-            return ($result instanceof \Vivo\CMS\Model\Document);
-        });
+            //perform redirects
+            $this->events->trigger(CMSEvent::EVENT_REDIRECT, $this->getCmsEvent(),
+                    function () use ($redirector) {
+                        //stop event propagation when redirect
+                        return $redirector->isRedirect();
+                    });
+            if ($redirector->isRedirect()) {
+                return $response;
+            }
 
-        $document = $eventResult->last();
-        if (!$document) {
-            throw new \Exception(sprintf('%s: Document for requested path `%s` can not be fetched.',
-                        __METHOD__,
-                        $this->cmsEvent->getRequestedPath()),
-                    \Zend\Http\Response::STATUS_CODE_404);
-        } else {
-            $this->cmsEvent->setDocument($document);
+            //throw exception when document is not fetched
+            if (!$this->cmsEvent->getDocument()) {
+                throw new \Exception(sprintf('%s: Document for requested path `%s` can not be fetched.',
+                            __METHOD__,
+                            $this->cmsEvent->getRequestedPath()),
+                        \Zend\Http\Response::STATUS_CODE_404);
+            }
+
+            //create ui component tree
+            $this->events->trigger(CMSEvent::EVENT_CREATE, $this->cmsEvent);
+
+            //perform tree operations
+            $result = $this->dispatchTree($this->cmsEvent);
+
+            if ($redirector->isRedirect()) {
+                return $response;
+            }
+
+            if ($result instanceof ModelInterface) {
+                //render view model
+                $this->events->trigger(CMSEvent::EVENT_RENDER, $this->cmsEvent);
+            } elseif ($result instanceof InputStreamInterface) {
+                //skip rendering phase
+                $response->setInputStream($result);
+            } elseif (is_string($result)) {
+                //skip rendering phase
+                $response->setContent($result);
+            }
+
+        } catch (\Exception $e) {
+            $this->cmsEvent->setException($e);
+            //trigger error event
+            $this->events->trigger(CMSEvent::EVENT_ERROR, $this->getCmsEvent());
+
+            //fetch error document
+            $eventResult = $this->events->trigger(CMSEvent::EVENT_FETCH_ERRORDOCUMENT, $this->getCmsEvent(),
+                    function ($result) {
+                        return ($result instanceof \Vivo\CMS\Model\Document);
+                    });
+            $this->cmsEvent->setDocument($eventResult->last());
+
+            //throw exception when error document not found
+            if (!$this->cmsEvent->getDocument()) {
+                throw new \Exception(sprintf('%s: Error document can not be fetched for site `%s`.',
+                            __METHOD__,
+                            $this->siteEvent->getSite()->getName()),
+                        \Zend\Http\Response::STATUS_CODE_500, $e);
+            }
+
+           //create ui component tree
+            $this->events->trigger(CMSEvent::EVENT_CREATE, $this->cmsEvent);
+
+            //perform tree operations
+            $result = $this->dispatchTree($this->cmsEvent);
+            if ($redirector->isRedirect()) {
+                return $response;
+            }
+
+            if ($result instanceof ModelInterface) {
+                //render view model
+                $this->events->trigger(CMSEvent::EVENT_RENDER, $this->cmsEvent);
+            } elseif ($result instanceof InputStreamInterface) {
+                //skip rendering phase
+                $response->setInputStream($result);
+            } elseif (is_string($result)) {
+                //skip rendering phase
+                $response->setContent($result);
+            }
         }
+        return $response;
+    }
 
-        //perform redirects
-        $this->performRedirects($document);
-        if ($this->redirector->isRedirect()){
-            return $response;
-        }
+    /**
+     * Creates UI component tree from document.
+     * @param \Vivo\CMS\Event\CMSEvent $cmsEvent
+     */
+    public function createTreeFromDocument(\Vivo\CMS\Event\CMSEvent $cmsEvent)
+    {
+        $root = $this->componentFactory->getRootComponent($cmsEvent->getDocument());
+        $cmsEvent->setRoot($root);
+    }
 
-        //create ui component tree
-        $root = $this->componentFactory->getRootComponent($document);
+    /**
+     * Dispatch operation on UI component tree.
+     * @param \Vivo\CMS\Event\CMSEvent $cmsEvent
+     * @return ModelInterface | InputStreaInterface | string
+     * @todo Do not handle action on error
+     * @todo split method by actions(load, init, save, done)
+     */
+    protected function dispatchTree(CMSEvent $cmsEvent)
+    {
+        $result = null;
+        $handleAction = !(bool) $cmsEvent->getException();
 
-        //perform tree operations
-        $this->tree->setRoot($root);
+        $this->tree->setRoot($cmsEvent->getRoot());
         $this->tree->loadState();
         if ($this->getRequest()->isXmlHttpRequest()) {
             $this->tree->init(); //replace by lazy init
             //if request is  ajax call, we use result of method
-            $result = $this->handleAction();
+
+            if ($handleAction) {
+                $result = $this->handleAction();
+            }
         } else {
             $this->tree->init();
-            $this->handleAction();
+            if ($handleAction) {
+                $this->handleAction();
+            }
             if (!$this->redirector->isRedirect()) {
                 $result = $this->tree->view();
             }
@@ -176,25 +273,20 @@ class FrontController implements DispatchableInterface,
 
         $this->tree->saveState();
         $this->tree->done();
+        $cmsEvent->setResult($result);
+        return $result;
+    }
 
-
-        if ($this->redirector->isRedirect()) {
-            return $response;
-        }
-        if ($result instanceof ModelInterface) {
-            //render view model
+    /**
+     * Render view model.
+     * @param \Vivo\CMS\Event\CMSEvent $cmsEvent
+     */
+    public function render(CMSEvent $cmsEvent)
+    {
+        if ($cmsEvent->getResult() instanceof ModelInterface) {
             $view = $this->serviceManager->get('view');
-            $view->setResponse($response);
-            $result = $view->render($result);
-            return $response;
-        } elseif ($result instanceof InputStreamInterface) {
-            //skip rendering phase
-            $response->setInputStream($result);
-            return $response;
-        } elseif (is_string($result)) {
-            //skip rendering phase
-            $response->setContent($result);
-            return $response;
+            $view->setResponse($this->response);
+            $view->render($cmsEvent->getResult());
         }
     }
 
@@ -203,8 +295,12 @@ class FrontController implements DispatchableInterface,
      * @param Model\Document $document
      * @return null
      */
-    protected function performRedirects(Model\Document $document)
+    public function performRedirects(CMSEvent $cmsEvent)
     {
+
+        if (!$document = $cmsEvent->getDocument()) {
+            return;
+        }
         //redirect secured documents to https
         if ($document->getSecured() && $this->request->getUri()->getScheme() !== 'https') {
             $uri = clone $this->request->getUri();
@@ -235,6 +331,7 @@ class FrontController implements DispatchableInterface,
 
     /**
      * Handles action on component.
+     * @return mixed Result of component action method.
      */
     protected function handleAction()
     {
@@ -305,7 +402,6 @@ class FrontController implements DispatchableInterface,
     {
         $this->siteEvent = $siteEvent;
     }
-
 
     /**
      * Sets ComponentTreeController

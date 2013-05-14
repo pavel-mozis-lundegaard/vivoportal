@@ -97,6 +97,8 @@ class FrontController implements DispatchableInterface,
         $this->events->attachAggregate($this->serviceManager->get('Vivo\CMS\FetchDocumentListener'), 100);
         $this->events->attachAggregate($this->serviceManager->get('Vivo\CMS\FetchDocumentByUrlListener'), 200);
 
+        $this->events->attachAggregate($this->serviceManager->get('Vivo\CMS\FetchErrorDocumentListener'), 100);
+
         $this->events->attach(CMSEvent::EVENT_REDIRECT, array($this, 'performRedirects'), 100);
         $this->events->attach(CMSEvent::EVENT_CREATE, array($this, 'createTreeFromDocument'), 100);
         $this->events->attach(CMSEvent::EVENT_RENDER, array($this, 'render'), 100);

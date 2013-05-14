@@ -184,13 +184,6 @@ class Indexer implements IndexerInterface
         $options    = array('published_content_types' => $publishedContentTypes);
         $idxDoc     = $this->indexerHelper->createDocument($entity, $options);
         $this->indexer->addDocument($idxDoc);
-        //TODO - reindex entity Contents
-        //		if ($entity instanceof Vivo\CMS\Model\Document) {
-        //            /* @var $entity \Vivo\CMS\Model\Document */
-        //			for ($index = 1; $index <= $entity->getContentCount(); $index++)
-        //				foreach ($entity->getContents($index) as $content)
-        //					$count += $this->reindex($content, true);
-        //		}
     }
 
     /**
@@ -204,10 +197,10 @@ class Indexer implements IndexerInterface
     }
 
     /**
-     * Saves or updated entity in index
+     * Saves or updates an entity in index
      * @param \Vivo\CMS\Model\Entity $entity
      */
-    protected function saveEntity(Model\Entity $entity)
+    public function saveEntity(Model\Entity $entity)
     {
         //Remove old doc
         $entityTerm = $this->indexerHelper->buildEntityTerm($entity);

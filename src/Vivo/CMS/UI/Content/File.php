@@ -17,7 +17,12 @@ class File extends Component
     /**
      * @var CMS
      */
-    private $cms;
+    private $cmsApi;
+
+    /**
+     * @var MIME
+     */
+    protected $mime;
 
     /**
      * @var string
@@ -32,12 +37,12 @@ class File extends Component
 
     /**
      * Constructor
-     * @param CMS $cms
+     * @param CMS $cmsApi
      * @param \Vivo\CMS\RefInt\SymRefConvertorInterface $symRefConvertor
      */
-    public function __construct(CMS $cms, SymRefConvertorInterface $symRefConvertor)
+    public function __construct(CMS $cmsApi, SymRefConvertorInterface $symRefConvertor)
     {
-        $this->cms              = $cms;
+        $this->cmsApi           = $cmsApi;
         $this->symRefConvertor  = $symRefConvertor;
     }
 
@@ -52,14 +57,14 @@ class File extends Component
         }
 
         $mimeType = $this->content->getMimeType();
-        $resourceFile = 'resource.' . MIME::getExt($mimeType);
+        $resourceFile = 'resource.' . $this->mime->getExt($mimeType);
         $this->view->resourceFile = $resourceFile;
         if ($mimeType == 'text/html') {
-            $fileContent                = $this->cms->getResource($this->content, $resourceFile);
+            $fileContent                = $this->cmsApi->getResource($this->content, $resourceFile);
             $this->view->fileContent    = $this->symRefConvertor->convertReferencesToURLs($fileContent);
             $templateVariant = 'html';
         } elseif ($mimeType == 'text/plain') {
-            $fileContent                = $this->cms->getResource($this->content, $resourceFile);
+            $fileContent                = $this->cmsApi->getResource($this->content, $resourceFile);
             $this->view->fileContent    = $this->symRefConvertor->convertReferencesToURLs($fileContent);
             $templateVariant = 'plain';
         } elseif ($mimeType == 'application/x-shockwave-flash') {
@@ -71,5 +76,14 @@ class File extends Component
         }
         $this->view->setTemplate($this->getDefaultTemplate() .
                 ($templateVariant ? ':' . $templateVariant : ''));
+    }
+
+    /**
+     * Inject MIME.
+     * @param \Vivo\Util\MIME $mime
+     */
+    public function setMime(MIME $mime)
+    {
+        $this->mime = $mime;
     }
 }

@@ -221,15 +221,6 @@ class FrontController implements DispatchableInterface,
     }
 
     /**
-     * Sets error status code to response.
-     * @param \Vivo\CMS\Event\CMSEvent $cmsEvent
-     */
-    public function setErrorStatusCode(CMSEvent $cmsEvent)
-    {
-
-    }
-
-    /**
      * Creates UI component tree from document.
      * @param \Vivo\CMS\Event\CMSEvent $cmsEvent
      */

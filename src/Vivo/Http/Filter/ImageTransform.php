@@ -49,11 +49,15 @@ class ImageTransform implements OutputFilterInterface, InputStreamInterface
      */
     public function attachFilter(Request $request, StreamResponse $response)
     {
-        if (substr($response->getHeaders()->get('Content-Type')->getFieldValue(), 0, 6) == 'image/') {
+        if (!$header = $response->getHeaders()->get('Content-Type')) {
+            return;
+        }
+        if (substr($header->getFieldValue(), 0, 6) == 'image/') {
             $this->inputStream = $response->getInputStream();
             $response->setInputStream($this);
+            $this->options = $this->extractOptions($request, $response);
         }
-        $this->options = $this->extractOptions($request, $response);
+
     }
 
     /**

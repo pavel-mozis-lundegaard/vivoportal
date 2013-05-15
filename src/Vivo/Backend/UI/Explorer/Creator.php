@@ -6,6 +6,11 @@ use Vivo\Form\Fieldset;
 use Vivo\Util\RedirectEvent;
 use Vivo\CMS\Model\Folder;
 
+use Zend\ServiceManager\ServiceManager;
+
+/**
+ * Creator
+ */
 class Creator extends Editor
 {
     /**

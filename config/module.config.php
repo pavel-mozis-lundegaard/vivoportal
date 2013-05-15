@@ -327,6 +327,12 @@ return array(
             'render_document'   => 'Vivo\View\Helper\RenderDocumentFactory',
         ),
     ),
+    //Plugin manager configuration for navigation view helpers
+    'navigation_view_helpers'   => array(
+        'invokables'        => array(
+            'vivo_menu'         => 'Vivo\View\Helper\Navigation\Menu',
+        ),
+    ),
     'validators'    => array(
         'invokables' => array(
             'conditional'   => 'Vivo\Validator\Conditional',

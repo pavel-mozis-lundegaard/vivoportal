@@ -336,6 +336,7 @@ return array(
     'validators'    => array(
         'invokables' => array(
             'conditional'   => 'Vivo\Validator\Conditional',
+            'vivo_invalid'  => 'Vivo\Validator\VivoInvalid',
         ),
         'initializers'      => array(
             'validator_initializer'     => 'Vivo\Validator\Initializer',
@@ -347,6 +348,7 @@ return array(
             'input'         => 'Vivo\InputFilter\Condition\Input',
             'notEmpty'      => 'Vivo\InputFilter\Condition\NotEmpty',
             'equals'        => 'Vivo\InputFilter\Condition\Equals',
+            'allEmpty'      => 'Vivo\InputFilter\Condition\AllEmpty',
         ),
         'initializers'  => array(
             'condition_initializer' => 'Vivo\InputFilter\Condition\Initializer',

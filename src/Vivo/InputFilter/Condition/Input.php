@@ -72,15 +72,8 @@ class Input extends AbstractCondition implements InputFilterFactoryAwareInterfac
         if (!is_array($field)) {
             throw new Exception\ConfigException(sprintf("%s: Field not set", __METHOD__));
         }
-        $inputValue = $data;
-        while ($name = array_shift($field)) {
-            if (!array_key_exists($name, $inputValue)) {
-                $inputValue = null;
-                break;
-            }
-            $inputValue = $inputValue[$name];
-        }
-        $input  = $this->inputFilterFactory->createInput($this->getInputConfig());
+        $inputValue = $this->getFieldValue($field, $data);
+        $input      = $this->inputFilterFactory->createInput($this->getInputConfig());
         $input->setValue($inputValue);
         $conditionValue = $input->isValid($data);
         return $conditionValue;

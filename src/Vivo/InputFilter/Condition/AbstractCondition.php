@@ -83,4 +83,31 @@ abstract class AbstractCondition implements ConditionInterface
     {
         return $this->conditionalValidators;
     }
+
+    /**
+     * Returns value of a field
+     * Field is written as an array('fieldset1', 'fieldset2', ..., 'fieldname')
+     * @param array $field
+     * @param array $data Fieldset data
+     * @throws Exception\InvalidArgumentException
+     * @param array $data
+     * @return mixed|null
+     */
+    protected function getFieldValue(array $field, array $data)
+    {
+        if (empty($field)) {
+            throw new Exception\InvalidArgumentException(
+                sprintf("%s: Array describing the field cannot be empty", __METHOD__));
+        }
+        $fieldValue = $data;
+        while ($name = array_shift($field)) {
+            if (!array_key_exists($name, $fieldValue)) {
+                //Not found, return null
+                $fieldValue = null;
+                break;
+            }
+            $fieldValue = $fieldValue[$name];
+        }
+        return $fieldValue;
+    }
 }

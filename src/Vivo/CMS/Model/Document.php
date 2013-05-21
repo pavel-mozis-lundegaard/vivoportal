@@ -317,7 +317,7 @@ class Document extends Folder
         return $this->published;
     }
 
-    public function setPublished(\DateTime $published)
+    public function setPublished(\DateTime $published = null)
     {
         $this->published = $published;
     }

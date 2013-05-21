@@ -9,7 +9,6 @@ use Vivo\IO\FileInputStream;
 use Vivo\Module\Exception\ResourceNotFoundException as ModuleResourceNotFoundException;
 use Vivo\Module\ResourceManager\ResourceManager;
 use Vivo\SiteManager\Event\SiteEvent;
-use Vivo\Util;
 
 use Zend\EventManager\EventInterface as Event;
 use Zend\Http\Response as HttpResponse;
@@ -34,6 +33,11 @@ class ResourceFrontController implements DispatchableInterface,
      * @var Event
      */
     protected $event;
+
+    /**
+     * @var \Vivo\Util\MIME
+     */
+    protected $mime;
 
     /**
      * @var ResourceManager
@@ -72,7 +76,7 @@ class ResourceFrontController implements DispatchableInterface,
                 $filename   = pathinfo($pathToResource, PATHINFO_BASENAME);
             }
             $ext = pathinfo($filename, PATHINFO_EXTENSION);
-            $mimeType = Util\MIME::getType($ext);
+            $mimeType = $this->mime->detectByExtension($ext);
 
             //set headers
             $headers = $response->getHeaders();
@@ -138,5 +142,14 @@ class ResourceFrontController implements DispatchableInterface,
     public function setHeaderHelper(HeaderHelper $headerHelper)
     {
         $this->headerHelper = $headerHelper;
+    }
+
+    /**
+     * Inject MIME.
+     * @param \Vivo\Util\MIME $mime
+     */
+    public function setMime(\Vivo\Util\MIME $mime)
+    {
+        $this->mime = $mime;
     }
 }

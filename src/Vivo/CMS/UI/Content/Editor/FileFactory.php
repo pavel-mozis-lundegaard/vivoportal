@@ -12,7 +12,7 @@ class FileFactory implements FactoryInterface
         $docApi             = $serviceLocator->get('Vivo\CMS\Api\Document');
         $symRefConvertor    = $serviceLocator->get('sym_ref_convertor');
         $editor = new File($cmsApi, $docApi, $symRefConvertor);
-
+        $editor->setMime($serviceLocator->get('Vivo\Util\MIME'));
         return $editor;
     }
 

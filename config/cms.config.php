@@ -251,6 +251,8 @@ return array(
                     => 'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapterFactory',
             'Vivo\CMS\UI\Content\Editor\File\DefaultAdapter'
                     => 'Vivo\CMS\UI\Content\Editor\File\DefaultAdapterFactory',
+
+            'Vivo\CMS\FetchErrorDocumentListener' => 'Vivo\CMS\FetchErrorDocumentListenerFactory',
         ),
         'aliases' => array(
         ),
@@ -376,4 +378,13 @@ return array(
             ),
         ),
     ),
+    'error_documents' => array (
+        'code' => array (
+            '401' => '/error-401/',
+            '403' => '/error-403/',
+            '404' => '/error-404/',
+            '500' => '/error-500/',
+        ),
+        'default' => '/error/',
+    )
 );

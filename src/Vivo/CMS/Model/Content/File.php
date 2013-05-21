@@ -21,6 +21,11 @@ class File extends Model\Content
     protected $filename;
 
     /**
+     * @var string File extension.
+     */
+    protected $ext;
+
+    /**
      * Constructor.
      * @param string $path Entity path.
      */
@@ -41,7 +46,7 @@ class File extends Model\Content
     /**
      * Returns file mimetype.
      *
-  						   * @return string
+     * @return string
      */
     public function getMimeType()
     {
@@ -59,7 +64,7 @@ class File extends Model\Content
     }
 
     /**
-     *Sets the original file name.
+     * Sets the original file name.
      *
      * @param string $filename
      */

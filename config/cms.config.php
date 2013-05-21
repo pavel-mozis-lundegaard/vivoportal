@@ -80,6 +80,7 @@ return array(
             'Vivo\CMS\Model\Content\Hyperlink'  => 'Vivo\CMS\UI\Content\Hyperlink',
             'Vivo\CMS\Model\Content\Logon'      => 'Vivo\CMS\UI\Content\Logon',
             'Vivo\CMS\Model\Content\Navigation' => 'Vivo\CMS\UI\Content\Navigation',
+            'Vivo\CMS\Model\Content\Fileboard'  => 'Vivo\CMS\UI\Content\Fileboard',
         ),
         'editor_component' => array (
             'Vivo\CMS\Model\Content\Component'  => 'Vivo\CMS\UI\Content\Editor\Editor',
@@ -89,6 +90,7 @@ return array(
             'Vivo\CMS\Model\Content\Link'       => 'Vivo\CMS\UI\Content\Editor\Editor',
             'Vivo\CMS\Model\Content\Hyperlink'  => 'Vivo\CMS\UI\Content\Editor\Editor',
             'Vivo\CMS\Model\Content\Navigation' => 'Vivo\CMS\UI\Content\Editor\Navigation',
+            'Vivo\CMS\Model\Content\Fileboard'  => 'Vivo\CMS\UI\Content\Editor\Fileboard',
         ),
     ),
     'contents' => array (
@@ -127,6 +129,10 @@ return array(
             'navigation'    => array(
                 'class'     => 'Vivo\CMS\Model\Content\Navigation',
                 'label'     => 'Vivo\CMS\Model\Content\Navigation',
+            ),
+            'navigation'    => array(
+                'class'     => 'Vivo\CMS\Model\Content\Fileboard',
+                'label'     => 'Vivo\CMS\Model\Content\Fileboard',
             ),
         ),
         'restrictions' => array (
@@ -208,17 +214,18 @@ return array(
             'layout_empty_panel'            => 'Vivo\UI\Text',
         ),
         'factories' => array (
-            'Vivo\CMS\UI\Content\File'      => 'Vivo\CMS\UI\Content\FileFactory',
-            'Vivo\CMS\UI\Content\Hyperlink' => 'Vivo\CMS\UI\Content\HyperlinkFactory',
-            'Vivo\CMS\UI\Content\Layout'    => 'Vivo\CMS\UI\Content\LayoutFactory',
-            'Vivo\CMS\UI\Content\Overview'  => 'Vivo\CMS\UI\Content\OverviewFactory',
-            'Vivo\CMS\UI\Content\Logon'     => 'Vivo\CMS\UI\Content\LogonFactory',
-            'Vivo\CMS\UI\Content\Navigation'=> 'Vivo\CMS\UI\Content\NavigationFactory',
-            'Vivo\UI\Page'                  => 'Vivo\Service\UI\PageFactory',
-            'Vivo\UI\Alert'                 => 'Vivo\UI\AlertFactory',
-            'security_manager'              => 'Vivo\Service\SimpleSecurityManagerFactory',
-            'Vivo\UI\Paginator'                 => 'Vivo\UI\PaginatorFactory',
-//            'security_manager'              => 'Vivo\Service\DbSecurityManagerFactory',
+            'Vivo\CMS\UI\Content\File'       => 'Vivo\CMS\UI\Content\FileFactory',
+            'Vivo\CMS\UI\Content\Hyperlink'  => 'Vivo\CMS\UI\Content\HyperlinkFactory',
+            'Vivo\CMS\UI\Content\Layout'     => 'Vivo\CMS\UI\Content\LayoutFactory',
+            'Vivo\CMS\UI\Content\Overview'   => 'Vivo\CMS\UI\Content\OverviewFactory',
+            'Vivo\CMS\UI\Content\Logon'      => 'Vivo\CMS\UI\Content\LogonFactory',
+            'Vivo\CMS\UI\Content\Navigation' => 'Vivo\CMS\UI\Content\NavigationFactory',
+            'Vivo\CMS\UI\Content\Fileboard'  => 'Vivo\CMS\UI\Content\FileboardFactory',
+            'Vivo\UI\Page'                   => 'Vivo\Service\UI\PageFactory',
+            'Vivo\UI\Alert'                  => 'Vivo\UI\AlertFactory',
+            'Vivo\UI\Paginator'              => 'Vivo\UI\PaginatorFactory',
+            'security_manager'               => 'Vivo\Service\SimpleSecurityManagerFactory',
+//          'security_manager'               => 'Vivo\Service\DbSecurityManagerFactory',
 
             //backend
             //TODO move to own config
@@ -240,11 +247,12 @@ return array(
             'Vivo\Backend\ModuleResolver'       => 'Vivo\Backend\ModuleResolverFactory',
 
             //TODO: content editor factories
-            'Vivo\CMS\UI\Content\Editor\Editor'   => 'Vivo\CMS\UI\Content\Editor\EditorFactory',
-            'Vivo\CMS\UI\Content\Editor\File'     => 'Vivo\CMS\UI\Content\Editor\FileFactory',
-            'Vivo\CMS\UI\Content\Editor\Overview' => 'Vivo\CMS\UI\Content\Editor\OverviewFactory',
-            'Vivo\CMS\UI\Content\Editor\Layout'   => 'Vivo\CMS\UI\Content\Editor\LayoutFactory',
+            'Vivo\CMS\UI\Content\Editor\Editor'     => 'Vivo\CMS\UI\Content\Editor\EditorFactory',
+            'Vivo\CMS\UI\Content\Editor\File'       => 'Vivo\CMS\UI\Content\Editor\FileFactory',
+            'Vivo\CMS\UI\Content\Editor\Overview'   => 'Vivo\CMS\UI\Content\Editor\OverviewFactory',
+            'Vivo\CMS\UI\Content\Editor\Layout'     => 'Vivo\CMS\UI\Content\Editor\LayoutFactory',
             'Vivo\CMS\UI\Content\Editor\Navigation' => 'Vivo\CMS\UI\Content\Editor\NavigationFactory',
+            'Vivo\CMS\UI\Content\Editor\Fileboard'  => 'Vivo\CMS\UI\Content\Editor\FileboardFactory',
 
             //Content editor adapters
             'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapter'

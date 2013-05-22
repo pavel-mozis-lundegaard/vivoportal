@@ -18,6 +18,12 @@ class Transliterator implements TransliteratorInterface
     /**#@-*/
 
     /**
+     * Cached transliterator results
+     * @var array
+     */
+    protected $cache    = array();
+
+    /**
      * Transliterator options
      * @var array
      */
@@ -56,6 +62,12 @@ class Transliterator implements TransliteratorInterface
      */
     public function transliterate($str)
     {
+        $orig   = $str;
+        if (array_key_exists($str, $this->cache)) {
+            return $this->cache[$str];
+        }
+
+
         //Change case PRE
         switch ($this->options['caseChangePre']) {
             case self::CASE_CHANGE_TO_LOWER:
@@ -65,11 +77,18 @@ class Transliterator implements TransliteratorInterface
                 $str    = mb_strtoupper($str);
                 break;
         }
+
         //Replace according to the map
+//        foreach ($this->options['map'] as $from => $to) {
+//            $re     = sprintf('\\%s', $from);
+//            $str    = mb_ereg_replace($re, $to, $str);
+//        }
         foreach ($this->options['map'] as $from => $to) {
-            $re     = sprintf('\\%s', $from);
-            $str    = mb_ereg_replace($re, $to, $str);
+            $str    = strtr($str, array($from => $to));
         }
+
+        $replacementCharLength  = mb_strlen($this->options['replacementChar']);
+
         //Replace illegal chars with the replacement char
         $translit   = '';
         $len        = mb_strlen($str);
@@ -81,12 +100,30 @@ class Transliterator implements TransliteratorInterface
         //Remove duplicated replacement chars
         $re         = sprintf('\\%s+', $this->options['replacementChar']);
         $translit   = mb_ereg_replace($re, $this->options['replacementChar'], $translit);
+
+
         //Remove leading replacement char
-        $re         = sprintf('^\\%s', $this->options['replacementChar']);
-        $translit   = mb_ereg_replace($re, '', $translit);
+//        $re         = sprintf('^\\%s', $this->options['replacementChar']);
+//        $translit   = mb_ereg_replace($re, '', $translit);
+//        if (mb_strpos($translit, $this->options['replacementChar']) === 0) {
+//            $translit   = mb_substr($translit, $replacementCharLength);
+//        }
+        if (mb_substr($translit, 0, $replacementCharLength) == $this->options['replacementChar']) {
+            $translit   = mb_substr($translit, $replacementCharLength);
+        }
+
+
         //Remove trailing replacement char
-        $re         = sprintf('\\%s$', $this->options['replacementChar']);
-        $translit   = mb_ereg_replace($re, '', $translit);
+//        $re         = sprintf('\\%s$', $this->options['replacementChar']);
+//        $translit   = mb_ereg_replace($re, '', $translit);
+        $translitLength = mb_strlen($translit);
+//        if (mb_strrpos($translit, $this->options['replacementChar']) === $translitLength - $replacementCharLength) {
+//            $translit   = mb_substr($translit, -$replacementCharLength);
+//        }
+        if (mb_substr($translit, $translitLength - $replacementCharLength) == $this->options['replacementChar']) {
+            $translit   = mb_substr($translit, -$replacementCharLength);
+        }
+
         //Change case POST
         switch ($this->options['caseChangePost']) {
             case self::CASE_CHANGE_TO_LOWER:
@@ -96,6 +133,9 @@ class Transliterator implements TransliteratorInterface
                 $translit   = mb_strtoupper($translit);
                 break;
         }
+
+        $this->cache[$orig] = $translit;
+
         return $translit;
     }
 }

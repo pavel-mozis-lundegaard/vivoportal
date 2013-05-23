@@ -123,8 +123,9 @@ class FrontController implements DispatchableInterface,
         }
 
         //dispatch resource files
-        if ($response = $this->dispatchResource($this->cmsEvent)) {
-            return $response;
+        $resourceResponse = $this->dispatchResource($this->cmsEvent);
+        if ($resourceResponse instanceof Response) {
+            return $resourceResponse;
         }
 
         //dispatch document
@@ -235,10 +236,15 @@ class FrontController implements DispatchableInterface,
      * <requestedPath> <source> <resourcePath>
      *
      * @param \Vivo\CMS\Event\CMSEvent $cmsEvent
-     * @return boolean     */
+     * @return null|Response
+     */
     public function dispatchResource(CMSEvent $cmsEvent)
     {
-        $resourceMap = $this->cmsApi->getResource($cmsEvent->getSite(), 'resource.map');
+        try {
+            $resourceMap = $this->cmsApi->getResource($cmsEvent->getSite(), 'resource.map');
+        } catch (\Vivo\Storage\Exception\IOException $e){
+            return null;
+        }
         $lines  = explode("\n", $resourceMap);
         $foundTarget = null;
 
@@ -265,7 +271,7 @@ class FrontController implements DispatchableInterface,
             $controller->setEvent($this->mvcEvent);
             return $controller->dispatch($this->mvcEvent->getRequest(), $this->mvcEvent->getResponse());
         }
-        return false;
+        return null;
     }
 
     /**

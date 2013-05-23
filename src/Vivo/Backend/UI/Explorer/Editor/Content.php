@@ -4,10 +4,11 @@ namespace Vivo\Backend\UI\Explorer\Editor;
 use Vivo\UI\AbstractForm;
 use Vivo\Form\Form;
 use Vivo\Backend\UI\Form\Fieldset\EntityEditor;
+use Vivo\Backend\Exception\ConfigException;
 use Vivo\CMS\Model;
 use Vivo\CMS\ComponentResolver;
 use Vivo\CMS\Exception\InvalidArgumentException;
-use Vivo\Backend\CMS\Exception\ConfigException;
+use Vivo\CMS\UI\Content\Editor\EditorInterface;
 use Vivo\CMS\UI\Content\Editor\AdapterAwareInterface as EditorAdapterAwareInterface;
 
 use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
@@ -97,6 +98,10 @@ class Content extends AbstractForm
 
                 /* @var $editor \Vivo\CMS\UI\Content\Editor\EditorInterface */
                 $editor = $this->sm->create($editorClass);
+                if(!$editor instanceof EditorInterface) {
+                    throw new ConfigException(sprintf("%s: Registered editor class '%s' is not instance of %s",
+                        __METHOD__, $editorClass, 'Vivo\CMS\UI\Content\Editor\EditorInterface'));
+                }
                 $editor->setContent($this->content);
                 //Set editor adapter
                 if ($editor instanceof EditorAdapterAwareInterface) {

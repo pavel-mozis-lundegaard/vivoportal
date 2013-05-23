@@ -295,7 +295,12 @@ class Document implements DocumentInterface
 
         $document->setPath($path);
         $document = $this->cmsApi->prepareEntityForSaving($document);
-
+        //If published date is not set, set it to the same value as creation date
+        if ($document instanceof Model\Document) {
+            if (!$document->getPublished()) {
+                $document->setPublished($document->getCreated());
+            }
+        }
         $this->repository->saveEntity($document);
         $this->repository->commit();
 

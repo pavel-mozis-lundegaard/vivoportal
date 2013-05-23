@@ -197,7 +197,7 @@ return array(
             'storage_util'              => 'Vivo\Service\StorageUtilFactory',
             'indexer_adapter_lucene'    => 'Vivo\Service\IndexerAdapterLuceneFactory',
             'indexer'                   => 'Vivo\Service\IndexerFactory',
-            'repository'                => 'Vivo\Service\RepositoryFactory',
+            'repository'                => 'Vivo\Repository\RepositoryFactory',
             'repository_events'         => 'Vivo\Repository\EventManagerFactory',
             'indexer_helper'            => 'Vivo\Service\IndexerHelperFactory',
             'Vivo\CMS\Api\CMS'          => 'Vivo\Service\CmsFactory',
@@ -242,6 +242,7 @@ return array(
             'input_filter_factory'      => 'Vivo\InputFilter\InputFilterFactoryFactory',
             'input_filter_conditions'   => 'Vivo\InputFilter\Condition\ConditionPluginManagerFactory',
             'form_factory'              => 'Vivo\Form\FactoryFactory',
+            'cache_manager'             => 'Vivo\Cache\CacheManagerFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -327,9 +328,16 @@ return array(
             'render_document'   => 'Vivo\View\Helper\RenderDocumentFactory',
         ),
     ),
+    //Plugin manager configuration for navigation view helpers
+    'navigation_view_helpers'   => array(
+        'invokables'        => array(
+            'vivo_menu'         => 'Vivo\View\Helper\Navigation\Menu',
+        ),
+    ),
     'validators'    => array(
         'invokables' => array(
             'conditional'   => 'Vivo\Validator\Conditional',
+            'vivo_invalid'  => 'Vivo\Validator\VivoInvalid',
         ),
         'initializers'      => array(
             'validator_initializer'     => 'Vivo\Validator\Initializer',
@@ -341,6 +349,7 @@ return array(
             'input'         => 'Vivo\InputFilter\Condition\Input',
             'notEmpty'      => 'Vivo\InputFilter\Condition\NotEmpty',
             'equals'        => 'Vivo\InputFilter\Condition\Equals',
+            'allEmpty'      => 'Vivo\InputFilter\Condition\AllEmpty',
         ),
         'initializers'  => array(
             'condition_initializer' => 'Vivo\InputFilter\Condition\Initializer',
@@ -651,13 +660,31 @@ return array(
         //Configure in local config
         //'default_db_source'     => '',
     ),
+    //Cache manager configuration - define in local config
+    'cache_manager'         => array(
+//        'cache_name'    => array(
+            //Options to pass to StorageFactory::factory(), e.g.:
+//            'adapter'   => array(
+//                'name'      => 'filesystem',
+//                'options'   => array(
+//                    'cache_dir' => 'path/to/cache/dir',
+//                    'namespace' => 'cache_namespace',
+//                ),
+//            ),
+//            'plugins'   => array(
+//                'serializer'    => array(),
+//            ),
+//        ),
+    ),
     //Repository configuration
     'repository'    => array(
         //Storage for repository - configure in global/local config
-        'storage'              => array(
-            'class'     => '',
-            'options'   => array(),
+        'storage'       => array(
+            'class'         => '',
+            'options'       => array(),
         ),
+        //Cache - cache name or null for no cache; see cache_manager config
+        //'cache'         => <cache_name>,
     ),
 
     'console' => array(

@@ -60,6 +60,19 @@ class Cms extends AbstractPage
         return $this->sitePath;
     }
 
+    /**
+     * Returns UUID of the page
+     * @return null|string
+     */
+    public function getUuid()
+    {
+        if ($this->getDocument()) {
+            $uuid   = $this->getDocument()->getUuid();
+        } else {
+            $uuid   = null;
+        }
+        return $uuid;
+    }
 
     /**
      * Returns href for this page

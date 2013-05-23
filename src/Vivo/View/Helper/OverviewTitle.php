@@ -1,9 +1,7 @@
 <?php
 namespace Vivo\View\Helper;
 
-use Vivo\CMS\Model\Entity;
-use Vivo\CMS\Model\Document;
-use Vivo\CMS\Model\Folder;
+use Vivo\CMS\Model;
 
 use Zend\View\Helper\AbstractHelper;
 
@@ -15,10 +13,10 @@ class OverviewTitle extends AbstractHelper
 {
     /**
      * Invoke the view helper as the PHPRendere method call
-     * @param Entity $entity
+     * @param Model\Entity $entity
      * @return string|$this
      */
-    public function __invoke(Entity $entity = null)
+    public function __invoke(Model\Entity $entity = null)
     {
         if (is_null($entity)) {
             return $this;
@@ -29,15 +27,15 @@ class OverviewTitle extends AbstractHelper
 
     /**
      * Returns entity title suitable for display in an overview
-     * @param Entity $entity
+     * @param Model\Entity $entity
      * @return string
      */
-    public function render(Entity $entity)
+    public function render(Model\Entity $entity)
     {
-        if ($entity instanceof Document) {
+        if ($entity instanceof Model\Document) {
             //Document
             $title  = $entity->getOverviewTitle() ?: $entity->getTitle();
-        } elseif ($entity instanceof Folder) {
+        } elseif ($entity instanceof Model\Folder) {
             //Folder
             $title  = $entity->getTitle();
         } else {

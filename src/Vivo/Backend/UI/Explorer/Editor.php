@@ -253,7 +253,7 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
         $form = $this->getForm();
 
         if ($form->isValid()) {
-            //Save contents first, otherwise indexing published contents are not updated in indexer
+            //Save contents first, otherwise published contents are not updated in indexer
             $successContents    = $this->saveContents();
             $this->documentApi->saveDocument($this->entity);
             if ($successContents) {

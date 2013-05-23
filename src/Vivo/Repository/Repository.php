@@ -261,16 +261,19 @@ class Repository implements RepositoryInterface
     /**
      * Removes an entity from cache by path
      * @param string $path
-     * @throws Exception\RuntimeException
+     * @param bool $removeDescendants Remove also all descendants of the specified entity?
      */
-    protected function removeEntityFromCache($path)
+    protected function removeEntityFromCache($path, $removeDescendants = true)
     {
-//        $uuid           = $this->uuidConvertor->getUuid($path);
-//        if (!$uuid) {
-//            throw new Exception\RuntimeException(sprintf("%s: The UUID convertor could not convert path '%s' to UUID",
-//                __METHOD__, $path));
-//        }
-//        $key           = $uuid;
+        if ($removeDescendants) {
+            //Remove also all descendants of this entity
+            $descendants    = $this->getChildren($path, false, true);
+            foreach ($descendants as $descendant) {
+                $key    = md5($descendant->getPath());
+                $this->cache->removeItem($key);
+            }
+        }
+        //Remove the entity
         $key            = md5($path);
         $this->cache->removeItem($key);
     }
@@ -294,7 +297,7 @@ class Repository implements RepositoryInterface
             //Entity not found in storage, remove entity from watcher and cache to eliminate possible inconsistencies
             $this->watcher->remove($path);
             if ($this->cache) {
-                $this->removeEntityFromCache($path);
+                $this->removeEntityFromCache($path, true);
             }
             return null;
         }
@@ -347,16 +350,27 @@ class Repository implements RepositoryInterface
     /**
      * Returns children of an entity
      * When $deep == true, returns descendants rather than children
-     * @param PathInterface $entity
+     * @param PathInterface|string $spec Either PathInterface object or directly a path as a string
      * @param bool|string $className
      * @param bool $deep
+     * @throws Exception\InvalidArgumentException
      * @return \Vivo\CMS\Model\Entity[]
      */
-    public function getChildren(PathInterface $entity, $className = false, $deep = false)
+    public function getChildren($spec, $className = false, $deep = false)
 	{
+        $path   = null;
+        if ($spec instanceof PathInterface) {
+            $path   = $this->getAndCheckPath($spec);
+        }
+        if (is_string($spec)) {
+            $path   = $spec;
+        }
+        if (is_null($path)) {
+            throw new Exception\InvalidArgumentException(
+                sprintf("%s: spec must be either a PathInterface object or a string", __METHOD__));
+        }
 		$children       = array();
 		$descendants    = array();
-		$path           = $this->getAndCheckPath($entity);
 		//TODO: tady se zamyslet, zda neskenovat podle tridy i obsahy
 		//if (is_subclass_of($class_name, 'Vivo\Cms\Model\Content')) {
 		//	$names = $this->storage->scan("$path/Contents");
@@ -571,7 +585,7 @@ class Repository implements RepositoryInterface
     {
         $this->watcher->remove($entity->getPath());
         if ($this->cache) {
-            $this->removeEntityFromCache($entity->getPath());
+            $this->removeEntityFromCache($entity->getPath(), true);
         }
         $this->storage->move($entity->getPath(), $target);
         if ($this->hasEntity($target)) {
@@ -785,7 +799,7 @@ class Repository implements RepositoryInterface
  			foreach ($this->deleteEntityPaths as $path) {
                 $this->watcher->remove($path);
                 if ($this->cache) {
-                    $this->removeEntityFromCache($path);
+                    $this->removeEntityFromCache($path, true);
                 }
  			}
             //Save entities to Watcher and Cache

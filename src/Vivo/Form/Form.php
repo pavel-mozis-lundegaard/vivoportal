@@ -74,6 +74,7 @@ class Form extends ZendForm
             $inputFilterSpecification   = $this->getInputFilterSpecification();
             if ($inputFactory instanceof \Vivo\InputFilter\Factory) {
                 $inputFactory->addConditionsFromSpecification($inputFilter, $inputFilterSpecification);
+                $inputFactory->addAtLeastGroupsFromSpecification($inputFilter, $inputFilterSpecification);
             }
             foreach ($inputFilterSpecification as $name => $spec) {
                 $input = $inputFactory->createInput($spec);

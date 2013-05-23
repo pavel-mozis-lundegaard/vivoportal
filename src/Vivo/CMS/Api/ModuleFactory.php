@@ -1,13 +1,13 @@
 <?php
-namespace Vivo\Service;
+namespace Vivo\CMS\Api;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
 
 /**
- * CmsApiModuleFactory
+ * ModuleFactory
  */
-class CmsApiModuleFactory implements FactoryInterface
+class ModuleFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -17,7 +17,7 @@ class CmsApiModuleFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $installManager = $serviceLocator->get('module_install_manager');
-        $api            = new \Vivo\CMS\Api\Module($installManager);
+        $api            = new Module($installManager);
         return $api;
     }
 }

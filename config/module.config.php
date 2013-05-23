@@ -200,8 +200,8 @@ return array(
             'repository'                => 'Vivo\Service\RepositoryFactory',
             'repository_events'         => 'Vivo\Repository\EventManagerFactory',
             'indexer_helper'            => 'Vivo\Service\IndexerHelperFactory',
-            'Vivo\CMS\Api\CMS'          => 'Vivo\Service\CmsFactory',
-            'Vivo\CMS\Api\Module'       => 'Vivo\Service\CmsApiModuleFactory',
+            'Vivo\CMS\Api\Module'       => 'Vivo\CMS\Api\ModuleFactory',
+            'Vivo\CMS\Api\CMS'          => 'Vivo\CMS\Api\CMSFactory',
             'Vivo\CMS\Api\Document'     => 'Vivo\CMS\Api\DocumentFactory',
             'Vivo\CMS\Api\Indexer'      => 'Vivo\CMS\Api\IndexerFactory',
             'Vivo\CMS\Api\Site'         => 'Vivo\CMS\Api\SiteFactory',
@@ -328,9 +328,16 @@ return array(
             'render_document'   => 'Vivo\View\Helper\RenderDocumentFactory',
         ),
     ),
+    //Plugin manager configuration for navigation view helpers
+    'navigation_view_helpers'   => array(
+        'invokables'        => array(
+            'vivo_menu'         => 'Vivo\View\Helper\Navigation\Menu',
+        ),
+    ),
     'validators'    => array(
         'invokables' => array(
             'conditional'   => 'Vivo\Validator\Conditional',
+            'vivo_invalid'  => 'Vivo\Validator\VivoInvalid',
         ),
         'initializers'      => array(
             'validator_initializer'     => 'Vivo\Validator\Initializer',
@@ -342,6 +349,7 @@ return array(
             'input'         => 'Vivo\InputFilter\Condition\Input',
             'notEmpty'      => 'Vivo\InputFilter\Condition\NotEmpty',
             'equals'        => 'Vivo\InputFilter\Condition\Equals',
+            'allEmpty'      => 'Vivo\InputFilter\Condition\AllEmpty',
         ),
         'initializers'  => array(
             'condition_initializer' => 'Vivo\InputFilter\Condition\Initializer',

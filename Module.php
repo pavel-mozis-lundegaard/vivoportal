@@ -20,9 +20,12 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
     {
         //Get basic objects
         /** @var $sm ServiceManager */
-//        $sm             = $e->getApplication()->getServiceManager();
+        $sm             = $e->getApplication()->getServiceManager();
 //        $eventManager   = $e->getApplication()->getEventManager();
 //        $config         = $sm->get('config');
+        //Register custom navigation view helpers
+        $navHelperRegistrar   = new \Vivo\Service\NavigationHelperRegistrar();
+        $navHelperRegistrar->registerNavigationHelpers($sm);
     }
 
     public function getConfig()

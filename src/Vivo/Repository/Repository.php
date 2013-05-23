@@ -9,6 +9,7 @@ use Vivo\Storage\PathBuilder\PathBuilderInterface;
 use Vivo\IO;
 use Vivo\Storage\StorageInterface;
 use Vivo\IO\IOUtil;
+use Vivo\CMS\UuidConvertor\UuidConvertorInterface;
 
 use Zend\Serializer\Adapter\AdapterInterface as Serializer;
 use Zend\Cache\Storage\StorageInterface as Cache;
@@ -74,6 +75,12 @@ class Repository implements RepositoryInterface
     protected $ioUtil;
 
     /**
+     * Uuid Convertor
+     * @var UuidConvertorInterface
+     */
+    protected $uuidConvertor;
+
+    /**
      * List of entities that are prepared to be persisted
      * @var PathInterface[]
      */
@@ -133,6 +140,7 @@ class Repository implements RepositoryInterface
      * @param Watcher $watcher
      * @param \Vivo\IO\IOUtil $ioUtil
      * @param \Zend\EventManager\EventManagerInterface $events
+     * @param \Vivo\CMS\UuidConvertor\UuidConvertorInterface $uuidConvertor
      * @throws Exception\Exception
      */
     public function __construct(Storage\StorageInterface $storage,
@@ -140,7 +148,8 @@ class Repository implements RepositoryInterface
                                 Serializer $serializer,
                                 Watcher $watcher,
                                 IOUtil $ioUtil,
-                                EventManagerInterface $events)
+                                EventManagerInterface $events,
+                                UuidConvertorInterface $uuidConvertor)
 	{
         if ($cache) {
             //Check that cache supports all required data types
@@ -160,13 +169,14 @@ class Repository implements RepositoryInterface
         $this->ioUtil           = $ioUtil;
         $this->pathBuilder      = $this->storage->getPathBuilder();
         $this->events           = $events;
+        $this->uuidConvertor    = $uuidConvertor;
 	}
 
     /**
      * Returns entity identified by path
      * When the entity is not found, throws an exception
      * @param string $path Entity path
-     * @return \Vivo\CMS\Model\Entity|null
+     * @return null|\Vivo\CMS\Model\Entity
      * @throws Exception\EntityNotFoundException
      */
     public function getEntity($path)
@@ -178,9 +188,12 @@ class Repository implements RepositoryInterface
             return $entity;
         }
         //Get entity from cache
-        $entity = $this->getEntityFromCache($path);
-        if ($entity) {
-            return $entity;
+        if ($this->cache) {
+            $entity = $this->getEntityFromCache($path);
+            if ($entity) {
+                $this->watcher->add($entity);
+                return $entity;
+            }
         }
         //Get the entity from storage
         $entity = $this->getEntityFromStorage($path);
@@ -209,24 +222,60 @@ class Repository implements RepositoryInterface
 
     /**
      * Looks up an entity in cache and returns it
-     * If the entity does not exist in cache or the cache is not configured, returns null
+     * If the entity does not exist in cache returns null
+     * @param $path
+     * @throws Exception\RuntimeException
      * @param string $path
      * @return \Vivo\CMS\Model\Entity|null
      */
     protected function getEntityFromCache($path)
     {
-        $path       = $this->pathBuilder->sanitize($path);
-        if ($this->cache) {
-            $cacheSuccess   = null;
-            $entity         = $this->cache->getItem($path, $cacheSuccess);
-            if ($cacheSuccess) {
-                //Store entity to watcher
-                $this->watcher->add($entity);
-            }
+        $key            = md5($path);
+        $cacheSuccess   = null;
+        $entity         = $this->cache->getItem($key, $cacheSuccess);
+        if ($cacheSuccess) {
+            //TODO - Log cache hit
         } else {
-            $entity = null;
+            //TODO - Log cache miss
+//            echo '<br>Cache miss: ' . $path;
         }
         return $entity;
+    }
+
+    /**
+     * Stores an entity to cache
+     * @param Entity $entity
+     * @throws Exception\RuntimeException
+     */
+    protected function storeEntityToCache(Entity $entity)
+    {
+        if (!$entity->getPath()) {
+            throw new Exception\RuntimeException(sprintf("%s: Cannot store entity to cache, path not set",
+                __METHOD__));
+        }
+//        $key    = $entity->getUuid();
+        $key    = md5($entity->getPath());
+        $this->cache->setItem($key, $entity);
+    }
+
+    /**
+     * Removes an entity from cache by path
+     * @param string $path
+     * @param bool $removeDescendants Remove also all descendants of the specified entity?
+     */
+    protected function removeEntityFromCache($path, $removeDescendants = true)
+    {
+        if ($removeDescendants) {
+            //Remove also all descendants of this entity
+            $descendants    = $this->getChildren($path, false, true);
+            foreach ($descendants as $descendant) {
+                $key    = md5($descendant->getPath());
+                $this->cache->removeItem($key);
+            }
+        }
+        //Remove the entity
+        $key            = md5($path);
+        $this->cache->removeItem($key);
     }
 
     /**
@@ -238,10 +287,18 @@ class Repository implements RepositoryInterface
      */
     public function getEntityFromStorage($path)
     {
+        //TODO - Log storage access
+//        echo '<br>Entity from storage: ' . $path;
+
         $path           = $this->pathBuilder->sanitize($path);
         $pathComponents = array($path, self::ENTITY_FILENAME);
         $fullPath       = $this->pathBuilder->buildStoragePath($pathComponents, true);
         if (!$this->storage->isObject($fullPath)) {
+            //Entity not found in storage, remove entity from watcher and cache to eliminate possible inconsistencies
+            $this->watcher->remove($path);
+            if ($this->cache) {
+                $this->removeEntityFromCache($path, true);
+            }
             return null;
         }
         $entitySer      = $this->storage->get($fullPath);
@@ -265,7 +322,7 @@ class Repository implements RepositoryInterface
         $this->watcher->add($entity);
         //Store entity to cache
         if ($this->cache) {
-            $this->cache->setItem($path, $entity);
+            $this->storeEntityToCache($entity);
         }
         return $entity;
     }
@@ -293,16 +350,27 @@ class Repository implements RepositoryInterface
     /**
      * Returns children of an entity
      * When $deep == true, returns descendants rather than children
-     * @param PathInterface $entity
+     * @param PathInterface|string $spec Either PathInterface object or directly a path as a string
      * @param bool|string $className
      * @param bool $deep
+     * @throws Exception\InvalidArgumentException
      * @return \Vivo\CMS\Model\Entity[]
      */
-    public function getChildren(PathInterface $entity, $className = false, $deep = false)
+    public function getChildren($spec, $className = false, $deep = false)
 	{
+        $path   = null;
+        if ($spec instanceof PathInterface) {
+            $path   = $this->getAndCheckPath($spec);
+        }
+        if (is_string($spec)) {
+            $path   = $spec;
+        }
+        if (is_null($path)) {
+            throw new Exception\InvalidArgumentException(
+                sprintf("%s: spec must be either a PathInterface object or a string", __METHOD__));
+        }
 		$children       = array();
 		$descendants    = array();
-		$path           = $this->getAndCheckPath($entity);
 		//TODO: tady se zamyslet, zda neskenovat podle tridy i obsahy
 		//if (is_subclass_of($class_name, 'Vivo\Cms\Model\Content')) {
 		//	$names = $this->storage->scan("$path/Contents");
@@ -515,6 +583,10 @@ class Repository implements RepositoryInterface
      */
     public function moveEntity(PathInterface $entity, $target)
     {
+        $this->watcher->remove($entity->getPath());
+        if ($this->cache) {
+            $this->removeEntityFromCache($entity->getPath(), true);
+        }
         $this->storage->move($entity->getPath(), $target);
         if ($this->hasEntity($target)) {
             $moved  = $this->getEntity($target);
@@ -727,7 +799,7 @@ class Repository implements RepositoryInterface
  			foreach ($this->deleteEntityPaths as $path) {
                 $this->watcher->remove($path);
                 if ($this->cache) {
-                    $this->cache->removeItem($path);
+                    $this->removeEntityFromCache($path, true);
                 }
  			}
             //Save entities to Watcher and Cache
@@ -736,7 +808,7 @@ class Repository implements RepositoryInterface
                 $this->watcher->add($entity);
                 //Cache
                 if ($this->cache) {
-                    $this->cache->setItem($entity->getPath(), $entity);
+                    $this->storeEntityToCache($entity);
                 }
             }
             //Trigger commit event

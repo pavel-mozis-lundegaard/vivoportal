@@ -205,6 +205,7 @@ return array(
             'Vivo\CMS\Api\Document'     => 'Vivo\CMS\Api\DocumentFactory',
             'Vivo\CMS\Api\Indexer'      => 'Vivo\CMS\Api\IndexerFactory',
             'Vivo\CMS\Api\Site'         => 'Vivo\CMS\Api\SiteFactory',
+            'Vivo\CMS\Api\Content\Fileboard' => 'Vivo\CMS\Api\Content\FileboardFactory',
             'module_resource_manager'   => 'Vivo\Service\ModuleResourceManagerFactory',
             'module_install_manager'    => 'Vivo\Service\ModuleInstallManagerFactory',
             'db_provider_factory'       => 'Vivo\Service\DbProviderFactoryFactory',

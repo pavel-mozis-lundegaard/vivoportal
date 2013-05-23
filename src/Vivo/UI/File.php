@@ -1,12 +1,10 @@
 <?php
 namespace Vivo\UI;
 
-use Zend\Http\Response;
-
 use Vivo\IO\InputStreamInterface;
-use Vivo\Util;
+use Vivo\Util\MIME;
 
-use Zend\Http\Headers;
+use Zend\Http\Response;
 
 /**
  * If a document with the content layout settings, the file appears in it (an image directly on the page, other types of file download link),
@@ -18,6 +16,11 @@ class File extends Component
      * @var string
      */
     private $filename;
+
+    /**
+     * @var MIME
+     */
+    protected $mime;
 
     /**
      * @var string
@@ -80,7 +83,7 @@ class File extends Component
     {
         if (!$this->mimeType) {
             $ext = substr($this->filename, strrpos($this->filename, '.') + 1);
-            $this->mimeType = Util\MIME::getType($ext);
+            $this->mimeType = $this->mime->getType($ext);
         }
 
         if ($this->options['setHeaders'] == true) {
@@ -112,6 +115,15 @@ class File extends Component
     public function setMimeType($mimeType)
     {
         $this->mimeType = $mimeType;
+    }
+
+    /**
+     * Inject MIME.
+     * @param MIME $mime
+     */
+    public function setMime(MIME $mime)
+    {
+        $this->mime = $mime;
     }
 
 }

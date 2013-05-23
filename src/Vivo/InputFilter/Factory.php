@@ -24,6 +24,12 @@ class Factory extends ZfInputFilterFactory
     protected $conditionsKey    = '__conditions';
 
     /**
+     * Key in the input filter specification containing the 'at least' groups definition
+     * @var string
+     */
+    protected $atLeastGroupsKey = '__at_least_groups';
+
+    /**
      * Condition plugin manager
      * @var ConditionPluginManager
      */
@@ -74,6 +80,7 @@ class Factory extends ZfInputFilterFactory
         $inputFilter = new $class();
 
         $this->addConditionsFromSpecification($inputFilter, $inputFilterSpecification);
+        $this->addAtLeastGroupsFromSpecification($inputFilter, $inputFilterSpecification);
 
         if (!$inputFilter instanceof InputFilterInterface) {
             throw new Exception\RuntimeException(sprintf(
@@ -127,6 +134,26 @@ class Factory extends ZfInputFilterFactory
                 }
             }
             unset($inputFilterSpecification[$this->conditionsKey]);
+        }
+        return $inputFilter;
+    }
+
+    /**
+     * Adds 'at least' groups to the input filter and removes the definition from the input filter specification
+     * @param InputFilterInterface $inputFilter
+     * @param array $inputFilterSpecification
+     * @return VivoInputFilter|InputFilterInterface
+     */
+    public function addAtLeastGroupsFromSpecification(InputFilterInterface $inputFilter,
+                                                      array &$inputFilterSpecification)
+    {
+        if (isset($inputFilterSpecification[$this->atLeastGroupsKey])) {
+            if ($inputFilter instanceof VivoInputFilter) {
+                foreach ($inputFilterSpecification[$this->atLeastGroupsKey] as $atLeastGroup) {
+                    $inputFilter->addAtLeastGroup($atLeastGroup);
+                }
+            }
+            unset($inputFilterSpecification[$this->atLeastGroupsKey]);
         }
         return $inputFilter;
     }

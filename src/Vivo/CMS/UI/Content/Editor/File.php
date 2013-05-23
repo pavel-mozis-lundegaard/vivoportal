@@ -12,6 +12,7 @@ use Vivo\CMS\RefInt\SymRefConvertorInterface;
 use Vivo\IO\InputStreamInterface;
 use Vivo\IO\FileInputStream;
 use Vivo\CMS\Model\ContentContainer;
+use Vivo\Util\MIME;
 
 use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
 
@@ -31,6 +32,11 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
      * @var \Vivo\CMS\Api\Document
      */
     private $documentApi;
+
+    /**
+     * @var \Vivo\Util\MIME
+     */
+    protected $mime;
 
     /**
      * Symbolic reference convertor
@@ -107,14 +113,14 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
 
             if ($replaceContent && $data["tmp_name"] != "") {
                 $mimeType = $data["type"];
-                $extension = \Vivo\Util\MIME::getExt($mimeType);
+                $extension = $this->mime->getExt($mimeType);
                 $this->saveContent($contentContainer, $mimeType, 'resource.' . $extension);
                 $inputStream    = new FileInputStream($data["tmp_name"]);
                 $this->writeResource($inputStream);
             } else {
                 $mimeType = $this->content->getMimeType();
                 if (!$this->content->getFilename()) {
-                    $extension = \Vivo\Util\MIME::getExt($mimeType);
+                    $extension = $this->mime->getExt($mimeType);
                     $this->content->setFilename('resource.' . $extension);
                 }
                 $fileName = $this->content->getFilename();
@@ -205,5 +211,14 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
     public function getAdapterKey()
     {
         return $this->content->getMimeType();
+    }
+
+    /**
+     * Inject MIME.
+     * @param \Vivo\Util\MIME $mime
+     */
+    public function setMime(MIME $mime)
+    {
+        $this->mime = $mime;
     }
 }

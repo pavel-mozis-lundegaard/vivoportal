@@ -385,6 +385,16 @@ class FrontController implements DispatchableInterface,
                 $this->events->trigger(new RedirectEvent($url, $params));
             }
         }
+
+        //redirect to backend if query param 'edit' is present
+        $query = $this->getRequest()->getQuery();
+        if (isset($query['edit'])) {
+                $url  = $this->urlHelper->fromRoute('backend/modules',
+                        array('module'=>'explorer', 'path'=>''),
+                        array('query' => array('url' => $path)) );
+                $params         = array('status_code' => 301, 'immediately' => true);
+                $this->events->trigger(new RedirectEvent($url, $params));
+        }
     }
 
     /**

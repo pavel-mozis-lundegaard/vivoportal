@@ -6,6 +6,12 @@ use Zend\Form\Element\DateTime as ZendDateTime;
 class DateTime extends ZendDateTime
 {
     /**
+     * DateTime format
+     * @var string
+     */
+    protected $format   = 'Y-m-d H:i';
+
+    /**
      * @see \Zend\Form\Element::setOptions()
      */
     public function setOptions($options)

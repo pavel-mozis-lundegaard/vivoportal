@@ -181,19 +181,23 @@ class Repository implements RepositoryInterface
      */
     public function getEntity($path)
     {
-        $path       = $this->pathBuilder->sanitize($path);
+        $path   = $this->pathBuilder->sanitize($path);
         //Get entity from watcher
-        $entity     = $this->watcher->get($path);
+        $entity = $this->watcher->get($path);
         if ($entity) {
             return $entity;
         }
+        //Get current mtime of the entity from storage
+        $mtime  = $this->getStorageMtime($path);
+        if (!$mtime) {
+            throw new Exception\EntityNotFoundException(
+                sprintf("%s: No entity found at path '%s' (mtime)", __METHOD__, $path));
+        }
         //Get entity from cache
-        if ($this->cache) {
-            $entity = $this->getEntityFromCache($path);
-            if ($entity) {
-                $this->watcher->add($entity);
-                return $entity;
-            }
+        $entity = $this->getEntityFromCache($path, $mtime);
+        if ($entity) {
+            $this->watcher->add($entity);
+            return $entity;
         }
         //Get the entity from storage
         $entity = $this->getEntityFromStorage($path);
@@ -222,22 +226,48 @@ class Repository implements RepositoryInterface
 
     /**
      * Looks up an entity in cache and returns it
-     * If the entity does not exist in cache returns null
-     * @param $path
-     * @throws Exception\RuntimeException
+     * If the entity does not exist in cache or its mtime is older than the specified mtime, returns null
      * @param string $path
+     * @param int|null $minMtime Retrieve only when null or when the mtime of the entity in the cache is newer than this
+     * @throws Exception\RuntimeException
      * @return \Vivo\CMS\Model\Entity|null
      */
-    protected function getEntityFromCache($path)
+    protected function getEntityFromCache($path, $minMtime = null)
     {
-        $key            = md5($path);
-        $cacheSuccess   = null;
-        $entity         = $this->cache->getItem($key, $cacheSuccess);
-        if ($cacheSuccess) {
-            //TODO - Log cache hit
+        if ($this->cache) {
+            $key            = md5($path);
+            //Return null when mtime in the cache is older than the specified mtime
+            if (!is_null($minMtime)) {
+                //$minMtime specified
+                $meta   = $this->cache->getMetadata($key);
+                if ($meta !== false) {
+                    //Item found in cache
+                    if (!array_key_exists('mtime', $meta)) {
+                        //TODO - remove this dependency on the 'mtime' metadata - not all cache adapters support it
+                        throw new Exception\RuntimeException(
+                            sprintf("%s: The cache storage adapter does not return the 'mtime' metadata", __METHOD__));
+                    }
+                    $cacheMtime = $meta['mtime'];
+                    if ($minMtime > $cacheMtime) {
+                        //mtime in cache is older than the specified mtime
+                        $this->removeEntityFromCache($path, true);
+                        return null;
+                    }
+                } else {
+                    //Item not found in cache
+                    return null;
+                }
+            }
+            $cacheSuccess   = null;
+            $entity         = $this->cache->getItem($key, $cacheSuccess);
+            if ($cacheSuccess) {
+                //TODO - Log cache hit
+            } else {
+                //TODO - Log cache miss
+    //            echo '<br>Cache miss: ' . $path;
+            }
         } else {
-            //TODO - Log cache miss
-//            echo '<br>Cache miss: ' . $path;
+            $entity = null;
         }
         return $entity;
     }
@@ -906,5 +936,21 @@ class Repository implements RepositoryInterface
             throw new Exception\PathNotSetException(sprintf("%s: Entity has no path set", __METHOD__));
         }
         return $path;
+    }
+
+    /**
+     * Returns mtime of a file in storage
+     * If file does not exist in storage, returns null
+     * @param string $path
+     * @return int|null
+     */
+    protected function getStorageMtime($path)
+    {
+        $path   = $this->pathBuilder->sanitize($path);
+        $mtime  = $this->storage->mtime($path);
+        if ($mtime === false) {
+            $mtime  = null;
+        }
+        return $mtime;
     }
 }

@@ -94,13 +94,19 @@ class FrontController implements DispatchableInterface,
      */
     public function attachListeners()
     {
+        //fetch document
         $this->events->attachAggregate($this->serviceManager->get('Vivo\CMS\FetchDocumentListener'), 100);
         $this->events->attachAggregate($this->serviceManager->get('Vivo\CMS\FetchDocumentByUrlListener'), 200);
-
         $this->events->attachAggregate($this->serviceManager->get('Vivo\CMS\FetchErrorDocumentListener'), 100);
 
-        $this->events->attach(CMSEvent::EVENT_REDIRECT, array($this, 'performRedirects'), 100);
+        //redirect
+        $this->events->attachAggregate($this->serviceManager->get('Vivo\CMS\RedirectMapListener'), 100);
+        $this->events->attach(CMSEvent::EVENT_REDIRECT, array($this, 'performRedirects'), 200);
+
+        //create
         $this->events->attach(CMSEvent::EVENT_CREATE, array($this, 'createTreeFromDocument'), 100);
+
+        //render
         $this->events->attach(CMSEvent::EVENT_RENDER, array($this, 'render'), 100);
     }
 

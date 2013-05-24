@@ -154,7 +154,7 @@ return array(
                 //TODO - set service name of the default adapter for File content
                 'default'       => 'Vivo\CMS\UI\Content\Editor\File\DefaultAdapter',
                 'service_map'   => array(
-                    'text/html'     => 'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapter',                    
+                    'text/html'     => 'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapter',
                 ),
             ),
         ),
@@ -253,6 +253,7 @@ return array(
                     => 'Vivo\CMS\UI\Content\Editor\File\DefaultAdapterFactory',
 
             'Vivo\CMS\FetchErrorDocumentListener' => 'Vivo\CMS\FetchErrorDocumentListenerFactory',
+            'Vivo\CMS\RedirectMapListener' => 'Vivo\CMS\RedirectMapListenerFactory',
         ),
         'aliases' => array(
         ),

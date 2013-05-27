@@ -128,6 +128,13 @@ class FrontController implements DispatchableInterface,
                             __METHOD__ , $this->siteEvent->getHost()));
         }
 
+        //dispatch resource files
+        $resourceResponse = $this->dispatchResource($this->cmsEvent);
+        if ($resourceResponse instanceof Response) {
+            return $resourceResponse;
+        }
+
+        //dispatch document
         try {
             //fetch document
             $eventResult = $this->events->trigger(CMSEvent::EVENT_FETCH_DOCUMENT, $this->getCmsEvent(),
@@ -231,6 +238,53 @@ class FrontController implements DispatchableInterface,
             }
         }
         return $response;
+    }
+
+    /**
+     * Dispatches resource file.
+     *
+     * Searches a requested path in site resource.map file and dispatches resource if finds matching row.
+     * Dispatching of the resource is forwarded to the ResourceFrontController.
+     * Format of line in resource.map file is:
+     * <requestedPath> <source> <resourcePath>
+     *
+     * @param \Vivo\CMS\Event\CMSEvent $cmsEvent
+     * @return null|Response
+     */
+    public function dispatchResource(CMSEvent $cmsEvent)
+    {
+        try {
+            $resourceMap = $this->cmsApi->getResource($cmsEvent->getSite(), 'resource.map');
+        } catch (\Vivo\Storage\Exception\IOException $e){
+            return null;
+        }
+        $lines  = explode("\n", $resourceMap);
+        $foundTarget = null;
+
+        //parse resource map file
+        foreach ($lines as $line) {
+            if ($line = trim($line)) { //skip empty rows
+                $lineColums = array_values(array_filter(explode(" ", $line)));
+                if (count($lineColums) == 3) {
+                    list($path, $source, $resource) = $lineColums;
+                    if ($cmsEvent->getRequestedPath() == $path) {
+                        $foundTarget = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if ($foundTarget) {
+            //use ResourceFrontController for dispatching resource
+            /* @var $controller \Vivo\Controller\ResourceFrontController */
+            $controller = $this->serviceManager->get('ControllerLoader')->get('resource_front_controller');
+            $this->mvcEvent->getRouteMatch()->setParam('path'  , $resource);
+            $this->mvcEvent->getRouteMatch()->setParam('source', $source);
+            $controller->setEvent($this->mvcEvent);
+            return $controller->dispatch($this->mvcEvent->getRequest(), $this->mvcEvent->getResponse());
+        }
+        return null;
     }
 
     /**

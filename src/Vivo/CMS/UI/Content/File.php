@@ -39,11 +39,13 @@ class File extends Component
      * Constructor
      * @param CMS $cmsApi
      * @param \Vivo\CMS\RefInt\SymRefConvertorInterface $symRefConvertor
+     * @param MIME $mime
      */
-    public function __construct(CMS $cmsApi, SymRefConvertorInterface $symRefConvertor)
+    public function __construct(CMS $cmsApi, SymRefConvertorInterface $symRefConvertor, MIME $mime)
     {
         $this->cmsApi           = $cmsApi;
         $this->symRefConvertor  = $symRefConvertor;
+        $this->mime             = $mime;
     }
 
     public function init()
@@ -57,6 +59,7 @@ class File extends Component
         }
 
         $mimeType = $this->content->getMimeType();
+
         $resourceFile = 'resource.' . $this->mime->getExt($mimeType);
         $this->view->resourceFile = $resourceFile;
         if ($mimeType == 'text/html') {
@@ -76,14 +79,5 @@ class File extends Component
         }
         $this->view->setTemplate($this->getDefaultTemplate() .
                 ($templateVariant ? ':' . $templateVariant : ''));
-    }
-
-    /**
-     * Inject MIME.
-     * @param \Vivo\Util\MIME $mime
-     */
-    public function setMime(MIME $mime)
-    {
-        $this->mime = $mime;
     }
 }

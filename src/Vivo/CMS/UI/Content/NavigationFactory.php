@@ -24,7 +24,13 @@ class NavigationFactory implements FactoryInterface
         if (!$site) {
             throw new Exception\RuntimeException(sprintf("%s: Site model not available", __METHOD__));
         }
-        $service    = new Navigation($cmsApi, $documentApi, $site);
+        $cacheMgr       = $serviceLocator->get('cache_manager');
+        if ($cacheMgr->has('navigation')) {
+            $cache  = $cacheMgr->get('navigation');
+        } else {
+            $cache  = null;
+        }
+        $service    = new Navigation($cmsApi, $documentApi, $site, $cache);
         return $service;
     }
 }

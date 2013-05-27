@@ -24,6 +24,7 @@ class FrontControllerFactory implements FactoryInterface
         }
         $fc->setComponentTreeController($sm->get('Vivo\UI\ComponentTreeController'));
         $fc->setCMS($sm->get('Vivo\CMS\Api\CMS'));
+        $fc->setDocumentApi($sm->get('Vivo\CMS\Api\Document'));
         $fc->setSiteEvent($siteEvent);
         $fc->setCmsEvent($sm->get('cms_event'));
         $fc->setRedirector($sm->get('redirector'));

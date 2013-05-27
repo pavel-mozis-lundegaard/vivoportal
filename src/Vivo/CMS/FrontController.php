@@ -1,6 +1,7 @@
 <?php
 namespace Vivo\CMS;
 
+use Vivo\CMS\Api;
 use Vivo\CMS\Api\CMS;
 use Vivo\CMS\ComponentFactory;
 use Vivo\CMS\Event\CMSEvent;
@@ -58,6 +59,11 @@ class FrontController implements DispatchableInterface,
      * @var CMS
      */
     protected $cmsApi;
+
+    /**
+     * @var Api\Document
+     */
+    protected $documentApi;
 
     /**
      * @var ComponentFactory
@@ -147,6 +153,13 @@ class FrontController implements DispatchableInterface,
                             __METHOD__,
                             $this->cmsEvent->getRequestedPath()),
                         \Zend\Http\Response::STATUS_CODE_404);
+            }
+            //throw exception when document hasn't any published content
+            if (!$this->documentApi->isPublished($this->cmsEvent->getDocument())) {
+            throw new \Exception(sprintf('%s: Document `%s` is not published.',
+                        __METHOD__,
+                        $document->getPath()),
+                    \Zend\Http\Response::STATUS_CODE_404);
             }
 
             //create ui component tree
@@ -512,5 +525,14 @@ class FrontController implements DispatchableInterface,
     public function setCmsEvent(CMSEvent $cmsEvent)
     {
         $this->cmsEvent = $cmsEvent;
+    }
+
+    /**
+     * Inject Document Api
+     * @param \Vivo\CMS\Api\Document $documentApi
+     */
+    public function setDocumentApi(Api\Document $documentApi)
+    {
+        $this->documentApi = $documentApi;
     }
 }

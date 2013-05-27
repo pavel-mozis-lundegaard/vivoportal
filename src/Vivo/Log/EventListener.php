@@ -67,7 +67,7 @@ class EventListener implements SharedEventManagerAwareInterface
         $this->sharedEventManager = $sharedEventManager;
         //attach listener to all events
         foreach ($this->options['attach'] as $rule) {
-            $this->sharedEventManager->attach($rule[0], $rule[1], array($this, 'log'));
+            $this->sharedEventManager->attach($rule[0], $rule[1], array($this, 'log'), 10000);
         }
     }
 

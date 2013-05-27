@@ -10,6 +10,9 @@ use Vivo\CMS\Api\Indexer as IndexerApi;
 use Vivo\CMS\RefInt\SymRefConvertorInterface;
 use Vivo\CMS\Model\Entity;
 use Vivo\Repository\Exception\EntityNotFoundException;
+use Vivo\CMS\UI\Exception\RuntimeException;
+
+use Zend\Cache\Storage\StorageInterface as Cache;
 
 /**
  * Overview UI component
@@ -43,21 +46,83 @@ class Overview extends Component
     protected $children = array();
 
     /**
+     * Cache for overview documents
+     * @var Cache
+     */
+    protected $cache;
+
+    /**
      * Constructor
      * @param \Vivo\CMS\Api\CMS $cmsApi
      * @param \Vivo\CMS\Api\Indexer $indexerApi
      * @param \Vivo\SiteManager\Event\SiteEvent $siteEvent
+     * @param \Zend\Cache\Storage\StorageInterface $cache
      */
-    public function __construct(CMS $cmsApi, IndexerApi $indexerApi, SiteEvent $siteEvent)
+    public function __construct(CMS $cmsApi, IndexerApi $indexerApi, SiteEvent $siteEvent, Cache $cache = null)
     {
         $this->cmsApi       = $cmsApi;
         $this->indexerApi   = $indexerApi;
         $this->siteEvent    = $siteEvent;
+        $this->cache        = $cache;
     }
 
     public function init()
     {
-        $this->view->children = $this->getDocuments();
+        if ($this->cache) {
+            $key        = $this->getCacheKey();
+            $success    = null;
+            $children   = $this->cache->getItem($key, $success);
+            if (!$success) {
+                $children  = $this->getDocuments();
+                $this->cache->setItem($key, $children);
+            }
+
+        } else {
+            $children   = $this->getDocuments();
+        }
+        $this->view->children = $children;
+    }
+
+    /**
+     * Returns cache key used to cache the overview documents
+     * @return string
+     * @throws \Vivo\CMS\UI\Exception\RuntimeException
+     */
+    protected function getCacheKey()
+    {
+        /** @var $overviewModel \Vivo\CMS\Model\Content\Overview */
+        $overviewModel  = $this->content;
+        switch ($overviewModel->getOverviewType()) {
+            case \Vivo\CMS\Model\Content\Overview::TYPE_DYNAMIC:
+                if (is_null($overviewModel->getOverviewPath())) {
+                    //Overview path not specified, use the current requested doc
+                    $overviewPath = $this->cmsEvent->getRequestedPath();
+                } else {
+                    //Overview path specified
+                    $overviewPath = $overviewModel->getOverviewPath();
+                }
+                $keyParts   = array(
+                    'requested_path'    => $this->cmsEvent->getRequestedPath(),
+                    'overview_path'     => $overviewPath,
+                    'overview_criteria' => $overviewModel->getOverviewCriteria(),
+                    'overview_sorting'  => $overviewModel->getOverviewSorting(),
+                    'overview_limit'    => $overviewModel->getOverviewLimit(),
+                );
+                $key    = sha1(implode(',', $keyParts));
+                break;
+            case \Vivo\CMS\Model\Content\Overview::TYPE_STATIC:
+                $concat = '';
+                foreach ($overviewModel->getOverviewItems() as $docPath) {
+                    $concat .= $docPath;
+                }
+                $key    = sha1($concat);
+                break;
+            default:
+                throw new RuntimeException(sprintf("%s: Unsupported overview type '%s'",
+                    __METHOD__, $overviewModel->getType()));
+                break;
+        }
+        return $key;
     }
 
     /**
@@ -91,9 +156,10 @@ class Overview extends Component
             $documents = $this->indexerApi->getEntitiesByQuery($query, $params);
 
         } elseif ($type == OverviewModel::TYPE_STATIC) {
-            $items = $this->content->getOverviewItems();
+            $items  = $this->content->getOverviewItems();
+            $site   = $this->siteEvent->getSite();
             foreach ($items as $item) {
-                $documents[] = $this->cmsApi->getSiteEntity($item, $this->siteEvent->getSite());
+                $documents[] = $this->cmsApi->getSiteEntity($item, $site);
             }
         } else {
             throw new Exception(sprintf('%s: Unsupported overview type `%s`.', __DIR__, $type));

@@ -24,9 +24,15 @@ class NavigationFactory implements FactoryInterface
         if (!$site) {
             throw new Exception\RuntimeException(sprintf("%s: Site model not available", __METHOD__));
         }
-        $cacheMgr       = $serviceLocator->get('cache_manager');
-        if ($cacheMgr->has('navigation')) {
-            $cache  = $cacheMgr->get('navigation');
+        $cmsConfig  = $serviceLocator->get('cms_config');
+        if (isset($cmsConfig['ui']['Vivo\UI\Content\Navigation'])) {
+            $uiCompConfig   = $cmsConfig['ui']['Vivo\UI\Content\Navigation'];
+        } else {
+            $uiCompConfig   = array();
+        }
+        if (isset($uiCompConfig['cache'])) {
+            $cacheMgr       = $serviceLocator->get('cache_manager');
+            $cache  = $cacheMgr->get($uiCompConfig['cache']);
         } else {
             $cache  = null;
         }

@@ -338,6 +338,14 @@ return array(
                 // ),
             ),
         ),
+        'Vivo\UI\Content\Navigation'    => array(
+            //Cache for navigation containers
+            'cache'     => null,
+        ),
+        'Vivo\UI\Content\Overview'      => array(
+            //Cache for overview pages
+            'cache'     => null,
+        ),
     ),
     'output_filters' => array (
         //register output filters

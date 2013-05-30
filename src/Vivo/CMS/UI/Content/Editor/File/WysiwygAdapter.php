@@ -13,37 +13,32 @@ use Vivo\Repository\Exception\PathNotSetException;
  */
 class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
 {
-	/**
-	 * Form textarea for WYSIWYG editor
-	 * @var Vivo\UI\Form
-	 */
-	protected $form;
-
-	/**
-	 * Edited html code
-	 * @var string
-	 */
-	protected $data;
-
-	/**
-	 * Constructor
-	 * @param Api\CMS $cmsApi
-	 * @param SymRefConvertorInterface $symRefConvertor
-	 * @param FormFactory $formFactory
-	 */
-	public function __construct(Api\CMS $cmsApi, SymRefConvertorInterface $symRefConvertor, FormFactory $formFactory)
-	{
-	    $this->cmsApi           = $cmsApi;
-	    $this->symRefConvertor  = $symRefConvertor;
-	    $this->formFactory      = $formFactory;
-	}
+    /**
+     * Edited html code
+     * @var string
+     */
+    protected $data;
 
     /**
-	 * Initializes Adapter
-	*/
+     * Constructor
+     * @param Api\CMS $cmsApi
+     * @param SymRefConvertorInterface $symRefConvertor
+     * @param FormFactory $formFactory
+     */
+    public function __construct(Api\CMS $cmsApi, SymRefConvertorInterface $symRefConvertor, FormFactory $formFactory)
+    {
+        $this->cmsApi           = $cmsApi;
+        $this->symRefConvertor  = $symRefConvertor;
+        $this->formFactory      = $formFactory;
+    }
+
+    /**
+     * Initializes Adapter
+    */
     public function init()
     {
         parent::init();
+
         $form = $this->getForm();
         $form->setAttribute('method', 'post');
         try {
@@ -59,10 +54,10 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
         }
     }
 
-	/**
-	 * Creates form
-	 */
-	protected function doGetForm()
+    /**
+     * Creates form
+     */
+    protected function doGetForm()
     {
         return $this->formFactory->createForm(array(
             'name' => 'editor-'.$this->content->getUuid(),
@@ -78,43 +73,36 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
                             ),
                             'options' => array(
                                 'label' => 'Wysiwig',
-                            )
+                            ),
                         ),
                     ),
                 ),
         ));
     }
 
-	/**
-	 * (non-PHPdoc)
-	 * @see Vivo\CMS\UI\Content\Editor\File.DataEditorInterface::dataChanged()
-	 */
-	public function dataChanged()
+    /**
+     * (non-PHPdoc)
+     * @see Vivo\CMS\UI\Content\Editor\File.DataEditorInterface::dataChanged()
+     */
+    public function dataChanged()
     {
         return ($this->data != $this->getData());
     }
 
     /**
-	 * (non-PHPdoc)
-	 * @see Vivo\CMS\UI\Content\Editor\File.DataEditorInterface::getData()
-	 */
+     * (non-PHPdoc)
+     * @see Vivo\CMS\UI\Content\Editor\File.DataEditorInterface::getData()
+     */
     public function getData()
     {
         $this->loadFromRequest();
         $form = $this->getForm();
         if($form->isValid()) {
             $data = $form->get("resource")->getValue();
-            $data   = $this->symRefConvertor->convertUrlsToReferences($data);
+            $data = $this->symRefConvertor->convertUrlsToReferences($data);
+
             return $data;
         }
     }
-
-	/**
-	 * View Adapter
-	 */
-	public function view()
-	{
-		return parent::view();
-	}
 
 }

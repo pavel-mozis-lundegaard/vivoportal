@@ -2,6 +2,7 @@
 namespace Vivo\CMS\Model\Content;
 
 use Vivo\CMS\Model;
+use Vivo\Util\MIME;
 
 /**
  * The file is a basic content type. If a document with the content layout settings,
@@ -11,7 +12,7 @@ use Vivo\CMS\Model;
 class File extends Model\Content
 {
     /**
-     * @var string
+     * @var string MIME type.
      */
     protected $mimeType;
 
@@ -21,31 +22,25 @@ class File extends Model\Content
     protected $filename;
 
     /**
-     * Constructor.
-     * @param string $path Entity path.
+     * @var string File excension.
      */
-    public function __construct($path = null)
-    {
-        parent::__construct($path);
-    }
+    protected $ext;
 
     /**
-     * Sets file mimetype
-     *
-     * @param string $mimeType
+     * @var int File size in bytes.
      */
-    public function setMimeType($mimeType)
-    {
-        $this->mimeType = $mimeType;
-    }
+    protected $size;
+
     /**
-     * Returns file mimetype.
+     * Sets the original file name.
      *
-  						   * @return string
+     * @param string $filename
      */
-    public function getMimeType()
+    public function setFilename($filename)
     {
-    	return $this->mimeType;
+        $this->filename = $filename;
+        $this->ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        $this->mimeType = MIME::getType($this->ext);
     }
 
     /**
@@ -59,12 +54,42 @@ class File extends Model\Content
     }
 
     /**
-     *Sets the original file name.
+     * Returns file mimetype.
      *
-     * @param string $filename
+     * @return string
      */
-    public function setFilename($filename)
+    public function getMimeType()
     {
-        $this->filename = $filename;
+        return $this->mimeType;
+    }
+
+    /**
+     * Returns resource extension.
+     *
+     * @return string
+     */
+    public function getExt()
+    {
+        return $this->ext;
+    }
+
+    /**
+     * Sets the size of the file in bytes.
+     *
+     * @param int $size
+     */
+    public function setSize($size)
+    {
+        $this->size = $size;
+    }
+
+    /**
+     * Returns the size of the file in bytes.
+     *
+     * @return int
+     */
+    public function getSize()
+    {
+        return $this->size;
     }
 }

@@ -11,6 +11,7 @@ use Vivo\CMS\UI\InjectModelInterface;
 use Vivo\CMS\UI\Content\Layout;
 use Vivo\CMS\UI\Content\RawComponentInterface;
 use Vivo\UI\ComponentInterface;
+use VpLogger\Log\Logger;
 
 use Zend\Di\Di;
 use Zend\EventManager\EventManagerInterface;
@@ -145,7 +146,9 @@ class ComponentFactory implements EventManagerAwareInterface
                                                      $document->getInjectComponentViewModelToLayout());
             }
         }
-
+        $this->eventManager->trigger('log', $this,
+            array ('message'    => sprintf("Front component for document '%s' created", $document->getPath()),
+                   'priority'      => Logger::PERF_BASE));
         return $frontComponent;
     }
 
@@ -279,6 +282,7 @@ class ComponentFactory implements EventManagerAwareInterface
      *
      * If service manager can create the component, SM is used. Otherwise DI is used.
      * @param string $name
+     * @throws Exception
      * @return \Vivo\UI\Component
      */
     protected function createComponent($name)

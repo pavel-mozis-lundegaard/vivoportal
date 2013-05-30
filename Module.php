@@ -2,6 +2,7 @@
 namespace Vivo;
 
 use Vivo\View\Helper as ViewHelper;
+use VpLogger\Log\Logger;
 
 use Zend\Console\Adapter\AdapterInterface as Console;
 use Zend\ModuleManager\Feature\ConsoleBannerProviderInterface;
@@ -21,11 +22,15 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         //Get basic objects
         /** @var $sm ServiceManager */
         $sm             = $e->getApplication()->getServiceManager();
-//        $eventManager   = $e->getApplication()->getEventManager();
+        $eventManager   = $e->getApplication()->getEventManager();
 //        $config         = $sm->get('config');
         //Register custom navigation view helpers
         $navHelperRegistrar   = new \Vivo\Service\NavigationHelperRegistrar();
         $navHelperRegistrar->registerNavigationHelpers($sm);
+        //Performance log
+        $eventManager->trigger('log', $this,
+            array ('message'    => 'Vivo Portal Module bootstrapped',
+                   'priority'   => Logger::PERF_BASE));
     }
 
     public function getConfig()

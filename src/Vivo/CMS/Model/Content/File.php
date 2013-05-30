@@ -26,13 +26,9 @@ class File extends Model\Content
     protected $ext;
 
     /**
-     * Constructor.
-     * @param string $path Entity path.
+     * @var int
      */
-    public function __construct($path = null)
-    {
-        parent::__construct($path);
-    }
+    protected $size;
 
     /**
      * Sets file mimetype
@@ -71,5 +67,20 @@ class File extends Model\Content
     public function setFilename($filename)
     {
         $this->filename = $filename;
+    }
+
+    public function setExt($ext)
+    {
+        $this->ext = $ext;
+    }
+
+    public function getExt()
+    {
+        return $this->ext;
+    }
+
+    public function setSize($size)
+    {
+        $this->size = $size;
     }
 }

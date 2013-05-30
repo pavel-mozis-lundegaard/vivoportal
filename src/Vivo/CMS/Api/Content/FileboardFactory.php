@@ -14,12 +14,16 @@ class FileboardFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $cms                    = $serviceLocator->get('Vivo\CMS\Api\CMS');
+        $doc                    = $serviceLocator->get('Vivo\CMS\Api\Document');
 //         $repository             = $serviceLocator->get('repository');
-//         $pathBuilder            = $serviceLocator->get('path_builder');
+        $pathBuilder            = $serviceLocator->get('path_builder');
 //         $uuidGenerator          = $serviceLocator->get('uuid_generator');
 //         $translitDocTitleToPath = $serviceLocator->get('Vivo\Transliterator\DocTitleToPath');
 //         $config                 = $serviceLocator->get('config');
-        $api                    = new Fileboard($cms);
+        $indexer                = $serviceLocator->get('indexer');
+
+        $api                    = new Fileboard($cms, $doc, $pathBuilder, $indexer);
+
         return $api;
     }
 }

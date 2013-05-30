@@ -1,3 +1,11 @@
 <?
 $formType = DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
 echo $this->formFieldsetTwb($form, $formType, array(), true, false);
+?>
+<? if($files) : ?>
+    <ol>
+    <? foreach ($files as $file) : /* @var $file \Vivo\CMS\Model\Content\Fileboard\Media */?>
+        <li><?=$file->getPath()?> <input type="text" value="<?=$file->getName()?>" /> <textarea><?=$file->getDescription()?></textarea></li>
+    <? endforeach; ?>
+    </ol>
+<? endif; ?>

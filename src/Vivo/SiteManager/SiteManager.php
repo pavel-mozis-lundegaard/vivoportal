@@ -17,6 +17,7 @@ use Vivo\Module\ModuleManagerFactory;
 use Vivo\Module\StorageManager\StorageManager as ModuleStorageManager;
 use Vivo\Module\ResourceManager\ResourceManager as ModuleResourceManager;
 use Vivo\CMS\Api\Site as SiteApi;
+use VpLogger\Log\Logger;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManagerAwareInterface;
@@ -202,6 +203,18 @@ class SiteManager implements SiteManagerInterface,
         //Perform post module loading tasks
         $this->siteEvent->stopPropagation(false);
         $this->events->trigger(SiteEventInterface::EVENT_LOAD_MODULES_POST, $this->siteEvent);
+
+        //Performance log
+        if ($this->siteEvent->getHost()) {
+            $siteHost   = $this->siteEvent->getHost();
+        } else {
+            $siteHost   = '<site host unknown>';
+        }
+        $siteSpec   = $this->siteEvent->getHost();
+        $this->events->trigger('log', $this,
+                array ('message'    => "Site at host '" . $siteHost . "' prepared",
+                       'priority'   => Logger::PERF_BASE));
+
     }
 
     /**
@@ -230,5 +243,17 @@ class SiteManager implements SiteManagerInterface,
     public function setRouteMatch(RouteMatch $routeMatch = null)
     {
         $this->routeMatch = $routeMatch;
+        if ($this->getEventManager()) {
+            $events = $this->getEventManager();
+            if ($routeMatch && $routeMatch->getParam('path')) {
+                $path   = $routeMatch->getParam('path');
+            } else {
+                $path   = '<path not set in routematch>';
+            }
+            //Performance log
+            $events->trigger('log', $this,
+                array ('message'    => sprintf("Routematch set (path = '%s')", $path),
+                    'priority'   => Logger::PERF_BASE));
+        }
     }
 }

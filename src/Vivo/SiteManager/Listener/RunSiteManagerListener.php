@@ -2,6 +2,7 @@
 namespace Vivo\SiteManager\Listener;
 
 use Vivo\SiteManager\SiteManagerInterface;
+use VpLogger\Log\Logger;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
@@ -25,6 +26,12 @@ class RunSiteManagerListener implements ListenerAggregateInterface
     protected $siteManager;
 
     /**
+     * Event manager
+     * @var EventManagerInterface
+     */
+    protected $eventManager;
+
+    /**
      * Constructor
      * @param SiteManagerInterface $siteManager
      */
@@ -40,7 +47,8 @@ class RunSiteManagerListener implements ListenerAggregateInterface
      */
     public function attach(EventManagerInterface $events)
     {
-        $this->listeners[] = $events->attach(MvcEvent::EVENT_ROUTE, array($this, 'onRoute'));
+        $this->eventManager = $events;
+        $this->listeners[]  = $events->attach(MvcEvent::EVENT_ROUTE, array($this, 'onRoute'));
     }
 
     /**
@@ -58,7 +66,7 @@ class RunSiteManagerListener implements ListenerAggregateInterface
     }
 
     /**
-     * Listen to the "route" event, create a new SiteManager and store it in the SM
+     * Listen to the "route" event
      * @param  MvcEvent $e
      * @return void
      */
@@ -68,5 +76,5 @@ class RunSiteManagerListener implements ListenerAggregateInterface
         $this->siteManager->setRouteMatch($routeMatch);
         $this->siteManager->bootstrap();
         $this->siteManager->prepareSite();
-    }
+   }
 }

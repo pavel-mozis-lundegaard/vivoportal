@@ -13,6 +13,7 @@ use Vivo\UI\ComponentTreeController;
 use Vivo\Util\RedirectEvent;
 use Vivo\Util\Redirector;
 use Vivo\Util\UrlHelper;
+use VpLogger\Log\Logger;
 
 use Zend\EventManager\EventInterface as Event;
 use Zend\EventManager\EventManagerAwareInterface;
@@ -117,6 +118,11 @@ class FrontController implements DispatchableInterface,
      */
     public function dispatch(Request $request, Response $response = null)
     {
+        //Performance log
+        $this->events->trigger('log', $this,
+            array ('message'    => 'FrontController - Dispatch start',
+                   'priority'   => Logger::PERF_BASE));
+
         $this->request = $request;
         $this->response = $response;
         $this->attachListeners();
@@ -142,7 +148,13 @@ class FrontController implements DispatchableInterface,
                         //stop event propagation when document is fetched
                         return ($result instanceof \Vivo\CMS\Model\Document);
                     });
-            $this->cmsEvent->setDocument($eventResult->last());
+            $document   = $eventResult->last();
+            $this->cmsEvent->setDocument($document);
+
+            //Performance log
+            $this->events->trigger('log', $this,
+                array ('message'    => sprintf("FrontController - Document fetched (%s)", $document->getPath()),
+                    'priority'   => Logger::PERF_BASE));
 
             //perform redirects
             $this->events->trigger(CMSEvent::EVENT_REDIRECT, $this->getCmsEvent(),
@@ -155,14 +167,14 @@ class FrontController implements DispatchableInterface,
             }
 
             //throw exception when document is not fetched
-            if (!$this->cmsEvent->getDocument()) {
+            if (!$document) {
                 throw new \Exception(sprintf('%s: Document for requested path `%s` can not be fetched.',
                             __METHOD__,
                             $this->cmsEvent->getRequestedPath()),
                         \Zend\Http\Response::STATUS_CODE_404);
             }
             //throw exception when document hasn't any published content
-            if (!$this->documentApi->isPublished($this->cmsEvent->getDocument())) {
+            if (!$this->documentApi->isPublished($document)) {
             throw new \Exception(sprintf('%s: Document `%s` is not published.',
                         __METHOD__,
                         $document->getPath()),
@@ -172,8 +184,19 @@ class FrontController implements DispatchableInterface,
             //create ui component tree
             $this->events->trigger(CMSEvent::EVENT_CREATE, $this->cmsEvent);
 
+            //Performance log
+            $this->events->trigger('log', $this,
+                array ('message'    => 'FrontController - UI component tree created',
+                    'priority'   => Logger::PERF_BASE));
+
             //perform tree operations
             $result = $this->dispatchTree($this->cmsEvent);
+
+            //Performance log
+            $this->events->trigger('log', $this,
+                array ('message'    => 'FrontController - UI Component tree dispatched',
+                    'priority'   => Logger::PERF_BASE));
+
 
             if ($redirector->isRedirect()) {
                 return $response;
@@ -182,6 +205,12 @@ class FrontController implements DispatchableInterface,
             if ($result instanceof ModelInterface) {
                 //render view model
                 $this->events->trigger(CMSEvent::EVENT_RENDER, $this->cmsEvent);
+
+                //Performance log
+                $this->events->trigger('log', $this,
+                    array ('message'    => 'FrontController - View model rendered',
+                        'priority'   => Logger::PERF_BASE));
+
             } elseif ($result instanceof InputStreamInterface) {
                 //skip rendering phase
                 $response->setInputStream($result);
@@ -237,6 +266,12 @@ class FrontController implements DispatchableInterface,
                 $response->setStatusCode(\Zend\Http\Response::STATUS_CODE_500);
             }
         }
+
+        //Performance log
+        $this->events->trigger('log', $this,
+            array ('message'    => 'FrontController - Dispatch end',
+                'priority'   => Logger::PERF_BASE));
+
         return $response;
     }
 

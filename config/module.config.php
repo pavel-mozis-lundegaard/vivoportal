@@ -178,7 +178,6 @@ return array(
             'indexer_query_builder'     => 'Vivo\Indexer\QueryBuilder',
             'indexer_document_builder'  => 'Vivo\Indexer\DocumentBuilder',
             'view_model'                => 'Zend\View\Model\ViewModel',
-            'session_manager'           => 'Zend\Session\SessionManager',
             'Vivo\Http\Filter\OutputFilterListener' => 'Vivo\Http\Filter\OutputFilterListener',
         ),
         'factories' => array(
@@ -220,7 +219,6 @@ return array(
             'metadata_manager'          => 'Vivo\Service\MetadataManagerFactory',
             'lookup_data_manager'       => 'Vivo\LookupData\LookupDataManagerFactory',
             'redirector'                => 'Vivo\Util\RedirectorFactory',
-            'logger'                    => 'Vivo\Log\LoggerFactory',
             'template_resolver'         => 'Vivo\Service\TemplateResolverFactory',
             'di_proxy'                  => 'Vivo\Service\DiProxyFactory',
             'module_db_provider'        => 'Vivo\Service\ModuleDbProviderFactory',
@@ -238,11 +236,11 @@ return array(
             'sym_ref_convertor'         => 'Vivo\CMS\RefInt\SymRefConvertorFactory',
             'ref_int_listener'          => 'Vivo\CMS\RefInt\ListenerFactory',
             'mail_simple_renderer'      => 'Vivo\Mail\View\SimpleRendererFactory',
-            'log_writer_plugin_manager' => 'Vivo\Log\WriterPluginManagerFactory',
             'input_filter_factory'      => 'Vivo\InputFilter\InputFilterFactoryFactory',
             'input_filter_conditions'   => 'Vivo\InputFilter\Condition\ConditionPluginManagerFactory',
             'form_factory'              => 'Vivo\Form\FactoryFactory',
             'cache_manager'             => 'Vivo\Cache\CacheManagerFactory',
+            'session_manager'           => 'Vivo\Service\SessionManagerFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -359,30 +357,6 @@ return array(
     ),
     'metadata_manager' => array(
         'config_path' => __DIR__ . '/../config/metadata',
-    ),
-
-    'logger' => array(
-        'listener' => array (
-            'attach' => array (
-                //array('*', 'log'), //log 'log' events
-                //array('*', '*'), //log all events
-            ),
-        ),
-        'writers' => array (
-//            writers from writer plugin manager
-//            'default_log'   => array(
-//                'priority'  => 1,
-//                'options'   => array(
-//                    'log_dir'   => '',
-//                ),
-//            ),
-//            'firephp'       => array(),
-        ),
-        'writer_plugin_manager' => array(
-            'factories'     => array(
-                'default_log'               => 'Vivo\Log\LogFileWriterFactory',
-            ),
-        ),
     ),
 
     'transliterator'    => array(

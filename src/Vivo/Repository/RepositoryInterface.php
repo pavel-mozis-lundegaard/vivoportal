@@ -74,12 +74,13 @@ interface RepositoryInterface extends TransactionalInterface
     /**
      * Returns children of an entity
      * When $deep == true, returns descendants rather than children
-     * @param PathInterface $entity
+     * @param PathInterface|string $spec Either PathInterface object or directly a path as a string
      * @param bool|string $className
      * @param bool $deep
+     * @internal param \Vivo\CMS\Model\PathInterface $entity
      * @return \Vivo\CMS\Model\Entity[]
      */
-    public function getChildren(PathInterface $entity, $className = false, $deep = false);
+    public function getChildren($spec, $className = false, $deep = false);
 
     /**
      * Schedules resource for deletion from storage

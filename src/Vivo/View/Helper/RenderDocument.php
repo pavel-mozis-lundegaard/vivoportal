@@ -1,8 +1,7 @@
 <?php
 namespace Vivo\View\Helper;
 
-use Vivo\CMS\Model\Document;
-use Vivo\CMS\Model\Content\Hyperlink;
+use Vivo\CMS\Model;
 use Vivo\CMS\Api\Document as DocumentApi;
 use Vivo\CMS\ComponentFactory;
 use Vivo\UI\ComponentTreeController;
@@ -59,11 +58,11 @@ class RenderDocument extends AbstractHelper
     }
 
     /**
-     * Invoke the view helper as the PHPRendere method call
-     * @param Document $document
+     * Invoke the view helper as the PHPRenderer method call
+     * @param Model\Document $document
      * @return $this|string
      */
-    public function __invoke(Document $document = null)
+    public function __invoke(Model\Document $document = null)
     {
         if (is_null($document)) {
             return $this;
@@ -74,16 +73,16 @@ class RenderDocument extends AbstractHelper
 
     /**
      * Returns rendered document
-     * @param Document $document
+     * @param Model\Document $document
      * @return string
      */
-    public function render(Document $document)
+    public function render(Model\Document $document)
     {
         $contents       = $this->documentApi->getPublishedContents($document);
         $hyperlink      = false;
         //Check if there is Hyperlink content among contents
         foreach ($contents as $content) {
-            if ($content instanceof Hyperlink) {
+            if ($content instanceof Model\Content\Hyperlink) {
                 //One of the published contents is a hyperlink
                 $hyperlink  = true;
                 break;

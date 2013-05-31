@@ -12,13 +12,17 @@ class CMSEvent extends Event
     /**#@+
      * CMS events triggered by CMS front controller
      */
-    const EVENT_FETCH_DOCUMENT  = 'fetch_document';
-    const EVENT_CREATE          = 'create';
-    const EVENT_LOAD            = 'load';
-    const EVENT_INIT            = 'init';
-    const EVENT_VIEW            = 'view';
-    const EVENT_SAVE            = 'save';
-    const EVENT_ERROR           = 'error';
+    const EVENT_FETCH_DOCUMENT      = 'cms_fetch_document';
+    const EVENT_REDIRECT            = 'cms_redirect';
+    const EVENT_CREATE              = 'cms_create';
+    const EVENT_LOAD                = 'cms_load';
+    const EVENT_INIT                = 'cms_init';
+    const EVENT_VIEW                = 'cms_view';
+    const EVENT_SAVE                = 'cms_save';
+    const EVENT_RENDER              = 'cms_render';
+    const EVENT_ERROR               = 'cms_error';
+    const EVENT_FETCH_ERRORDOCUMENT = 'cms_fetch_errordocument';
+
     /**#@-*/
 
     /**
@@ -38,6 +42,22 @@ class CMSEvent extends Event
     protected $site;
 
     /**
+     *
+     * @var \Vivo\UI\ComponentInterface
+     */
+    protected $root;
+
+    /**
+     * @var
+     */
+    protected $result;
+
+    /**
+     * @var \Exception
+     */
+    protected $exception;
+
+    /**
      * @return Model\Document
      */
     public function getDocument()
@@ -49,7 +69,7 @@ class CMSEvent extends Event
      *
      * @param Model\Document $document
      */
-    public function setDocument(Model\Document $document)
+    public function setDocument(Model\Document $document = null)
     {
         $this->document = $document;
     }
@@ -83,5 +103,53 @@ class CMSEvent extends Event
     public function setSite(Model\Site $site)
     {
         $this->site = $site;
+    }
+
+    /**
+     * @return \Vivo\UI\ComponentInterface
+     */
+    public function getRoot()
+    {
+        return $this->root;
+    }
+
+    /**
+     * @param \Vivo\UI\ComponentInterface $root
+     */
+    public function setRoot(\Vivo\UI\ComponentInterface $root)
+    {
+        $this->root = $root;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getResult()
+    {
+        return $this->result;
+    }
+
+    /**
+     * @param mixed $result
+     */
+    public function setResult($result)
+    {
+        $this->result = $result;
+    }
+
+    /**
+     * @return \Exception
+     */
+    public function getException()
+    {
+        return $this->exception;
+    }
+
+    /**
+     * @param \Exception $exception
+     */
+    public function setException(\Exception $exception)
+    {
+        $this->exception = $exception;
     }
 }

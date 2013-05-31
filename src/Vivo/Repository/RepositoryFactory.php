@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Service;
+namespace Vivo\Repository;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
@@ -30,13 +30,21 @@ class RepositoryFactory implements FactoryInterface
         $watcher                = new \Vivo\Repository\Watcher();
         $ioUtil                 = $serviceLocator->get('io_util');
         $events                 = $serviceLocator->get('repository_events');
-        //TODO - supply a real cache
+        $uuidConvertor          = $serviceLocator->get('uuid_convertor');
+        //Get repo cache
+        if (isset($config['repository']['cache']) && is_string($config['repository']['cache'])) {
+            $cacheManager       = $serviceLocator->get('cache_manager');
+            $cache              = $cacheManager->get($config['repository']['cache']);
+        } else {
+            $cache              = null;
+        }
         $repository             = new \Vivo\Repository\Repository($storage,
-                                                                  null,
+                                                                  $cache,
                                                                   $serializer,
                                                                   $watcher,
                                                                   $ioUtil,
-                                                                  $events);
+                                                                  $events,
+                                                                  $uuidConvertor);
         return $repository;
     }
 }

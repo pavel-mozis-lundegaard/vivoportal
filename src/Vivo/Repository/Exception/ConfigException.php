@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Log\Exception;
+namespace Vivo\Repository\Exception;
 
 /**
  * ConfigException

@@ -12,6 +12,7 @@ use Vivo\CMS\UI\Component;
 
 use Zend\Navigation\AbstractContainer as AbstractNavigationContainer;
 use Zend\Navigation\Navigation as NavigationContainer;
+use Zend\Cache\Storage\StorageInterface as Cache;
 
 /**
  * Navigation UI component
@@ -49,16 +50,24 @@ class Navigation extends Component
     protected $navigation;
 
     /**
+     * Cache for navigation view models
+     * @var Cache
+     */
+    protected $cache;
+
+    /**
      * Constructor
      * @param CmsApi $cmsApi
      * @param DocumentApi $documentApi
      * @param Site $site
+     * @param \Zend\Cache\Storage\StorageInterface $cache
      */
-    public function __construct(CmsApi $cmsApi, DocumentApi $documentApi, Site $site)
+    public function __construct(CmsApi $cmsApi, DocumentApi $documentApi, Site $site, Cache $cache = null)
     {
         $this->cmsApi       = $cmsApi;
         $this->documentApi  = $documentApi;
         $this->site         = $site;
+        $this->cache        = $cache;
     }
 
     public function init()
@@ -72,8 +81,92 @@ class Navigation extends Component
 
     public function view()
     {
-        $this->getView()->navigation    = $this->getNavigation();
-        return parent::view();
+        $events = new \Zend\EventManager\EventManager();
+        $events->trigger('log', $this, array('message' => sprintf('Navigation::view() %s PRE', $this->getPath())));
+
+        $viewModel  = $this->getViewModel();
+
+        $events->trigger('log', $this, array('message' => sprintf('Navigation::view() %s POST', $this->getPath())));
+        return $viewModel;
+    }
+
+    /**
+     * Returns view model
+     * @return \Zend\View\Model\ModelInterface
+     */
+    protected function getViewModel()
+    {
+        //Get navigation container either from cache or construct it
+        if ($this->cache) {
+            $key        = $this->getCacheKey();
+            $success    = null;
+            $navigation = $this->cache->getItem($key, $success);
+            if (!$success) {
+                $navigation  = $this->getNavigation();
+                $this->cache->setItem($key, $navigation);
+            }
+        } else {
+            $navigation = $this->getNavigation();
+        }
+        //Prepare view
+        $this->getView()->navigation    = $navigation;
+        $viewModel  = parent::view();
+        return $viewModel;
+    }
+
+    /**
+     * Returns cache key used to cache the navigation container
+     * @return string
+     * @throws \Vivo\CMS\UI\Exception\RuntimeException
+     */
+    protected function getCacheKey()
+    {
+        switch ($this->navModel->getType()) {
+            case \Vivo\CMS\Model\Content\Navigation::TYPE_ORIGIN:
+                if (is_null($this->navModel->getOrigin())) {
+                    //Origin not specified, use the current requested doc
+                    $originPath = $this->cmsEvent->getRequestedPath();
+                } else {
+                    //Origin specified
+                    $originPath = $this->navModel->getOrigin();
+                }
+                $keyParts   = array(
+                    'requested_path'    => $this->cmsEvent->getRequestedPath(),
+                    'origin_path'   => $originPath,
+                    'start_level'   => $this->navModel->getStartLevel(),
+                    'levels'        => $this->navModel->getLevels(),
+                    'include_root'  => $this->navModel->includeRoot(),
+                    'branch_only'   => $this->navModel->getBranchOnly(),
+                );
+                $key    = sha1(implode(',', $keyParts));
+                break;
+            case \Vivo\CMS\Model\Content\Navigation::TYPE_ENUM:
+                $concat = $this->concatEnumeratedDocs($this->navModel->getEnumeratedDocs());
+                $key    = sha1($concat);
+                break;
+            default:
+                throw new Exception\RuntimeException(sprintf("%s: Unsupported navigation type '%s'",
+                    __METHOD__, $this->navModel->getType()));
+                break;
+        }
+        return $key;
+    }
+
+    /**
+     * Concatenates paths of enumerated docs into a single string
+     * @param array $enumeratedDocs
+     * @return string
+     */
+    protected function concatEnumeratedDocs(array $enumeratedDocs)
+    {
+        $concat = '';
+        foreach ($enumeratedDocs as $enumDoc) {
+            $concat .= $enumDoc['docPath'];
+            if (isset($enumDoc['children'])) {
+                $concat .= $this->concatEnumeratedDocs($enumDoc['children']);
+            }
+        }
+        return $concat;
     }
 
     /**

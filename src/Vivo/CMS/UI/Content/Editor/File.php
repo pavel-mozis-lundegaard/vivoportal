@@ -11,6 +11,7 @@ use Vivo\CMS\RefInt\SymRefConvertorInterface;
 use Vivo\IO\InputStreamInterface;
 use Vivo\IO\FileInputStream;
 use Vivo\CMS\Model\ContentContainer;
+use Vivo\Util\MIME;
 
 use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
 
@@ -113,8 +114,7 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
                 //FIXME: wtf?
                 $mimeType = $this->content->getMimeType();
                 if (!$this->content->getFilename()) {
-                    $extension = \Vivo\Util\MIME::getExt($mimeType);
-                    $this->content->setFilename('resource.' . $extension);
+                    $this->content->setFilename($fileData['name']);
                 }
                 // --- end wtf ---
                 $this->saveContent($contentContainer, $data);

@@ -2,6 +2,7 @@
 namespace Vivo\CMS\Model\Content;
 
 use Vivo\CMS\Model;
+use Vivo\CMS\Exception\InvalidArgumentException;
 use Vivo\Util\MIME;
 
 /**
@@ -35,12 +36,21 @@ class File extends Model\Content
      * Sets the original file name.
      *
      * @param string $filename
+     * @throws \Vivo\CMS\Exception\InvalidArgumentException
      */
     public function setFilename($filename)
     {
         $this->filename = $filename;
         $this->ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-        $this->mimeType = MIME::getType($this->ext);
+
+        $mime = new MIME();
+        $type = $mime->detectByExtension($this->ext);
+
+        if(!$type) {
+            throw new InvalidArgumentException(sprintf('Unknown file extension, %s', $filename));
+        }
+
+        $this->mimeType = $type;
     }
 
     /**

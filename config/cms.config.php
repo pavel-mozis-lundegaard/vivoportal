@@ -154,7 +154,7 @@ return array(
                 //TODO - set service name of the default adapter for File content
                 'default'       => 'Vivo\CMS\UI\Content\Editor\File\DefaultAdapter',
                 'service_map'   => array(
-                    'text/html'     => 'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapter',                    
+                    'text/html'     => 'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapter',
                 ),
             ),
         ),
@@ -205,7 +205,6 @@ return array(
             'Vivo\UI\ComponentContainer'    => 'Vivo\UI\ComponentContainer',
             'Vivo\UI\TabContainer'          => 'Vivo\UI\TabContainer',
             'Vivo\CMS\UI\Manager\Explorer\Ribbon'  => 'Vivo\CMS\UI\Manager\Explorer\Ribbon',
-            'layout_empty_panel'            => 'Vivo\UI\Text',
         ),
         'factories' => array (
             'Vivo\CMS\UI\Content\File'      => 'Vivo\CMS\UI\Content\FileFactory',
@@ -251,6 +250,8 @@ return array(
                     => 'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapterFactory',
             'Vivo\CMS\UI\Content\Editor\File\DefaultAdapter'
                     => 'Vivo\CMS\UI\Content\Editor\File\DefaultAdapterFactory',
+
+            'Vivo\CMS\FetchErrorDocumentListener' => 'Vivo\CMS\FetchErrorDocumentListenerFactory',
         ),
         'aliases' => array(
         ),
@@ -337,6 +338,14 @@ return array(
                 // ),
             ),
         ),
+        'Vivo\UI\Content\Navigation'    => array(
+            //Cache for navigation containers
+            'cache'     => null,
+        ),
+        'Vivo\UI\Content\Overview'      => array(
+            //Cache for overview pages
+            'cache'     => null,
+        ),
     ),
     'output_filters' => array (
         //register output filters
@@ -376,4 +385,20 @@ return array(
             ),
         ),
     ),
+    'Vivo\CMS\ComponentFactory' => array (
+        'specialComponents' => array (
+            //theese component are used instead of missing component
+            'layout_empty_panel'    => 'Vivo\CMS\UI\LayoutEmptyPanel',
+            'unpublished_document'  => 'Vivo\CMS\UI\UnpublishedDocument',
+        ),
+    ),
+    'error_documents' => array (
+        'code' => array (
+            '401' => '/error-401/',
+            '403' => '/error-403/',
+            '404' => '/error-404/',
+            '500' => '/error-500/',
+        ),
+        'default' => '/error/',
+    )
 );

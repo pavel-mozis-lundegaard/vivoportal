@@ -107,7 +107,7 @@ class ComponentTreeController implements EventManagerAwareInterface
             $currentComponents  = $this->getCurrentComponents();
             if (in_array($component, $currentComponents)) {
                 $message = 'Init component: ' . $component->getPath();
-                $this->events->trigger('log', $this, array('message' => $message, 'priority'=> \Vivo\Log\Logger::INFO));
+                $this->events->trigger('log', $this, array('message' => $message, 'priority'=> \VpLogger\Log\Logger::PERF_FINER));
                 $component->init();
             }
         }
@@ -135,7 +135,7 @@ class ComponentTreeController implements EventManagerAwareInterface
             if ($component instanceof PersistableInterface){
                 $message = 'Load component state: ' . $component->getPath();
                 $this->events->trigger('log', $this, array('message' => $message,
-                'priority'=> \Vivo\Log\Logger::INFO));
+                'priority'=> \VpLogger\Log\Logger::PERF_FINER));
                 $key = $this->request->getUri()->getPath(). $component->getPath();
                 $state = $this->session[$key];
                 $component->loadState($state);
@@ -151,7 +151,7 @@ class ComponentTreeController implements EventManagerAwareInterface
         foreach ($this->getTreeIterator() as $component) {
             if ($component instanceof PersistableInterface){
                 $message = 'Save component state: ' . $component->getPath();
-                $this->events->trigger('log', $this, array('message' => $message, 'priority'=> \Vivo\Log\Logger::INFO));
+                $this->events->trigger('log', $this, array('message' => $message, 'priority'=> \VpLogger\Log\Logger::PERF_FINER));
                 $key = $this->request->getUri()->getPath(). $component->getPath();
                 $this->session[$key] = $component->saveState();
             }

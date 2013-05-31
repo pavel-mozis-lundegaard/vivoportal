@@ -9,18 +9,30 @@ class Text extends Component
     /**
      * @var string
      */
-    private $text;
+    protected $text;
 
     /**
+     * Constructor.
      * @param string
      */
     public function __construct($text = '')
     {
-        $this->text = $text;
+        $this->setText($text);
     }
 
+    /**
+     * @return string
+     */
     public function view()
     {
         return $this->text;
+    }
+
+    /**
+     * @param string $text
+     */
+    public function setText($text)
+    {
+        $this->text = $text;
     }
 }

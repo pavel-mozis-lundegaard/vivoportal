@@ -178,7 +178,6 @@ return array(
             'indexer_query_builder'     => 'Vivo\Indexer\QueryBuilder',
             'indexer_document_builder'  => 'Vivo\Indexer\DocumentBuilder',
             'view_model'                => 'Zend\View\Model\ViewModel',
-            'session_manager'           => 'Zend\Session\SessionManager',
             'Vivo\Http\Filter\OutputFilterListener' => 'Vivo\Http\Filter\OutputFilterListener',
         ),
         'factories' => array(
@@ -197,7 +196,7 @@ return array(
             'storage_util'              => 'Vivo\Service\StorageUtilFactory',
             'indexer_adapter_lucene'    => 'Vivo\Service\IndexerAdapterLuceneFactory',
             'indexer'                   => 'Vivo\Service\IndexerFactory',
-            'repository'                => 'Vivo\Service\RepositoryFactory',
+            'repository'                => 'Vivo\Repository\RepositoryFactory',
             'repository_events'         => 'Vivo\Repository\EventManagerFactory',
             'indexer_helper'            => 'Vivo\Service\IndexerHelperFactory',
             'Vivo\CMS\Api\Module'       => 'Vivo\CMS\Api\ModuleFactory',
@@ -220,7 +219,6 @@ return array(
             'metadata_manager'          => 'Vivo\Service\MetadataManagerFactory',
             'lookup_data_manager'       => 'Vivo\LookupData\LookupDataManagerFactory',
             'redirector'                => 'Vivo\Util\RedirectorFactory',
-            'logger'                    => 'Vivo\Log\LoggerFactory',
             'template_resolver'         => 'Vivo\Service\TemplateResolverFactory',
             'di_proxy'                  => 'Vivo\Service\DiProxyFactory',
             'module_db_provider'        => 'Vivo\Service\ModuleDbProviderFactory',
@@ -238,10 +236,11 @@ return array(
             'sym_ref_convertor'         => 'Vivo\CMS\RefInt\SymRefConvertorFactory',
             'ref_int_listener'          => 'Vivo\CMS\RefInt\ListenerFactory',
             'mail_simple_renderer'      => 'Vivo\Mail\View\SimpleRendererFactory',
-            'log_writer_plugin_manager' => 'Vivo\Log\WriterPluginManagerFactory',
             'input_filter_factory'      => 'Vivo\InputFilter\InputFilterFactoryFactory',
             'input_filter_conditions'   => 'Vivo\InputFilter\Condition\ConditionPluginManagerFactory',
             'form_factory'              => 'Vivo\Form\FactoryFactory',
+            'cache_manager'             => 'Vivo\Cache\CacheManagerFactory',
+            'session_manager'           => 'Vivo\Service\SessionManagerFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -358,30 +357,6 @@ return array(
     ),
     'metadata_manager' => array(
         'config_path' => __DIR__ . '/../config/metadata',
-    ),
-
-    'logger' => array(
-        'listener' => array (
-            'attach' => array (
-                //array('*', 'log'), //log 'log' events
-                //array('*', '*'), //log all events
-            ),
-        ),
-        'writers' => array (
-//            writers from writer plugin manager
-//            'default_log'   => array(
-//                'priority'  => 1,
-//                'options'   => array(
-//                    'log_dir'   => '',
-//                ),
-//            ),
-//            'firephp'       => array(),
-        ),
-        'writer_plugin_manager' => array(
-            'factories'     => array(
-                'default_log'               => 'Vivo\Log\LogFileWriterFactory',
-            ),
-        ),
     ),
 
     'transliterator'    => array(
@@ -659,13 +634,31 @@ return array(
         //Configure in local config
         //'default_db_source'     => '',
     ),
+    //Cache manager configuration - define in local config
+    'cache_manager'         => array(
+//        'cache_name'    => array(
+            //Options to pass to StorageFactory::factory(), e.g.:
+//            'adapter'   => array(
+//                'name'      => 'filesystem',
+//                'options'   => array(
+//                    'cache_dir' => 'path/to/cache/dir',
+//                    'namespace' => 'cache_namespace',
+//                ),
+//            ),
+//            'plugins'   => array(
+//                'serializer'    => array(),
+//            ),
+//        ),
+    ),
     //Repository configuration
     'repository'    => array(
         //Storage for repository - configure in global/local config
-        'storage'              => array(
-            'class'     => '',
-            'options'   => array(),
+        'storage'       => array(
+            'class'         => '',
+            'options'       => array(),
         ),
+        //Cache - cache name or null for no cache; see cache_manager config
+        //'cache'         => <cache_name>,
     ),
 
     'console' => array(

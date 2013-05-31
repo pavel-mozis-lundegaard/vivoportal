@@ -3,7 +3,7 @@ namespace Vivo\CMS\Api\Content;
 
 use Vivo\CMS\Model\Content;
 use Vivo\CMS\Model\ContentContainer;
-use Vivo\CMS\Api\CMS;
+use Vivo\CMS\Api;
 use Vivo\Util\MIME;
 use Vivo\CMS\Exception\InvalidArgumentException;
 use Vivo\IO\InputStreamInterface;
@@ -27,51 +27,50 @@ class File
     private $mime;
 
     /**
-     * @param \Vivo\CMS\Api\CMS $cms
+     * @param \Vivo\CMS\Api\CMS $cmsApi
+     * @param \Vivo\CMS\Api\Document $documentApi
      * @param \Vivo\Util\MIME $mime
      */
-    public function __construct(CMS $cms, $documentApi, MIME $mime)
+    public function __construct(Api\CMS $cmsApi, Api\Document $documentApi, MIME $mime)
     {
-        $this->cmsApi = $cms;
+        $this->cmsApi = $cmsApi;
         $this->documentApi = $documentApi;
         $this->mime = $mime;
     }
 
-//     public function prepareFileModel(Content\File $model, $ext, $fileName = null)
-//     {
-//         $ext = strtolower($ext); //pathinfo($filename, PATHINFO_EXTENSION));
-//         $mime = $this->mime->detectByExtension($ext);
-
-//         if(!$mime) {
-//             throw new InvalidArgumentException(sprintf("Unknown file extension for file '%s'", $filename));
-//         }
-
-//         $model->setFilename($fileName);
-//         $model->setExt($ext);
-//         $model->setMimeType($mime);
-
-//         return $model;
-//     }
-
-    public function getExt($mimeType)
-    {
-        return $this->mime->getExt($mimeType);
-    }
-
+    /**
+     * @param \Vivo\CMS\Model\Content\File $file
+     * @param array $data $_FILE array
+     * @param ContentContainer $contentContainer
+     */
     public function saveFileWithUploadedFile(Content\File $file, array $data, ContentContainer $contentContainer = null)
     {
+        $ext = strtolower(pathinfo($data['name'], PATHINFO_EXTENSION));
+        $mime = $this->mime->detectByExtension($ext);
+
         $file->setFilename($data['name']);
         $file->setSize($data['size']);
+        $file->setExt($ext);
+        $file->setMimeType($mime);
 
         if($file->getUuid()) {
             $this->documentApi->saveContent($file);
         }
         else {
-            $this->documentApi->createContent($contentContainer, $this->content);
+            $this->documentApi->createContent($contentContainer, $file);
         }
 
         $this->removeAllResources($file);
-        $this->writeResource($file, new FileInputStream($data["tmp_name"]));
+        $this->writeResource($file, new FileInputStream($data['tmp_name']));
+    }
+
+    /**
+     * @param string $mimeType
+     * @return string
+     */
+    public function getExt($mimeType)
+    {
+        return $this->mime->getExt($mimeType);
     }
 
     private function checkFileProperties(Content\File $file)

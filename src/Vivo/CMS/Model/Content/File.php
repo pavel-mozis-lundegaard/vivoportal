@@ -2,8 +2,6 @@
 namespace Vivo\CMS\Model\Content;
 
 use Vivo\CMS\Model;
-use Vivo\CMS\Exception\InvalidArgumentException;
-use Vivo\Util\MIME;
 
 /**
  * The file is a basic content type. If a document with the content layout settings,
@@ -13,14 +11,14 @@ use Vivo\Util\MIME;
 class File extends Model\Content
 {
     /**
-     * @var string MIME type.
-     */
-    protected $mimeType;
-
-    /**
      * @var string Original filename.
      */
     protected $filename;
+
+    /**
+     * @var string MIME type.
+     */
+    protected $mimeType;
 
     /**
      * @var string File excension.
@@ -36,21 +34,10 @@ class File extends Model\Content
      * Sets the original file name.
      *
      * @param string $filename
-     * @throws \Vivo\CMS\Exception\InvalidArgumentException
      */
     public function setFilename($filename)
     {
         $this->filename = $filename;
-        $this->ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-
-        $mime = new MIME();
-        $type = $mime->detectByExtension($this->ext);
-
-        if(!$type) {
-            throw new InvalidArgumentException(sprintf('Unknown file extension, %s', $filename));
-        }
-
-        $this->mimeType = $type;
     }
 
     /**
@@ -64,6 +51,14 @@ class File extends Model\Content
     }
 
     /**
+     * @param string $mime
+     */
+    public function setMimeType($mime)
+    {
+        $this->mimeType = $mime;
+    }
+
+    /**
      * Returns file mimetype.
      *
      * @return string
@@ -71,6 +66,14 @@ class File extends Model\Content
     public function getMimeType()
     {
         return $this->mimeType;
+    }
+
+    /**
+     * @return string $ext
+     */
+    public function setExt($ext)
+    {
+        $this->ext = $ext;
     }
 
     /**

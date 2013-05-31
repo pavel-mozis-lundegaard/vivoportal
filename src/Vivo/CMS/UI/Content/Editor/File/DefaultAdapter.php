@@ -12,6 +12,11 @@ use Vivo\Repository\Exception\PathNotSetException;
 class DefaultAdapter extends AbstractAdapter
 {
     /**
+     * @var \Vivo\CMS\Api\Content\File
+     */
+    private $fileApi;
+
+    /**
      * Shows download button
      * @var bool
      */
@@ -19,10 +24,11 @@ class DefaultAdapter extends AbstractAdapter
 
     /**
      * Constructs Adapter
+     * @param \Vivo\CMS\Api\Content\File $fileApi
      */
-    public function __construct(Api\CMS $cmsApi)
+    public function __construct(Api\Content\File $fileApi)
     {
-        $this->cmsApi = $cmsApi;
+        $this->fileApi = $fileApi;
     }
 
     /**
@@ -56,10 +62,9 @@ class DefaultAdapter extends AbstractAdapter
     public function downloadFile()
     {
         $mimeType = $this->content->getMimeType();
-        $resource = 'resource.'.$this->content->getExt();
         $fileName = $this->content->getFilename();
 
-        $inputStream  = $this->cmsApi->readResource($this->content, $resource);
+        $inputStream  = $this->fileApi->readResource($this->content);
 
         header('Content-type: '.$mimeType);
         header('Content-Disposition: attachment; filename="'.$fileName.'"');

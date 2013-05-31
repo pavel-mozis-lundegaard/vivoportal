@@ -8,11 +8,11 @@ class FileFactory implements FactoryInterface
 {
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $cmsApi             = $serviceLocator->get('Vivo\CMS\Api\CMS');
+        $fileApi            = $serviceLocator->get('Vivo\CMS\Api\Content\File');
         $docApi             = $serviceLocator->get('Vivo\CMS\Api\Document');
         $symRefConvertor    = $serviceLocator->get('sym_ref_convertor');
 
-        $editor = new File($cmsApi, $docApi, $symRefConvertor);
+        $editor = new File($fileApi, $docApi, $symRefConvertor);
 
         return $editor;
     }

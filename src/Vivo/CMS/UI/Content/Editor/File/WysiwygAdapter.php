@@ -14,6 +14,11 @@ use Vivo\Repository\Exception\PathNotSetException;
 class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
 {
     /**
+     * @var \Vivo\CMS\Api\Content\File
+     */
+    private $fileApi;
+
+    /**
      * Edited html code
      * @var string
      */
@@ -21,13 +26,13 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
 
     /**
      * Constructor
-     * @param Api\CMS $cmsApi
-     * @param SymRefConvertorInterface $symRefConvertor
-     * @param FormFactory $formFactory
+     * @param \Vivo\CMS\Api\Content\File $fileApi
+     * @param \Vivo\CMS\RefInt\SymRefConvertorInterface $symRefConvertor
+     * @param \Vivo\Form\Factory $formFactory
      */
-    public function __construct(Api\CMS $cmsApi, SymRefConvertorInterface $symRefConvertor, FormFactory $formFactory)
+    public function __construct(Api\Content\File $fileApi, SymRefConvertorInterface $symRefConvertor, FormFactory $formFactory)
     {
-        $this->cmsApi           = $cmsApi;
+        $this->fileApi          = $fileApi;
         $this->symRefConvertor  = $symRefConvertor;
         $this->formFactory      = $formFactory;
     }
@@ -43,7 +48,7 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
         $form->setAttribute('method', 'post');
         try {
             if($this->content->getUuid()) {
-                $data = $this->cmsApi->getResource($this->content, 'resource.html');
+                $data = $this->fileApi->getResource($this->content);
                 $this->data = $data;
                 $data = $this->symRefConvertor->convertReferencesToURLs($data);
                 $form->get("resource")->setValue($data);

@@ -31,23 +31,6 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         $eventManager->trigger('log', $this,
             array ('message'    => 'Vivo Portal Module bootstrapped',
                    'priority'   => Logger::PERF_BASE));
-
-        //TODO - Delete!
-        $sharedEvents   = $eventManager->getSharedManager();
-        $sharedEvents->attach('Zend\Cache\Storage\Adapter\AbstractAdapter', 'removeItem.pre', array($this, 'cacheListener'));
-        $sharedEvents->attach('Zend\Cache\Storage\Adapter\AbstractAdapter', 'removeItem.post', array($this, 'cacheListener'));
-    }
-
-    //TODO - Delete!
-    public function cacheListener(\Zend\Cache\Storage\Event $e)
-    {
-        $events = new \Zend\EventManager\EventManager();
-        $key    = $e->getParam('key');
-        $message    = sprintf("Cache: %s, key: '%s'", $e->getName(), $key);
-        //Performance log
-        $events->trigger('log', $this,
-            array ('message'    => $message,
-                'priority'   => Logger::PERF_FINER));
     }
 
     public function getConfig()

@@ -4,8 +4,14 @@ echo $this->formFieldsetTwb($form, $formType, array(), true, false);
 ?>
 <? if($files) : ?>
     <ol>
-    <? foreach ($files as $file) : /* @var $file \Vivo\CMS\Model\Content\Fileboard\Media */?>
-        <li><?=$file->getFilename()?><input type="text" value="<?=$file->getName()?>" /> <textarea><?=$file->getDescription()?></textarea></li>
+    <? foreach ($files as $file) : /* @var $file \Vivo\CMS\Model\Content\Fileboard\Media */
+        $u = $file->getUuid();
+    ?>
+        <li>
+            <?=$file->getFilename()?>
+            <input type="text" name="fb-media[<?=$u?>][name]" value="<?=$file->getName()?>" />
+            <textarea name="fb-media[<?=$u?>][description]"><?=$file->getDescription()?></textarea>
+        </li>
     <? endforeach; ?>
     </ol>
 <? endif; ?>

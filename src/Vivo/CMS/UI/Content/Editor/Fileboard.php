@@ -15,6 +15,11 @@ class Fileboard extends AbstractForm implements EditorInterface
     private $content;
 
     /**
+     * @var \Vivo\CMS\Api\CMS
+     */
+    private $cmsApi;
+
+    /**
      * @var \Vivo\CMS\Api\Document
      */
     private $documentApi;
@@ -27,12 +32,14 @@ class Fileboard extends AbstractForm implements EditorInterface
     /**
      * Constructor
      *
+     * @param \Vivo\CMS\Api\CMS $cmsApi
      * @param \Vivo\CMS\Api\Document $documentApi
      * @param \Vivo\CMS\Api\Content\Fileboard $fileboardApi
      */
-    public function __construct(Api\Document $documentApi, FileboardApi $fileboardApi)
+    public function __construct(Api\CMS $cmsApi, Api\Document $documentApi, FileboardApi $fileboardApi)
     {
         $this->autoAddCsrf = false; //FIXME: remove after fieldsets
+        $this->cmsApi = $cmsApi;
         $this->documentApi = $documentApi;
         $this->fileboardApi = $fileboardApi;
     }
@@ -62,6 +69,7 @@ class Fileboard extends AbstractForm implements EditorInterface
             }
 
             if($this->content->getCreated()) {
+                // Uplaod new file
                 if($form->get('fb-new-file')) {
                     $file = $form->get('fb-new-file')->getValue();
                     $name = $form->get('fb-new-name')->getValue();
@@ -70,8 +78,19 @@ class Fileboard extends AbstractForm implements EditorInterface
                     if($file['error'] != UPLOAD_ERR_NO_FILE && $file['error'] != UPLOAD_ERR_OK) {
                         throw new \Exception(sprintf('%s: File upload error %s', __METHOD__, $file['error']));
                     }
+                    if($file['error'] == UPLOAD_ERR_OK) {
+                        $this->fileboardApi->saveMediaWithUploadedFile($this->content, $file, $name, $desc);
+                    }
+                }
 
-                    $this->fileboardApi->saveMediaWithUploadedFile($this->content, $file, $name, $desc);
+                // Update actual files
+                foreach ($this->request->getPost('fb-media') as $uuid => $data) {
+                    /* @var $media \Vivo\CMS\Model\Content\Fileboard\Media */
+                    $media = $this->cmsApi->getEntity($uuid);
+                    $media->setName(trim($data['name']));
+                    $media->setDescription(trim($data['description']));
+
+                    $this->cmsApi->saveEntity($media, true);
                 }
             }
         }

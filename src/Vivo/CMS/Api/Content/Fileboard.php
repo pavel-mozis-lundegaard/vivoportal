@@ -4,6 +4,8 @@ namespace Vivo\CMS\Api\Content;
 use Vivo\CMS\Model\Content;
 use Vivo\CMS\Model\Content\Fileboard\Media;
 use Vivo\Indexer\QueryBuilder;
+use Vivo\IO\FileInputStream;
+use Vivo\CMS\Api\Exception\InvalidPathException;
 
 class Fileboard
 {
@@ -13,30 +15,35 @@ class Fileboard
     private $cmsApi;
 
     /**
-     * @var \Vivo\CMS\Api\Document
+     * @var \Vivo\CMS\Api\Content\File
      */
-    private $documentApi;
+    private $fileApi;
 
     /**
      * @var \Vivo\Indexer\IndexerInterface
      */
     private $indexer;
 
-    public function __construct($cmsApi, $documentApi, $pathBuilder, $indexer)
+    public function __construct($cmsApi, $fileApi, $pathBuilder, $indexer)
     {
         $this->cmsApi = $cmsApi;
-        $this->documentApi = $documentApi;
+        $this->fileApi = $fileApi;
         $this->pathBuilder = $pathBuilder;
         $this->indexer = $indexer;
     }
 
     /**
      * @param \Vivo\CMS\Model\Content\Fileboard $model
+     * @throws \Vivo\CMS\Api\Exception\InvalidPathException
      * @return array <\Vivo\CMS\Model\Content\Fileboard\Media>
      */
     public function getMediaList(Content\Fileboard $model)
     {
         $return = array();
+
+        if(!$model->getPath()) {
+            throw new InvalidPathException('Entity path is not set');
+        }
 
         $qb = new QueryBuilder();
         $condition = $qb->cond($model->getPath().'/*', '\path');
@@ -47,6 +54,7 @@ class Fileboard
             $return[] = $this->cmsApi->getEntity($path);
         }
 
+        //TODO: move to query
         usort($return, function($a, $b) { /* @var $a \Vivo\CMS\Model\Content\Fileboard\Media */
             return $a->getOrder() > $b->getOrder();
         });
@@ -54,10 +62,7 @@ class Fileboard
         return $return;
     }
 
-    /**
-     * @param \Vivo\CMS\Model\Content\Fileboard\Media $media
-     */
-    public function addMedia(Content\Fileboard $model, Media $media)
+    private function prepareMediaForSaving(Content\Fileboard $model, Media $media)
     {
         $qb = new QueryBuilder();
         $condition = $qb->cond($model->getPath().'/*', '\path');
@@ -66,33 +71,57 @@ class Fileboard
         $path = $this->pathBuilder->buildStoragePath(array($model->getPath(), $count));
         $media->setPath($path);
 
+        return $media;
+    }
+
+    /**
+     * @param \Vivo\CMS\Model\Content\Fileboard $model
+     * @param \Vivo\CMS\Model\Content\Fileboard\Media $media
+     */
+    private function saveMedia(Content\Fileboard $model, Media $media)
+    {
+        $media = $this->prepareMediaForSaving($model, $media);
+
         $this->cmsApi->saveEntity($media, true);
     }
 
-    public function uploadMedia(Content\Fileboard $model, array $file, $name, $description)
+    /**
+     * @param \Vivo\CMS\Model\Content\Fileboard $fileboard
+     * @param array $file
+     * @param string $name
+     * @param string $description
+     */
+    public function saveMediaWithUploadedFile(Content\Fileboard $fileboard, array $file, $name, $description = null)
     {
-        $ext = $this->getFileExtension($file['name']);
-        $resourceName = 'resource.'.$ext;
-
         $media = new Content\Fileboard\Media();
-        $media->setFilename($file['name']);
-        $media->setMimeType($file['type']);
-        $media->setExt($ext);
-        $media->setSize(filesize($file['tmp_name']));
         $media->setName($name);
         $media->setDescription($description);
 
-        $this->addMedia($model, $media);
-        $this->cmsApi->saveResource($media, $resourceName, file_get_contents($file['tmp_name']));
+        $media = $this->fileApi->prepareFileForSaving($media, $file);
+
+        $this->saveMedia($fileboard, $media);
+        $this->fileApi->writeResource($media, new FileInputStream($file['tmp_name']));
     }
 
-    public function removeAllFiles()
+    /**
+     * @param \Vivo\CMS\Model\Content\Fileboard\Media $media
+     */
+    public function download(Content\Fileboard\Media $media)
     {
-
+        $this->fileApi->download($media);
     }
 
-    protected function getFileExtension($filename)
+    /**
+     * @param string $uuid
+     */
+    public function downloadByUuid($uuid)
     {
-        return strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        $media = $this->cmsApi->getEntity($uuid);
+        $this->download($media);
+    }
+
+    public function removeAllFiles(Content\Fileboard $fileboard)
+    {
+
     }
 }

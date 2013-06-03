@@ -61,17 +61,7 @@ class DefaultAdapter extends AbstractAdapter
      */
     public function downloadFile()
     {
-        $mimeType = $this->content->getMimeType();
-        $fileName = $this->content->getFilename();
-
-        $inputStream  = $this->fileApi->readResource($this->content);
-
-        header('Content-type: '.$mimeType);
-        header('Content-Disposition: attachment; filename="'.$fileName.'"');
-        while(($b = $inputStream->read(4096)) !== false) {
-            echo $b;
-        }
-        die();
+        $this->fileApi->download($this->content);
     }
 
     /**

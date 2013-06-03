@@ -12,6 +12,8 @@ class FileboardFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        return new Fileboard();
+        $fileboardApi = $serviceLocator->get('Vivo\CMS\Api\Content\Fileboard');
+
+        return new Fileboard($fileboardApi);
     }
 }

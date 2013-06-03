@@ -62,16 +62,17 @@ class Fileboard extends AbstractForm implements EditorInterface
             }
 
             if($this->content->getCreated()) {
-                //FIXME: pri nove zalozenem obsahu to zde zkape
-                $file = $form->get('fb-new-file')->getValue();
-                $name = $form->get('fb-new-name')->getValue();
-                $desc = $form->get('fb-new-desc')->getValue();
+                if($form->get('fb-new-file')) {
+                    $file = $form->get('fb-new-file')->getValue();
+                    $name = $form->get('fb-new-name')->getValue();
+                    $desc = $form->get('fb-new-desc')->getValue();
 
-                if($file['error'] != UPLOAD_ERR_NO_FILE && $file['error'] != UPLOAD_ERR_OK) {
-                    throw new \Exception(sprintf('%s: File upload error %s', __METHOD__, $file['error']));
+                    if($file['error'] != UPLOAD_ERR_NO_FILE && $file['error'] != UPLOAD_ERR_OK) {
+                        throw new \Exception(sprintf('%s: File upload error %s', __METHOD__, $file['error']));
+                    }
+
+                    $this->fileboardApi->saveMediaWithUploadedFile($this->content, $file, $name, $desc);
                 }
-
-                $this->fileboardApi->uploadMedia($this->content, $file, $name, $desc);
             }
         }
     }
@@ -119,7 +120,12 @@ class Fileboard extends AbstractForm implements EditorInterface
 
     public function view()
     {
-        $files = $this->fileboardApi->getMediaList($this->content);
+        try {
+            $files = $this->fileboardApi->getMediaList($this->content);
+        }
+        catch (Api\Exception\InvalidPathException $e) {
+            $files = array();
+        }
 
         $view = parent::view();
         $view->files = $files;

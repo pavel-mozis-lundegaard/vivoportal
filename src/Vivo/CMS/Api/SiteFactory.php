@@ -22,6 +22,12 @@ class SiteFactory implements FactoryInterface
         $queryBuilder   = $serviceLocator->get('indexer_query_builder');
         $pathBuilder    = $serviceLocator->get('path_builder');
         $siteApi        = new Site($cms, $repository, $indexerApi, $queryBuilder, $pathBuilder);
+        //PerfLog
+        $events         = $serviceLocator->get('event_manager');
+        $events->trigger('log', $this,
+            array ('message'    => 'Site Api created',
+                'priority'   => \VpLogger\Log\Logger::PERF_FINER));
+
         return $siteApi;
     }
 }

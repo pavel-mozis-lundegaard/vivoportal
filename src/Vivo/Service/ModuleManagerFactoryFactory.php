@@ -23,6 +23,10 @@ class ModuleManagerFactoryFactory implements FactoryInterface
         /* @var $application \Zend\Mvc\Application */
         $appEvents              = $application->getEventManager();
         $moduleManagerFactory   = new \Vivo\Module\ModuleManagerFactory($modulePaths, $moduleStreamName, $appEvents);
+        //PerfLog
+        $appEvents->trigger('log', $this,
+            array ('message'    => 'ModuleManagerFactory created',
+                'priority'   => \VpLogger\Log\Logger::PERF_FINER));
         return $moduleManagerFactory;
     }
 }

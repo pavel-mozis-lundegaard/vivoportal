@@ -301,7 +301,8 @@ class ComponentFactory implements EventManagerAwareInterface
         }
 
         $message = "Created component '" . get_class($component) . "' using $type.";
-        $this->eventManager->trigger('log', $this, array ('message' => $message));
+        $this->eventManager->trigger('log', $this, array(
+                'message' => $message, 'priority' => \VpLogger\Log\Logger::PERF_BASE));
 
         return $component;
     }

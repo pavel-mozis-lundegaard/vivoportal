@@ -21,6 +21,11 @@ class ModuleResourceManagerFactory implements FactoryInterface
         $moduleStorageManager   = $serviceLocator->get('module_storage_manager');
         $moduleResourceManager  = new \Vivo\Module\ResourceManager\ResourceManager($moduleStorageManager,
                                         $resourceManagerOptions);
+        //PerfLog
+        $events = $serviceLocator->get('event_manager');
+        $events->trigger('log', $this,
+            array ('message'    => 'ModuleResourceManager created',
+                'priority'   => \VpLogger\Log\Logger::PERF_FINER));
         return $moduleResourceManager;
     }
 }

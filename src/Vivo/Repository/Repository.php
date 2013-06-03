@@ -181,6 +181,11 @@ class Repository implements RepositoryInterface
      */
     public function getEntity($path)
     {
+        //Log getEntity
+        $this->events->trigger('log', $this,
+            array ('message'    => sprintf("getEntity '%s'", $path),
+                'priority'   => \VpLogger\Log\Logger::DEBUG));
+
         $path   = $this->pathBuilder->sanitize($path);
         //Get entity from watcher
         $entity = $this->watcher->get($path);
@@ -251,6 +256,9 @@ class Repository implements RepositoryInterface
                     if ($minMtime > $cacheMtime) {
                         //mtime in cache is older than the specified mtime
                         $this->removeEntityFromCache($path, true);
+                        $this->events->trigger('log', $this,
+                            array ('message'    => sprintf("Stale item removed from cache '%s'", $path),
+                                'priority'   => \VpLogger\Log\Logger::DEBUG));
                         return null;
                     }
                 } else {
@@ -299,13 +307,20 @@ class Repository implements RepositoryInterface
             //Remove also all descendants of this entity
             $descendants    = $this->getChildren($path, false, true);
             foreach ($descendants as $descendant) {
-                $key    = md5($descendant->getPath());
+                $descPath   = $descendant->getPath();
+                $key    = md5($descPath);
                 $this->cache->removeItem($key);
+                $this->events->trigger('log', $this,
+                    array ('message'    => sprintf("Entity removed from cache '%s' ('%s')", $descPath, $key),
+                        'priority'   => \VpLogger\Log\Logger::DEBUG));
             }
         }
         //Remove the entity
         $key            = md5($path);
         $this->cache->removeItem($key);
+        $this->events->trigger('log', $this,
+            array ('message'    => sprintf("Entity removed from cache '%s' ('%s')", $path, $key),
+                'priority'   => \VpLogger\Log\Logger::DEBUG));
     }
 
     /**
@@ -317,8 +332,10 @@ class Repository implements RepositoryInterface
      */
     public function getEntityFromStorage($path)
     {
-        //TODO - Log storage access
-//        echo '<br>Entity from storage: ' . $path;
+        //Log storage access
+        $this->events->trigger('log', $this,
+            array ('message'    => sprintf("getEntityFromStorage '%s'", $path),
+                'priority'   => \VpLogger\Log\Logger::DEBUG));
 
         $path           = $this->pathBuilder->sanitize($path);
         $pathComponents = array($path, self::ENTITY_FILENAME);

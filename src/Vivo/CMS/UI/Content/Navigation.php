@@ -82,11 +82,15 @@ class Navigation extends Component
     public function view()
     {
         $events = new \Zend\EventManager\EventManager();
-        $events->trigger('log', $this, array('message' => sprintf('Navigation::view() %s PRE', $this->getPath())));
+        $events->trigger('log', $this, array(
+            'message'   => sprintf('Navigation::view() %s PRE', $this->getPath()),
+            'priority'  => \VpLogger\Log\Logger::PERF_FINER));
 
         $viewModel  = $this->getViewModel();
 
-        $events->trigger('log', $this, array('message' => sprintf('Navigation::view() %s POST', $this->getPath())));
+        $events->trigger('log', $this, array(
+            'message' => sprintf('Navigation::view() %s POST', $this->getPath()),
+            'priority'  => \VpLogger\Log\Logger::PERF_FINER));
         return $viewModel;
     }
 

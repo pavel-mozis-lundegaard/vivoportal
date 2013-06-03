@@ -76,5 +76,10 @@ class ReconfigureForBackendListener implements ListenerAggregateInterface
         $this->sm->setAllowOverride(false);
         //Reconfigure template resolver
         $this->sm->get('template_resolver')->configure($cmsConfig['templates']);
+        //Performance log
+        $events = new \Zend\EventManager\EventManager();
+        $events->trigger('log', $this,
+            array ('message'    => 'Reconfiguration for backend done',
+                'priority'   => \VpLogger\Log\Logger::PERF_FINER));
     }
 }

@@ -96,11 +96,12 @@ class Fileboard
         $media = new Content\Fileboard\Media();
         $media->setName($name);
         $media->setDescription($description);
-
         $media = $this->fileApi->prepareFileForSaving($media, $file);
 
+        $stream = new FileInputStream($file['tmp_name']);
+
         $this->saveMedia($fileboard, $media);
-        $this->fileApi->writeResource($media, new FileInputStream($file['tmp_name']));
+        $this->fileApi->writeResource($media, $stream);
     }
 
     /**

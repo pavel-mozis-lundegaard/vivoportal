@@ -79,6 +79,11 @@ class LoadModulesPostListener implements ListenerAggregateInterface
                 RepositoryEventInterface::EVENT_SERIALIZE_PRE, array($listener, 'onRepositorySerializePre'));
             $repoEvents->attach(
                 RepositoryEventInterface::EVENT_UNSERIALIZE_POST, array($listener, 'onRepositoryUnSerializePost'));
+            //Performance log
+            $events = new \Zend\EventManager\EventManager();
+            $events->trigger('log', $this,
+                array ('message'    => 'Referential Integrity listener attached to Repository event manager',
+                    'priority'   => \VpLogger\Log\Logger::PERF_FINER));
         }
     }
 }

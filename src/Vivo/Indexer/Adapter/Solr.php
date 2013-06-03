@@ -14,6 +14,8 @@ use Vivo\CMS\Indexer\Exception\CannotDecomposeFieldnameException;
 use VpApacheSolr\Document as SolrDocument;
 use VpApacheSolr\Service as SolrService;
 
+use Zend\EventManager\EventManager;
+
 use \DateTime;
 
 /**
@@ -167,10 +169,19 @@ class Solr implements AdapterInterface
             $solrParams['sort'] = $sort;
         }
         try {
+            $events = new EventManager();
+            //PerfLog
+            $events->trigger('log', $this,
+                array ('message'    => sprintf("Sending solr query '%s'", $solrQuery),
+                    'priority'   => \VpLogger\Log\Logger::PERF_FINER));
             $solrResult = $this->solrService->search($solrQuery,
                                                      $queryParams->getStartOffset(),
                                                      $queryParams->getPageSize(),
                                                      $solrParams);
+            //PerfLog
+            $events->trigger('log', $this,
+                array ('message'    => sprintf("Solr result returned for query '%s'", $solrQuery),
+                    'priority'   => \VpLogger\Log\Logger::PERF_FINER));
         } catch (\Exception $e) {
             $ourException   = new Exception\SolrServiceException(
                 sprintf("%s: Solr service threw an exception", __METHOD__),

@@ -17,8 +17,8 @@ class SiteManagerFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $config                 = $serviceLocator->get('config');
+        $siteEvents             = $serviceLocator->get('event_manager');
         $coreModules            = $config['modules']['core_modules'];
-        $siteEvents             = $serviceLocator->get('event_manager');//new \Zend\EventManager\EventManager();
         $siteEvent              = $serviceLocator->get('site_event');
         $routeParamHost         = 'host';
         $moduleManagerFactory   = $serviceLocator->get('module_manager_factory');
@@ -34,6 +34,11 @@ class SiteManagerFactory implements FactoryInterface
             $siteApi,
             $serviceLocator,
             $moduleResourceManager);
+
+        //PerfLog
+        $siteEvents->trigger('log', $this,
+            array ('message'    => 'SiteManager created',
+                'priority'   => \VpLogger\Log\Logger::PERF_FINER));
         return $siteManager;
     }
 }

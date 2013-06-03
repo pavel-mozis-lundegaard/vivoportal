@@ -158,7 +158,7 @@ class MIME
     /**
      * Returns the Content-type for file extension.
      * @param string $ext
-     * @return string Default is application/octet-stream.
+     * @return string
      */
     protected function getType($ext) {
         foreach ($this->types as $type => $exts) {
@@ -166,7 +166,7 @@ class MIME
                 return $type;
             }
         }
-        return false; //'application/octet-stream';
+        return null;
     }
 
     /**

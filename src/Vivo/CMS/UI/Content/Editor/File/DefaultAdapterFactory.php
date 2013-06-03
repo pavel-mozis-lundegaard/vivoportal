@@ -8,8 +8,8 @@ class DefaultAdapterFactory implements FactoryInterface
 {
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $cmsApi             = $serviceLocator->get('Vivo\CMS\Api\CMS');
-        $adapter            = new DefaultAdapter($cmsApi);
+        $fileApi  = $serviceLocator->get('Vivo\CMS\Api\Content\File');
+        $adapter  = new DefaultAdapter($fileApi);
 
         return $adapter;
     }

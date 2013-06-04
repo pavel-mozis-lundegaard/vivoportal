@@ -47,17 +47,14 @@ class Fileboard
 
         $qb = new QueryBuilder();
         $condition = $qb->cond($model->getPath().'/*', '\path');
-        $hits      = $this->indexer->find($condition)->getHits();
+        $hits      = $this->indexer
+                          ->find($condition, array('sort'=>array('\Vivo\CMS\Model\Content\Fileboard\Media\order')))
+                          ->getHits();
 
         foreach ($hits as $hit) {
             $path     = $hit->getDocument()->getFieldValue('\path');
             $return[] = $this->cmsApi->getEntity($path);
         }
-
-        //TODO: move to query
-        usort($return, function($a, $b) { /* @var $a \Vivo\CMS\Model\Content\Fileboard\Media */
-            return $a->getOrder() > $b->getOrder();
-        });
 
         return $return;
     }

@@ -14,7 +14,7 @@ class FileFactory implements FactoryInterface
     {
         $cmsApi             = $serviceLocator->get('Vivo\CMS\Api\CMS');
         $symRefConvertor    = $serviceLocator->get('sym_ref_convertor');
-        $mime               = $serviceLocator->get('Vivo\Util\MIME');
+        $mime               = $serviceLocator->get('mime');
         $file = new File($cmsApi, $symRefConvertor, $mime);
         return $file;
     }

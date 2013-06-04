@@ -230,7 +230,6 @@ return array(
             'component_tree_controller' => 'Vivo\UI\ComponentTreeControllerFactory',
             'Vivo\CMS\AvailableContentsProvider' => 'Vivo\CMS\AvailableContentsProviderFactory',
             'Vivo\Metadata\Provider\SelectableTemplatesProvider' => 'Vivo\Metadata\Provider\SelectableTemplatesProviderFactory',
-            'Vivo\Util\MIME'            => 'Vivo\Util\MIMEFactory',
             'Vivo\Util\UrlHelper'       => 'Vivo\Util\UrlHelperFactory',
             'Vivo\Http\HeaderHelper'    => 'Vivo\Http\HeaderHelperFactory',
             'Vivo\Transliterator\Path'  => 'Vivo\Transliterator\PathFactory',
@@ -244,6 +243,7 @@ return array(
             'form_factory'              => 'Vivo\Form\FactoryFactory',
             'cache_manager'             => 'Vivo\Cache\CacheManagerFactory',
             'session_manager'           => 'Vivo\Service\SessionManagerFactory',
+            'mime'                      => 'Vivo\Util\MIMEFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -533,7 +533,7 @@ return array(
         ),
     ),
 
-    'Vivo\Util\MIME' => array(
+    'mime' => array(
         'types' => array(
             'text/html'                     => array('html', 'htm', 'php', 'phtml'),
             'text/xml'                      => array('xml'),

@@ -146,8 +146,15 @@ interface RepositoryInterface extends TransactionalInterface
 
     /**
      * Returns descendants of a specific path from storage
+     * If $suppressUnserializationErrors is set to false, returns an array of entities
+     * If $suppressUnserializationErrors is set to true, returns
+     * array(
+     *      'entities'  => array of descendants,
+     *      'erroneous' => array child paths where unserialization errors occurred
+     * )
      * @param string $path
-     * @return Entity[]
+     * @param bool $suppressUnserializationErrors
+     * @return Entity[]|array
      */
-    public function getDescendantsFromStorage($path);
+    public function getDescendantsFromStorage($path, $suppressUnserializationErrors = false);
 }

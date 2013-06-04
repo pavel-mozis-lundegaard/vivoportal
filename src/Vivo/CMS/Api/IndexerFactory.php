@@ -25,8 +25,9 @@ class IndexerFactory implements FactoryInterface
         $documentApi        = $serviceLocator->get('Vivo\CMS\Api\Document');
         $pathBuilder        = $serviceLocator->get('path_builder');
         $repositoryEvents   = $serviceLocator->get('repository_events');
+        $indexerEvents      = $serviceLocator->get('indexer_events');
         $service            = new Indexer($indexer, $indexerHelper, $queryParser, $queryBuilder, $repository,
-                                          $documentApi, $pathBuilder, $repositoryEvents);
+                                          $documentApi, $pathBuilder, $indexerEvents, $repositoryEvents);
         return $service;
     }
 }

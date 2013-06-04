@@ -242,6 +242,7 @@ return array(
             'form_factory'              => 'Vivo\Form\FactoryFactory',
             'cache_manager'             => 'Vivo\Cache\CacheManagerFactory',
             'session_manager'           => 'Vivo\Service\SessionManagerFactory',
+            'indexer_events'            => 'Vivo\Indexer\EventManagerFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',

@@ -15,6 +15,8 @@ use Vivo\CMS\Api\DocumentInterface as DocumentApi;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
 use Vivo\Repository\EventInterface as RepositoryEventInterface;
 use Vivo\Indexer\Query\Term as TermQuery;
+use Vivo\Indexer\IndexerEvent;
+use Vivo\Repository\Exception\UnserializationException;
 
 use Zend\EventManager\EventManagerInterface;
 
@@ -67,6 +69,12 @@ class Indexer implements IndexerInterface
     protected $pathBuilder;
 
     /**
+     * Indexer event manager
+     * @var EventManagerInterface
+     */
+    protected $indexerEvents;
+
+    /**
      * Constructor
      * @param \Vivo\Indexer\IndexerInterface $indexer
      * @param \Vivo\CMS\Indexer\IndexerHelperInterface $indexerHelper
@@ -75,6 +83,7 @@ class Indexer implements IndexerInterface
      * @param \Vivo\Repository\RepositoryInterface $repository
      * @param DocumentApi $documentApi
      * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
+     * @param \Zend\EventManager\EventManagerInterface $indexerEvents
      * @param \Zend\EventManager\EventManagerInterface $repositoryEvents
      */
     public function __construct(VivoIndexerInterface $indexer,
@@ -84,7 +93,8 @@ class Indexer implements IndexerInterface
                                 RepositoryInterface $repository,
                                 DocumentApi $documentApi,
                                 PathBuilderInterface $pathBuilder,
-                                EventManagerInterface $repositoryEvents = null)
+                                EventManagerInterface $indexerEvents,
+                                EventManagerInterface $repositoryEvents)
     {
         $this->indexer          = $indexer;
         $this->indexerHelper    = $indexerHelper;
@@ -93,9 +103,10 @@ class Indexer implements IndexerInterface
         $this->repository       = $repository;
         $this->documentApi      = $documentApi;
         $this->pathBuilder      = $pathBuilder;
-        if ($repositoryEvents) {
-            $repositoryEvents->attach(RepositoryEventInterface::EVENT_COMMIT, array($this, 'onRepositoryCommit'));
-        }
+        $this->indexerEvents    = $indexerEvents;
+
+        //Attach listeners
+        $repositoryEvents->attach(RepositoryEventInterface::EVENT_COMMIT, array($this, 'onRepositoryCommit'));
     }
 
     /**
@@ -132,10 +143,11 @@ class Indexer implements IndexerInterface
      * @param \Vivo\CMS\Model\Site $site
      * @param string $path Path to entity within the site
      * @param bool $deep If true reindexes whole subtree
+     * @param bool $suppressErrors
      * @throws \Exception
      * @return int
      */
-    public function reindex(Site $site, $path = '/', $deep = false)
+    public function reindex(Site $site, $path = '/', $deep = false, $suppressErrors = false)
     {
         //The reindexing may not rely on the indexer in any way! Presume the indexer data is corrupt.
         $pathComponents = array($site->getPath(), $path);
@@ -150,17 +162,43 @@ class Indexer implements IndexerInterface
             }
             $this->indexer->delete($delQuery);
             $count      = 0;
-            $entity     = $this->repository->getEntityFromStorage($path);
-            if ($entity) {
-                $this->indexEntity($entity);
-                $count  = 1;
-                if ($deep) {
-                    $descendants    = $this->repository->getDescendantsFromStorage($path);
-                    foreach ($descendants as $descendant) {
-                        $this->indexEntity($descendant);
-                    }
-                    $count  += count($descendants);
+
+            try {
+                $entity     = $this->repository->getEntityFromStorage($path);
+            } catch (\Exception $e) {
+                if ($suppressErrors) {
+                    //Trigger index failed event
+                    $event      = new IndexerEvent(null, $this);
+                    $event->setEntityPath($path);
+                    $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_FAILED, $event);
+                } else {
+                    //Rethrow
+                    throw $e;
                 }
+            }
+            $this->indexEntity($entity);
+            $count      = 1;
+            if ($deep) {
+                $descStruct = $this->repository->getDescendantsFromStorage($path, $suppressErrors);
+                if ($suppressErrors) {
+                    $descendants    = $descStruct['entities'];
+                    $erroneous      = $descStruct['erroneous'];
+                } else {
+                    $descendants    = $descStruct;
+                    $erroneous      = array();
+                }
+                //Index descendants
+                foreach ($descendants as $descendant) {
+                    $this->indexEntity($descendant);
+                }
+                //Trigger failed event for erroneous paths
+                $event      = new IndexerEvent(null, $this);
+                foreach ($erroneous as $errorPath) {
+                    //Trigger index failed event
+                    $event->setEntityPath($errorPath);
+                    $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_FAILED, $event);
+                }
+                $count  += count($descendants);
             }
             $this->indexer->commit();
         } catch (\Exception $e) {
@@ -176,14 +214,24 @@ class Indexer implements IndexerInterface
      */
     protected function indexEntity(Model\Entity $entity)
     {
-        if ($entity instanceof Model\Document) {
-            $publishedContentTypes  = $this->documentApi->getPublishedContentTypes($entity);
-        } else {
-            $publishedContentTypes    = array();
+        $event      = new IndexerEvent(null, $this);
+        $event->setEntity($entity);
+        $event->setEntityPath($entity->getPath());
+        try {
+            if ($entity instanceof Model\Document) {
+                $publishedContentTypes  = $this->documentApi->getPublishedContentTypes($entity);
+            } else {
+                $publishedContentTypes    = array();
+            }
+            $options    = array('published_content_types' => $publishedContentTypes);
+            $idxDoc     = $this->indexerHelper->createDocument($entity, $options);
+            $event->setIdxDoc($idxDoc);
+            $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_PRE, $event);
+            $this->indexer->addDocument($idxDoc);
+            $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_POST, $event);
+        } catch (\Exception $e) {
+            $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_FAILED, $event);
         }
-        $options    = array('published_content_types' => $publishedContentTypes);
-        $idxDoc     = $this->indexerHelper->createDocument($entity, $options);
-        $this->indexer->addDocument($idxDoc);
     }
 
     /**

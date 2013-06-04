@@ -83,7 +83,7 @@ class Fileboard extends AbstractForm implements EditorInterface
                     }
                 }
 
-                // Update actual files
+                // Update current files
                 foreach ($this->request->getPost('fb-media') as $uuid => $data) {
                     /* @var $media \Vivo\CMS\Model\Content\Fileboard\Media */
                     $media = $this->cmsApi->getEntity($uuid);
@@ -94,6 +94,16 @@ class Fileboard extends AbstractForm implements EditorInterface
                 }
             }
         }
+    }
+
+    /**
+     * @param string $uuid
+     */
+    public function delete($uuid)
+    {
+        $entity = $this->cmsApi->getEntity($uuid);
+
+        $this->cmsApi->removeEntity($entity);
     }
 
     /**

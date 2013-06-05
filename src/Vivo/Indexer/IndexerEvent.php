@@ -6,6 +6,8 @@ use Vivo\Indexer\DocumentInterface as IndexerDocInterface;
 
 use Zend\EventManager\Event;
 
+use Exception;
+
 /**
  * IndexerEvent
  */
@@ -37,10 +39,16 @@ class IndexerEvent extends Event
     protected $entityPath;
 
     /**
+     * Last exception
+     * @var Exception
+     */
+    protected $exception;
+
+    /**
      * Sets entity
      * @param \Vivo\CMS\Model\Entity $entity
      */
-    public function setEntity(Entity $entity)
+    public function setEntity(Entity $entity = null)
     {
         $this->entity = $entity;
     }
@@ -91,5 +99,23 @@ class IndexerEvent extends Event
             return $this->entity->getPath();
         }
         return $this->entityPath;
+    }
+
+    /**
+     * Sets the last exception
+     * @param \Exception $exception
+     */
+    public function setException(Exception $exception = null)
+    {
+        $this->exception = $exception;
+    }
+
+    /**
+     * Returns the last exception
+     * @return \Exception
+     */
+    public function getException()
+    {
+        return $this->exception;
     }
 }

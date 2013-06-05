@@ -16,7 +16,6 @@ use Vivo\Storage\PathBuilder\PathBuilderInterface;
 use Vivo\Repository\EventInterface as RepositoryEventInterface;
 use Vivo\Indexer\Query\Term as TermQuery;
 use Vivo\Indexer\IndexerEvent;
-use Vivo\Repository\Exception\UnserializationException;
 
 use Zend\EventManager\EventManagerInterface;
 
@@ -161,23 +160,26 @@ class Indexer implements IndexerInterface
                 $delQuery   = $this->qb->cond(sprintf('\path:%s', $path));
             }
             $this->indexer->delete($delQuery);
-            $count      = 0;
-
+            //Index the root entity
+            $entity = null;
             try {
                 $entity     = $this->repository->getEntityFromStorage($path);
+                $this->indexEntity($entity, $suppressErrors);
+                $count      = 1;
             } catch (\Exception $e) {
                 if ($suppressErrors) {
                     //Trigger index failed event
                     $event      = new IndexerEvent(null, $this);
                     $event->setEntityPath($path);
+                    $event->setEntity($entity);
+                    $event->setException($e);
                     $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_FAILED, $event);
                 } else {
                     //Rethrow
                     throw $e;
                 }
             }
-            $this->indexEntity($entity);
-            $count      = 1;
+            //Index the subtree
             if ($deep) {
                 $descStruct = $this->repository->getDescendantsFromStorage($path, $suppressErrors);
                 if ($suppressErrors) {
@@ -189,16 +191,18 @@ class Indexer implements IndexerInterface
                 }
                 //Index descendants
                 foreach ($descendants as $descendant) {
-                    $this->indexEntity($descendant);
+                    if ($this->indexEntity($descendant, $suppressErrors)) {
+                        $count++;
+                    }
                 }
                 //Trigger failed event for erroneous paths
                 $event      = new IndexerEvent(null, $this);
-                foreach ($erroneous as $errorPath) {
+                foreach ($erroneous as $errorPath => $exception) {
                     //Trigger index failed event
                     $event->setEntityPath($errorPath);
+                    $event->setException($exception);
                     $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_FAILED, $event);
                 }
-                $count  += count($descendants);
             }
             $this->indexer->commit();
         } catch (\Exception $e) {
@@ -211,27 +215,48 @@ class Indexer implements IndexerInterface
     /**
      * Adds entity into index
      * @param \Vivo\CMS\Model\Entity $entity
+     * @param bool $suppressErrors
+     * @throws \Exception
+     * @return bool Has the entity been indexed?
      */
-    protected function indexEntity(Model\Entity $entity)
+    protected function indexEntity(Model\Entity $entity, $suppressErrors = false)
     {
         $event      = new IndexerEvent(null, $this);
         $event->setEntity($entity);
         $event->setEntityPath($entity->getPath());
-        try {
-            if ($entity instanceof Model\Document) {
+        if ($entity instanceof Model\Document) {
+            try {
                 $publishedContentTypes  = $this->documentApi->getPublishedContentTypes($entity);
-            } else {
-                $publishedContentTypes    = array();
+            } catch (\Exception $e) {
+                //Cannot get published content types
+                $event->setException($e);
+                $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_FAILED, $event);
+                if ($suppressErrors) {
+                    return false;
+                } else {
+                    throw $e;
+                }
             }
-            $options    = array('published_content_types' => $publishedContentTypes);
+        } else {
+            $publishedContentTypes    = array();
+        }
+        $options    = array('published_content_types' => $publishedContentTypes);
+        try {
             $idxDoc     = $this->indexerHelper->createDocument($entity, $options);
             $event->setIdxDoc($idxDoc);
             $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_PRE, $event);
             $this->indexer->addDocument($idxDoc);
             $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_POST, $event);
         } catch (\Exception $e) {
+            $event->setException($e);
             $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_FAILED, $event);
+            if ($suppressErrors) {
+                return false;
+            } else {
+                throw $e;
+            }
         }
+        return true;
     }
 
     /**

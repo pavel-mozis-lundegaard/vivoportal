@@ -743,7 +743,8 @@ class Repository implements RepositoryInterface
      * If $suppressUnserializationErrors is set to true, returns
      * array(
      *      'entities'  => array of descendants,
-     *      'erroneous' => array child paths where unserialization errors occurred
+     *      'erroneous' => array(
+     *          'child path' => Exception,...
      * )
      * @param string $path
      * @param bool $suppressUnserializationErrors If true, unserialization errors will not be thrown
@@ -762,27 +763,28 @@ class Repository implements RepositoryInterface
             if (!$this->storage->isObject($childPath)) {
                 try {
                     $entity = $this->getEntityFromStorage($childPath);
-                    if ($entity) {
-                        $descendants[]      = $entity;
-                        $childDescendantsStruct = $this->getDescendantsFromStorage($entity->getPath(),
-                            $suppressUnserializationErrors);
-                        if ($suppressUnserializationErrors) {
-                            $childDescendants   = $childDescendantsStruct['entities'];
-                            $erroneous          = array_merge($erroneous, $childDescendantsStruct['erroneous']);
-                        } else {
-                            $childDescendants   = $childDescendantsStruct;
-                        }
-                        $descendants        = array_merge($descendants, $childDescendants);
-                    }
                 } catch (Exception\EntityNotFoundException $e) {
                     //Fix for the situation when a directory exists without an Entity.object
+                    //continue;
                 } catch (Exception\UnserializationException $e) {
                     if ($suppressUnserializationErrors) {
-                        $erroneous[]    = $childPath;
+                        $erroneous[$childPath]  = $e;
+                        //continue;
                     } else {
                         throw $e;
                     }
                 }
+                if ($entity) {
+                    $descendants[]      = $entity;
+                }
+                $childDescendantsStruct = $this->getDescendantsFromStorage($childPath, $suppressUnserializationErrors);
+                if ($suppressUnserializationErrors) {
+                    $childDescendants   = $childDescendantsStruct['entities'];
+                    $erroneous          = array_merge($erroneous, $childDescendantsStruct['erroneous']);
+                } else {
+                    $childDescendants   = $childDescendantsStruct;
+                }
+                $descendants        = array_merge($descendants, $childDescendants);
             }
         }
         if ($suppressUnserializationErrors) {

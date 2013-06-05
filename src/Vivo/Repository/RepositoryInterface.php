@@ -150,7 +150,8 @@ interface RepositoryInterface extends TransactionalInterface
      * If $suppressUnserializationErrors is set to true, returns
      * array(
      *      'entities'  => array of descendants,
-     *      'erroneous' => array child paths where unserialization errors occurred
+     *      'erroneous' => array(
+     *          'child path' => Exception,...
      * )
      * @param string $path
      * @param bool $suppressUnserializationErrors

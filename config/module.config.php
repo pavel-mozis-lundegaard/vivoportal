@@ -862,6 +862,15 @@ return array(
                         ),
                     ),
                 ),
+                'indexer_reindex' => array(
+                    'options' => array(
+                        'route'    => 'indexer reindex <host> [--stopOnErrors|-soe]',
+                        'defaults' => array(
+                            'controller' => 'cli_indexer',
+                            'action'     => 'reindex',
+                        ),
+                    ),
+                ),
                 'cms' => array(
                     'options' => array(
                         'route'    => 'cms [<action>]',

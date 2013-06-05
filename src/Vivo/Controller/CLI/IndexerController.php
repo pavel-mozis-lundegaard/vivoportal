@@ -93,9 +93,10 @@ class IndexerController extends AbstractCliController
         $failedListener = $this->indexerEvents->attach(IndexerEvent::EVENT_INDEX_FAILED, array($this, 'onReindexFail'));
         $postListener   = $this->indexerEvents->attach(IndexerEvent::EVENT_INDEX_POST, array($this, 'onReindexPost'));
         //Prepare params
-        $request    = $this->getRequest();
+        $request        = $this->getRequest();
         /* @var $request \Zend\Console\Request */
-        $host       = $request->getParam('host');
+        $host           = $request->getParam('host');
+        $stopOnErrors   = $request->getParam('stopOnErrors') || $request->getParam('soe');
         echo PHP_EOL . 'Reindex' . PHP_EOL;
         echo 'Host: ' . $host . PHP_EOL;
         $site       = $this->siteEvent->getSite();
@@ -104,7 +105,7 @@ class IndexerController extends AbstractCliController
             return $output;
         }
         echo 'Site path: '. $site->getPath() . PHP_EOL;
-        $numIndexed = $this->indexerApi->reindex($site, '/', true, true);
+        $numIndexed = $this->indexerApi->reindex($site, '/', true, !$stopOnErrors);
         //Detach listeners
         $output     = sprintf("%s items reindexed", $numIndexed) . PHP_EOL;
         if (count($this->failed)) {

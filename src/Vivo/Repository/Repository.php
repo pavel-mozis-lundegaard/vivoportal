@@ -765,11 +765,9 @@ class Repository implements RepositoryInterface
                     $entity = $this->getEntityFromStorage($childPath);
                 } catch (Exception\EntityNotFoundException $e) {
                     //Fix for the situation when a directory exists without an Entity.object
-                    //continue;
                 } catch (Exception\UnserializationException $e) {
                     if ($suppressUnserializationErrors) {
                         $erroneous[$childPath]  = $e;
-                        //continue;
                     } else {
                         throw $e;
                     }

@@ -150,6 +150,10 @@ class Entity extends AbstractAdapter
         case 'object':
             $class_name = Text::readWord($str, $pos);
             Text::expectChar('{', $str, $pos);
+            if (!class_exists($class_name)) {
+                throw new Exception\ClassNotFoundException(
+                    sprintf("%s: Class '%s' not found", __METHOD__, $class_name));
+            }
             $object = new $class_name;
             $refl = new \ReflectionObject($object);
 

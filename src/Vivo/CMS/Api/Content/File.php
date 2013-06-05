@@ -40,10 +40,10 @@ class File
 
     /**
      * @param \Vivo\CMS\Model\Content\File $file
-     * @param array $data $_FILE array
-     * @param ContentContainer $contentContainer
+     * @param array $data
+     * @return \Vivo\CMS\Model\Content\File
      */
-    public function saveFileWithUploadedFile(Content\File $file, array $data, ContentContainer $contentContainer = null)
+    public function prepareFileForSaving(Content\File $file, array $data)
     {
         $ext = strtolower(pathinfo($data['name'], PATHINFO_EXTENSION));
         $mime = $this->mime->detectByExtension($ext);
@@ -52,6 +52,18 @@ class File
         $file->setSize($data['size']);
         $file->setExt($ext);
         $file->setMimeType($mime);
+
+        return $file;
+    }
+
+    /**
+     * @param \Vivo\CMS\Model\Content\File $file
+     * @param array $data $_FILE array
+     * @param ContentContainer $contentContainer
+     */
+    public function saveFileWithUploadedFile(Content\File $file, array $data, ContentContainer $contentContainer = null)
+    {
+        $file = $this->prepareFileForSaving($file, $data);
 
         if($file->getUuid()) {
             $this->documentApi->saveContent($file);
@@ -140,5 +152,23 @@ class File
         foreach ($resources as $resource) {
             $this->cmsApi->removeResource($file, $resource);
         }
+    }
+
+    /**
+     * @param \Vivo\CMS\Model\Content\File $file
+     */
+    public function download(Content\File $file)
+    {
+        $mimeType = $file->getMimeType();
+        $fileName = $file->getFilename();
+
+        $inputStream  = $this->readResource($file);
+
+        header('Content-type: '.$mimeType);
+        header('Content-Disposition: attachment; filename="'.$fileName.'"');
+        while(($b = $inputStream->read(4096)) !== false) {
+            echo $b;
+        }
+        die();
     }
 }

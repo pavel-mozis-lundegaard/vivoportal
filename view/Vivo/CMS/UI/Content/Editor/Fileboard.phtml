@@ -1,0 +1,17 @@
+<?
+$formType = DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
+echo $this->formFieldsetTwb($form, $formType, array(), true, false);
+?>
+<? if($files) : ?>
+    <ol>
+    <? foreach ($files as $file) : /* @var $file \Vivo\CMS\Model\Content\Fileboard\Media */
+        $u = $file->getUuid();
+    ?>
+        <li>
+            <?=$file->getFilename()?> | <a href="<?=$this->actionUrl('delete', array('uuid'=>$u))?>" title="Delete">delete</a>
+            <input type="text" name="fb-media[<?=$u?>][name]" value="<?=$file->getName()?>" />
+            <textarea name="fb-media[<?=$u?>][description]"><?=$file->getDescription()?></textarea>
+        </li>
+    <? endforeach; ?>
+    </ol>
+<? endif; ?>

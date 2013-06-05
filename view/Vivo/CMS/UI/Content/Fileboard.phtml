@@ -1,0 +1,13 @@
+<? if($files) : ?>
+    <ol>
+    <? foreach ($files as $file) : /* @var $file \Vivo\CMS\Model\Content\Fileboard\Media */
+        $desc = $file->getDescription();
+        $size = round($file->getSize() / 1024);
+    ?>
+        <li>
+            <strong><a href="<?=$this->actionUrl('download', array('uuid'=>$file->getUuid()))?>" title="Download"><?=htmlspecialchars($file->getName())?></a> (<?=$file->getExt()?>, <?=$size?> kB)</strong>
+            <? if($desc) :?><p><?=htmlspecialchars($desc)?></p><? endif; ?>
+        </li>
+    <? endforeach; ?>
+    </ol>
+<? endif; ?>

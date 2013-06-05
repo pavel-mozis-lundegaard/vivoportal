@@ -100,7 +100,7 @@ class IndexerController extends AbstractCliController
         echo 'Host: ' . $host . PHP_EOL;
         $site       = $this->siteEvent->getSite();
         if (!$site) {
-            $output = sprintf("No site object created");
+            $output = sprintf("No site object created (invalid host?)");
             return $output;
         }
         echo 'Site path: '. $site->getPath() . PHP_EOL;
@@ -108,8 +108,17 @@ class IndexerController extends AbstractCliController
         //Detach listeners
         $output     = sprintf("%s items reindexed", $numIndexed) . PHP_EOL;
         if (count($this->failed)) {
-            $output     .= PHP_EOL . 'Failed paths:' . PHP_EOL;
-            $output     .= implode(PHP_EOL, $this->failed);
+            $output     .= PHP_EOL . 'Problems:' . PHP_EOL;
+            foreach ($this->failed as $failedPath => $exception) {
+                if ($exception instanceof \Exception) {
+                    $exceptionText  = $exception->getMessage();
+                } else {
+                    $exceptionText  = '???';
+                }
+                $output     .= PHP_EOL . $failedPath . ' ->' . PHP_EOL . $exceptionText . PHP_EOL;
+            }
+
+
         }
         $output     .= PHP_EOL;
         $this->indexerEvents->detach($failedListener);
@@ -124,7 +133,7 @@ class IndexerController extends AbstractCliController
     public function onReindexFail(IndexerEvent $e)
     {
         echo PHP_EOL . 'Error: ' . $e->getEntityPath() . PHP_EOL . PHP_EOL;
-        $this->failed[] = $e->getEntityPath();
+        $this->failed[$e->getEntityPath()] = $e->getException();
     }
 
     /**

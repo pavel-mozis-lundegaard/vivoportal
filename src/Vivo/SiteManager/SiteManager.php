@@ -210,7 +210,6 @@ class SiteManager implements SiteManagerInterface,
         } else {
             $siteHost   = '<site host unknown>';
         }
-        $siteSpec   = $this->siteEvent->getHost();
         $this->events->trigger('log', $this,
                 array ('message'    => "Site at host '" . $siteHost . "' prepared",
                        'priority'   => Logger::PERF_BASE));

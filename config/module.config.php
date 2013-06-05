@@ -244,6 +244,7 @@ return array(
             'cache_manager'             => 'Vivo\Cache\CacheManagerFactory',
             'session_manager'           => 'Vivo\Service\SessionManagerFactory',
             'mime'                      => 'Vivo\Util\MIMEFactory',
+            'indexer_events'            => 'Vivo\Indexer\EventManagerFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -1008,6 +1009,15 @@ return array(
                         'defaults' => array(
                             'controller' => 'cli_indexer',
                             'action'     => 'clear',
+                        ),
+                    ),
+                ),
+                'indexer_reindex' => array(
+                    'options' => array(
+                        'route'    => 'indexer reindex <host> [--stopOnErrors|-soe]',
+                        'defaults' => array(
+                            'controller' => 'cli_indexer',
+                            'action'     => 'reindex',
                         ),
                     ),
                 ),

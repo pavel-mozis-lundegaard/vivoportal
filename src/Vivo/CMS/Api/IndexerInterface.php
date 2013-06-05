@@ -26,8 +26,9 @@ interface IndexerInterface
      * @param \Vivo\CMS\Model\Site $site
      * @param string $path Path to entity within the site
      * @param bool $deep If true reindexes whole subtree
+     * @param bool $suppressErrors
      * @return int
      */
-    public function reindex(Site $site, $path = '/', $deep = false);
+    public function reindex(Site $site, $path = '/', $deep = false, $suppressErrors = false);
 
 }

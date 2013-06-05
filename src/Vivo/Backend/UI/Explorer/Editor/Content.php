@@ -10,6 +10,7 @@ use Vivo\CMS\ComponentResolver;
 use Vivo\CMS\Exception\InvalidArgumentException;
 use Vivo\CMS\UI\Content\Editor\EditorInterface;
 use Vivo\CMS\UI\Content\Editor\AdapterAwareInterface as EditorAdapterAwareInterface;
+use Vivo\LookupData\LookupDataManager;
 
 use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
 
@@ -36,6 +37,11 @@ class Content extends AbstractForm
     private $metadataManager;
 
     /**
+     * @var LookupDataManager
+     */
+    private $lookupDataManager;
+
+    /**
      * @var \Vivo\CMS\Model\ContentContainer
      */
     private $contentContainer;
@@ -49,15 +55,18 @@ class Content extends AbstractForm
      * @param \Zend\ServiceManager\ServiceManager $sm
      * @param \Vivo\CMS\Api\Document $documentApi
      * @param \Vivo\Metadata\MetadataManager $metadataManager
+     * @param \Vivo\LookupData\LookupDataManager $lookupDataManager
      */
     public function __construct(
         \Zend\ServiceManager\ServiceManager $sm,
         \Vivo\CMS\Api\Document $documentApi,
-        \Vivo\Metadata\MetadataManager $metadataManager)
+        \Vivo\Metadata\MetadataManager $metadataManager,
+        LookupDataManager $lookupDataManager)
     {
         $this->sm = $sm;
         $this->documentApi = $documentApi;
         $this->metadataManager = $metadataManager;
+        $this->lookupDataManager = $lookupDataManager;
         $this->autoAddCsrf = false;
     }
 
@@ -146,10 +155,11 @@ class Content extends AbstractForm
         if($this->content) {
             $id = $this->content->getUuid();
             $metadata = $this->metadataManager->getMetadata(get_class($this->content));
+            $lookupData = $this->lookupDataManager->injectLookupData($metadata, $this->content);
         }
         else {
             $id = 0;
-            $metadata = array();
+            $lookupData = array();
         }
 
         // Available workflow states
@@ -159,7 +169,7 @@ class Content extends AbstractForm
         }
 
         // Fieldset
-        $fieldset = new EntityEditor('content', $metadata);
+        $fieldset = new EntityEditor('content', $lookupData);
         $fieldset->setHydrator(new ClassMethodsHydrator(false));
         $fieldset->setOptions(array('use_as_base_fieldset' => true));
         $fieldset->add(array(

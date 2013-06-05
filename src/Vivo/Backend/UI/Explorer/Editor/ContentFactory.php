@@ -15,10 +15,9 @@ class ContentFactory implements FactoryInterface
         $sm = $serviceLocator->get('service_manager');
         $documentApi = $sm->get('Vivo\CMS\Api\Document');
         $metadataManager = $sm->get('metadata_manager');
+        $lookupDataManager = $sm->get('lookup_data_manager');
 
-        $component = new Content($sm, $documentApi, $metadataManager);
-
-        return $component;
+        return new Content($sm, $documentApi, $metadataManager, $lookupDataManager);
     }
 
 }

@@ -96,13 +96,24 @@ class Fileboard
     }
 
     /**
-     * @param \Vivo\CMS\Model\Content\Fileboard $model
+     * @param string $ident
+     * @return \Vivo\CMS\Model\Content\Fileboard\Media
+     */
+    public function getMedia($ident)
+    {
+        return $this->cmsApi->getEntity($ident);
+    }
+
+    public function removeMedia(Media $media)
+    {
+        $this->cmsApi->removeEntity($media);
+    }
+
+    /**
      * @param \Vivo\CMS\Model\Content\Fileboard\Media $media
      */
-    private function saveMedia(Content\Fileboard $model, Media $media)
+    public function saveMedia(Media $media)
     {
-        $media = $this->prepareMediaForSaving($model, $media);
-
         $this->cmsApi->saveEntity($media, true);
     }
 
@@ -114,14 +125,15 @@ class Fileboard
      */
     public function saveMediaWithUploadedFile(Content\Fileboard $fileboard, array $file, $name, $description = null)
     {
+        $stream = new FileInputStream($file['tmp_name']);
+
         $media = new Content\Fileboard\Media();
         $media->setName($name);
         $media->setDescription($description);
         $media = $this->fileApi->prepareFileForSaving($media, $file);
+        $media = $this->prepareMediaForSaving($fileboard, $media);
 
-        $stream = new FileInputStream($file['tmp_name']);
-
-        $this->saveMedia($fileboard, $media);
+        $this->cmsApi->saveEntity($media, true);
         $this->fileApi->writeResource($media, $stream);
     }
 

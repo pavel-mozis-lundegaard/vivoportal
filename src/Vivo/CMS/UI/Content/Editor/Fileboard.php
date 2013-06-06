@@ -15,11 +15,6 @@ class Fileboard extends AbstractForm implements EditorInterface
     private $content;
 
     /**
-     * @var \Vivo\CMS\Api\CMS
-     */
-    private $cmsApi;
-
-    /**
      * @var \Vivo\CMS\Api\Document
      */
     private $documentApi;
@@ -32,14 +27,12 @@ class Fileboard extends AbstractForm implements EditorInterface
     /**
      * Constructor
      *
-     * @param \Vivo\CMS\Api\CMS $cmsApi
      * @param \Vivo\CMS\Api\Document $documentApi
      * @param \Vivo\CMS\Api\Content\Fileboard $fileboardApi
      */
-    public function __construct(Api\CMS $cmsApi, Api\Document $documentApi, FileboardApi $fileboardApi)
+    public function __construct(Api\Document $documentApi, FileboardApi $fileboardApi)
     {
         $this->autoAddCsrf = false; //FIXME: remove after fieldsets
-        $this->cmsApi = $cmsApi;
         $this->documentApi = $documentApi;
         $this->fileboardApi = $fileboardApi;
     }
@@ -79,18 +72,17 @@ class Fileboard extends AbstractForm implements EditorInterface
                         throw new \Exception(sprintf('%s: File upload error %s', __METHOD__, $file['error']));
                     }
                     if($file['error'] == UPLOAD_ERR_OK) {
-                        $this->fileboardApi->saveMediaWithUploadedFile($this->content, $file, $name, $desc);
+                        $this->fileboardApi->saveMediaWithUploadedFile($this->content, $file, trim($name), trim($desc));
                     }
                 }
 
                 // Update current files
                 foreach ($this->request->getPost('fb-media') as $uuid => $data) {
-                    /* @var $media \Vivo\CMS\Model\Content\Fileboard\Media */
-                    $media = $this->cmsApi->getEntity($uuid);
+                    $media = $this->fileboardApi->getMedia($uuid);
                     $media->setName(trim($data['name']));
                     $media->setDescription(trim($data['description']));
 
-                    $this->cmsApi->saveEntity($media, true);
+                    $this->fileboardApi->saveMedia($media);
                 }
             }
         }
@@ -101,9 +93,9 @@ class Fileboard extends AbstractForm implements EditorInterface
      */
     public function delete($uuid)
     {
-        $entity = $this->cmsApi->getEntity($uuid);
+        $media = $this->fileboardApi->getMedia($uuid);
 
-        $this->cmsApi->removeEntity($entity);
+        $this->fileboardApi->removeMedia($media);
     }
 
     /**

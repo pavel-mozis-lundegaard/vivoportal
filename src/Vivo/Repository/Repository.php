@@ -761,6 +761,7 @@ class Repository implements RepositoryInterface
         foreach ($names as $name) {
             $childPath = $this->pathBuilder->buildStoragePath(array($path, $name), true);
             if (!$this->storage->isObject($childPath)) {
+                $entity     = null;
                 try {
                     $entity = $this->getEntityFromStorage($childPath);
                 } catch (Exception\EntityNotFoundException $e) {

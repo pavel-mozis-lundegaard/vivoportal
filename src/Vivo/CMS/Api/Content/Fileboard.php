@@ -1,6 +1,7 @@
 <?php
 namespace Vivo\CMS\Api\Content;
 
+use Vivo\CMS\Api;
 use Vivo\CMS\Model\Content;
 use Vivo\CMS\Model\Content\Fileboard\Media;
 use Vivo\Indexer\QueryBuilder;
@@ -24,12 +25,27 @@ class Fileboard
      */
     private $indexer;
 
-    public function __construct($cmsApi, $fileApi, $pathBuilder, $indexer)
+    /**
+     * @var \Vivo\Storage\PathBuilder\PathBuilderInterface
+     */
+    private $pathBuilder;
+
+    /**
+     * @param \Vivo\CMS\Api\CMS $cmsApi
+     * @param \Vivo\CMS\Api\Content\File $fileApi
+     * @param \Vivo\Indexer\IndexerInterface $indexer
+     * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
+     */
+    public function __construct(
+        Api\CMS $cmsApi,
+        Api\Content\File $fileApi,
+        \Vivo\Indexer\IndexerInterface $indexer,
+        \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder)
     {
         $this->cmsApi = $cmsApi;
         $this->fileApi = $fileApi;
-        $this->pathBuilder = $pathBuilder;
         $this->indexer = $indexer;
+        $this->pathBuilder = $pathBuilder;
     }
 
     /**
@@ -63,9 +79,17 @@ class Fileboard
     {
         $qb = new QueryBuilder();
         $condition = $qb->cond($model->getPath().'/*', '\path');
-        $count     = $this->indexer->find($condition, array('page_size'=>0))->getTotalHitCount();
+        $hits = $this->indexer->find($condition)->getHits();
 
-        $path = $this->pathBuilder->buildStoragePath(array($model->getPath(), $count));
+        $i = -1;
+        foreach ($hits as $hit) {
+            $path = $hit->getDocument()->getField('\path')->getValue();
+            $parts = $this->pathBuilder->getStoragePathComponents($path);
+            $lastI = $parts[count($parts) - 1];
+            $i = max($i, $lastI);
+        }
+
+        $path = $this->pathBuilder->buildStoragePath(array($model->getPath(), ++$i));
         $media->setPath($path);
 
         return $media;

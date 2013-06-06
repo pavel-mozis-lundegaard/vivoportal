@@ -69,7 +69,7 @@ class Fileboard extends AbstractForm implements EditorInterface
             }
 
             if($this->content->getCreated()) {
-                // Uplaod new file
+                // Upload new file
                 if($form->get('fb-new-file')) {
                     $file = $form->get('fb-new-file')->getValue();
                     $name = $form->get('fb-new-name')->getValue();

@@ -4,7 +4,7 @@ namespace Vivo\Util;
 /**
  * MIME provides methods to works with Content-types and MIME types.
  */
-class MIME
+class MIME implements MIMEInterface
 {
     /**
      * @var array
@@ -26,8 +26,9 @@ class MIME
      */
     protected function getType($ext)
     {
+        $ext = strtolower($ext);
         foreach ($this->types as $type => $exts) {
-            if (in_array(strtolower($ext), $exts)) {
+            if (in_array($ext, $exts)) {
                 return $type;
             }
         }
@@ -41,7 +42,8 @@ class MIME
      */
     public function getExt($type)
     {
-        return isset($this->types[strtolower($type)][0]) ? $this->types[strtolower($type)][0] : null;
+        $type = strtolower($type);
+        return isset($this->types[$type][0]) ? $this->types[$type][0] : null;
     }
 
     public function detectByExtension($ext)

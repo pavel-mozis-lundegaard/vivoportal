@@ -4,7 +4,7 @@ namespace Vivo\CMS\Api\Content;
 use Vivo\CMS\Model\Content;
 use Vivo\CMS\Model\ContentContainer;
 use Vivo\CMS\Api;
-use Vivo\Util\MIME;
+use Vivo\Util\MIMEInterface;
 use Vivo\CMS\Exception\InvalidArgumentException;
 use Vivo\IO\InputStreamInterface;
 use Vivo\IO\FileInputStream;
@@ -22,16 +22,16 @@ class File
     private $documentApi;
 
     /**
-     * @var \Vivo\Util\MIME
+     * @var \Vivo\Util\MIMEInterface
      */
     private $mime;
 
     /**
      * @param \Vivo\CMS\Api\CMS $cmsApi
      * @param \Vivo\CMS\Api\Document $documentApi
-     * @param \Vivo\Util\MIME $mime
+     * @param \Vivo\Util\MIMEInterface $mime
      */
-    public function __construct(Api\CMS $cmsApi, Api\Document $documentApi, MIME $mime)
+    public function __construct(Api\CMS $cmsApi, Api\Document $documentApi, MIMEInterface $mime)
     {
         $this->cmsApi = $cmsApi;
         $this->documentApi = $documentApi;

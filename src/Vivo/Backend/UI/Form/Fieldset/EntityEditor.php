@@ -10,14 +10,14 @@ use Zend\InputFilter\InputFilterProviderInterface;
  */
 class EntityEditor extends Fieldset implements InputFilterProviderInterface
 {
-    
+
     /**
      * Input filter specification for fieldset
-     * 
+     *
      * @var array
      */
     protected $inputFilterSpecification = array();
-    
+
     /**
      * Constructor.
      *
@@ -27,7 +27,7 @@ class EntityEditor extends Fieldset implements InputFilterProviderInterface
     public function __construct($name, array $lookupData)
     {
         parent::__construct($name);
-        
+
         foreach ($lookupData as $name => $attrs) {
             if(!isset($attrs['field_type'])) {
                 continue;
@@ -42,7 +42,7 @@ class EntityEditor extends Fieldset implements InputFilterProviderInterface
             if(!empty($attrs['description'])) {
                 $options['description'] = $attrs['description'];
             }
-            
+
             // Attributes
             $attributes = array();
             //The element id will be added automatically by TWB view helper
@@ -61,11 +61,11 @@ class EntityEditor extends Fieldset implements InputFilterProviderInterface
             // Input filter specification
             if(!empty($attrs['required'])) {
                 $this->inputFilterSpecification[$name]['required'] = (bool) $attrs['required'];
-            }            
+            }
             if(!empty($attrs['allow_empty'])) {
                 $this->inputFilterSpecification[$name]['allow_empty'] = (bool) $attrs['allow_empty'];
             }
-            
+
             // Field init
             $this->add(array(
                 'name' => $name,
@@ -93,13 +93,13 @@ class EntityEditor extends Fieldset implements InputFilterProviderInterface
 
     /**
      * Returns input filter specification for fieldset
-     * 
+     *
      * @return array
      */
     public function getInputFilterSpecification()
     {
         return $this->inputFilterSpecification;
     }
-    
+
 }
 

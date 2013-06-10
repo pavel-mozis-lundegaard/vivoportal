@@ -31,6 +31,8 @@ class Creator extends Editor
         $this->doCreate();
 
         $this->initForm();
+
+        $form   = $this->getForm();
     }
 
     public function create()
@@ -74,28 +76,59 @@ class Creator extends Editor
 
     public function save()
     {
+        $sessionName    = $this->getForm()->get('csrf')->getCsrfValidator()->getSessionName();
+        \Zend\Debug\Debug::dump($sessionName, 'Session name');
+        \Zend\Debug\Debug::dump($this->getCsrfHashFromSession($sessionName), 'CSRF Hash from session');
+        die('SAVE');
+
         if($this->getForm()->isValid()) {
             $parent = $this->explorer->getEntity();
             $this->entity = $this->documentApi->createDocument($parent, $this->entity);
             $this->explorer->setEntity($this->entity);
             $this->saveProcess();
             $this->explorer->setCurrent('editor');
-            $this->events->trigger(new RedirectEvent());
+            //$this->events->trigger(new RedirectEvent());
             $this->addAlertMessage('Created...', Alert::TYPE_SUCCESS);
+            echo 'OK';
         }
         else {
             $this->addAlertMessage('Error...', Alert::TYPE_ERROR);
+            echo 'ERROR';
         }
-        //Debug
+        //DEBUG
+        $this->debug();
+        die('SAVE');
+    }
+
+    protected function debug()
+    {
         $form           = $this->getForm();
         $inputF         = $form->getInputFilter();
         $csrfField      = $form->get('csrf');
+        /** @var $csrfValidator \Zend\Validator\Csrf */
         $csrfValidator  = $csrfField->getCsrfValidator();
+        $session        = $csrfValidator->getSession();
+        \Zend\Debug\Debug::dump($session->getName(), 'Session name');
+        \Zend\Debug\Debug::dump($csrfValidator->getName(), 'CSRF Validator name');
+        echo 'Session vars';
+        foreach ($session as $key => $value) {
+            \Zend\Debug\Debug::dump($value, $key);
+        }
         \Zend\Debug\Debug::dump($inputF->getRawValue('csrf'), 'Csrf RAW');
         \Zend\Debug\Debug::dump($csrfValidator->getHash(), 'Validator hash');
         \Zend\Debug\Debug::dump($inputF->getRawValues(), 'All RAW values');
-
         \Zend\Debug\Debug::dump($form->getMessages(), 'Form error messages');
         die('DEBUG');
+    }
+
+    protected function getCsrfHashFromSession($sessionName)
+    {
+        $session    = new \Zend\Session\Container($sessionName);
+        if (isset($session['hash'])) {
+            $hash = $session['hash'];
+        } else {
+            $hash   = null;
+        }
+        return $hash;
     }
 }

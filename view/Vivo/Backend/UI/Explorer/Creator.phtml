@@ -12,6 +12,12 @@ echo $contentTab;
 
 echo $this->formRowTwb($form->get('act'), $formType);
 echo $this->formRowTwb($form->get('csrf'), $formType);
-echo 'CSRF: ' . $form->get('csrf')->getValue();
+
+/** @var $csrfElement \Vivo\Form\Element\Csrf */
+$csrfElement    = $form->get('csrf');
+echo '<br>Session name: ' . $csrfElement->getCsrfValidator()->getSessionName();
+echo '<br>CSRF: ' . $csrfElement->getValue();
+
+
 echo $this->formFieldsetTwb($form->get('buttons'));
 echo $this->formTwb()->closeTag();

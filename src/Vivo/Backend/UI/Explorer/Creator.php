@@ -86,5 +86,16 @@ class Creator extends Editor
         else {
             $this->addAlertMessage('Error...', Alert::TYPE_ERROR);
         }
+        //Debug
+        $form           = $this->getForm();
+        $inputF         = $form->getInputFilter();
+        $csrfField      = $form->get('csrf');
+        $csrfValidator  = $csrfField->getCsrfValidator();
+        \Zend\Debug\Debug::dump($inputF->getRawValue('csrf'), 'Csrf RAW');
+        \Zend\Debug\Debug::dump($csrfValidator->getHash(), 'Validator hash');
+        \Zend\Debug\Debug::dump($inputF->getRawValues(), 'All RAW values');
+
+        \Zend\Debug\Debug::dump($form->getMessages(), 'Form error messages');
+        die('DEBUG');
     }
 }

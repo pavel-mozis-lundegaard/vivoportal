@@ -12,5 +12,6 @@ echo $contentTab;
 
 echo $this->formRowTwb($form->get('act'), $formType);
 echo $this->formRowTwb($form->get('csrf'), $formType);
+echo 'CSRF: ' . $form->get('csrf')->getValue();
 echo $this->formFieldsetTwb($form->get('buttons'));
 echo $this->formTwb()->closeTag();

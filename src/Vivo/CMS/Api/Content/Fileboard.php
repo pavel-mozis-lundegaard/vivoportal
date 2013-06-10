@@ -2,6 +2,7 @@
 namespace Vivo\CMS\Api\Content;
 
 use Vivo\CMS\Api;
+use Vivo\CMS\Model\Entity;
 use Vivo\CMS\Model\Content;
 use Vivo\CMS\Model\Content\Fileboard\Media;
 use Vivo\CMS\Model\Content\Fileboard\Separator;
@@ -100,14 +101,17 @@ class Fileboard
      * @param string $ident
      * @return \Vivo\CMS\Model\Content\Fileboard\Media
      */
-    public function getMedia($ident)
+    public function getEntity($ident)
     {
         return $this->cmsApi->getEntity($ident);
     }
 
-    public function removeMedia(Media $media)
+    /**
+     * @param \Vivo\CMS\Model\Entity $entity
+     */
+    public function removeEntity(Entity $entity)
     {
-        $this->cmsApi->removeEntity($media);
+        $this->cmsApi->removeEntity($entity);
     }
 
     /**
@@ -192,18 +196,25 @@ class Fileboard
         $this->download($media);
     }
 
-    public function getResource(Content\File $separator)
+    public function getResource(Content\File $file)
     {
-        return $this->fileApi->getResource($separator);
+        return $this->fileApi->getResource($file);
     }
 
-    public function readResource(Content\File $separator)
+    public function readResource(Content\File $file)
     {
-        return $this->fileApi->readResource($separator);
+        return $this->fileApi->readResource($file);
     }
 
+    /**
+     * Removes all fileboard's content.
+     *
+     * @param \Vivo\CMS\Model\Content\Fileboard $fileboard
+     */
     public function removeAllFiles(Content\Fileboard $fileboard)
     {
-
+        foreach ($this->cmsApi->getChildren($fileboard) as $child) {
+            $this->cmsApi->removeEntity($child);
+        }
     }
 }

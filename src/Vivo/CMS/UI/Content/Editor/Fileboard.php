@@ -80,20 +80,23 @@ class Fileboard extends AbstractForm implements EditorInterface
                 if($form->get('fb-new-separator')) {
                     $html = $form->get('fb-new-separator')->getValue();
 
-                    $this->fileboardApi->createSeparator($this->content, $html);
+                    if($html) {
+                        $this->fileboardApi->createSeparator($this->content, $html);
+                    }
                 }
 
                 // Update current files
                 foreach ($this->request->getPost('fb-media') as $uuid=>$data) {
-                    $media = $this->fileboardApi->getMedia($uuid);
+                    $media = $this->fileboardApi->getEntity($uuid);
                     $media->setName(trim($data['name']));
                     $media->setDescription(trim($data['description']));
 
                     $this->fileboardApi->saveMedia($media);
                 }
 
+                // Separators
                 foreach ($this->request->getPost('fb-separator') as $uuid=>$data) {
-                    $separator = $this->fileboardApi->getMedia($uuid);
+                    $separator = $this->fileboardApi->getEntity($uuid);
 
                     $this->fileboardApi->saveSeparator($separator, $data['html']);
                 }
@@ -106,9 +109,14 @@ class Fileboard extends AbstractForm implements EditorInterface
      */
     public function delete($uuid)
     {
-        $media = $this->fileboardApi->getMedia($uuid);
+        $media = $this->fileboardApi->getEntity($uuid);
 
-        $this->fileboardApi->removeMedia($media);
+        $this->fileboardApi->removeEntity($media);
+    }
+
+    public function deleteAll()
+    {
+        $this->fileboardApi->removeAllFiles($this->content);
     }
 
     /**

@@ -389,7 +389,7 @@ class Document implements DocumentInterface
     public function saveContent(Model\Content $content)
     {
         //Save content
-        $container = $this->cmsApi->getEntityParent($content);
+        $container = $this->cmsApi->getParent($content);
         $this->updateContentStates($container, $content);
         $this->cmsApi->saveEntity($content, true);
 

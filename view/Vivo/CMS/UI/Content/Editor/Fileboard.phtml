@@ -5,6 +5,9 @@ $formType = DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
 echo $this->formFieldsetTwb($form, $formType, array(), true, false);
 ?>
 <? if($files) : ?>
+    <div>
+        <a href="<?=$this->actionUrl('deleteAll')?>">Smazat vše</a>
+    </div>
     <ol>
     <? foreach ($files as $file) : /* @var $file \Vivo\CMS\Model\Content\Fileboard\Media */
         $u = $file->getUuid();

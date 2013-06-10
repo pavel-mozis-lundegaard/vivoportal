@@ -4,6 +4,7 @@ namespace Vivo\CMS\Api\Content;
 use Vivo\CMS\Api;
 use Vivo\CMS\Model\Content;
 use Vivo\CMS\Model\Content\Fileboard\Media;
+use Vivo\CMS\Model\Content\Fileboard\Separator;
 use Vivo\Indexer\QueryBuilder;
 use Vivo\IO\FileInputStream;
 use Vivo\CMS\Api\Exception\InvalidPathException;
@@ -53,7 +54,7 @@ class Fileboard
      * @throws \Vivo\CMS\Api\Exception\InvalidPathException
      * @return array <\Vivo\CMS\Model\Content\Fileboard\Media>
      */
-    public function getMediaList(Content\Fileboard $model)
+    public function getList(Content\Fileboard $model)
     {
         $return = array();
 
@@ -75,7 +76,7 @@ class Fileboard
         return $return;
     }
 
-    private function prepareMediaForSaving(Content\Fileboard $model, Media $media)
+    private function prepareMediaForSaving(Content\Fileboard $model, $media)
     {
         $qb = new QueryBuilder();
         $condition = $qb->cond($model->getPath().'/*', '\path');
@@ -122,12 +123,13 @@ class Fileboard
      * @param array $file
      * @param string $name
      * @param string $description
+     * @return \Vivo\CMS\Model\Content\Fileboard\Media
      */
-    public function saveMediaWithUploadedFile(Content\Fileboard $fileboard, array $file, $name, $description = null)
+    public function createMediaWithUploadedFile(Content\Fileboard $fileboard, array $file, $name, $description = null)
     {
         $stream = new FileInputStream($file['tmp_name']);
 
-        $media = new Content\Fileboard\Media();
+        $media = new Media();
         $media->setName($name);
         $media->setDescription($description);
         $media = $this->fileApi->prepareFileForSaving($media, $file);
@@ -135,12 +137,48 @@ class Fileboard
 
         $this->cmsApi->saveEntity($media, true);
         $this->fileApi->writeResource($media, $stream);
+
+        return $media;
+    }
+
+    public function saveSeparator(Separator $separator, $html = null)
+    {
+        if($html) {
+            $separator->setMimeType('text/html');
+            $separator->setExt('html');
+            $separator->setSize(mb_strlen($html, 'UTF-8'));
+
+            $this->fileApi->saveResource($separator, $html);
+            $this->cmsApi->saveEntity($separator, true);
+        }
+        else {
+            $separator->setMimeType(null);
+            $separator->setExt(null);
+            $separator->setSize(0);
+
+            $this->fileApi->removeResource($separator);
+            $this->cmsApi->saveEntity($separator, true);
+        }
+    }
+
+    public function createSeparator(Content\Fileboard $fileboard, $html)
+    {
+        $separator = new Separator();
+        $separator->setMimeType('text/html');
+        $separator->setExt('html');
+        $separator->setSize(mb_strlen($html, 'UTF-8'));
+        $separator = $this->prepareMediaForSaving($fileboard, $separator);
+
+        $this->fileApi->saveResource($separator, $html);
+        $this->cmsApi->saveEntity($separator, true);
+
+        return $separator;
     }
 
     /**
      * @param \Vivo\CMS\Model\Content\Fileboard\Media $media
      */
-    public function download(Content\Fileboard\Media $media)
+    public function download(Media $media)
     {
         $this->fileApi->download($media);
     }
@@ -152,6 +190,16 @@ class Fileboard
     {
         $media = $this->cmsApi->getEntity($uuid);
         $this->download($media);
+    }
+
+    public function getResource(Content\File $separator)
+    {
+        return $this->fileApi->getResource($separator);
+    }
+
+    public function readResource(Content\File $separator)
+    {
+        return $this->fileApi->readResource($separator);
     }
 
     public function removeAllFiles(Content\Fileboard $fileboard)

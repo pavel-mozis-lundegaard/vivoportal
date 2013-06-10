@@ -4,6 +4,7 @@ namespace Vivo\CMS\UI\Content\Editor;
 use Vivo\CMS\Api;
 use Vivo\CMS\Api\Content\Fileboard as FileboardApi;
 use Vivo\CMS\Model;
+use Vivo\CMS\Model\Content\Fileboard\Separator;
 use Vivo\UI\AbstractForm;
 use Vivo\Form\Form;
 
@@ -72,17 +73,29 @@ class Fileboard extends AbstractForm implements EditorInterface
                         throw new \Exception(sprintf('%s: File upload error %s', __METHOD__, $file['error']));
                     }
                     if($file['error'] == UPLOAD_ERR_OK) {
-                        $this->fileboardApi->saveMediaWithUploadedFile($this->content, $file, trim($name), trim($desc));
+                        $this->fileboardApi->createMediaWithUploadedFile($this->content, $file, trim($name), trim($desc));
                     }
                 }
 
+                if($form->get('fb-new-separator')) {
+                    $html = $form->get('fb-new-separator')->getValue();
+
+                    $this->fileboardApi->createSeparator($this->content, $html);
+                }
+
                 // Update current files
-                foreach ($this->request->getPost('fb-media') as $uuid => $data) {
+                foreach ($this->request->getPost('fb-media') as $uuid=>$data) {
                     $media = $this->fileboardApi->getMedia($uuid);
                     $media->setName(trim($data['name']));
                     $media->setDescription(trim($data['description']));
 
                     $this->fileboardApi->saveMedia($media);
+                }
+
+                foreach ($this->request->getPost('fb-separator') as $uuid=>$data) {
+                    $separator = $this->fileboardApi->getMedia($uuid);
+
+                    $this->fileboardApi->saveSeparator($separator, $data['html']);
                 }
             }
         }
@@ -137,19 +150,34 @@ class Fileboard extends AbstractForm implements EditorInterface
                 'label' => 'new media description',
             ),
         ));
+        $form->add(array(
+            'name' => 'fb-new-separator',
+            'type' => 'Vivo\Form\Element\Textarea',
+            'options' => array(
+                'label' => 'new media description',
+            ),
+        ));
     }
 
     public function view()
     {
         try {
-            $files = $this->fileboardApi->getMediaList($this->content);
+            $files = $this->fileboardApi->getList($this->content);
         }
         catch (Api\Exception\InvalidPathException $e) {
             $files = array();
         }
 
+        $separators = array();
+        foreach ($files as $file) {
+            if($file instanceof Separator) {
+                $separators[$file->getUuid()] = $this->fileboardApi->getResource($file);
+            }
+        }
+
         $view = parent::view();
         $view->files = $files;
+        $view->separators = $separators;
 
         return $view;
     }

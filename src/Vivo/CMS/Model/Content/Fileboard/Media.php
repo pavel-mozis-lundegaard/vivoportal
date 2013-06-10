@@ -18,7 +18,7 @@ class Media extends Content\File
     /**
      * @var int Order.
      */
-    protected $order;
+    protected $order = 0;
 
     public function setName($name)
     {

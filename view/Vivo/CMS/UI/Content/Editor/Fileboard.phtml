@@ -1,4 +1,6 @@
 <?
+use Vivo\CMS\Model\Content\Fileboard;
+
 $formType = DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
 echo $this->formFieldsetTwb($form, $formType, array(), true, false);
 ?>
@@ -7,11 +9,18 @@ echo $this->formFieldsetTwb($form, $formType, array(), true, false);
     <? foreach ($files as $file) : /* @var $file \Vivo\CMS\Model\Content\Fileboard\Media */
         $u = $file->getUuid();
     ?>
-        <li>
-            <?=$file->getFilename()?> | <a href="<?=$this->actionUrl('delete', array('uuid'=>$u))?>" title="Delete">delete</a>
-            <input type="text" name="fb-media[<?=$u?>][name]" value="<?=$file->getName()?>" />
-            <textarea name="fb-media[<?=$u?>][description]"><?=$file->getDescription()?></textarea>
-        </li>
+        <? if($file instanceof Fileboard\Media) : ?>
+            <li>
+                <?=$file->getFilename()?> | <a href="<?=$this->actionUrl('delete', array('uuid'=>$u))?>" title="Delete">delete</a>
+                <input type="text" name="fb-media[<?=$u?>][name]" value="<?=$file->getName()?>" />
+                <textarea name="fb-media[<?=$u?>][description]"><?=$file->getDescription()?></textarea>
+            </li>
+        <? else : ?>
+            <li>
+                <a href="<?=$this->actionUrl('delete', array('uuid'=>$u))?>" title="Delete">delete</a>
+                <textarea name="fb-separator[<?=$u?>][html]"><?=$separators[$u]?></textarea>
+            </li>
+        <? endif; ?>
     <? endforeach; ?>
     </ol>
 <? endif; ?>

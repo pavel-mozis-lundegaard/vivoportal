@@ -11,6 +11,8 @@ use Vivo\IO\FileInputStream;
 
 class File
 {
+    const RESOURCE_NAME = 'resource';
+
     /**
      * @var \Vivo\CMS\Api\CMS
      */
@@ -97,13 +99,24 @@ class File
     }
 
     /**
+     * Returns resource name for repository.
+     *
+     * @param \Vivo\CMS\Model\Content\File $file
+     * @return string
+     */
+    private function getResourceName(Content\File $file)
+    {
+        return sprintf('%s.%s', self::RESOURCE_NAME, $file->getExt());
+    }
+
+    /**
      * @param \Vivo\CMS\Model\Content\File $file
      * @param string $data
      */
     public function saveResource(Content\File $file, $data)
     {
         $this->checkFileProperties($file);
-        $this->cmsApi->saveResource($file, 'resource.'.$file->getExt(), $data);
+        $this->cmsApi->saveResource($file, $this->getResourceName($file), $data);
     }
 
     /**
@@ -115,7 +128,15 @@ class File
     public function writeResource(Content\File $file, InputStreamInterface $inputStream)
     {
         $this->checkFileProperties($file);
-        $this->cmsApi->writeResource($file, 'resource.'.$file->getExt(), $inputStream);
+        $this->cmsApi->writeResource($file, $this->getResourceName($file), $inputStream);
+    }
+
+    /**
+     * @param \Vivo\CMS\Model\Content\File $file
+     */
+    public function removeResource(Content\File $file)
+    {
+        $this->cmsApi->removeResource($file, $this->getResourceName($file));
     }
 
     /**
@@ -124,8 +145,12 @@ class File
      */
     public function getResource(Content\File $file)
     {
-        $this->checkFileProperties($file);
-        return $this->cmsApi->getResource($file, 'resource.'.$file->getExt());
+        try {
+            return $this->cmsApi->getResource($file, $this->getResourceName($file));
+        }
+        catch (\Vivo\Storage\Exception\IOException $e) {
+            return null;
+        }
     }
 
     /**
@@ -137,8 +162,12 @@ class File
      */
     public function readResource(Content\File $file)
     {
-        $this->checkFileProperties($file);
-        return $this->cmsApi->readResource($file, 'resource.'.$file->getExt());
+        try {
+            return $this->cmsApi->readResource($file, $this->getResourceName($file));
+        }
+        catch(\Vivo\IO\Exception\RuntimeException $e) {
+            return null;
+        }
     }
 
     /**

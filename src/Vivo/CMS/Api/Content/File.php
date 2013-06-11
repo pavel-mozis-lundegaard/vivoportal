@@ -61,7 +61,7 @@ class File
      * @param array $data $_FILE array
      * @param ContentContainer $contentContainer
      */
-    public function saveFileWithUploadedFile(Content\File $file, array $data, ContentContainer $contentContainer = null)
+    public function saveFileWithUploadedFile(Content\File $file, array $data, ContentContainer $contentContainer)
     {
         $file = $this->prepareFileForSaving($file, $data);
 

@@ -282,7 +282,7 @@ class Navigation extends Component
                 if (!$child instanceof Document) {
                     unset($children[$key]);
                     continue;
-                }
+                }                
                 $rec    = array(
                     'doc_path'  => $this->cmsApi->getEntityRelPath($child),
                     'children'  => $this->buildDocArray($child, $levels, false),
@@ -359,6 +359,9 @@ class Navigation extends Component
                 'document'      => $doc,
             );
             $page           = new CmsNavPage($pageOptions);
+            if ((bool) $doc->getAllowListingInNavigation() === false) {
+                $page->visible = false;
+            }
             if (array_key_exists('children', $docArray)
                     && is_array($docArray['children'])
                     && count($docArray['children']) > 0) {

@@ -26,7 +26,17 @@ class Folder extends Entity implements SymRefDataExchangeInterface
     /**
      * @var bool
      */
+    protected $allowListingInNavigation;
+    
+    /**
+     * @var bool
+     */
     protected $allowListing;
+    
+    /**
+     * @var bool
+     */
+    protected $allowListingInSitemap;
 
     /**
      * @var int Position of the document in layer. This property could be used as sorting option of the document.
@@ -110,10 +120,18 @@ class Folder extends Entity implements SymRefDataExchangeInterface
 
     public function setDescription($description) {
         $this->description = $description;
-    }
-
+    }  
+    
     public function getAllowListing() {
         return $this->allowListing;
+    }
+    
+    public function getAllowListingInNavigation() {
+        return $this->allowListingInNavigation;
+    }
+    
+    public function getAllowListingInSitemap() {
+        return $this->allowListingInSitemap;
     }
 
     public function getPosition() {
@@ -150,6 +168,22 @@ class Folder extends Entity implements SymRefDataExchangeInterface
     public function setAllowListing($allowListing = true)
     {
         $this->allowListing = (bool)$allowListing;
+    }
+    
+    /**
+     * @param bool allowListing
+     */
+    public function setAllowListingInNavigation($allowListingInNavigation = true)
+    {
+        $this->allowListingInNavigation = (bool)$allowListingInNavigation;
+    }
+    
+    /**
+     * @param bool allowListing
+     */
+    public function setAllowListingInSitemap($allowListingInSitemap = true)
+    {
+        $this->allowListingInSitemap = (bool)$allowListingInSitemap;
     }
 
     /**

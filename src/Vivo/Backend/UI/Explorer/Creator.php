@@ -87,15 +87,4 @@ class Creator extends Editor
             $this->addAlertMessage('Error...', Alert::TYPE_ERROR);
         }
     }
-
-    protected function getCsrfHashFromSession($sessionName)
-    {
-        $session    = new \Zend\Session\Container($sessionName);
-        if (isset($session['hash'])) {
-            $hash = $session['hash'];
-        } else {
-            $hash   = null;
-        }
-        return $hash;
-    }
 }

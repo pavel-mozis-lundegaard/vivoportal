@@ -282,7 +282,7 @@ class Navigation extends Component
                 if (!$child instanceof Document) {
                     unset($children[$key]);
                     continue;
-                }                
+                }
                 $rec    = array(
                     'doc_path'  => $this->cmsApi->getEntityRelPath($child),
                     'children'  => $this->buildDocArray($child, $levels, false),

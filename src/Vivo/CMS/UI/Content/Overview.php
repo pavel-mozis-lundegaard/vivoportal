@@ -181,7 +181,7 @@ class Overview extends Component
      */
     protected function createQuery($path, $criteria)
     {
-        $query = '\path:"'. $path . '/*" ';          
+        $query = '\path:"'. $path . '/*" ';
         $query .= ' AND \class:"Vivo\CMS\Model\Document"';
         $query .= ' AND \publishedContents:"*"';  // search only documents with published content          
         $query .= ' AND \allowListingInOverview:"1"';

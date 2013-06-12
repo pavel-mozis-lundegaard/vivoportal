@@ -51,6 +51,9 @@ class Overview extends AbstractForm implements EditorInterface
 
     public function doGetForm()
     {
+        //$config = $this->->get('cms_config');
+        //$overviewSortingOptions = $config['document_sorting']['native'];
+        
         $form = new Form('editor-'.$this->content->getUuid());
         $form->setWrapElements(true);
         $form->setHydrator(new ClassMethodsHydrator(false));
@@ -80,8 +83,11 @@ class Overview extends AbstractForm implements EditorInterface
         ));
         $form->add(array(
             'name' => 'overviewSorting',
-            'type' => 'Vivo\Form\Element\Text',
+            'type' => 'Vivo\Form\Element\Select',
             'options' => array('label' => 'sorting'),
+            'attributes' => array(
+                //'options' => $overviewSortingOptions
+            )
         ));
         $form->add(array(
             'name' => 'overviewCriteria',

@@ -409,5 +409,19 @@ return array(
             '500' => '/error-500/',
         ),
         'default' => '/error/',
-    )
+    ),
+    'document_sorting' => array (
+        'native' => array(
+            'title_asc'                       => '/title asc',
+            'title_desc'                      => '/title desc',
+            'created_asc'                     => '/created asc',
+            'created_desc'                    => '/created desc',
+            'modified_asc'                    => '/modified asc',
+            'modified_desc'                   => '/modified desc',
+            'position_asc'                    => '/position asc',
+            'position_desc'                   => '/position desc',
+            'publish_date_asc_document_only'  => '/publish_date asc',
+            'publish_date_desc_document_only' => '/publish_date desc',            
+        ),
+     ),
 );

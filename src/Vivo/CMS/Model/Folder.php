@@ -122,14 +122,26 @@ class Folder extends Entity implements SymRefDataExchangeInterface
         $this->description = $description;
     }  
     
+    /**
+     * Returns bool value determinates if document can be included to overview.
+     * @return bool $allowListingInSitemap
+     */
     public function getAllowListing() {
         return $this->allowListing;
     }
     
+    /**
+     * Returns bool value determinates if document can be included to navigation.
+     * @return bool $allowListingInSitemap
+     */
     public function getAllowListingInNavigation() {
         return $this->allowListingInNavigation;
     }
     
+    /**
+     * Returns bool value determinates if document can be included to sitemap.
+     * @return bool $allowListingInSitemap
+     */
     public function getAllowListingInSitemap() {
         return $this->allowListingInSitemap;
     }
@@ -163,6 +175,7 @@ class Folder extends Entity implements SymRefDataExchangeInterface
     }
 
     /**
+     * Seting bool property determinates if document can be included to overview
      * @param bool allowListing
      */
     public function setAllowListing($allowListing = true)
@@ -171,6 +184,7 @@ class Folder extends Entity implements SymRefDataExchangeInterface
     }
     
     /**
+     * Seting bool property determinates if document can be included to navigation
      * @param bool allowListing
      */
     public function setAllowListingInNavigation($allowListingInNavigation = true)
@@ -179,6 +193,7 @@ class Folder extends Entity implements SymRefDataExchangeInterface
     }
     
     /**
+     * Seting bool property determinates if document can be included to sitemap     
      * @param bool allowListing
      */
     public function setAllowListingInSitemap($allowListingInSitemap = true)

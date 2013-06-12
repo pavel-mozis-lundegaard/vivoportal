@@ -332,11 +332,11 @@ class Navigation extends Component
      * @throws \Vivo\CMS\UI\Exception\InvalidArgumentException
      * @return CmsNavPage[]
      */
-    protected function buildNavPages(array $documents = array())
+    protected function buildNavPages(array $documentsPaths = array())
     {
         $pages      = array();
-        $currentDoc = $this->cmsEvent->getDocument();
-        foreach ($documents as $docArray) {
+        $currentDoc = $this->cmsEvent->getDocument();        
+        foreach($documentsPaths as $docArray) {
             if (!is_array($docArray)) {
                 throw new Exception\InvalidArgumentException(
                     sprintf("%s: Document record must be represented by an array", __METHOD__));
@@ -345,12 +345,19 @@ class Navigation extends Component
                 throw new Exception\InvalidArgumentException(
                     sprintf("%s: Document array must contain 'doc_path' key", __METHOD__));
             }
-            $docPath    = $docArray['doc_path'];
-            $doc    = $this->cmsApi->getSiteEntity($docPath, $this->site);
+            $docPath = $docArray['doc_path'];
+            $doc     = $this->cmsApi->getSiteEntity($docPath, $this->site);
             if (!$doc instanceof Document) {
                 throw new Exception\UnexpectedValueException(
                     sprintf("%s: Entity specified by path '%s' is not a document", __METHOD__, $docPath));
             }
+            $documents[] = array('doc' => $doc, 'children' => $docArray['children']);
+        }        
+        if($this->content->getNavigationSorting() !== ""){
+            $documents = $this->documentApi->sortDocumentsByCriteria($documents, $this->content->getNavigationSorting());
+        }
+        foreach ($documents as $key => $docArray) { 
+            $doc = $docArray['doc'];
             $docRelPath     = $this->cmsApi->getEntityRelPath($doc);
             $pageOptions    = array(
                 'sitePath'      => $docRelPath,

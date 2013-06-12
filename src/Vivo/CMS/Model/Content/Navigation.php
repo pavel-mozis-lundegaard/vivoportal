@@ -74,7 +74,13 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
      * @var bool
      */
     protected $branchOnly   = false;
-
+    
+    /**
+     * Determinates way of sorting navigation documents
+     * @var string Documents sorting.
+     */
+    protected $navigationSorting;
+    
     /**
      * Array of explicitly enumerated documents to include in the navigation
      * Every document is represented as an array with two elements: 'doc_path' and 'children'
@@ -239,8 +245,24 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
     {
         return $this->branchOnly;
     }
+    
+    /**
+     * Sets way of sorting navigation documents
+     * @param boolean $branchOnly
+     */
+    public function setNavigationSorting($sorting)
+    {
+        $this->navigationSorting = $sorting;
+    }
 
-
+    /**
+     * get way of sorting navigation documents
+     * @return boolean
+     */
+    public function getNavigationSorting()
+    {
+        return $this->navigationSorting;
+    }
 
     /**
      * Exchange internal values containing symbolic refs / URLs from provided array

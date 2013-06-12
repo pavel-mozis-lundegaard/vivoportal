@@ -466,6 +466,70 @@ class Document implements DocumentInterface
         $hasChildDocs   = count($childDocs) > 0;
         return $hasChildDocs;
     }
+    
+    /**
+     * Sort array of documents or folders by specified criteria
+     * @param array $documents Array of documents/folders
+     * @param String $criteria String criterium determinates how to sort given documents Example('title:asc')     
+     * @return boolean
+     */
+    public function sortDocumentsByCriteria(array $documents, $criteria)
+    {
+        if (is_string($criteria)) {
+            $propertyName = substr($criteria, 0,  strpos($criteria,':'));
+            $sortWay = substr($criteria,strpos($criteria,':')+1);
+            $properties = array($propertyName => ($sortWay == 'asc') ? SORT_ASC : SORT_DESC);
+            uasort($documents, function($a, $b) use ($properties) {
+                foreach($properties as $k => $v) {
+                    if (is_int($k)) {
+                        $k = $v;
+                        $v = SORT_ASC;
+                    }
+                    $collapse = function($node, $props) {
+                        if (is_array($props)) {
+                            foreach ($props as $prop) {
+                                eval('$property = $node->get'.$prop.'();');
+                                $node = (!isset($property)) ? null : $property;
+                            }
+                            return $node;
+                        } else {
+                            eval('$prop = $node->get'.$props.'();');
+                            return (!isset($prop)) ? null : $prop;
+                        }
+                    };
+                    if(is_array($a)) {
+                        $aProp = $collapse($a['doc'], $k);
+                        $bProp = $collapse($b['doc'], $k);
+                    } else {
+                        $aProp = $collapse($a, $k);
+                        $bProp = $collapse($b, $k);
+                    }
+                    
+                    if($aProp instanceof \DateTime){
+                        /*echo "<pre>";
+                        var_dump($aProp);
+                        var_dump($bProp);
+                        
+                        var_dump($aProp->date);
+                        var_dump($bProp->date);                      
+                        exit;
+                        return ($v == SORT_ASC)
+                                ? ($aProp->date > $bProp->date) ? 1 : -1
+                                : ($bProp->date > $aProp->date) ? 1 : -1;*/
+                    } else {
+                        if ($aProp != $bProp) {
+                            return ($v == SORT_ASC)
+                                ? strnatcasecmp($aProp, $bProp)
+                                : strnatcasecmp($bProp, $aProp);
+                        }
+                    }
+                }
+                return 0;
+            });
+        }
+
+        return $documents;
+    }
 
     /**
      * @param Model\Folder $document

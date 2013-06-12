@@ -31,14 +31,20 @@ class Navigation extends AbstractForm implements EditorInterface
      * @var bool
      */
     protected $autoAddCsrf  = false;
+    
+    /**
+     * @var array Native document sorting options
+     */
+    protected $sortOptions = array();
 
     /**
      * Constructor
      * @param Api\Document $documentApi
      */
-    public function __construct(Api\Document $documentApi)
+    public function __construct(Api\Document $documentApi, array $sortOptions)
     {
         $this->documentApi = $documentApi;
+        $this->sortOptions = $sortOptions;
     }
 
     public function setContent(Model\Content $content)
@@ -132,6 +138,14 @@ class Navigation extends AbstractForm implements EditorInterface
                 'description'   => 'Should the root document be included in the navigation?',
             ),
         ));
+        $form->add(array(
+            'name' => 'navigationSorting',
+            'type' => 'Vivo\Form\Element\Select',
+            'options' => array('label' => 'sorting'),
+            'attributes' => array(
+                'options' => $this->sortOptions
+            )
+        ));      
         return $form;
     }
 

@@ -16,11 +16,18 @@ class Overview extends AbstractForm implements EditorInterface
     private $content;
     /**
      * @var \Vivo\CMS\Api\Document
+     * 
      */
     private $documentApi;
+    
+    /**
+     * @var array Native document sorting options
+     */
+    private $sortOptions = array();
 
-    public function __construct(Api\Document $documentApi)
+    public function __construct(Api\Document $documentApi, array $sortOptions)
     {
+        $this->sortOptions = $sortOptions;
         $this->documentApi = $documentApi;
         $this->autoAddCsrf = false;
     }
@@ -86,7 +93,7 @@ class Overview extends AbstractForm implements EditorInterface
             'type' => 'Vivo\Form\Element\Select',
             'options' => array('label' => 'sorting'),
             'attributes' => array(
-                //'options' => $overviewSortingOptions
+                'options' => $this->sortOptions
             )
         ));
         $form->add(array(

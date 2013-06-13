@@ -517,10 +517,12 @@ class Document implements DocumentInterface
                     }
                     
                     if ($aProp != $bProp) {
-                        if($aProp instanceof \DateTime){
-                            return ($v == SORT_ASC)
-                                    ? ($aProp > $bProp) ? 1 : -1
-                                    : ($bProp > $aProp) ? 1 : -1;                        
+                        if($aProp instanceof \DateTime){                        
+                            if($v === SORT_ASC) {
+                                return $aProp > $bProp ? 1 : -1;
+                            } else {
+                                return $bProp > $aProp ? 1 : -1;
+                            }                                                  
                         } else {
                             return ($v == SORT_ASC)
                                 ? strnatcasecmp($aProp, $bProp)

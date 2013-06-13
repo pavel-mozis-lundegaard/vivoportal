@@ -353,7 +353,7 @@ class Navigation extends Component
             }
             $documents[] = array('doc' => $doc, 'children' => $docArray['children']);
         }        
-        if($this->content->getNavigationSorting() !== ""){
+        if($this->content->getNavigationSorting() !== null){
             $documents = $this->documentApi->sortDocumentsByCriteria($documents, $this->content->getNavigationSorting());
         }
         foreach ($documents as $key => $docArray) { 

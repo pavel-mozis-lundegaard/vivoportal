@@ -142,17 +142,18 @@ class Overview extends Component
                 $path = $this->document->getPath();
             }
             
-            $query = $this->createQuery($path, $this->content->getOverviewSorting(),$this->content->getOverviewCriteria());
+            $query = $this->createQuery($path,$this->content->getOverviewCriteria());
 
             $params = array();
             if ($limit = $this->content->getOverviewLimit()) {
                 $params['page_size'] = $limit;
             }
-            if ($sort = $this->content->getOverviewSorting())
-            {
-                $params['sort'] = $sort;
-            }
-
+            if ($sort = $this->content->getOverviewSorting()) {
+                $propertyName = substr($sort, 0,  strpos($sort,':'));
+                $sortWay = substr($sort,strpos($sort,':')+1);
+                //$params['sort'] = $propertyName . ' ' . $sortWay;
+                $params['sort'] = array('title asc');
+            }            
             $documents = $this->indexerApi->getEntitiesByQuery($query, $params);
 
         } elseif ($type == OverviewModel::TYPE_STATIC) {
@@ -179,17 +180,12 @@ class Overview extends Component
      * @param string $criteria Indexer query.
      * @return string
      */
-    protected function createQuery($path, $sorting, $criteria)
+    protected function createQuery($path, $criteria)
     {
         $query = '\path:"'. $path . '/*" ';
         $query .= ' AND \class:"Vivo\CMS\Model\Document"';
         $query .= ' AND \publishedContents:"*"';  // search only documents with published content          
         $query .= ' AND \allowListingInOverview:"1"';
-        if($sorting) {
-            $propertyName = substr($sorting, 0,  strpos($sorting,':'));
-            $sortWay = substr($sorting,strpos($sorting,':')+1);
-            $query .= ' AND \\'.$propertyName.' '.$sortWay;
-        }
         if ($criteria) {
             $criteria   = $this->makePathsAbsolute($criteria);
             $query .= " AND ($criteria)";

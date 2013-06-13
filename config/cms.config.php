@@ -422,6 +422,7 @@ return array(
             'position:desc'                   => 'position desc',
             'publish_date_document_only:asc'  => 'publish_date_document_only asc',
             'publish_date_document_only:desc' => 'publish_date_document_only desc',
+            'random:asc'                      => 'random'
         ),
      ),
 );

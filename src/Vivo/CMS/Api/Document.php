@@ -497,6 +497,9 @@ class Document implements DocumentInterface
                             return (!isset($prop)) ? null : $prop;
                         }
                     };
+                    if($k === 'random') {
+                        return rand(-1,1);
+                    }                    
                     if(is_array($a)) {
                         $aProp = $collapse($a['doc'], $k);
                         $bProp = $collapse($b['doc'], $k);
@@ -505,25 +508,18 @@ class Document implements DocumentInterface
                         $bProp = $collapse($b, $k);
                     }
                     
-                    if($aProp instanceof \DateTime){
-                        /*echo "<pre>";
-                        var_dump($aProp);
-                        var_dump($bProp);
-                        
-                        var_dump($aProp->date);
-                        var_dump($bProp->date);                      
-                        exit;
-                        return ($v == SORT_ASC)
-                                ? ($aProp->date > $bProp->date) ? 1 : -1
-                                : ($bProp->date > $aProp->date) ? 1 : -1;*/
-                    } else {
-                        if ($aProp != $bProp) {
+                    if ($aProp != $bProp) {
+                        if($aProp instanceof \DateTime){
+                            return ($v == SORT_ASC)
+                                    ? ($aProp > $bProp) ? 1 : -1
+                                    : ($bProp > $aProp) ? 1 : -1;                        
+                        } else {
                             return ($v == SORT_ASC)
                                 ? strnatcasecmp($aProp, $bProp)
                                 : strnatcasecmp($bProp, $aProp);
                         }
                     }
-                }
+                }                
                 return 0;
             });
         }

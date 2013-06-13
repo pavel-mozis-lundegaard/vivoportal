@@ -77,7 +77,7 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
     
     /**
      * Determinates way of sorting navigation documents
-     * @var string Documents sorting.
+     * @var string
      */
     protected $navigationSorting;
     
@@ -256,7 +256,7 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
     }
 
     /**
-     * get way of sorting navigation documents
+     * Returns way of sorting navigation documents
      * @return boolean
      */
     public function getNavigationSorting()

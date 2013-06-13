@@ -16,12 +16,12 @@ class Overview extends AbstractForm implements EditorInterface
     private $content;
     /**
      * @var \Vivo\CMS\Api\Document
-     * 
      */
     private $documentApi;
     
     /**
-     * @var array Native document sorting options
+     * Native document sorting options
+     * @var array
      */
     private $sortOptions = array();
 
@@ -58,9 +58,6 @@ class Overview extends AbstractForm implements EditorInterface
 
     public function doGetForm()
     {
-        //$config = $this->->get('cms_config');
-        //$overviewSortingOptions = $config['document_sorting']['native'];
-        
         $form = new Form('editor-'.$this->content->getUuid());
         $form->setWrapElements(true);
         $form->setHydrator(new ClassMethodsHydrator(false));

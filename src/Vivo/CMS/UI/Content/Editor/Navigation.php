@@ -33,7 +33,8 @@ class Navigation extends AbstractForm implements EditorInterface
     protected $autoAddCsrf  = false;
     
     /**
-     * @var array Native document sorting options
+     * Native document sorting options
+     * @var array
      */
     protected $sortOptions = array();
 

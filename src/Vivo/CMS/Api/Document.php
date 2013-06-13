@@ -468,9 +468,12 @@ class Document implements DocumentInterface
     }
     
     /**
-     * Sort array of documents/folders by specified criteria. You can also pass array with dependencies like: 
-     * $documents = array('doc' => Model\Document, 'children' => array(...)) where doc index is Model\Document    
-     * and 'children' is custom array sorted with document.
+     * Sort array of documents/folders by specified criteria. You can also pass array with dependencies 
+     * where doc index is Model\Document and 'children' is custom array sorted with document.      
+     * array(
+     *     'doc' => Model\Document, 
+     *     'children' => array(...)
+     * ) 
      * 
      * @param array $documents Array of documents/folders
      * @param string $criteria String criteria determinates how to sort given documents Example('title:asc')

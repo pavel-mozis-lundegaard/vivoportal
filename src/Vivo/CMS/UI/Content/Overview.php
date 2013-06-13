@@ -159,7 +159,11 @@ class Overview extends Component
             $items  = $this->content->getOverviewItems();
             $site   = $this->siteEvent->getSite();
             foreach ($items as $item) {
-                $document = $this->cmsApi->getSiteEntity($item, $site);
+                try {
+                    $document = $this->cmsApi->getSiteEntity($item, $site);
+                } catch (EntityNotFoundException $e) {
+                    continue;
+                }
                 if ((bool) $document->getAllowListing() === true) {
                     $documents[] = $document;
                 }

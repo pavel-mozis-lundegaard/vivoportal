@@ -24,16 +24,19 @@ class Folder extends Entity implements SymRefDataExchangeInterface
     protected $description;
 
     /**
+     * Allows listing documents in navigation
      * @var bool
      */
     protected $allowListingInNavigation;
     
     /**
+     * Allows listing documents in overview
      * @var bool
      */
     protected $allowListing;
     
     /**
+     * Allows listing documents in sitemap
      * @var bool
      */
     protected $allowListingInSitemap;
@@ -124,7 +127,7 @@ class Folder extends Entity implements SymRefDataExchangeInterface
     
     /**
      * Returns bool value determinates if document can be included to overview.
-     * @return bool $allowListingInSitemap
+     * @return bool
      */
     public function getAllowListing() {
         return $this->allowListing;
@@ -132,7 +135,7 @@ class Folder extends Entity implements SymRefDataExchangeInterface
     
     /**
      * Returns bool value determinates if document can be included to navigation.
-     * @return bool $allowListingInSitemap
+     * @return bool
      */
     public function getAllowListingInNavigation() {
         return $this->allowListingInNavigation;
@@ -140,7 +143,7 @@ class Folder extends Entity implements SymRefDataExchangeInterface
     
     /**
      * Returns bool value determinates if document can be included to sitemap.
-     * @return bool $allowListingInSitemap
+     * @return bool
      */
     public function getAllowListingInSitemap() {
         return $this->allowListingInSitemap;
@@ -175,7 +178,7 @@ class Folder extends Entity implements SymRefDataExchangeInterface
     }
 
     /**
-     * Seting bool property determinates if document can be included to overview
+     * Sets bool property determining if document can be listed in overview
      * @param bool allowListing
      */
     public function setAllowListing($allowListing = true)
@@ -184,8 +187,8 @@ class Folder extends Entity implements SymRefDataExchangeInterface
     }
     
     /**
-     * Seting bool property determinates if document can be included to navigation
-     * @param bool allowListing
+     * Sets bool property determining if document can be listed in navigation
+     * @param bool $allowListingInNavigation
      */
     public function setAllowListingInNavigation($allowListingInNavigation = true)
     {
@@ -193,8 +196,8 @@ class Folder extends Entity implements SymRefDataExchangeInterface
     }
     
     /**
-     * Seting bool property determinates if document can be included to sitemap     
-     * @param bool allowListing
+     * Sets bool property determining if document can be listed in sitemap     
+     * @param bool $allowListingInSitemap
      */
     public function setAllowListingInSitemap($allowListingInSitemap = true)
     {

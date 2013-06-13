@@ -468,16 +468,24 @@ class Document implements DocumentInterface
     }
     
     /**
-     * Sort array of documents or folders by specified criteria
+     * Sort array of documents/folders by specified criteria. You can also pass array with dependencies like: 
+     * $documents = array('doc' => Model\Document, 'children' => array(...)) where doc index is Model\Document    
+     * and 'children' is custom array sorted with document.
+     * 
      * @param array $documents Array of documents/folders
-     * @param String $criteria String criterium determinates how to sort given documents Example('title:asc')     
-     * @return boolean
+     * @param string $criteria String criteria determinates how to sort given documents Example('title:asc')
+     * @return array
      */
     public function sortDocumentsByCriteria(array $documents, $criteria)
     {
         if (is_string($criteria)) {
-            $propertyName = substr($criteria, 0,  strpos($criteria,':'));
-            $sortWay = substr($criteria,strpos($criteria,':')+1);
+            if(strpos($criteria, ":") !== false) {
+                $propertyName = substr($criteria, 0,  strpos($criteria,':'));
+                $sortWay = substr($criteria,strpos($criteria,':')+1);
+            } else {
+                $propertyName = $criteria;
+                $sortWay = 'asc';
+            }
             $properties = array($propertyName => ($sortWay == 'asc') ? SORT_ASC : SORT_DESC);
             uasort($documents, function($a, $b) use ($properties) {
                 foreach($properties as $k => $v) {

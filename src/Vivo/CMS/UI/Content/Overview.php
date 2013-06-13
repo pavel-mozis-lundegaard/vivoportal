@@ -148,11 +148,24 @@ class Overview extends Component
             if ($limit = $this->content->getOverviewLimit()) {
                 $params['page_size'] = $limit;
             }
-            if ($sort = $this->content->getOverviewSorting()) {
-                $propertyName = substr($sort, 0,  strpos($sort,':'));
-                $sortWay = substr($sort,strpos($sort,':')+1);
-                //$params['sort'] = $propertyName . ' ' . $sortWay;
-                $params['sort'] = array('title asc');
+            if ($sort = $this->content->getOverviewSorting()) {      
+                $currentDoc = $this->cmsEvent->getDocument();
+                $parentSorting = $currentDoc->getSorting();
+                if(strpos($sort, "parent") !== false && $parentSorting != null) {
+                    $sort = $parentSorting;
+                }
+                if(strpos($sort, ":") !== false){
+                    $propertyName = substr($sort, 0,  strpos($sort,':'));
+                    $sortWay = substr($sort,strpos($sort,':')+1);
+                } else {
+                    $propertyName = $sort;
+                    $sortWay = 'asc';
+                }
+                if($propertyName == 'random') {
+                    //$params['sort'] = "\\random_" . mt_rand(1, 10000);
+                } else {
+                    $params['sort'] = '\\' . $propertyName . ' ' . $sortWay;
+                }                
             }            
             $documents = $this->indexerApi->getEntitiesByQuery($query, $params);
 

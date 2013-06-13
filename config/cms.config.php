@@ -412,17 +412,18 @@ return array(
     ),
     'document_sorting' => array (
         'native' => array(
-            'title:asc'                       => 'title asc',
-            'title:desc'                      => 'title desc',
-            'created:asc'                     => 'created asc',
-            'created:desc'                    => 'created desc',
-            'modified:asc'                    => 'modified asc',
-            'modified:desc'                   => 'modified desc',
-            'position:asc'                    => 'position asc',
-            'position:desc'                   => 'position desc',
-            'publish_date_document_only:asc'  => 'publish_date_document_only asc',
-            'publish_date_document_only:desc' => 'publish_date_document_only desc',
-            'random:asc'                      => 'random'
+            'parent'         => 'by_parent_document',
+            'title:asc'      => 'title_asc',
+            'title:desc'     => 'title_desc',
+            'created:asc'    => 'created_asc',
+            'created:desc'   => 'created_desc',
+            'modified:asc'   => 'modified_asc',
+            'modified:desc'  => 'modified_desc',
+            'position:asc'   => 'position_asc',
+            'position:desc'  => 'position_desc',
+            'published:asc'  => 'publish_date_document_only_asc',
+            'published:desc' => 'publish_date_document_only_desc',
+            'random:asc'     => 'random'
         ),
      ),
 );

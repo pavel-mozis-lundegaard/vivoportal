@@ -7,6 +7,7 @@ use Vivo\CMS\Model;
 use Vivo\CMS\Model\Content\Fileboard\Separator;
 use Vivo\UI\AbstractForm;
 use Vivo\Form\Form;
+use Vivo\Form\Fieldset;
 
 class Fileboard extends AbstractForm implements EditorInterface
 {
@@ -26,6 +27,11 @@ class Fileboard extends AbstractForm implements EditorInterface
     private $fileboardApi;
 
     /**
+     * @var array
+     */
+    private $files = array();
+
+    /**
      * Constructor
      *
      * @param \Vivo\CMS\Api\Document $documentApi
@@ -36,6 +42,18 @@ class Fileboard extends AbstractForm implements EditorInterface
         $this->autoAddCsrf = false; //FIXME: remove after fieldsets
         $this->documentApi = $documentApi;
         $this->fileboardApi = $fileboardApi;
+    }
+
+    public function init()
+    {
+        try {
+            $this->files = $this->fileboardApi->getList($this->content);
+        }
+        catch (Api\Exception\InvalidPathException $e) {
+            $this->files = array();
+        }
+
+        parent::init();
     }
 
     /**
@@ -77,6 +95,7 @@ class Fileboard extends AbstractForm implements EditorInterface
                     }
                 }
 
+                // Create new separator
                 if($form->get('fb-new-separator')) {
                     $html = $form->get('fb-new-separator')->getValue();
 
@@ -85,20 +104,25 @@ class Fileboard extends AbstractForm implements EditorInterface
                     }
                 }
 
-                // Update current files
-                foreach ($this->request->getPost('fb-media') as $uuid=>$data) {
-                    $media = $this->fileboardApi->getEntity($uuid);
-                    $media->setName(trim($data['name']));
-                    $media->setDescription(trim($data['description']));
+                // Update current contents
+                foreach ($form->get('fb-media-container')->getFieldsets() as $uuid=>$fieldset) {
+                    $type = $fieldset->get('type')->getValue();
 
-                    $this->fileboardApi->saveMedia($media);
-                }
+                    switch($type) {
+                        case 'media':
+                            $media = $this->fileboardApi->getEntity($uuid);
+                            $media->setName(trim($fieldset->get('name')->getValue()));
+                            $media->setDescription(trim($fieldset->get('desc')->getValue()));
 
-                // Separators
-                foreach ($this->request->getPost('fb-separator') as $uuid=>$data) {
-                    $separator = $this->fileboardApi->getEntity($uuid);
+                            $this->fileboardApi->saveMedia($media);
+                            break;
 
-                    $this->fileboardApi->saveSeparator($separator, $data['html']);
+                        case 'separator':
+                            $separator = $this->fileboardApi->getEntity($uuid);
+
+                            $this->fileboardApi->saveSeparator($separator, $fieldset->get('separator')->getValue());
+                            break;
+                    }
                 }
             }
         }
@@ -129,62 +153,121 @@ class Fileboard extends AbstractForm implements EditorInterface
 //         $form->setWrapElements(true); //FIXME
 
         if($this->content->getCreated()) {
-            $this->getEditorFormFields($form);
+            $fieldset = $this->getEditorFieldset();
+            $form->add($fieldset);
+        }
+        if(count($this->files)) {
+            $fieldset = $this->getEditorFieldsetMedia($this->files);
+            $form->add($fieldset);
         }
 
         return $form;
     }
 
-    private function getEditorFormFields($form)
+    private function getEditorFieldset()
     {
-        $form->add(array(
-            'name' => 'fb-new-file',
+        $fieldset = new Fieldset('fb-new');
+        $fieldset->add(array(
+            'name' => 'file',
             'type' => 'Vivo\Form\Element\File',
             'options' => array(
                 'label' => 'new media',
             ),
         ));
-        $form->add(array(
-            'name' => 'fb-new-name',
+        $fieldset->add(array(
+            'name' => 'name',
             'type' => 'Vivo\Form\Element\Text',
             'options' => array(
                 'label' => 'new media name',
             ),
         ));
-        $form->add(array(
-            'name' => 'fb-new-desc',
+        $fieldset->add(array(
+            'name' => 'desc',
             'type' => 'Vivo\Form\Element\Textarea',
             'options' => array(
                 'label' => 'new media description',
             ),
         ));
-        $form->add(array(
-            'name' => 'fb-new-separator',
+        $fieldset->add(array(
+            'name' => 'separator',
             'type' => 'Vivo\Form\Element\Textarea',
             'options' => array(
-                'label' => 'new media description',
+                'label' => 'new separator',
             ),
         ));
+
+        return $fieldset;
+    }
+
+    private function getEditorFieldsetMedia(array $files)
+    {
+        $container = new Fieldset('fb-media-container');
+
+        foreach ($files as $file) {
+            $fieldset = new Fieldset($file->getUuid());
+
+            if($file instanceof Separator) {
+                $fieldset->add(array(
+                    'name' => 'type',
+                    'type' => 'Vivo\Form\Element\Hidden',
+                    'attributes' => array('value' => 'separator'),
+                ));
+                $fieldset->add(array(
+                    'name' => 'separator',
+                    'type' => 'Vivo\Form\Element\Textarea',
+                    'attributes' => array(
+                        'value' => $this->fileboardApi->getResource($file)
+                    ),
+                    'options' => array(
+                        'label' => 'separator',
+                    ),
+                ));
+            }
+            else {
+                $fieldset->add(array(
+                    'name' => 'type',
+                    'type' => 'Vivo\Form\Element\Hidden',
+                    'attributes' => array('value' => 'media'),
+                ));
+                $fieldset->add(array(
+                    'name' => 'name',
+                    'type' => 'Vivo\Form\Element\Text',
+                    'attributes' => array(
+                        'value' => $file->getName()
+                    ),
+                    'options' => array(
+                        'label' => 'name',
+                    ),
+                ));
+                $fieldset->add(array(
+                    'name' => 'desc',
+                    'type' => 'Vivo\Form\Element\Textarea',
+                    'attributes' => array(
+                        'value' => $file->getDescription()
+                    ),
+                    'options' => array(
+                        'label' => 'description',
+                    ),
+                ));
+            }
+
+            $container->add($fieldset);
+        }
+
+        return $container;
     }
 
     public function view()
     {
-        try {
-            $files = $this->fileboardApi->getList($this->content);
-        }
-        catch (Api\Exception\InvalidPathException $e) {
-            $files = array();
-        }
-
         $separators = array();
-        foreach ($files as $file) {
+        foreach ($this->files as $file) {
             if($file instanceof Separator) {
                 $separators[$file->getUuid()] = $this->fileboardApi->getResource($file);
             }
         }
 
         $view = parent::view();
-        $view->files = $files;
+        $view->files = $this->files;
         $view->separators = $separators;
 
         return $view;

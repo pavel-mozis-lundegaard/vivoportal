@@ -359,6 +359,9 @@ class Navigation extends Component
                 'document'      => $doc,
             );
             $page           = new CmsNavPage($pageOptions);
+            if ((bool) $doc->getAllowListingInNavigation() === false) {
+                $page->visible = false;
+            }
             if (array_key_exists('children', $docArray)
                     && is_array($docArray['children'])
                     && count($docArray['children']) > 0) {

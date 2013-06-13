@@ -159,7 +159,10 @@ class Overview extends Component
             $items  = $this->content->getOverviewItems();
             $site   = $this->siteEvent->getSite();
             foreach ($items as $item) {
-                $documents[] = $this->cmsApi->getSiteEntity($item, $site);
+                $document = $this->cmsApi->getSiteEntity($item, $site);
+                if ((bool) $document->getAllowListing() === true) {
+                    $documents[] = $document;
+                }
             }
         } else {
             throw new Exception(sprintf('%s: Unsupported overview type `%s`.', __DIR__, $type));
@@ -180,7 +183,8 @@ class Overview extends Component
     {
         $query = '\path:"'. $path . '/*" ';
         $query .= ' AND \class:"Vivo\CMS\Model\Document"';
-        $query .= ' AND \publishedContents:"*"';  // search only documents with published content
+        $query .= ' AND \publishedContents:"*"';  // search only documents with published content          
+        $query .= ' AND \allowListingInOverview:"1"';
         if ($criteria) {
             $criteria   = $this->makePathsAbsolute($criteria);
             $query .= " AND ($criteria)";

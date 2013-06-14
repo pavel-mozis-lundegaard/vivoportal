@@ -56,7 +56,7 @@ class Overview extends Component
      * Cache for overview documents
      * @var Cache
      */
-    protected $cache;        
+    protected $cache;
 
     /**
      * Constructor

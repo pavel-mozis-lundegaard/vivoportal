@@ -167,7 +167,6 @@ class Overview extends Component
                 } catch (EntityNotFoundException $e) {
                     $events = new \Zend\EventManager\EventManager();
                     $events->trigger('log', $this, array ('message' => $e->getMessage(), 'level' => \Zend\Log\Logger::WARN));
-                    continue;
                 }
             }
         } else {

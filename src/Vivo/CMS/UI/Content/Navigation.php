@@ -375,7 +375,9 @@ class Navigation extends Component
                 $children   = $this->buildNavPages($docArray['children']);
                 $page->setPages($children);
             }
-            $pages[]    = $page;
+            if($this->documentApi->isPublished($document)) {
+                $pages[]    = $page;
+            }
         }
         return $pages;
     }

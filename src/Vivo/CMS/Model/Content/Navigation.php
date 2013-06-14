@@ -76,6 +76,13 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
     protected $branchOnly   = false;
     
     /**
+     * Number of documents listed in the navigation per level
+     * Null means unlimited
+     * @var int
+     */
+    protected $limit;
+    
+    /**
      * Determinates way of sorting navigation documents
      * @var string
      */
@@ -248,11 +255,11 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
     
     /**
      * Sets way of sorting navigation documents
-     * @param boolean $branchOnly
+     * @param string $sorting
      */
     public function setNavigationSorting($sorting)
     {
-        $this->navigationSorting = $sorting;
+        $this->navigationSorting = (string) $sorting;
     }
 
     /**
@@ -262,6 +269,24 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
     public function getNavigationSorting()
     {
         return $this->navigationSorting;
+    }
+    
+    /**
+     * Sets number of documents listed in the navigation per level
+     * @param int $limit
+     */
+    public function setLimit($limit)
+    {
+        $this->limit = ((int) $limit != 0) ? (int) $limit : null;
+    }
+
+    /**
+     * Returns number of documents listed in the navigation per level
+     * @return int
+     */
+    public function getLimit()
+    {
+        return $this->limit;
     }
 
     /**

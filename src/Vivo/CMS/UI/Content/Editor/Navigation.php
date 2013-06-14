@@ -139,6 +139,15 @@ class Navigation extends AbstractForm implements EditorInterface
                 'description'   => 'Should the root document be included in the navigation?',
             ),
         ));
+        //Levels
+        $form->add(array(
+            'name'      => 'limit',
+            'type'      => 'Vivo\Form\Element\Text',
+            'options'   => array(
+                'label' => 'Limit',
+                'description'   => 'Number of documents listed in the navigation per level',
+            ),
+        ));
         $form->add(array(
             'name' => 'navigationSorting',
             'type' => 'Vivo\Form\Element\Select',

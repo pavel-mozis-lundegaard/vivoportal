@@ -218,7 +218,7 @@ class Navigation extends Component
             }
             //Create the navigation container
             $this->navigation   = new NavigationContainer();
-            $pages              = $this->buildNavPages($documents);
+            $pages              = $this->buildNavPages($documents, $this->content->getLimit());
             $this->navigation->setPages($pages);
         }
         return $this->navigation;
@@ -328,11 +328,12 @@ class Navigation extends Component
     /**
      * Builds navigation pages from the supplied documents structure
      * @param array $documents For structure see property Vivo\CMS\Model\Content::$enumeratedDocs
+     * @param int $limit Number of documents listed in the navigation per level
      * @throws \Vivo\CMS\UI\Exception\UnexpectedValueException
      * @throws \Vivo\CMS\UI\Exception\InvalidArgumentException
      * @return CmsNavPage[]
      */
-    protected function buildNavPages(array $documentsPaths = array())
+    protected function buildNavPages(array $documentsPaths = array(), $limit = null)
     {
         $pages      = array();
         $currentDoc = $this->cmsEvent->getDocument();        
@@ -359,7 +360,7 @@ class Navigation extends Component
             if(strpos($sorting, "parent") !== false && $parentSorting != null) {
                 $sorting = $parentSorting;
             }
-            $documents = $this->documentApi->sortDocumentsByCriteria($documents, $sorting);
+            $documents = array_slice($this->documentApi->sortDocumentsByCriteria($documents, $sorting), 0, $limit, true);
         }
         foreach ($documents as $key => $docArray) { 
             $doc = $docArray['doc'];
@@ -377,7 +378,7 @@ class Navigation extends Component
             if (array_key_exists('children', $docArray)
                     && is_array($docArray['children'])
                     && count($docArray['children']) > 0) {
-                $children   = $this->buildNavPages($docArray['children']);
+                $children   = $this->buildNavPages($docArray['children'], $limit);
                 $page->setPages($children);
             }
             $pages[]    = $page;

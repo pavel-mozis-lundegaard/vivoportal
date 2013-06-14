@@ -350,6 +350,8 @@ class Navigation extends Component
             try {
                 $doc    = $this->cmsApi->getSiteEntity($docPath, $this->site);
             } catch (EntityNotFoundException $e) {
+                $events = new \Zend\EventManager\EventManager();
+                $events->trigger('log', $this, array ('message' => $e->getMessage(), 'level' => \Zend\Log\Logger::WARN));
                 continue;
             }
             if (!$doc instanceof Document) {

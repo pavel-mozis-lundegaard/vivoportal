@@ -161,11 +161,13 @@ class Overview extends Component
             foreach ($items as $item) {
                 try {
                     $document = $this->cmsApi->getSiteEntity($item, $site);
+                    if ((bool) $document->getAllowListing() === true) {
+                        $documents[] = $document;
+                    }
                 } catch (EntityNotFoundException $e) {
+                    $events = new \Zend\EventManager\EventManager();
+                    $events->trigger('log', $this, array ('message' => $e->getMessage(), 'level' => \Zend\Log\Logger::WARN));
                     continue;
-                }
-                if ((bool) $document->getAllowListing() === true) {
-                    $documents[] = $document;
                 }
             }
         } else {

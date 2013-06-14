@@ -149,7 +149,8 @@ class Overview extends Component
                 $params['page_size'] = $limit;
             }
             if ($sort = $this->content->getOverviewSorting()) {      
-                $currentDoc = $this->cmsEvent->getDocument();
+                $site          = $this->siteEvent->getSite();
+                $currentDoc    = $this->cmsApi->getSiteEntity($this->content->getOverviewPath(), $site);
                 $parentSorting = $currentDoc->getSorting();
                 if(strpos($sort, "parent") !== false && $parentSorting != null) {
                     $sort = $parentSorting;
@@ -165,7 +166,7 @@ class Overview extends Component
                     //$params['sort'] = "\\random_" . mt_rand(1, 10000);
                 } else {
                     $params['sort'] = '\\' . $propertyName . ' ' . $sortWay;
-                }                
+                } 
             }            
             $documents = $this->indexerApi->getEntitiesByQuery($query, $params);
 

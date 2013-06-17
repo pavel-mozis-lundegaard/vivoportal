@@ -476,63 +476,64 @@ class Document implements DocumentInterface
      * ) 
      * 
      * @param array $documents Array of documents/folders
-     * @param string $criteria String criteria determinates how to sort given documents Example('title:asc')
+     * @param string $criteriaString Criteria determinates how to sort given documents Example('title:asc')
      * @return array
      */
-    public function sortDocumentsByCriteria(array $documents, $criteria)
+    public function sortDocumentsByCriteria(array $documents, $criteriaString)
     {
-        if (is_string($criteria)) {
-            if(strpos($criteria, ":") !== false) {
-                $propertyName = substr($criteria, 0,  strpos($criteria,':'));
-                $sortWay = substr($criteria,strpos($criteria,':')+1);
+        if (is_string($criteriaString)) {
+            if(strpos($criteriaString, ":") !== false) {
+                $propertyName = substr($criteriaString, 0,  strpos($criteriaString,':'));
+                $sortWay = substr($criteriaString,strpos($criteriaString,':')+1);
             } else {
-                $propertyName = $criteria;
+                $propertyName = $criteriaString;
                 $sortWay = 'asc';
             }
-            $properties = array($propertyName => ($sortWay == 'asc') ? SORT_ASC : SORT_DESC);
-            uasort($documents, function($a, $b) use ($properties) {
-                foreach($properties as $k => $v) {
-                    if (is_int($k)) {
-                        $k = $v;
-                        $v = SORT_ASC;
-                    }
-                    $collapse = function($node, $props) {
-                        if (is_array($props)) {
-                            foreach ($props as $prop) {
-                                eval('$property = $node->get'.$prop.'();');
-                                $node = (!isset($property)) ? null : $property;
-                            }
-                            return $node;
-                        } else {
-                            eval('$prop = $node->get'.$props.'();');
-                            return (!isset($prop)) ? null : $prop;
-                        }
-                    };
-                    if($k === 'random') {
-                        return rand(-1,1);
-                    }                    
-                    if(is_array($a)) {
-                        $aProp = $collapse($a['doc'], $k);
-                        $bProp = $collapse($b['doc'], $k);
+            $criteria = array(
+                'propertyName' => $propertyName,
+                'order' => ($sortWay == 'desc') ? SORT_DESC : SORT_ASC
+            );
+            
+            uasort($documents, function($a, $b) use ($criteria) {
+                $getPropertyByName = function($node, $prop) {
+                    $getter = 'get' . $prop;
+                    if(method_exists($node, $getter)){
+                        return $node->$getter();
                     } else {
-                        $aProp = $collapse($a, $k);
-                        $bProp = $collapse($b, $k);
-                    }
-                    
-                    if ($aProp != $bProp) {
-                        if($aProp instanceof \DateTime){                        
-                            if($v === SORT_ASC) {
-                                return $aProp > $bProp ? 1 : -1;
-                            } else {
-                                return $bProp > $aProp ? 1 : -1;
-                            }                                                  
+                        return null;
+                    }            
+                };
+
+                if($criteria['propertyName'] === 'random') {
+                    return rand(-1,1);
+                }
+                
+                if(is_array($a)) {
+                    $aProp = $getPropertyByName($a['doc'], $criteria['propertyName']);
+                } else {
+                    $aProp = $getPropertyByName($a, $criteria['propertyName']);
+                }
+                if(is_array($b)) {
+                    $bProp = $getPropertyByName($b['doc'], $criteria['propertyName']);
+                } else {
+                    $bProp = $getPropertyByName($b, $criteria['propertyName']);
+                }
+                
+                //comparison functions
+                if ($aProp != $bProp) {
+                    if($aProp instanceof \DateTime && $bProp instanceof \DateTime){
+                        if($criteria['order'] === SORT_ASC) {
+                            return $aProp > $bProp ? 1 : -1;
                         } else {
-                            return ($v == SORT_ASC)
-                                ? strnatcasecmp($aProp, $bProp)
-                                : strnatcasecmp($bProp, $aProp);
+                            return $bProp > $aProp ? 1 : -1;
                         }
+                    } else {
+                        return ($criteria['order'] == SORT_ASC)
+                            //@TODO Check behavior with multi-byte strings
+                            ? strnatcasecmp($aProp, $bProp)
+                            : strnatcasecmp($bProp, $aProp);
                     }
-                }                
+                }
                 return 0;
             });
         }

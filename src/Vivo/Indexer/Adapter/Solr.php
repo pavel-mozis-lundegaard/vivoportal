@@ -87,15 +87,21 @@ class Solr implements AdapterInterface
      * @var array
      */
     protected $supportedTypeSuffices    = array(
-        '_si',     //string, indexed
-        '_sim',    //string, indexed, multi-value
-        '_ss',     //string, stored
-        '_ssm',    //string, stored, multi-value
-        '_sis',    //string, indexed, multi-value
-        '_sist',   //string, indexed, stored, tokenized
-        '_sism',   //string, indexed, stored, multi-value
-        '_dti',    //date, indexed
-        '_dtis'    //date, indexed, stored
+        '_si',      //string, indexed
+        '_sim',     //string, indexed, multi-value
+        '_ss',      //string, stored
+        '_ssm',     //string, stored, multi-value
+        '_sis',     //string, indexed, multi-value
+        '_sist',    //string, indexed, stored, tokenized
+        '_sism',    //string, indexed, stored, multi-value
+        '_dti',     //date, indexed
+        '_dtis',    //date, indexed, stored
+        '_ii',      //integer, indexed
+        '_iis',     //integer, indexed, stored
+        '_iism',    //integer, indexed, stored, multi-value
+        '_fi',      //float, indexed
+        '_fis',     //float, indexed, stored
+        '_fism',    //float, indexed, stored, multi-value
     );
 
     /**
@@ -612,6 +618,12 @@ class Solr implements AdapterInterface
                 break;
             case IndexerInterface::FIELD_TYPE_DATETIME:
                 $typeSuffix .= 'dt';
+                break;
+            case IndexerInterface::FIELD_TYPE_INT:
+                $typeSuffix .= 'i';
+                break;
+            case IndexerInterface::FIELD_TYPE_FLOAT:
+                $typeSuffix .= 'f';
                 break;
             default:
                 throw new Exception\InvalidArgumentException(

@@ -139,6 +139,8 @@ class Fileboard extends AbstractForm implements EditorInterface
     }
 
     /**
+     * Delete action.
+     *
      * @param string $uuid
      */
     public function delete($uuid)
@@ -148,12 +150,20 @@ class Fileboard extends AbstractForm implements EditorInterface
         $this->events->trigger(new RedirectEvent());
     }
 
+    /**
+     * Deletes all fileboard files.
+     */
     public function deleteAll()
     {
         $this->fileboardApi->removeAllFiles($this->content);
         $this->events->trigger(new RedirectEvent());
     }
 
+    /**
+     * Move up action.
+     *
+     * @param string $uuid Entity UUID.
+     */
     public function moveUp($uuid)
     {
         $entity1 = $this->fileboardApi->getEntity($uuid);
@@ -164,6 +174,11 @@ class Fileboard extends AbstractForm implements EditorInterface
         $this->events->trigger(new RedirectEvent());
     }
 
+    /**
+     * Move down action.
+     *
+     * @param string $uuid Entity UUID.
+     */
     public function moveDown($uuid)
     {
         $entity1 = $this->fileboardApi->getEntity($uuid);
@@ -225,6 +240,11 @@ class Fileboard extends AbstractForm implements EditorInterface
         return $form;
     }
 
+    /**
+     * Returns editor fieldset.
+     *
+     * @return \Vivo\Form\Fieldset
+     */
     private function getEditorFieldset()
     {
         $fieldset = new Fieldset('fb-new');
@@ -260,6 +280,12 @@ class Fileboard extends AbstractForm implements EditorInterface
         return $fieldset;
     }
 
+    /**
+     * Returns editor for current fileboard files.
+     *
+     * @param array $files
+     * @return \Vivo\Form\Fieldset
+     */
     private function getEditorFieldsetMedia(array $files)
     {
         $container = new Fieldset('fb-media-container');

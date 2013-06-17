@@ -54,7 +54,7 @@ class Fileboard
     /**
      * @param \Vivo\CMS\Model\Content\Fileboard $model
      * @throws \Vivo\CMS\Api\Exception\InvalidPathException
-     * @return array <\Vivo\CMS\Model\Content\Fileboard\Media>
+     * @return array
      */
     public function getList(Content\Fileboard $model)
     {
@@ -78,10 +78,17 @@ class Fileboard
         return $return;
     }
 
-    private function prepareMediaForSaving(Content\Fileboard $model, $media)
+    /**
+     * Prepare fileboard content before saving.
+     *
+     * @param \Vivo\CMS\Model\Content\Fileboard $fileboard
+     * @param \Vivo\CMS\Model\Entity $media
+     * @return \Vivo\CMS\Model\Entity
+     */
+    private function prepareMediaForSaving(Content\Fileboard $fileboard, Entity $media)
     {
         $qb = new QueryBuilder();
-        $condition = $qb->cond($model->getPath().'/*', '\path');
+        $condition = $qb->cond($fileboard->getPath().'/*', '\path');
         $hits = $this->indexer->find($condition)->getHits();
 
         $i = -1;
@@ -92,7 +99,7 @@ class Fileboard
             $i = max($i, $lastI);
         }
 
-        $path = $this->pathBuilder->buildStoragePath(array($model->getPath(), ++$i));
+        $path = $this->pathBuilder->buildStoragePath(array($fileboard->getPath(), ++$i));
         $media->setPath($path);
 
         return $media;
@@ -124,6 +131,30 @@ class Fileboard
     }
 
     /**
+     * @param \Vivo\CMS\Model\Content\Fileboard\Separator $separator
+     * @param string $html HTML content
+     */
+    public function saveSeparator(Separator $separator, $html)
+    {
+        if($html) {
+            $separator->setMimeType('text/html');
+            $separator->setExt('html');
+            $separator->setSize(mb_strlen($html, 'UTF-8'));
+
+            $this->fileApi->saveResource($separator, $html);
+            $this->cmsApi->saveEntity($separator, true);
+        }
+        else {
+            $separator->setMimeType(null);
+            $separator->setExt(null);
+            $separator->setSize(0);
+
+            $this->fileApi->removeResource($separator);
+            $this->cmsApi->saveEntity($separator, true);
+        }
+    }
+
+    /**
      * @param \Vivo\CMS\Model\Content\Fileboard $fileboard
      * @param array $file
      * @param array $options {name, description, order}
@@ -146,26 +177,12 @@ class Fileboard
         return $media;
     }
 
-    public function saveSeparator(Separator $separator, $html = null)
-    {
-        if($html) {
-            $separator->setMimeType('text/html');
-            $separator->setExt('html');
-            $separator->setSize(mb_strlen($html, 'UTF-8'));
-
-            $this->fileApi->saveResource($separator, $html);
-            $this->cmsApi->saveEntity($separator, true);
-        }
-        else {
-            $separator->setMimeType(null);
-            $separator->setExt(null);
-            $separator->setSize(0);
-
-            $this->fileApi->removeResource($separator);
-            $this->cmsApi->saveEntity($separator, true);
-        }
-    }
-
+    /**
+     * @param \Vivo\CMS\Model\Content\Fileboard $fileboard
+     * @param string $html HTML content.
+     * @param array $options {order}
+     * @return \Vivo\CMS\Model\Content\Fileboard\Separator
+     */
     public function createSeparator(Content\Fileboard $fileboard, $html, array $options)
     {
         $separator = new Separator();
@@ -181,6 +198,12 @@ class Fileboard
         return $separator;
     }
 
+    /**
+     * Swap order.
+     *
+     * @param \Vivo\Stdlib\OrderableInterface $entity1
+     * @param \Vivo\Stdlib\OrderableInterface $entity2
+     */
     public function swap(OrderableInterface $entity1, OrderableInterface $entity2)
     {
         $tmpOrder = $entity1->getOrder();
@@ -208,11 +231,20 @@ class Fileboard
         $this->download($media);
     }
 
+    /**
+     * @param \Vivo\CMS\Model\Content\File $file
+     * @return string
+     */
     public function getResource(Content\File $file)
     {
         return $this->fileApi->getResource($file);
     }
 
+    /**
+     *
+     * @param \Vivo\CMS\Model\Content\File $file
+     * @return \Vivo\IO\InputStreamInterface
+     */
     public function readResource(Content\File $file)
     {
         return $this->fileApi->readResource($file);

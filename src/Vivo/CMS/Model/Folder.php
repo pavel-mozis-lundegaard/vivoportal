@@ -24,16 +24,19 @@ class Folder extends Entity implements SymRefDataExchangeInterface
     protected $description;
 
     /**
+     * Allows listing documents in navigation
      * @var bool
      */
     protected $allowListingInNavigation;
     
     /**
+     * Allows listing documents in overview
      * @var bool
      */
     protected $allowListing;
     
     /**
+     * Allows listing documents in sitemap
      * @var bool
      */
     protected $allowListingInSitemap;
@@ -122,14 +125,26 @@ class Folder extends Entity implements SymRefDataExchangeInterface
         $this->description = $description;
     }  
     
+    /**
+     * Returns bool value determinates if document can be included to overview.
+     * @return bool
+     */
     public function getAllowListing() {
         return $this->allowListing;
     }
     
+    /**
+     * Returns bool value determinates if document can be included to navigation.
+     * @return bool
+     */
     public function getAllowListingInNavigation() {
         return $this->allowListingInNavigation;
     }
     
+    /**
+     * Returns bool value determinates if document can be included to sitemap.
+     * @return bool
+     */
     public function getAllowListingInSitemap() {
         return $this->allowListingInSitemap;
     }
@@ -163,6 +178,7 @@ class Folder extends Entity implements SymRefDataExchangeInterface
     }
 
     /**
+     * Sets bool property determining if document can be listed in overview
      * @param bool allowListing
      */
     public function setAllowListing($allowListing = true)
@@ -171,7 +187,8 @@ class Folder extends Entity implements SymRefDataExchangeInterface
     }
     
     /**
-     * @param bool allowListing
+     * Sets bool property determining if document can be listed in navigation
+     * @param bool $allowListingInNavigation
      */
     public function setAllowListingInNavigation($allowListingInNavigation = true)
     {
@@ -179,7 +196,8 @@ class Folder extends Entity implements SymRefDataExchangeInterface
     }
     
     /**
-     * @param bool allowListing
+     * Sets bool property determining if document can be listed in sitemap     
+     * @param bool $allowListingInSitemap
      */
     public function setAllowListingInSitemap($allowListingInSitemap = true)
     {

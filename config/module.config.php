@@ -328,6 +328,7 @@ return array(
             'cms'               => 'Vivo\View\Helper\CmsFactory',
             'vivo_head_title'   => 'Vivo\View\Helper\VivoHeadTitleFactory',
             'render_document'   => 'Vivo\View\Helper\RenderDocumentFactory',
+            'user'              => 'Vivo\View\Helper\UserFactory',
         ),
     ),
     //Plugin manager configuration for navigation view helpers

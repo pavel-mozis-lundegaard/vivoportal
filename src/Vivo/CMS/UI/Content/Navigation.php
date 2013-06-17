@@ -353,7 +353,7 @@ class Navigation extends Component
                 $events = new \Zend\EventManager\EventManager();
                 $events->trigger('log', $this, array (
                     'message' => $e->getMessage(), 
-                    'level' => \Zend\Log\Logger::WARN));
+                    'level' => \VpLogger\Log\Logger::WARN));
                 continue;
             }
             if (!$doc instanceof Document) {

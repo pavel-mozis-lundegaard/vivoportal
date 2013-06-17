@@ -9,6 +9,7 @@ use Vivo\CMS\Model\Content\Navigation as NavigationModel;
 use Vivo\CMS\UI\Exception;
 use Vivo\CMS\Navigation\Page\Cms as CmsNavPage;
 use Vivo\CMS\UI\Component;
+use Vivo\Repository\Exception\EntityNotFoundException;
 
 use Zend\Navigation\AbstractContainer as AbstractNavigationContainer;
 use Zend\Navigation\Navigation as NavigationContainer;
@@ -346,7 +347,13 @@ class Navigation extends Component
                     sprintf("%s: Document array must contain 'doc_path' key", __METHOD__));
             }
             $docPath    = $docArray['doc_path'];
-            $doc    = $this->cmsApi->getSiteEntity($docPath, $this->site);
+            try {
+                $doc    = $this->cmsApi->getSiteEntity($docPath, $this->site);
+            } catch (EntityNotFoundException $e) {
+                $events = new \Zend\EventManager\EventManager();
+                $events->trigger('log', $this, array ('message' => $e->getMessage(), 'level' => \Zend\Log\Logger::WARN));
+                continue;
+            }
             if (!$doc instanceof Document) {
                 throw new Exception\UnexpectedValueException(
                     sprintf("%s: Entity specified by path '%s' is not a document", __METHOD__, $docPath));
@@ -368,7 +375,9 @@ class Navigation extends Component
                 $children   = $this->buildNavPages($docArray['children']);
                 $page->setPages($children);
             }
-            $pages[]    = $page;
+            if($this->documentApi->isPublished($document)) {
+                $pages[]    = $page;
+            }
         }
         return $pages;
     }

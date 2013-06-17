@@ -164,6 +164,8 @@ class Overview extends Component
                 }
                 if($propertyName == 'random') {
                     //$params['sort'] = "\\random_" . mt_rand(1, 10000);
+                    //@TODO VP-187 Implement random sorting
+                    $params['sort'] = '\\title asc';
                 } else {
                     $params['sort'] = '\\' . $propertyName . ' ' . $sortWay;
                 } 

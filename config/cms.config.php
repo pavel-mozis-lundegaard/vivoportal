@@ -423,7 +423,7 @@ return array(
             'position:desc'  => 'position_desc',
             'published:asc'  => 'publish_date_document_only_asc',
             'published:desc' => 'publish_date_document_only_desc',
-            'random:asc'     => 'random'
+            'random'     => 'random'
         ),
      ),
 );

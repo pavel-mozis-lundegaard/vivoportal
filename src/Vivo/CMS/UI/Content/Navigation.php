@@ -360,7 +360,8 @@ class Navigation extends Component
             if(strpos($sorting, "parent") !== false && $parentSorting != null) {
                 $sorting = $parentSorting;
             }
-            $documents = array_slice($this->documentApi->sortDocumentsByCriteria($documents, $sorting), 0, $limit, true);
+            $sortedDocuments = $this->documentApi->sortDocumentsByCriteria($documents, $sorting);
+            $documents = array_slice($sortedDocuments, 0, $limit, true);
         }
         foreach ($documents as $key => $docArray) { 
             $doc = $docArray['doc'];

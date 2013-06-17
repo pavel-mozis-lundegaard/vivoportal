@@ -129,7 +129,8 @@ class Tree extends Component
             $node = $que->pop();
             $child = $node->value;
             if (!$child) continue;
-            $children = $this->documentApi->sortDocumentsByCriteria($this->documentApi->getChildDocuments($child), $child->getSorting());
+            $children = $this->documentApi->getChildDocuments($child);
+            $children = $this->documentApi->sortDocumentsByCriteria($children, $child->getSorting());
             $a = array ();
             $a['document'] = $child;
             $a['published'] = true;

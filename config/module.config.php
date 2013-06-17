@@ -820,7 +820,7 @@ return array(
                 'multi'         => false,
             ),
             '\published'   => array(
-                'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
+                'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_DATETIME,
                 'indexed'       => true,
                 'stored'        => true,
                 'tokenized'     => false,

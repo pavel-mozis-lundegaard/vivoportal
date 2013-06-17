@@ -150,18 +150,35 @@ class Overview extends Component
             } else {
                 $path = $this->document->getPath();
             }
-
-            $query = $this->createQuery($path, $this->content->getOverviewCriteria());
+            
+            $query = $this->createQuery($path,$this->content->getOverviewCriteria());
 
             $params = array();
             if ($limit = $this->content->getOverviewLimit()) {
                 $params['page_size'] = $limit;
             }
-            if ($sort = $this->content->getOverviewSorting())
-            {
-                $params['sort'] = $sort;
-            }
-
+            if ($sort = $this->content->getOverviewSorting()) {      
+                $site          = $this->siteEvent->getSite();
+                $currentDoc    = $this->cmsApi->getSiteEntity($this->content->getOverviewPath(), $site);
+                $parentSorting = $currentDoc->getSorting();
+                if(strpos($sort, "parent") !== false && $parentSorting != null) {
+                    $sort = $parentSorting;
+                }
+                if(strpos($sort, ":") !== false){
+                    $propertyName = substr($sort, 0,  strpos($sort,':'));
+                    $sortWay = substr($sort,strpos($sort,':')+1);
+                } else {
+                    $propertyName = $sort;
+                    $sortWay = 'asc';
+                }
+                if($propertyName == 'random') {
+                    //$params['sort'] = "\\random_" . mt_rand(1, 10000);
+                    //@TODO VP-187 Implement random sorting
+                    $params['sort'] = '\\title asc';
+                } else {
+                    $params['sort'] = '\\' . $propertyName . ' ' . $sortWay;
+                } 
+            }            
             $documents = $this->indexerApi->getEntitiesByQuery($query, $params);
 
         } elseif ($type == OverviewModel::TYPE_STATIC) {

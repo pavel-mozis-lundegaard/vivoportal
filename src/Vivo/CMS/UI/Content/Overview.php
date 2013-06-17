@@ -2,6 +2,7 @@
 namespace Vivo\CMS\UI\Content;
 
 use Vivo\CMS\Api\CMS;
+use Vivo\CMS\Api\Document as DocumentApi;
 use Vivo\CMS\Model\Content\Overview as OverviewModel;
 use Vivo\CMS\UI\Component;
 use Vivo\CMS\UI\Exception\Exception;
@@ -34,6 +35,12 @@ class Overview extends Component
      * @var IndexerApi
      */
     protected $indexerApi;
+    
+    /**
+     * Document API
+     * @var DocumentApi
+     */
+    protected $documentApi;
 
     /**
      * @var SiteEvent
@@ -55,13 +62,15 @@ class Overview extends Component
      * Constructor
      * @param \Vivo\CMS\Api\CMS $cmsApi
      * @param \Vivo\CMS\Api\Indexer $indexerApi
+     * @param \Vivo\CMS\Api\Document $documentApi
      * @param \Vivo\SiteManager\Event\SiteEvent $siteEvent
      * @param \Zend\Cache\Storage\StorageInterface $cache
      */
-    public function __construct(CMS $cmsApi, IndexerApi $indexerApi, SiteEvent $siteEvent, Cache $cache = null)
+    public function __construct(CMS $cmsApi, IndexerApi $indexerApi, DocumentApi $documentApi, SiteEvent $siteEvent, Cache $cache = null)
     {
         $this->cmsApi       = $cmsApi;
         $this->indexerApi   = $indexerApi;
+        $this->documentApi  = $documentApi;
         $this->siteEvent    = $siteEvent;
         $this->cache        = $cache;
     }
@@ -159,7 +168,15 @@ class Overview extends Component
             $items  = $this->content->getOverviewItems();
             $site   = $this->siteEvent->getSite();
             foreach ($items as $item) {
-                $documents[] = $this->cmsApi->getSiteEntity($item, $site);
+                try {
+                    $document = $this->cmsApi->getSiteEntity($item, $site);
+                    if ((bool) $document->getAllowListing() == true && $this->documentApi->isPublished($document)) {
+                        $documents[] = $document;
+                    }
+                } catch (EntityNotFoundException $e) {
+                    $events = new \Zend\EventManager\EventManager();
+                    $events->trigger('log', $this, array ('message' => $e->getMessage(), 'level' => \Zend\Log\Logger::WARN));
+                }
             }
         } else {
             throw new Exception(sprintf('%s: Unsupported overview type `%s`.', __DIR__, $type));
@@ -180,7 +197,8 @@ class Overview extends Component
     {
         $query = '\path:"'. $path . '/*" ';
         $query .= ' AND \class:"Vivo\CMS\Model\Document"';
-        $query .= ' AND \publishedContents:"*"';  // search only documents with published content
+        $query .= ' AND \publishedContents:"*"';  // search only documents with published content          
+        $query .= ' AND \allowListingInOverview:"1"';
         if ($criteria) {
             $criteria   = $this->makePathsAbsolute($criteria);
             $query .= " AND ($criteria)";

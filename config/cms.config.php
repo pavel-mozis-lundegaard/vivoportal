@@ -133,7 +133,7 @@ return array(
                 'class'     => 'Vivo\CMS\Model\Content\Navigation',
                 'label'     => 'Vivo\CMS\Model\Content\Navigation',
             ),
-            'navigation'    => array(
+            'fileboard'    => array(
                 'class'     => 'Vivo\CMS\Model\Content\Fileboard',
                 'label'     => 'Vivo\CMS\Model\Content\Fileboard',
             ),

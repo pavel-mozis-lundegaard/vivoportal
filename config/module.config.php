@@ -328,6 +328,7 @@ return array(
             'cms'               => 'Vivo\View\Helper\CmsFactory',
             'vivo_head_title'   => 'Vivo\View\Helper\VivoHeadTitleFactory',
             'render_document'   => 'Vivo\View\Helper\RenderDocumentFactory',
+            'user'              => 'Vivo\View\Helper\UserFactory',
         ),
     ),
     //Plugin manager configuration for navigation view helpers
@@ -820,6 +821,13 @@ return array(
                 'multi'         => false,
             ),
             '\modifiedBy' => array(
+                'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
+                'indexed'       => true,
+                'stored'        => true,
+                'tokenized'     => false,
+                'multi'         => false,
+            ),
+            '\allowListingInOverview'   => array(
                 'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
                 'indexed'       => true,
                 'stored'        => true,

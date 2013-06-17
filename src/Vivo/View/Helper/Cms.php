@@ -28,6 +28,7 @@ class Cms extends AbstractHelper
 
     /**
      * Invoke the helper as a PhpRenderer method call
+     * @return mixed
      */
     public function __invoke($quickCmd = null)
     {

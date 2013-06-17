@@ -2,8 +2,9 @@
 namespace Vivo\CMS\Model\Content\Fileboard;
 
 use Vivo\CMS\Model\Content;
+use Vivo\Stdlib\OrderableInterface;
 
-class Media extends Content\File
+class Media extends Content\File implements OrderableInterface
 {
     /**
      * @var string Media name.

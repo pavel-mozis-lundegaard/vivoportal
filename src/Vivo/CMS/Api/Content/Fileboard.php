@@ -9,6 +9,7 @@ use Vivo\CMS\Model\Content\Fileboard\Separator;
 use Vivo\Indexer\QueryBuilder;
 use Vivo\IO\FileInputStream;
 use Vivo\CMS\Api\Exception\InvalidPathException;
+use Vivo\Stdlib\OrderableInterface;
 
 class Fileboard
 {
@@ -66,7 +67,7 @@ class Fileboard
         $qb = new QueryBuilder();
         $condition = $qb->cond($model->getPath().'/*', '\path');
         $hits      = $this->indexer
-                          ->find($condition, array('sort'=>array('\Vivo\CMS\Model\Content\Fileboard\Media\order')))
+                          ->find($condition, array('sort'=>array('\order')))
                           ->getHits();
 
         foreach ($hits as $hit) {
@@ -115,27 +116,27 @@ class Fileboard
     }
 
     /**
-     * @param \Vivo\CMS\Model\Content\Fileboard\Media $media
+     * @param \Vivo\CMS\Model\Entity $entity
      */
-    public function saveMedia(Media $media)
+    public function saveEntity(Entity $entity)
     {
-        $this->cmsApi->saveEntity($media, true);
+        $this->cmsApi->saveEntity($entity, true);
     }
 
     /**
      * @param \Vivo\CMS\Model\Content\Fileboard $fileboard
      * @param array $file
-     * @param string $name
-     * @param string $description
+     * @param array $options {name, description, order}
      * @return \Vivo\CMS\Model\Content\Fileboard\Media
      */
-    public function createMediaWithUploadedFile(Content\Fileboard $fileboard, array $file, $name, $description = null)
+    public function createMediaWithUploadedFile(Content\Fileboard $fileboard, array $file, array $options)
     {
         $stream = new FileInputStream($file['tmp_name']);
 
         $media = new Media();
-        $media->setName($name);
-        $media->setDescription($description);
+        $media->setOrder($options['order']);
+        $media->setName($options['name']);
+        $media->setDescription($options['description']);
         $media = $this->fileApi->prepareFileForSaving($media, $file);
         $media = $this->prepareMediaForSaving($fileboard, $media);
 
@@ -165,9 +166,10 @@ class Fileboard
         }
     }
 
-    public function createSeparator(Content\Fileboard $fileboard, $html)
+    public function createSeparator(Content\Fileboard $fileboard, $html, array $options)
     {
         $separator = new Separator();
+        $separator->setOrder($options['order']);
         $separator->setMimeType('text/html');
         $separator->setExt('html');
         $separator->setSize(mb_strlen($html, 'UTF-8'));
@@ -177,6 +179,16 @@ class Fileboard
         $this->cmsApi->saveEntity($separator, true);
 
         return $separator;
+    }
+
+    public function swap(OrderableInterface $entity1, OrderableInterface $entity2)
+    {
+        $tmpOrder = $entity1->getOrder();
+        $entity1->setOrder($entity2->getOrder());
+        $entity2->setOrder($tmpOrder);
+
+        $this->saveEntity($entity1);
+        $this->saveEntity($entity2);
     }
 
     /**

@@ -770,6 +770,13 @@ return array(
                 'tokenized'     => false,
                 'multi'         => false,
             ),
+            '\order' => array(
+                'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_INT,
+                'indexed'       => true,
+                'stored'        => true,
+                'tokenized'     => false,
+                'multi'         => false,
+            ),
             '\hosts' => array(
                 'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
                 'indexed'       => true,

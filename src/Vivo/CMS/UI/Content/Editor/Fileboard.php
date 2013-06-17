@@ -8,6 +8,7 @@ use Vivo\CMS\Model\Content\Fileboard\Separator;
 use Vivo\UI\AbstractForm;
 use Vivo\Form\Form;
 use Vivo\Form\Fieldset;
+use Vivo\Util\RedirectEvent;
 
 class Fileboard extends AbstractForm implements EditorInterface
 {
@@ -81,47 +82,56 @@ class Fileboard extends AbstractForm implements EditorInterface
             }
 
             if($this->content->getCreated()) {
-                // Upload new file
-                if($form->get('fb-new-file')) {
-                    $file = $form->get('fb-new-file')->getValue();
-                    $name = $form->get('fb-new-name')->getValue();
-                    $desc = $form->get('fb-new-desc')->getValue();
+                if($form->get('fb-new')) {
+                    $fieldset = $form->get('fb-new');
+
+                    // Upload new file
+                    $file = $fieldset->get('file')->getValue();
+                    $name = $fieldset->get('name')->getValue();
+                    $desc = $fieldset->get('desc')->getValue();
 
                     if($file['error'] != UPLOAD_ERR_NO_FILE && $file['error'] != UPLOAD_ERR_OK) {
                         throw new \Exception(sprintf('%s: File upload error %s', __METHOD__, $file['error']));
                     }
                     if($file['error'] == UPLOAD_ERR_OK) {
-                        $this->fileboardApi->createMediaWithUploadedFile($this->content, $file, trim($name), trim($desc));
+                        $order = $this->getMaxOrderBy() + 1;
+                        $this->fileboardApi->createMediaWithUploadedFile($this->content, $file,
+                                array(
+                                    'name' => trim($name),
+                                    'description' => trim($desc),
+                                    'order' => $order,
+                                ));
                     }
-                }
 
-                // Create new separator
-                if($form->get('fb-new-separator')) {
-                    $html = $form->get('fb-new-separator')->getValue();
+                    // Create new separator
+                    $html = $fieldset->get('separator')->getValue();
 
                     if($html) {
-                        $this->fileboardApi->createSeparator($this->content, $html);
+                        $order = $this->getMaxOrderBy() + 1;
+                        $this->fileboardApi->createSeparator($this->content, $html, array('order' => $order));
                     }
                 }
 
                 // Update current contents
-                foreach ($form->get('fb-media-container')->getFieldsets() as $uuid=>$fieldset) {
-                    $type = $fieldset->get('type')->getValue();
+                if($form->get('fb-media-container')) {
+                    foreach ($form->get('fb-media-container')->getFieldsets() as $uuid=>$fieldset) {
+                        $type = $fieldset->get('type')->getValue();
 
-                    switch($type) {
-                        case 'media':
-                            $media = $this->fileboardApi->getEntity($uuid);
-                            $media->setName(trim($fieldset->get('name')->getValue()));
-                            $media->setDescription(trim($fieldset->get('desc')->getValue()));
+                        switch($type) {
+                            case 'media':
+                                $media = $this->fileboardApi->getEntity($uuid);
+                                $media->setName(trim($fieldset->get('name')->getValue()));
+                                $media->setDescription(trim($fieldset->get('desc')->getValue()));
 
-                            $this->fileboardApi->saveMedia($media);
-                            break;
+                                $this->fileboardApi->saveEntity($media);
+                                break;
 
-                        case 'separator':
-                            $separator = $this->fileboardApi->getEntity($uuid);
+                            case 'separator':
+                                $separator = $this->fileboardApi->getEntity($uuid);
 
-                            $this->fileboardApi->saveSeparator($separator, $fieldset->get('separator')->getValue());
-                            break;
+                                $this->fileboardApi->saveSeparator($separator, $fieldset->get('separator')->getValue());
+                                break;
+                        }
                     }
                 }
             }
@@ -134,13 +144,64 @@ class Fileboard extends AbstractForm implements EditorInterface
     public function delete($uuid)
     {
         $media = $this->fileboardApi->getEntity($uuid);
-
         $this->fileboardApi->removeEntity($media);
+        $this->events->trigger(new RedirectEvent());
     }
 
     public function deleteAll()
     {
         $this->fileboardApi->removeAllFiles($this->content);
+        $this->events->trigger(new RedirectEvent());
+    }
+
+    public function moveUp($uuid)
+    {
+        $entity1 = $this->fileboardApi->getEntity($uuid);
+        $i = $this->getFileKeyById($uuid);
+        $entity2 = $this->files[$i - 1];
+
+        $this->fileboardApi->swap($entity1, $entity2);
+        $this->events->trigger(new RedirectEvent());
+    }
+
+    public function moveDown($uuid)
+    {
+        $entity1 = $this->fileboardApi->getEntity($uuid);
+        $i = $this->getFileKeyById($uuid);
+        $entity2 = $this->files[$i + 1];
+
+        $this->fileboardApi->swap($entity1, $entity2);
+        $this->events->trigger(new RedirectEvent());
+    }
+
+    /**
+     * Returns the maximum value of the order.
+     *
+     * @return int
+     */
+    private function getMaxOrderBy() {
+        $max = -1;
+        if($this->files) {
+            foreach ($this->files as $photo) {
+                $max = max($max, $photo->getOrder());
+            }
+        }
+
+        return $max;
+    }
+
+    /**
+     * @param string $uuid Entity UUID.
+     * @return int
+     */
+    private function getFileKeyById($uuid) {
+        for ($i = 0; $i < count($this->files); $i++) {
+            if ($this->files[$i]->getUuid() == $uuid) {
+                break;
+            }
+        }
+
+        return $i;
     }
 
     /**
@@ -150,7 +211,7 @@ class Fileboard extends AbstractForm implements EditorInterface
     public function doGetForm()
     {
         $form = new Form('fileboard-editor-'.$this->content->getUuid());
-//         $form->setWrapElements(true); //FIXME
+        $form->setWrapElements(true);
 
         if($this->content->getCreated()) {
             $fieldset = $this->getEditorFieldset();

@@ -2,8 +2,9 @@
 namespace Vivo\CMS\Model\Content\Fileboard;
 
 use Vivo\CMS\Model\Content;
+use Vivo\Stdlib\OrderableInterface;
 
-class Separator extends Content\File
+class Separator extends Content\File implements OrderableInterface
 {
     /**
      * @var int Order.

@@ -34,6 +34,8 @@ class Fileboard
     private $pathBuilder;
 
     /**
+     * Constructor.
+     *
      * @param \Vivo\CMS\Api\CMS $cmsApi
      * @param \Vivo\CMS\Api\Content\File $fileApi
      * @param \Vivo\Indexer\IndexerInterface $indexer
@@ -52,6 +54,8 @@ class Fileboard
     }
 
     /**
+     * Returns all fileboard items.
+     *
      * @param \Vivo\CMS\Model\Content\Fileboard $model
      * @throws \Vivo\CMS\Api\Exception\InvalidPathException
      * @return array
@@ -106,6 +110,8 @@ class Fileboard
     }
 
     /**
+     * Returns CMS entity by UUID.
+     *
      * @param string $ident
      * @return \Vivo\CMS\Model\Content\Fileboard\Media
      */
@@ -115,6 +121,8 @@ class Fileboard
     }
 
     /**
+     * Removes entity.
+     *
      * @param \Vivo\CMS\Model\Entity $entity
      */
     public function removeEntity(Entity $entity)
@@ -123,6 +131,8 @@ class Fileboard
     }
 
     /**
+     * Saves entity.
+     *
      * @param \Vivo\CMS\Model\Entity $entity
      */
     public function saveEntity(Entity $entity)
@@ -131,32 +141,26 @@ class Fileboard
     }
 
     /**
+     * Saves fileboard separator.
+     *
      * @param \Vivo\CMS\Model\Content\Fileboard\Separator $separator
      * @param string $html HTML content
      */
     public function saveSeparator(Separator $separator, $html)
     {
-        if($html) {
-            $separator->setMimeType('text/html');
-            $separator->setExt('html');
-            $separator->setSize(mb_strlen($html, 'UTF-8'));
+        $separator->setMimeType('text/html');
+        $separator->setExt('html');
+        $separator->setSize(mb_strlen($html, 'UTF-8'));
 
-            $this->fileApi->saveResource($separator, $html);
-            $this->cmsApi->saveEntity($separator, true);
-        }
-        else {
-            $separator->setMimeType(null);
-            $separator->setExt(null);
-            $separator->setSize(0);
-
-            $this->fileApi->removeResource($separator);
-            $this->cmsApi->saveEntity($separator, true);
-        }
+        $this->fileApi->saveResource($separator, $html);
+        $this->cmsApi->saveEntity($separator, true);
     }
 
     /**
+     * Creates fileboard media file.
+     *
      * @param \Vivo\CMS\Model\Content\Fileboard $fileboard
-     * @param array $file
+     * @param array $file Array with uploaded file informations ($_FILE)
      * @param array $options {name, description, order}
      * @return \Vivo\CMS\Model\Content\Fileboard\Media
      */
@@ -178,6 +182,8 @@ class Fileboard
     }
 
     /**
+     * Creates fileboard separator.
+     *
      * @param \Vivo\CMS\Model\Content\Fileboard $fileboard
      * @param string $html HTML content.
      * @param array $options {order}
@@ -215,6 +221,8 @@ class Fileboard
     }
 
     /**
+     * Sends HTTP headers and print file content.
+     *
      * @param \Vivo\CMS\Model\Content\Fileboard\Media $media
      */
     public function download(Media $media)
@@ -223,6 +231,8 @@ class Fileboard
     }
 
     /**
+     * Sends HTTP headers and print file content.
+     *
      * @param string $uuid
      */
     public function downloadByUuid($uuid)
@@ -232,6 +242,8 @@ class Fileboard
     }
 
     /**
+     * Returns content of entity resource.
+     *
      * @param \Vivo\CMS\Model\Content\File $file
      * @return string
      */
@@ -241,6 +253,7 @@ class Fileboard
     }
 
     /**
+     * Returns input stream for resource of entity.
      *
      * @param \Vivo\CMS\Model\Content\File $file
      * @return \Vivo\IO\InputStreamInterface

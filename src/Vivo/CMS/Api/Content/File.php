@@ -140,17 +140,14 @@ class File
     }
 
     /**
+     * Returns content of entity resource.
+     *
      * @param \Vivo\CMS\Model\Content\File $file
      * @return string
      */
     public function getResource(Content\File $file)
     {
-        try {
-            return $this->cmsApi->getResource($file, $this->getResourceName($file));
-        }
-        catch (\Vivo\Storage\Exception\IOException $e) {
-            return null;
-        }
+        return $this->cmsApi->getResource($file, $this->getResourceName($file));
     }
 
     /**
@@ -162,12 +159,7 @@ class File
      */
     public function readResource(Content\File $file)
     {
-        try {
-            return $this->cmsApi->readResource($file, $this->getResourceName($file));
-        }
-        catch(\Vivo\IO\Exception\RuntimeException $e) {
-            return null;
-        }
+        return $this->cmsApi->readResource($file, $this->getResourceName($file));
     }
 
     /**

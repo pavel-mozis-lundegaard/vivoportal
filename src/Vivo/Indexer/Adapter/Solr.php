@@ -10,6 +10,7 @@ use Vivo\Indexer\Field;
 use Vivo\CMS\Indexer\FieldHelperInterface;
 use Vivo\Indexer\IndexerInterface;
 use Vivo\CMS\Indexer\Exception\CannotDecomposeFieldnameException;
+use Vivo\CMS\Indexer\Exception\InvalidArgumentException as IndexerInvalidArgumentException;
 
 use VpApacheSolr\Document as SolrDocument;
 use VpApacheSolr\Service as SolrService;
@@ -722,6 +723,9 @@ class Solr implements AdapterInterface
             $idxConfig  = $this->fieldHelper->getIndexerConfigForFieldName($vivoFieldName);
         } catch (CannotDecomposeFieldnameException $e) {
             //Unknown field name (neither preset nor dynamic field name); E.g. 'timestamp' automatically added by Solr
+            return $solrValue;
+        } catch (IndexerInvalidArgumentException $e) {
+            //Field name extracted, but indexer config not found
             return $solrValue;
         }
         $type       = $idxConfig['type'];

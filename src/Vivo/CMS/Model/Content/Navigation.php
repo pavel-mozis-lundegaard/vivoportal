@@ -74,7 +74,20 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
      * @var bool
      */
     protected $branchOnly   = false;
-
+    
+    /**
+     * Number of documents listed in the navigation per level
+     * Null means unlimited
+     * @var int
+     */
+    protected $limit;
+    
+    /**
+     * Determinates way of sorting navigation documents
+     * @var string
+     */
+    protected $navigationSorting;
+    
     /**
      * Array of explicitly enumerated documents to include in the navigation
      * Every document is represented as an array with two elements: 'doc_path' and 'children'
@@ -239,8 +252,42 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
     {
         return $this->branchOnly;
     }
+    
+    /**
+     * Sets way of sorting navigation documents
+     * @param string $sorting
+     */
+    public function setNavigationSorting($sorting)
+    {
+        $this->navigationSorting = (string) $sorting;
+    }
 
+    /**
+     * Returns way of sorting navigation documents
+     * @return boolean
+     */
+    public function getNavigationSorting()
+    {
+        return $this->navigationSorting;
+    }
+    
+    /**
+     * Sets number of documents listed in the navigation per level
+     * @param int $limit
+     */
+    public function setLimit($limit)
+    {
+        $this->limit = ((int) $limit != 0) ? (int) $limit : null;
+    }
 
+    /**
+     * Returns number of documents listed in the navigation per level
+     * @return int
+     */
+    public function getLimit()
+    {
+        return $this->limit;
+    }
 
     /**
      * Exchange internal values containing symbolic refs / URLs from provided array

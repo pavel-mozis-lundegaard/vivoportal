@@ -127,10 +127,10 @@ class Tree extends Component
         while(!$que->isEmpty()){
             /* @var $node  DataTree */
             $node = $que->pop();
-
             $child = $node->value;
             if (!$child) continue;
             $children = $this->documentApi->getChildDocuments($child);
+            $children = $this->documentApi->sortDocumentsByCriteria($children, $child->getSorting());
             $a = array ();
             $a['document'] = $child;
             $a['published'] = true;

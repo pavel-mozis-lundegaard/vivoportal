@@ -424,5 +424,21 @@ return array(
             '500' => '/error-500/',
         ),
         'default' => '/error/',
-    )
+    ),
+    'document_sorting' => array (
+        'native' => array(
+            'parent'         => 'by_parent_document',
+            'title:asc'      => 'title_asc',
+            'title:desc'     => 'title_desc',
+            'created:asc'    => 'created_asc',
+            'created:desc'   => 'created_desc',
+            'modified:asc'   => 'modified_asc',
+            'modified:desc'  => 'modified_desc',
+            'position:asc'   => 'position_asc',
+            'position:desc'  => 'position_desc',
+            'published:asc'  => 'publish_date_document_only_asc',
+            'published:desc' => 'publish_date_document_only_desc',
+            'random'     => 'random'
+        ),
+     ),
 );

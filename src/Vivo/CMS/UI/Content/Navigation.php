@@ -219,7 +219,7 @@ class Navigation extends Component
             }
             //Create the navigation container
             $this->navigation   = new NavigationContainer();
-            $pages              = $this->buildNavPages($documents);
+            $pages              = $this->buildNavPages($documents, $this->content->getLimit());
             $this->navigation->setPages($pages);
         }
         return $this->navigation;
@@ -329,15 +329,16 @@ class Navigation extends Component
     /**
      * Builds navigation pages from the supplied documents structure
      * @param array $documents For structure see property Vivo\CMS\Model\Content::$enumeratedDocs
+     * @param int $limit Number of documents listed in the navigation per level
      * @throws \Vivo\CMS\UI\Exception\UnexpectedValueException
      * @throws \Vivo\CMS\UI\Exception\InvalidArgumentException
      * @return CmsNavPage[]
      */
-    protected function buildNavPages(array $documents = array())
+    protected function buildNavPages(array $documentsPaths = array(), $limit = null)
     {
         $pages      = array();
-        $currentDoc = $this->cmsEvent->getDocument();
-        foreach ($documents as $docArray) {
+        $currentDoc = $this->cmsEvent->getDocument();        
+        foreach($documentsPaths as $docArray) {
             if (!is_array($docArray)) {
                 throw new Exception\InvalidArgumentException(
                     sprintf("%s: Document record must be represented by an array", __METHOD__));
@@ -351,17 +352,34 @@ class Navigation extends Component
                 $doc    = $this->cmsApi->getSiteEntity($docPath, $this->site);
             } catch (EntityNotFoundException $e) {
                 $events = new \Zend\EventManager\EventManager();
-                $events->trigger('log', $this, array ('message' => $e->getMessage(), 'level' => \Zend\Log\Logger::WARN));
+                $events->trigger('log', $this, array (
+                    'message' => $e->getMessage(), 
+                    'level' => \VpLogger\Log\Logger::WARN));
                 continue;
             }
             if (!$doc instanceof Document) {
                 throw new Exception\UnexpectedValueException(
                     sprintf("%s: Entity specified by path '%s' is not a document", __METHOD__, $docPath));
             }
+            $documents[] = array('doc' => $doc, 'children' => $docArray['children']);
+        }        
+        if($this->content->getNavigationSorting() !== null){
+            $sorting = $this->content->getNavigationSorting();
+            $parentSorting = $currentDoc->getSorting();
+            if(strpos($sorting, "parent") !== false && $parentSorting != null) {
+                $sorting = $parentSorting;
+            }
+            $documents = $this->documentApi->sortDocumentsByCriteria($documents, $sorting);            
+        }
+        if($limit && count($documents) > 0) {
+            $documents = array_slice($documents, 0, $limit, true);
+        }
+        foreach ($documents as $key => $docArray) { 
+            $doc = $docArray['doc'];
             $docRelPath     = $this->cmsApi->getEntityRelPath($doc);
             $pageOptions    = array(
                 'sitePath'      => $docRelPath,
-                'label'         => $doc->getTitle(),
+                'label'         => $doc->getNavigationTitle(),
                 'active'        => $this->cmsApi->getEntityRelPath($currentDoc) == $docRelPath,
                 'document'      => $doc,
             );
@@ -372,10 +390,10 @@ class Navigation extends Component
             if (array_key_exists('children', $docArray)
                     && is_array($docArray['children'])
                     && count($docArray['children']) > 0) {
-                $children   = $this->buildNavPages($docArray['children']);
+                $children   = $this->buildNavPages($docArray['children'], $limit);
                 $page->setPages($children);
             }
-            if($this->documentApi->isPublished($document)) {
+            if($this->documentApi->isPublished($doc)) {
                 $pages[]    = $page;
             }
         }

@@ -35,7 +35,7 @@ class ResourceFrontController implements DispatchableInterface,
     protected $event;
 
     /**
-     * @var \Vivo\Util\MIME
+     * @var \Vivo\Util\MIMEInterface
      */
     protected $mime;
 
@@ -146,9 +146,9 @@ class ResourceFrontController implements DispatchableInterface,
 
     /**
      * Inject MIME.
-     * @param \Vivo\Util\MIME $mime
+     * @param \Vivo\Util\MIMEInterface $mime
      */
-    public function setMime(\Vivo\Util\MIME $mime)
+    public function setMime(\Vivo\Util\MIMEInterface $mime)
     {
         $this->mime = $mime;
     }

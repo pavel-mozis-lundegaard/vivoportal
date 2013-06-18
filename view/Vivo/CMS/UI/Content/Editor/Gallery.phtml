@@ -1,0 +1,22 @@
+<?
+use Vivo\CMS\Model\Content\Fileboard;
+
+$formType = DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
+//echo $this->formFieldsetTwb($form->get('gal-new'), $formType, array(), true, false);
+?>
+<? if($files) : ?>
+    <div>
+        <a href="<?=$this->actionUrl('deleteAll')?>">Smazat vše</a>
+    </div>
+    <ol>
+        <?
+         $count = count($files);
+         foreach ($files as $i => $file) {
+            $u = $file->getUuid();
+        ?>
+            <li style="border:1px solid gray; margin:6px;">
+                <?=$u?>
+            </li>
+        <? } ?>
+    </ol>
+<? endif; ?>

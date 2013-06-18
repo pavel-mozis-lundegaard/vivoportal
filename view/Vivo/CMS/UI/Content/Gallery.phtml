@@ -1,0 +1,9 @@
+<? if($files) : ?>
+    <ol>
+        <?
+        foreach ($files as $file) {
+            echo $file->getUuid();
+        }
+        ?>
+    </ol>
+<? endif; ?>

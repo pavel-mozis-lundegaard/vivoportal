@@ -377,7 +377,7 @@ class Navigation extends Component
             $docRelPath     = $this->cmsApi->getEntityRelPath($doc);
             $pageOptions    = array(
                 'sitePath'      => $docRelPath,
-                'label'         => $doc->getTitle(),
+                'label'         => $doc->getNavigationTitle(),
                 'active'        => $this->cmsApi->getEntityRelPath($currentDoc) == $docRelPath,
                 'document'      => $doc,
             );

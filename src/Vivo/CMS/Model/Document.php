@@ -4,7 +4,7 @@ namespace Vivo\CMS\Model;
 use DateTime;
 
 /**
- * The document represents a folder in tree. The document contains functions for working with content and sub-documents.
+ * The document represents a folder in tree. The document contains functions for working with content and sub-documents
  */
 class Document extends Folder
 {
@@ -44,7 +44,8 @@ class Document extends Folder
     protected $navigationTitle;
 
     /**
-     * Keywords are used to describe content of the document. Keywords could make fulltext searches faster and more effective.
+     * Keywords are used to describe content of the document. 
+     * Keywords could make fulltext searches faster and more effective.
      * Please separate each word by comma.
      *
      * @var string
@@ -73,7 +74,7 @@ class Document extends Folder
     protected $navigable;
 
     /**
-     * @var bool If it's set, changes in contents of the document is automatically saved as a new version of the content.
+     * @var bool If it's set, changes in contents of the document is automatically saved as a new version.
      */
     protected $autoVersioning = false;
 
@@ -96,8 +97,8 @@ class Document extends Folder
     /**
      * Expiration of the contents of the document - if set, the output display of the contents of the document
      * is saved to cache and will be displayed within the expiration period from there.
-     * It allows you to accelerate the display of documents containing programming which are time-consuming for processing
-     * (eg, presenting data from an external database).
+     * It allows you to accelerate the display of documents,
+     * containing programming which are time-consuming for processing (eg, presenting data from an external database).
      * @var int Expiration (in seconds)
      */
     protected $expiration;
@@ -118,7 +119,8 @@ class Document extends Folder
     protected $image;
 
     /**
-     * Date and time when the document was published. Typically it is used for articles, newsletters and press releases.
+     * Date and time when the document was published. 
+     * Typically it is used for articles, newsletters and press releases.
      * Unless explicitly specified otherwise, the system fills in the date of creation of the document in the system.
      *
      * @var DateTime
@@ -126,7 +128,8 @@ class Document extends Folder
     protected $published;
 
     /**
-     * Name of the person who actually created the document. It is used typically for articles, newsletters and press releases.
+     * Name of the person who actually created the document. 
+     * It is used typically for articles, newsletters and press releases.
      * Unless explicitly specified otherwise, the system fills in a name of the logged editor.
      * @var string
      */

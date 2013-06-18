@@ -14,19 +14,19 @@ class Document extends Folder
     const AVAILABLE = 2;
 
     /**
-     * URL of the document. If there is not specifically specified, URL is always a straight path to the document.
+     * URI of the document. If there is not specifically specified, URI is always a straight path to the document.
      * (relative to the root document ROOT).
      *
      * @var string
      */
-    protected $url;
+    protected $uri;
 
     /**
-     * @var bool URL takes precedence.
+     * @var bool URI takes precedence.
      *
-     * Specific URL takes precedence (is primary)
+     * Specific URI takes precedence (is primary)
      */
-    protected $urlPrecedence;
+    protected $uriPrecedence;
 
     /**
      * @var string Page header.
@@ -34,9 +34,14 @@ class Document extends Folder
     protected $heading;
 
     /**
-     * @var string Name in listings
+     * @var string Title which can be seen in overview
      */
     protected $overviewTitle;
+    
+    /**
+     * @var string Title which can be seen in navigation
+     */
+    protected $navigationTitle;
 
     /**
      * Keywords are used to describe content of the document. Keywords could make fulltext searches faster and more effective.
@@ -167,6 +172,15 @@ class Document extends Folder
     {
         return $this->heading ? $this->heading : $this->title;
     }
+    
+    /**
+     * Sets heading property which is the same as title by default
+     * 
+     * @param string $heading
+     */
+    public function setHeading($heading) {
+        $this->heading = $heading;
+    }
 
     /**
      * Document overview title. If overview title is not set, document title will be returned.
@@ -177,7 +191,35 @@ class Document extends Folder
     {
         return $this->overviewTitle ? $this->overviewTitle : $this->title;
     }
-
+    
+    /**
+     * Sets title which can be seen in overview
+     * 
+     * @param string $overviewTitle
+     */
+    public function setOverviewTitle($overviewTitle) {
+        $this->overviewTitle = $overviewTitle;
+    }
+    
+    /**
+     * Document navigation title. If navigation title is not set, document title will be returned.
+     *
+     * @return string
+     */
+    public function getNavigationTitle()
+    {
+        return $this->navigationTitle ? $this->navigationTitle : $this->title;
+    }
+    
+    /**
+     * Sets title which can be seen in overview
+     * 
+     * @param string $overviewTitle
+     */
+    public function setNavigationTitle($navigationTitle) {
+        $this->navigationTitle = $navigationTitle;
+    }
+    
     /**
      * @param string $keywords
      */
@@ -289,17 +331,17 @@ class Document extends Folder
     /**
      * @return string
      */
-    public function getUrl()
+    public function getUri()
     {
-        return $this->url;
+        return $this->uri;
     }
 
     /**
-     * @param string $url
+     * @param string $uri
      */
-    public function setUrl($url)
+    public function setUri($uri)
     {
-        $this->url = $url;
+        $this->uri = $uri;
     }
 
     public function getImage()
@@ -321,12 +363,13 @@ class Document extends Folder
     {
         $this->published = $published;
     }
-    public function getUrlPrecedence() {
-        return $this->urlPrecedence;
+    
+    public function getUriPrecedence() {
+        return $this->uriPrecedence;
     }
 
-    public function setUrlPrecedence($urlPrecedence) {
-        $this->urlPrecedence = $urlPrecedence;
+    public function setUriPrecedence($uriPrecedence) {
+        $this->uriPrecedence = $uriPrecedence;
     }
 
     public function getNavigable() {
@@ -438,7 +481,7 @@ class Document extends Folder
         }
         //URL
         if (array_key_exists('url', $data)) {
-            $this->setUrl($data['url']);
+            $this->setUri($data['url']);
         }
         parent::exchangeArraySymRef($data);
     }
@@ -452,7 +495,7 @@ class Document extends Folder
         $data                       = parent::getArrayCopySymRef();
         $data['layout']             = $this->getLayout();
         $data['internal_notice']    = $this->getInternalNotice();
-        $data['url']                = $this->getUrl();
+        $data['url']                = $this->getUri();
         return $data;
     }
 }

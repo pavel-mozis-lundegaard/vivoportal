@@ -74,7 +74,16 @@ class Gallery extends AbstractForm implements EditorInterface
         $form = $this->getForm();
 
         if($form->isValid()) {
+            if($this->content->getUuid()) {
+                $this->documentApi->saveContent($this->content);
+            }
+            else {
+                $this->documentApi->createContent($container, $this->content);
+            }
 
+            if($this->content->getCreated()) {
+
+            }
         }
     }
 
@@ -142,7 +151,45 @@ class Gallery extends AbstractForm implements EditorInterface
         $form = new Form('gallery-editor-'.$this->content->getUuid());
         $form->setWrapElements(true);
 
+        if($this->content->getCreated()) {
+            $fieldset = $this->getEditorFieldset();
+            $form->add($fieldset);
+        }
+
         return $form;
+    }
+
+    /**
+     * Returns editor fieldset.
+     *
+     * @return \Vivo\Form\Fieldset
+     */
+    private function getEditorFieldset()
+    {
+        $fieldset = new Fieldset('gl-new');
+        $fieldset->add(array(
+            'name' => 'file',
+            'type' => 'Vivo\Form\Element\File',
+            'options' => array(
+                'label' => 'new media',
+            ),
+        ));
+        $fieldset->add(array(
+            'name' => 'name',
+            'type' => 'Vivo\Form\Element\Text',
+            'options' => array(
+                'label' => 'new media name',
+            ),
+        ));
+        $fieldset->add(array(
+            'name' => 'desc',
+            'type' => 'Vivo\Form\Element\Textarea',
+            'options' => array(
+                'label' => 'new media description',
+            ),
+        ));
+
+        return $fieldset;
     }
 
     public function view()

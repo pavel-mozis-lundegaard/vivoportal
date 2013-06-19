@@ -2,7 +2,9 @@
 use Vivo\CMS\Model\Content\Fileboard;
 
 $formType = DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
-//echo $this->formFieldsetTwb($form->get('gal-new'), $formType, array(), true, false);
+if($form->get('gl-new')) {
+    echo $this->formFieldsetTwb($form->get('gl-new'), $formType, array(), true, false);
+}
 ?>
 <? if($files) : ?>
     <div>

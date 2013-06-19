@@ -204,6 +204,7 @@ return array(
             'Vivo\CMS\Api\Document'     => 'Vivo\CMS\Api\DocumentFactory',
             'Vivo\CMS\Api\Indexer'      => 'Vivo\CMS\Api\IndexerFactory',
             'Vivo\CMS\Api\Site'         => 'Vivo\CMS\Api\SiteFactory',
+            'Vivo\CMS\Api\Util'         => 'Vivo\CMS\Api\UtilFactory',
             'Vivo\CMS\Api\Content\File'       => 'Vivo\CMS\Api\Content\FileFactory',
             'Vivo\CMS\Api\Content\Fileboard'  => 'Vivo\CMS\Api\Content\FileboardFactory',
             'module_resource_manager'   => 'Vivo\Service\ModuleResourceManagerFactory',
@@ -245,6 +246,7 @@ return array(
             'session_manager'           => 'Vivo\Service\SessionManagerFactory',
             'mime'                      => 'Vivo\Util\MIMEFactory',
             'indexer_events'            => 'Vivo\Indexer\EventManagerFactory',
+            'Vivo\nav_overview_defaults_processor' => 'Vivo\Service\EntityProcessor\NavAndOverviewDefaultsFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -287,7 +289,9 @@ return array(
             'cli_repository'            => 'Vivo\Service\Controller\CLI\CLIRepositoryControllerFactory',
             'cli_cms'                   => 'Vivo\Service\Controller\CLI\CLICmsControllerFactory',
             'cli_indexer'               => 'Vivo\Service\Controller\CLI\CLIIndexerControllerFactory',
+            'cli_util'                  => 'Vivo\Service\Controller\CLI\CLIUtilControllerFactory',
             'cli_setup'                 => 'Vivo\Service\Controller\CLI\CLISetupControllerFactory',
+            'cli_util'                  => 'Vivo\Controller\CLI\UtilControllerFactory',
             'backend_controller'         => 'Vivo\Backend\BackendControllerFactory',
         ),
     ),
@@ -547,7 +551,6 @@ return array(
             'text/x-smarty'                 => array('tpl'),
             'text/x-vcard'                  => array('vcf'),
             'text/x-speech'                 => array('talk'),
-            'text/x-speech'                 => array('talk'),
             'image/gif'                     => array('gif'),
             'image/png'                     => array('png'),
             'image/ief'                     => array('ief'),
@@ -627,8 +630,7 @@ return array(
             'application/x-shockwave-flash' => array('swf'),
             'application/x-stuffit'         => array('sit', 'sea'),
             'application/fractals'          => array('fif'),
-            'application/octet-stream'      => array('bin', 'uu'),
-            'application/octet-stream'      => array('exe'),
+            'application/octet-stream'      => array('bin', 'uu', 'exe'),
             'application/x-wais-source'     => array('src', 'wsrc'),
             'application/hdf'               => array('hdf'),
             'application/x-sh'              => array('sh'),
@@ -1054,6 +1056,24 @@ return array(
                         'defaults' => array(
                             'controller' => 'cli_indexer',
                             'action'     => 'reindex',
+                        ),
+                    ),
+                ),
+                'util' => array(
+                    'options' => array(
+                        'route'    => 'util [<action>]',
+                        'defaults' => array(
+                            'controller' => 'cli_util',
+                            'action'     => 'default',
+                        ),
+                    ),
+                ),
+                'util_crawl' => array(
+                    'options' => array(
+                        'route'    => 'util crawl <host> <service>',
+                        'defaults' => array(
+                            'controller' => 'cli_util',
+                            'action'     => 'crawl',
                         ),
                     ),
                 ),

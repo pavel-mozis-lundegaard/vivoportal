@@ -70,5 +70,10 @@ class InjectSecurityManagerListener implements ListenerAggregateInterface
         $cmsApi             = $this->serviceLocator->get('Vivo\CMS\Api\CMS');
         $securityManager    = $this->serviceLocator->get('security_manager');
         $cmsApi->setSecurityManager($securityManager);
+        //Performance log
+        $events = new \Zend\EventManager\EventManager();
+        $events->trigger('log', $this,
+            array ('message'    => 'Security manager injected into CMS API',
+                'priority'   => \VpLogger\Log\Logger::PERF_FINER));
     }
 }

@@ -11,41 +11,33 @@ use Vivo\CMS\Model;
 class File extends Model\Content
 {
     /**
-     * @var string
-     */
-    protected $mimeType;
-
-    /**
      * @var string Original filename.
      */
     protected $filename;
 
     /**
-     * Constructor.
-     * @param string $path Entity path.
+     * @var string MIME type.
      */
-    public function __construct($path = null)
-    {
-        parent::__construct($path);
-    }
+    protected $mimeType;
 
     /**
-     * Sets file mimetype
-     *
-     * @param string $mimeType
+     * @var string File excension.
      */
-    public function setMimeType($mimeType)
-    {
-        $this->mimeType = $mimeType;
-    }
+    protected $ext;
+
     /**
-     * Returns file mimetype.
-     *
-  						   * @return string
+     * @var int File size in bytes.
      */
-    public function getMimeType()
+    protected $size = 0;
+
+    /**
+     * Sets the original file name.
+     *
+     * @param string $filename
+     */
+    public function setFilename($filename)
     {
-    	return $this->mimeType;
+        $this->filename = $filename;
     }
 
     /**
@@ -59,12 +51,58 @@ class File extends Model\Content
     }
 
     /**
-     *Sets the original file name.
-     *
-     * @param string $filename
+     * @param string $mime
      */
-    public function setFilename($filename)
+    public function setMimeType($mime)
     {
-        $this->filename = $filename;
+        $this->mimeType = $mime;
+    }
+
+    /**
+     * Returns file mimetype.
+     *
+     * @return string
+     */
+    public function getMimeType()
+    {
+        return $this->mimeType;
+    }
+
+    /**
+     * @return string $ext
+     */
+    public function setExt($ext)
+    {
+        $this->ext = $ext;
+    }
+
+    /**
+     * Returns resource extension.
+     *
+     * @return string
+     */
+    public function getExt()
+    {
+        return $this->ext;
+    }
+
+    /**
+     * Sets the size of the file in bytes.
+     *
+     * @param int $size
+     */
+    public function setSize($size)
+    {
+        $this->size = $size;
+    }
+
+    /**
+     * Returns the size of the file in bytes.
+     *
+     * @return int
+     */
+    public function getSize()
+    {
+        return $this->size;
     }
 }

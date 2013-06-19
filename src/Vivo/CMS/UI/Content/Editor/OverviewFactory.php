@@ -9,8 +9,9 @@ class OverviewFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $docApi = $serviceLocator->get('Vivo\CMS\Api\Document');
-
-        $editor = new Overview($docApi);
+        $config = $serviceLocator->get('cms_config');
+        
+        $editor = new Overview($docApi, $config['document_sorting']['native']);
 
         return $editor;
     }

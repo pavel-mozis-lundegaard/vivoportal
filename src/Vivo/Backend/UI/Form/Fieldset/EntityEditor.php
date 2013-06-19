@@ -3,11 +3,21 @@ namespace Vivo\Backend\UI\Form\Fieldset;
 
 use Vivo\Form\Fieldset;
 
+use Zend\InputFilter\InputFilterProviderInterface;
+
 /**
  * EntityEditor fieldset.
  */
-class EntityEditor extends Fieldset
+class EntityEditor extends Fieldset implements InputFilterProviderInterface
 {
+
+    /**
+     * Input filter specification for fieldset
+     *
+     * @var array
+     */
+    protected $inputFilterSpecification = array();
+
     /**
      * Constructor.
      *
@@ -48,6 +58,14 @@ class EntityEditor extends Fieldset
                 $attributes['class'] = 'important';
             }
 
+            // Input filter specification
+            if(!empty($attrs['required'])) {
+                $this->inputFilterSpecification[$name]['required'] = (bool) $attrs['required'];
+            }
+            if(!empty($attrs['allow_empty'])) {
+                $this->inputFilterSpecification[$name]['allow_empty'] = (bool) $attrs['allow_empty'];
+            }
+
             // Field init
             $this->add(array(
                 'name' => $name,
@@ -71,6 +89,16 @@ class EntityEditor extends Fieldset
         $elementClass = 'Vivo\Form\Element\\'.ucfirst($type);
 
         return $elementClass;
+    }
+
+    /**
+     * Returns input filter specification for fieldset
+     *
+     * @return array
+     */
+    public function getInputFilterSpecification()
+    {
+        return $this->inputFilterSpecification;
     }
 
 }

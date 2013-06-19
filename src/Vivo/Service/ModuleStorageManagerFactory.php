@@ -32,6 +32,11 @@ class ModuleStorageManagerFactory implements FactoryInterface
             $storageUtil,
             $remoteModule,
             $pathBuilder);
+        //PerfLog
+        $events = $serviceLocator->get('event_manager');
+        $events->trigger('log', $this,
+            array ('message'    => 'ModuleStorageManager created',
+                'priority'   => \VpLogger\Log\Logger::PERF_FINER));
         return $manager;
     }
 }

@@ -30,57 +30,7 @@ class FieldHelper implements FieldHelperInterface
      * These are NOT merged with $defaultIndexingOptions
      * @var array
      */
-    protected $presets  = array(
-        '\\uuid'        => array(
-            'type'          => IndexerInterface::FIELD_TYPE_STRING,
-            'indexed'       => true,
-            'stored'        => true,
-            'tokenized'     => false,
-            'multi'         => false,
-        ),
-        '\\path'        => array(
-            'type'          => IndexerInterface::FIELD_TYPE_STRING,
-            'indexed'       => true,
-            'stored'        => true,
-            'tokenized'     => false,
-            'multi'         => false,
-        ),
-        '\\class'        => array(
-            'type'          => IndexerInterface::FIELD_TYPE_STRING,
-            'indexed'       => true,
-            'stored'        => true,
-            'tokenized'     => false,
-            'multi'         => false,
-        ),
-        '\\hosts'        => array(
-            'type'          => IndexerInterface::FIELD_TYPE_STRING,
-            'indexed'       => true,
-            'stored'        => true,
-            'tokenized'     => false,
-            'multi'         => true,
-        ),
-        '\\publishedContents'   => array(
-            'type'          => IndexerInterface::FIELD_TYPE_STRING,
-            'indexed'       => true,
-            'stored'        => true,
-            'tokenized'     => false,
-            'multi'         => true,
-        ),
-        '\\state'        => array(
-            'type'          => IndexerInterface::FIELD_TYPE_STRING,
-            'indexed'       => true,
-            'stored'        => true,
-            'tokenized'     => false,
-            'multi'         => false,
-        ),
-        '\\createdBy'        => array(
-            'type'          => IndexerInterface::FIELD_TYPE_STRING,
-            'indexed'       => true,
-            'stored'        => true,
-            'tokenized'     => false,
-            'multi'         => false,
-        ),
-    );
+    protected $presets  = array();
 
     /**
      * Indexer configurations for individual properties

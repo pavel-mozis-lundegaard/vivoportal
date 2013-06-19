@@ -210,7 +210,6 @@ class SiteManager implements SiteManagerInterface,
         } else {
             $siteHost   = '<site host unknown>';
         }
-        $siteSpec   = $this->siteEvent->getHost();
         $this->events->trigger('log', $this,
                 array ('message'    => "Site at host '" . $siteHost . "' prepared",
                        'priority'   => Logger::PERF_BASE));
@@ -243,13 +242,9 @@ class SiteManager implements SiteManagerInterface,
     public function setRouteMatch(RouteMatch $routeMatch = null)
     {
         $this->routeMatch = $routeMatch;
-        if ($this->getEventManager()) {
+        if ($routeMatch && $routeMatch->getParam('path') && $this->getEventManager()) {
             $events = $this->getEventManager();
-            if ($routeMatch && $routeMatch->getParam('path')) {
-                $path   = $routeMatch->getParam('path');
-            } else {
-                $path   = '<path not set in routematch>';
-            }
+            $path   = $routeMatch->getParam('path');
             //Performance log
             $events->trigger('log', $this,
                 array ('message'    => sprintf("Routematch set (path = '%s')", $path),

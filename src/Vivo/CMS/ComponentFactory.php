@@ -148,7 +148,7 @@ class ComponentFactory implements EventManagerAwareInterface
         }
         $this->eventManager->trigger('log', $this,
             array ('message'    => sprintf("Front component for document '%s' created", $document->getPath()),
-                   'priority'      => Logger::PERF_BASE));
+                   'priority'      => Logger::PERF_FINER));
         return $frontComponent;
     }
 
@@ -301,7 +301,8 @@ class ComponentFactory implements EventManagerAwareInterface
         }
 
         $message = "Created component '" . get_class($component) . "' using $type.";
-        $this->eventManager->trigger('log', $this, array ('message' => $message));
+        $this->eventManager->trigger('log', $this, array(
+                'message' => $message, 'priority' => \VpLogger\Log\Logger::PERF_FINER));
 
         return $component;
     }

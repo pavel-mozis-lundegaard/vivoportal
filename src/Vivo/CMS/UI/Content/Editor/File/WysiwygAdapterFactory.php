@@ -12,11 +12,11 @@ class WysiwygAdapterFactory implements FactoryInterface
 {
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $cmsApi             = $serviceLocator->get('Vivo\CMS\Api\CMS');
+        $fileApi            = $serviceLocator->get('Vivo\CMS\Api\Content\File');
         $symRefConvertor    = $serviceLocator->get('sym_ref_convertor');
         $formFactory        = $serviceLocator->get('form_factory');
 
-        $adapter            = new WysiwygAdapter($cmsApi, $symRefConvertor, $formFactory);
+        $adapter            = new WysiwygAdapter($fileApi, $symRefConvertor, $formFactory);
         return $adapter;
     }
 

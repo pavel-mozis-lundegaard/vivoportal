@@ -71,6 +71,11 @@ class InjectModuleManagerListener implements ListenerAggregateInterface
         if ($moduleManager) {
             $this->moduleResourceManager->setModuleManager($moduleManager);
 //            $e->stopPropagation(true);
+            //Performance log
+            $events = new \Zend\EventManager\EventManager();
+            $events->trigger('log', $this,
+                array ('message'    => 'Module manager injected into Module resource manager',
+                    'priority'   => \VpLogger\Log\Logger::PERF_FINER));
         }
     }
 }

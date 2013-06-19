@@ -181,6 +181,11 @@ class Repository implements RepositoryInterface
      */
     public function getEntity($path)
     {
+        //Log getEntity
+        $this->events->trigger('log', $this,
+            array ('message'    => sprintf("getEntity '%s'", $path),
+                'priority'   => \VpLogger\Log\Logger::DEBUG));
+
         $path   = $this->pathBuilder->sanitize($path);
         //Get entity from watcher
         $entity = $this->watcher->get($path);
@@ -251,6 +256,9 @@ class Repository implements RepositoryInterface
                     if ($minMtime > $cacheMtime) {
                         //mtime in cache is older than the specified mtime
                         $this->removeEntityFromCache($path, true);
+                        $this->events->trigger('log', $this,
+                            array ('message'    => sprintf("Stale item removed from cache '%s'", $path),
+                                'priority'   => \VpLogger\Log\Logger::DEBUG));
                         return null;
                     }
                 } else {
@@ -299,26 +307,35 @@ class Repository implements RepositoryInterface
             //Remove also all descendants of this entity
             $descendants    = $this->getChildren($path, false, true);
             foreach ($descendants as $descendant) {
-                $key    = md5($descendant->getPath());
+                $descPath   = $descendant->getPath();
+                $key    = md5($descPath);
                 $this->cache->removeItem($key);
+                $this->events->trigger('log', $this,
+                    array ('message'    => sprintf("Entity removed from cache '%s' ('%s')", $descPath, $key),
+                        'priority'   => \VpLogger\Log\Logger::DEBUG));
             }
         }
         //Remove the entity
         $key            = md5($path);
         $this->cache->removeItem($key);
+        $this->events->trigger('log', $this,
+            array ('message'    => sprintf("Entity removed from cache '%s' ('%s')", $path, $key),
+                'priority'   => \VpLogger\Log\Logger::DEBUG));
     }
 
     /**
      * Looks up an entity in storage and returns it
      * If the entity is not found returns null
      * @param string $path
-     * @throws Exception\Exception
+     * @throws Exception\UnserializationException
      * @return \Vivo\CMS\Model\Entity|null
      */
     public function getEntityFromStorage($path)
     {
-        //TODO - Log storage access
-//        echo '<br>Entity from storage: ' . $path;
+        //Log storage access
+        $this->events->trigger('log', $this,
+            array ('message'    => sprintf("getEntityFromStorage '%s'", $path),
+                'priority'   => \VpLogger\Log\Logger::DEBUG));
 
         $path           = $this->pathBuilder->sanitize($path);
         $pathComponents = array($path, self::ENTITY_FILENAME);
@@ -336,8 +353,8 @@ class Repository implements RepositoryInterface
         try {
             $entity         = $this->serializer->unserialize($entitySer);
         } catch (\Exception $e) {
-            throw new Exception\Exception(
-                    sprintf("%s: Can't unserialize entity with path `%s`.", __METHOD__, $fullPath),null, $e);
+            throw new Exception\UnserializationException(
+                sprintf("%s: Can't unserialize entity with path `%s`.", __METHOD__, $fullPath), null, $e);
         }
         //Trigger post-unserialize event
         $eventParams    = array(
@@ -722,31 +739,62 @@ class Repository implements RepositoryInterface
 
     /**
      * Returns descendants of a specific path from storage
+     * If $suppressUnserializationErrors is set to false, returns an array of entities
+     * If $suppressUnserializationErrors is set to true, returns
+     * array(
+     *      'entities'  => array of descendants,
+     *      'erroneous' => array(
+     *          'child path' => Exception,...
+     * )
      * @param string $path
-     * @return Entity[]
+     * @param bool $suppressUnserializationErrors If true, unserialization errors will not be thrown
+     * @throws \Exception|Exception\UnserializationException
+     * @return Entity[]|array
      */
-    public function getDescendantsFromStorage($path)
+    public function getDescendantsFromStorage($path, $suppressUnserializationErrors = false)
     {
         $path           = $this->pathBuilder->sanitize($path);
         /** @var $descendants Entity[] */
         $descendants    = array();
+        $erroneous      = array();
         $names = $this->storage->scan($path);
         foreach ($names as $name) {
             $childPath = $this->pathBuilder->buildStoragePath(array($path, $name), true);
             if (!$this->storage->isObject($childPath)) {
+                $entity     = null;
                 try {
                     $entity = $this->getEntityFromStorage($childPath);
-                    if ($entity) {
-                        $descendants[]      = $entity;
-                        $childDescendants   = $this->getDescendantsFromStorage($entity->getPath());
-                        $descendants        = array_merge($descendants, $childDescendants);
-                    }
                 } catch (Exception\EntityNotFoundException $e) {
                     //Fix for the situation when a directory exists without an Entity.object
+                } catch (Exception\UnserializationException $e) {
+                    if ($suppressUnserializationErrors) {
+                        $erroneous[$childPath]  = $e;
+                    } else {
+                        throw $e;
+                    }
                 }
+                if ($entity) {
+                    $descendants[]      = $entity;
+                }
+                $childDescendantsStruct = $this->getDescendantsFromStorage($childPath, $suppressUnserializationErrors);
+                if ($suppressUnserializationErrors) {
+                    $childDescendants   = $childDescendantsStruct['entities'];
+                    $erroneous          = array_merge($erroneous, $childDescendantsStruct['erroneous']);
+                } else {
+                    $childDescendants   = $childDescendantsStruct;
+                }
+                $descendants        = array_merge($descendants, $childDescendants);
             }
         }
-        return $descendants;
+        if ($suppressUnserializationErrors) {
+            $retVal = array(
+                'entities'  => $descendants,
+                'erroneous' => $erroneous,
+            );
+        } else {
+            $retVal = $descendants;
+        }
+        return $retVal;
     }
 
     /**

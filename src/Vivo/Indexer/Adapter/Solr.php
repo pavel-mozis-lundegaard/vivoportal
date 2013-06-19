@@ -10,9 +10,12 @@ use Vivo\Indexer\Field;
 use Vivo\CMS\Indexer\FieldHelperInterface;
 use Vivo\Indexer\IndexerInterface;
 use Vivo\CMS\Indexer\Exception\CannotDecomposeFieldnameException;
+use Vivo\CMS\Indexer\Exception\InvalidArgumentException as IndexerInvalidArgumentException;
 
 use VpApacheSolr\Document as SolrDocument;
 use VpApacheSolr\Service as SolrService;
+
+use Zend\EventManager\EventManager;
 
 use \DateTime;
 
@@ -85,15 +88,21 @@ class Solr implements AdapterInterface
      * @var array
      */
     protected $supportedTypeSuffices    = array(
-        '_si',     //string, indexed
-        '_sim',    //string, indexed, multi-value
-        '_ss',     //string, stored
-        '_ssm',    //string, stored, multi-value
-        '_sis',    //string, indexed, multi-value
-        '_sist',   //string, indexed, stored, tokenized
-        '_sism',   //string, indexed, stored, multi-value
-        '_dti',    //date, indexed
-        '_dtis'    //date, indexed, stored
+        '_si',      //string, indexed
+        '_sim',     //string, indexed, multi-value
+        '_ss',      //string, stored
+        '_ssm',     //string, stored, multi-value
+        '_sis',     //string, indexed, multi-value
+        '_sist',    //string, indexed, stored, tokenized
+        '_sism',    //string, indexed, stored, multi-value
+        '_dti',     //date, indexed
+        '_dtis',    //date, indexed, stored
+        '_ii',      //integer, indexed
+        '_iis',     //integer, indexed, stored
+        '_iism',    //integer, indexed, stored, multi-value
+        '_fi',      //float, indexed
+        '_fis',     //float, indexed, stored
+        '_fism',    //float, indexed, stored, multi-value
     );
 
     /**
@@ -167,10 +176,19 @@ class Solr implements AdapterInterface
             $solrParams['sort'] = $sort;
         }
         try {
+            $events = new EventManager();
+            //PerfLog
+            $events->trigger('log', $this,
+                array ('message'    => sprintf("Sending solr query '%s'", $solrQuery),
+                    'priority'   => \VpLogger\Log\Logger::PERF_FINER));
             $solrResult = $this->solrService->search($solrQuery,
                                                      $queryParams->getStartOffset(),
                                                      $queryParams->getPageSize(),
                                                      $solrParams);
+            //PerfLog
+            $events->trigger('log', $this,
+                array ('message'    => sprintf("Solr result returned for query '%s'", $solrQuery),
+                    'priority'   => \VpLogger\Log\Logger::PERF_FINER));
         } catch (\Exception $e) {
             $ourException   = new Exception\SolrServiceException(
                 sprintf("%s: Solr service threw an exception", __METHOD__),
@@ -602,6 +620,12 @@ class Solr implements AdapterInterface
             case IndexerInterface::FIELD_TYPE_DATETIME:
                 $typeSuffix .= 'dt';
                 break;
+            case IndexerInterface::FIELD_TYPE_INT:
+                $typeSuffix .= 'i';
+                break;
+            case IndexerInterface::FIELD_TYPE_FLOAT:
+                $typeSuffix .= 'f';
+                break;
             default:
                 throw new Exception\InvalidArgumentException(
                     sprintf("%s: Vivo field type '%s' not supported by Solr adapter.", __METHOD__, $vivoType));
@@ -646,27 +670,38 @@ class Solr implements AdapterInterface
         switch ($type) {
             //String
             case IndexerInterface::FIELD_TYPE_STRING:
-                if (!is_null($vivoValue)) {
-                    $solrValue  = (string) $vivoValue;
+                if (is_null($vivoValue)) {
+                    $solrValue = null;
                 } else {
-                    $solrValue  = null;
+                    $solrValue = (string) $vivoValue;
                 }
                 break;
             //DateTime
             case IndexerInterface::FIELD_TYPE_DATETIME:
-                if (!is_null($vivoValue)) {
+                if (is_null($vivoValue)) {
+                    $solrValue = null;
+                } else {
                     if (!$vivoValue instanceof DateTime) {
                         throw new Exception\InvalidArgumentException(
-                            sprintf("%s: A DateTime value expected for 'datetime' indexer type", __METHOD__));
+                                sprintf("%s: A DateTime value expected for 'datetime' indexer type", __METHOD__));
                     }
-                    $solrValue  = $vivoValue->format('Y-m-d\TH:i:s\Z');
-                } else {
-                    $solrValue  = null;
+                    $solrValue = $vivoValue->format('Y-m-d\TH:i:s\Z');
                 }
                 break;
-            //TODO - implement support for INT and FLOAT types
             case IndexerInterface::FIELD_TYPE_INT:
+                if (is_null($vivoValue)) {
+                    $solrValue = null;
+                } else {
+                    $solrValue = intval($vivoValue);
+                }
+                break;
             case IndexerInterface::FIELD_TYPE_FLOAT:
+                if (is_null($vivoValue)) {
+                    $solrValue = null;
+                } else {
+                    $solrValue = floatval($vivoValue);
+                }
+                break;
             default:
                 throw new Exception\InvalidArgumentException(
                     sprintf("%s: Indexer type '%s' not supported", __METHOD__, $type));
@@ -689,6 +724,9 @@ class Solr implements AdapterInterface
         } catch (CannotDecomposeFieldnameException $e) {
             //Unknown field name (neither preset nor dynamic field name); E.g. 'timestamp' automatically added by Solr
             return $solrValue;
+        } catch (IndexerInvalidArgumentException $e) {
+            //Field name extracted, but indexer config not found
+            return $solrValue;
         }
         $type       = $idxConfig['type'];
         switch ($type) {
@@ -700,9 +738,13 @@ class Solr implements AdapterInterface
             case IndexerInterface::FIELD_TYPE_DATETIME:
                 $vivoValue  = new DateTime($solrValue);
                 break;
-            //TODO - implement support for INT and FLOAT types
+            //Numeric
             case IndexerInterface::FIELD_TYPE_INT:
+                $vivoValue  = intval($solrValue);
+                break;
             case IndexerInterface::FIELD_TYPE_FLOAT:
+                $vivoValue  = floatval($solrValue);
+                break;
             default:
                 throw new Exception\InvalidArgumentException(
                     sprintf("%s: Indexer type '%s' not supported", __METHOD__, $type));

@@ -2,17 +2,13 @@
 namespace Vivo\CMS\UI\Content\Editor;
 
 use Vivo\CMS\UI\Content\Editor\ResourceEditorInterface;
-
 use Vivo\CMS\Api;
 use Vivo\CMS\Model;
 use Vivo\UI\AbstractForm;
 use Vivo\Form\Form;
 use Vivo\Repository\Exception\PathNotSetException;
 use Vivo\CMS\RefInt\SymRefConvertorInterface;
-use Vivo\IO\InputStreamInterface;
-use Vivo\IO\FileInputStream;
 use Vivo\CMS\Model\ContentContainer;
-use Vivo\Util\MIME;
 
 use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
 
@@ -24,19 +20,16 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
      * @var \Vivo\CMS\Model\Content\File
      */
     private $content;
+
     /**
-     * @var \Vivo\CMS\Api\CMS
+     * @var \Vivo\CMS\Api\Content\File
      */
-    private $cmsApi;
+    private $fileApi;
+
     /**
      * @var \Vivo\CMS\Api\Document
      */
     private $documentApi;
-
-    /**
-     * @var \Vivo\Util\MIME
-     */
-    protected $mime;
 
     /**
      * Symbolic reference convertor
@@ -46,13 +39,13 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
 
     /**
      * Constructor
-     * @param Api\CMS $cmsApi
+     * @param \Vivo\CMS\Api\Content\File $fileApi
      * @param Api\Document $documentApi
      * @param SymRefConvertorInterface $symRefConvertor
      */
-    public function __construct(Api\CMS $cmsApi, Api\Document $documentApi, SymRefConvertorInterface $symRefConvertor)
+    public function __construct(Api\Content\File $fileApi, Api\Document $documentApi, SymRefConvertorInterface $symRefConvertor)
     {
-        $this->cmsApi           = $cmsApi;
+        $this->fileApi          = $fileApi;
         $this->documentApi      = $documentApi;
         $this->symRefConvertor  = $symRefConvertor;
         $this->autoAddCsrf      = false;
@@ -109,24 +102,29 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
 
         if($form->isValid()) {
             $data = $form->get('upload-file')->getValue();
-            $adapter = $this->getComponent(self::ADAPTER_COMPONENT_NAME);
 
             if ($replaceContent && $data["tmp_name"] != "") {
-                $mimeType = $data["type"];
-                $extension = $this->mime->getExt($mimeType);
-                $this->saveContent($contentContainer, $mimeType, 'resource.' . $extension);
-                $inputStream    = new FileInputStream($data["tmp_name"]);
-                $this->writeResource($inputStream);
-            } else {
+                $this->fileApi->saveFileWithUploadedFile($this->content, $data, $contentContainer);
+            }
+            else {
                 $mimeType = $this->content->getMimeType();
-                if (!$this->content->getFilename()) {
-                    $extension = $this->mime->getExt($mimeType);
-                    $this->content->setFilename('resource.' . $extension);
-                }
-                $fileName = $this->content->getFilename();
-                $this->saveContent($contentContainer, $mimeType, $fileName);
+                $ext = $this->fileApi->getExt($mimeType);
+
+                $this->content->setFilename(null);
+                $this->content->setMimeType($mimeType);
+                $this->content->setExt($ext);
+
+                $adapter = $this->getAdapter();
                 if ($adapter instanceof ResourceEditorInterface && $adapter->dataChanged()) {
-                    $this->saveResource($adapter->getData());
+                    $data = $adapter->getData();
+
+                    $this->content->setSize(mb_strlen($data, 'UTF-8'));
+
+                    $this->saveContent($contentContainer);
+                    $this->saveResource($data);
+                }
+                else {
+                    $this->saveContent($contentContainer);
                 }
             }
         }
@@ -135,14 +133,9 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
     /**
      * Saves content
      * @param ContentContainer $contentContainer
-     * @param string $mimeType
-     * @param string $fileName
      */
-    public function saveContent(ContentContainer $contentContainer, $mimeType, $fileName)
+    private function saveContent(ContentContainer $contentContainer)
     {
-        $this->content->setMimeType($mimeType);
-        $this->content->setFilename($fileName);
-
         if($this->content->getUuid()) {
             $this->documentApi->saveContent($this->content);
         }
@@ -155,30 +148,10 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
      * Saves resource file
      * @param string $data
      */
-    public function saveResource ($data) {
-        $this->removeAllResources();
-        $this->cmsApi->saveResource($this->content, $this->content->getFilename(), $data);
-    }
-
-    /**
-     * Writes resource file to repository
-     * @param InputStreamInterface $inputStream
-     */
-    protected function writeResource(InputStreamInterface $inputStream)
+    private function saveResource($data)
     {
-        $this->removeAllResources();
-        $this->cmsApi->writeResource($this->content, $this->content->getFilename(), $inputStream);
-    }
-
-    /**
-     * Remove all resources
-     */
-    public function removeAllResources()
-    {
-        $resources = $this->cmsApi->scanResources($this->content);
-        foreach ($resources as $resource) {
-            $this->cmsApi->removeResource($this->content, $resource);
-        }
+        $this->fileApi->removeAllResources($this->content);
+        $this->fileApi->saveResource($this->content, $data);
     }
 
     /**
@@ -211,14 +184,5 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
     public function getAdapterKey()
     {
         return $this->content->getMimeType();
-    }
-
-    /**
-     * Inject MIME.
-     * @param \Vivo\Util\MIME $mime
-     */
-    public function setMime(MIME $mime)
-    {
-        $this->mime = $mime;
     }
 }

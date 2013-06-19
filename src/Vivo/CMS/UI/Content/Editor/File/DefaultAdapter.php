@@ -11,29 +11,29 @@ use Vivo\Repository\Exception\PathNotSetException;
  */
 class DefaultAdapter extends AbstractAdapter
 {
-	/**
-	 * Form textarea for WYSIWYG editor
-	 * @var Vivo\UI\Form
-	 */
-	protected $form;
-
-	/**
-	 * Shows download button
-	 * @var bool
-	 */
-	protected $showDownload = false;
-
-	/**
-	 * Constructs Adapter
-	 */
-	public function __construct(Api\CMS $cmsApi)
-	{
-	    $this->cmsApi           = $cmsApi;
-	}
+    /**
+     * @var \Vivo\CMS\Api\Content\File
+     */
+    private $fileApi;
 
     /**
-	 * Initializes Adapter
-	*/
+     * Shows download button
+     * @var bool
+     */
+    protected $showDownload = false;
+
+    /**
+     * Constructs Adapter
+     * @param \Vivo\CMS\Api\Content\File $fileApi
+     */
+    public function __construct(Api\Content\File $fileApi)
+    {
+        $this->fileApi = $fileApi;
+    }
+
+    /**
+     * Initializes Adapter
+    */
     public function init()
     {
         parent::init();
@@ -41,19 +41,19 @@ class DefaultAdapter extends AbstractAdapter
             if($this->content->getFileName()) {
                 $this->showDownload = true;
             }
-	    }
+        }
         catch (PathNotSetException $e) {
 
         }
     }
 
-	/**
-	 * Creates form
-	 */
+    /**
+     * Creates form
+     */
     protected function doGetForm()
     {
         // NOT USED
-    	return new Form('download-resource'.$this->content->getUuid());
+        return new Form('download-resource'.$this->content->getUuid());
     }
 
     /**
@@ -61,25 +61,18 @@ class DefaultAdapter extends AbstractAdapter
      */
     public function downloadFile()
     {
-        $mimeType = $this->content->getMimeType();
-        $fileName = $this->content->getFilename();
-        $inputStream  = $this->cmsApi->readResource($this->content, $fileName);
-
-        header('Content-type: '.$mimeType);
-        header('Content-Disposition: attachment; filename="'.$fileName.'"');
-        while(($b = $inputStream->read(4096)) !== false) {
-            echo $b;
-        }
-        die();
+        $this->fileApi->download($this->content);
     }
 
-	/**
-	 * View Adapter
-	 */
-	public function view()
-	{
-	    $this->view->showDownload = $this->showDownload;
-		return parent::view();
-	}
+    /**
+     * View Adapter
+     */
+    public function view()
+    {
+        $view = parent::view();
+        $view->showDownload = $this->showDownload;
+
+        return $view;
+    }
 
 }

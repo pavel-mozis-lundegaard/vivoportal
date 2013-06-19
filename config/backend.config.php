@@ -72,6 +72,18 @@ return array(
                         'type' => 'text/css',
                         'media' => 'screen'
                     ),
+                     array(
+                        'rel'  => 'stylesheet',
+                        'href' => '.Vivo.resource/backend/css/minimal/minimal.css',
+                        'type' => 'text/css',
+                        'media' => 'screen'
+                    ),
+                     array(
+                        'rel'  => 'stylesheet',
+                        'href' => '.Vivo.resource/backend/css/select2.css',
+                        'type' => 'text/css',
+                        'media' => 'screen'
+                    ),
                 ),
                 'scripts' => array (
                     // array(
@@ -80,6 +92,14 @@ return array(
                     // ),
                     array(
                         'src' => '.Vivo.resource/js/jquery.js',
+                        'type' => 'text/javascript',
+                    ),
+                    array(
+                        'src' => '.Vivo.resource/backend/js/jquery.icheck.js',
+                        'type' => 'text/javascript',
+                    ),
+                    array(
+                        'src' => '.Vivo.resource/backend/js/select2.js',
                         'type' => 'text/javascript',
                     ),
                     array(

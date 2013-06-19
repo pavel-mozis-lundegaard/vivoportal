@@ -410,7 +410,7 @@ class Navigation extends Component
         }
         foreach ($documents as $key => $docArray) { 
             $doc = $docArray['doc'];
-            $docRelPath     = $this->cmsApi->getEntityRelPath($doc);            
+            $docRelPath     = $this->cmsApi->getEntityRelPath($doc);
             $pageOptions    = array(
                 'sitePath'      => $docRelPath,
                 'label'         => $doc->getNavigationTitle(),
@@ -433,7 +433,7 @@ class Navigation extends Component
             if($this->documentApi->isPublished($doc)) {
                 $pages[]    = $page;
             }
-        }        
+        }
         return $pages;
     }
 }

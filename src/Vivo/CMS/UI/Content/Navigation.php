@@ -55,6 +55,12 @@ class Navigation extends Component
      * @var Cache
      */
     protected $cache;
+    
+    /**
+     * Determinates if navigation have active document or not.
+     * @var bool 
+     */
+    private $hasActiveDocument = false;
 
     /**
      * Constructor
@@ -217,12 +223,43 @@ class Navigation extends Component
                         sprintf("%s: Unsupported navigation type '%s'", __METHOD__, $this->navModel->getType()));
                     break;
             }
-            //Create the navigation container
+            //Create the navigation container            
             $this->navigation   = new NavigationContainer();
             $pages              = $this->buildNavPages($documents, $this->content->getLimit());
+            
+            if($this->hasActiveDocument === false) {
+                $parent = $this->cmsEvent->getDocument();
+                $navigationContUuidTable = array();
+                $navigationContUuidTable = $this->getFlatNavigationContainerPages($pages, $navigationContUuidTable);
+                while($parent = $this->documentApi->getParentDocument($parent)) {
+                    if(array_key_exists($parent->getUuid(), $navigationContUuidTable)) {
+                        $navigationContUuidTable[$parent->getUuid()]->active = true;
+                        break;
+                    }
+                }
+            }
             $this->navigation->setPages($pages);
+                        
         }
         return $this->navigation;
+    }
+    
+    /**
+     * Returns flat navigation container pages.
+     * 
+     * @param array $pages
+     * @param array $navigationContUuidTable
+     * @return array
+     */
+    protected function getFlatNavigationContainerPages(array $pages, array $navigationContUuidTable)
+    {
+        foreach ($pages as $key => $page) {
+            $navigationContUuidTable[$page->getUuid()] = $page;
+            if($page->hasChildren()) {        
+                return $this->getFlatNavigationContainerPages($page->getPages(), $navigationContUuidTable);
+            }
+        }
+        return $navigationContUuidTable;
     }
 
     /**
@@ -363,7 +400,7 @@ class Navigation extends Component
             }
             $documents[] = array('doc' => $doc, 'children' => $docArray['children']);
         }        
-        if($this->content->getNavigationSorting() !== null){
+        if($this->content->getNavigationSorting() !== null) {
             $sorting = $this->content->getNavigationSorting();
             $parentSorting = $currentDoc->getSorting();
             if(strpos($sorting, "parent") !== false && $parentSorting != null) {
@@ -374,14 +411,17 @@ class Navigation extends Component
         }
         foreach ($documents as $key => $docArray) { 
             $doc = $docArray['doc'];
-            $docRelPath     = $this->cmsApi->getEntityRelPath($doc);
+            $docRelPath     = $this->cmsApi->getEntityRelPath($doc);            
             $pageOptions    = array(
                 'sitePath'      => $docRelPath,
                 'label'         => $doc->getNavigationTitle(),
-                'active'        => $this->cmsApi->getEntityRelPath($currentDoc) == $docRelPath,
                 'document'      => $doc,
             );
-            $page           = new CmsNavPage($pageOptions);
+            if($this->cmsApi->getEntityRelPath($currentDoc) == $docRelPath) {
+                $this->hasActiveDocument = true;
+                $pageOptions['active']   = true;
+            }
+            $page              = new CmsNavPage($pageOptions);
             if ((bool) $doc->getAllowListingInNavigation() === false) {
                 $page->visible = false;
             }
@@ -394,7 +434,7 @@ class Navigation extends Component
             if($this->documentApi->isPublished($doc)) {
                 $pages[]    = $page;
             }
-        }
+        }        
         return $pages;
     }
 }

@@ -384,7 +384,8 @@ class Repository implements RepositoryInterface
 	{
         $path               = $this->getAndCheckPath($folder);
         $pathElements       = $this->pathBuilder->getStoragePathComponents($path);
-        if (count($pathElements) == 0) {
+        // One path element is site name
+        if (count($pathElements) == 1) {
             //$folder is a root folder
             return null;
         }

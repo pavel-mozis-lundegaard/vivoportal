@@ -146,7 +146,7 @@ class Navigation extends AbstractForm implements EditorInterface
             'options'   => array(
                 'label' => 'Limit',
                 'description'   => 'Number of documents listed in the navigation in each level. '
-                                    . 'When not set, than is unlimited.',
+                                    . 'Empty means unlimited.',
             ),
         ));
         $form->add(array(

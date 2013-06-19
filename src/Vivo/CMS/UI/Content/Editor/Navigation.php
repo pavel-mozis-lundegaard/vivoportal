@@ -145,7 +145,8 @@ class Navigation extends AbstractForm implements EditorInterface
             'type'      => 'Vivo\Form\Element\Text',
             'options'   => array(
                 'label' => 'Limit',
-                'description'   => 'Number of documents listed in the navigation in each level',
+                'description'   => 'Number of documents listed in the navigation in each level. '
+                                    . 'When not set, than is unlimited.',
             ),
         ));
         $form->add(array(

@@ -223,7 +223,7 @@ class Navigation extends Component
                         sprintf("%s: Unsupported navigation type '%s'", __METHOD__, $this->navModel->getType()));
                     break;
             }
-            //Create the navigation container            
+            //Create the navigation container
             $this->navigation   = new NavigationContainer();
             $pages              = $this->buildNavPages($documents, $this->content->getLimit());
             
@@ -239,7 +239,6 @@ class Navigation extends Component
                 }
             }
             $this->navigation->setPages($pages);
-                        
         }
         return $this->navigation;
     }

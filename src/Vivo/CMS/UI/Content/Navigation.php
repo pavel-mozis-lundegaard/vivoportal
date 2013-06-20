@@ -365,7 +365,7 @@ class Navigation extends Component
 
     /**
      * Builds navigation pages from the supplied documents structure
-     * @param array $documents For structure see property Vivo\CMS\Model\Content::$enumeratedDocs
+     * @param array $documentsPaths
      * @param int $limit Number of documents listed in the navigation per level
      * @throws \Vivo\CMS\UI\Exception\UnexpectedValueException
      * @throws \Vivo\CMS\UI\Exception\InvalidArgumentException
@@ -374,7 +374,8 @@ class Navigation extends Component
     protected function buildNavPages(array $documentsPaths = array(), $limit = null)
     {
         $pages      = array();
-        $currentDoc = $this->cmsEvent->getDocument();        
+        $currentDoc = $this->cmsEvent->getDocument();
+        $documents  = array();
         foreach($documentsPaths as $docArray) {
             if (!is_array($docArray)) {
                 throw new Exception\InvalidArgumentException(
@@ -406,8 +407,10 @@ class Navigation extends Component
             if(strpos($sorting, "parent") !== false && $parentSorting != null) {
                 $sorting = $parentSorting;
             }
-            $sortedDocuments = $this->documentApi->sortDocumentsByCriteria($documents, $sorting);
-            $documents = array_slice($sortedDocuments, 0, $limit, true);
+            $documents = $this->documentApi->sortDocumentsByCriteria($documents, $sorting);            
+        }
+        if($limit && count($documents) > 0) {
+            $documents = array_slice($documents, 0, $limit, true);
         }
         foreach ($documents as $key => $docArray) { 
             $doc = $docArray['doc'];

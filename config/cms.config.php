@@ -55,6 +55,10 @@ return array(
             'Vivo\UI\Alert'                     => __DIR__.'/../view/Vivo/UI/Alert.phtml',
             'Vivo\CMS\UI\Content\Navigation'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Navigation.phtml',
             'Vivo\CMS\UI\Content\Navigation:Breadcrumbs' => __DIR__.'/../view/Vivo/CMS/UI/Content/Navigation.Breadcrumbs.phtml',
+            
+            // Special Templates
+            'Vivo\Blank' => __DIR__.'/../view/Vivo/Blank.phtml',
+            'Vivo\TemplateNotFound' => __DIR__.'/../view/Vivo/TemplateNotFound.phtml',
         ),
         'custom_templates' => array (
             // custom selectable templates

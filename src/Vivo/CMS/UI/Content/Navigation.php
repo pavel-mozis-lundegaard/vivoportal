@@ -60,7 +60,7 @@ class Navigation extends Component
      * Determinates if navigation have active document or not.
      * @var bool 
      */
-    private $hasActiveDocument = false;
+    protected $hasActiveDocument = false;
 
     /**
      * Constructor
@@ -227,13 +227,14 @@ class Navigation extends Component
             $this->navigation   = new NavigationContainer();
             $pages              = $this->buildNavPages($documents, $this->content->getLimit());
             
-            if($this->hasActiveDocument === false) {
-                $parent = $this->cmsEvent->getDocument();
+            if($this->hasActiveDocument == false) {
+                $currentPage = $this->cmsEvent->getDocument();
                 $navigationContUuidTable = array();
                 $navigationContUuidTable = $this->getFlatNavigationContainerPages($pages, $navigationContUuidTable);
-                while($parent = $this->documentApi->getParentDocument($parent)) {
-                    if(array_key_exists($parent->getUuid(), $navigationContUuidTable)) {
-                        $navigationContUuidTable[$parent->getUuid()]->active = true;
+                while($currentPage = $this->documentApi->getParentDocument($currentPage)) {
+                    if(array_key_exists($currentPage->getUuid(), $navigationContUuidTable)) {
+                        $navigationContUuidTable[$currentPage->getUuid()]->active = true;
+                        $this->hasActiveDocument = true;
                         break;
                     }
                 }
@@ -399,8 +400,8 @@ class Navigation extends Component
             }
             $documents[] = array('doc' => $doc, 'children' => $docArray['children']);
         }        
-        if($this->content->getNavigationSorting() !== null) {
-            $sorting = $this->content->getNavigationSorting();
+        if($this->navModel->getNavigationSorting() !== null) {
+            $sorting = $this->navModel->getNavigationSorting();
             $parentSorting = $currentDoc->getSorting();
             if(strpos($sorting, "parent") !== false && $parentSorting != null) {
                 $sorting = $parentSorting;

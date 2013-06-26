@@ -31,13 +31,6 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
         $eventManager->trigger('log', $this,
             array ('message'    => 'Vivo Portal Module bootstrapped',
                    'priority'   => Logger::PERF_BASE));
-        //Log request URI
-        /** @var $request \Zend\Http\PhpEnvironment\Request */
-        $request    = $sm->get('request');
-        $uri        = $request->getRequestUri();
-        $eventManager->trigger('log', $this,
-            array ('message'    => sprintf("Request URI: '%s'", $uri),
-                'priority'   => Logger::DEBUG));
     }
 
     public function getConfig()

@@ -10,6 +10,8 @@ use Vivo\Module\Exception\ResourceNotFoundException as ModuleResourceNotFoundExc
 use Vivo\Module\ResourceManager\ResourceManager;
 use Vivo\SiteManager\Event\SiteEvent;
 
+use VpLogger\Log\Logger;
+
 use Zend\EventManager\EventInterface as Event;
 use Zend\Http\Response as HttpResponse;
 use Zend\Mvc\InjectApplicationEventInterface;
@@ -51,6 +53,11 @@ class ResourceFrontController implements DispatchableInterface,
 
     public function dispatch(Request $request, Response $response = null)
     {
+//        $eventManager   = new \Zend\EventManager\EventManager();
+//        $eventManager->trigger('log', $this,
+//            array ('message'    => "TEST FOO BAR",
+//                'priority'   => Logger::DEBUG));
+
         $pathToResource = $this->event->getRouteMatch()->getParam('path');
         $source = $this->event->getRouteMatch()->getParam('source');
         try {
@@ -85,6 +92,13 @@ class ResourceFrontController implements DispatchableInterface,
             $this->headerHelper->setExpirationByMimeType($headers, $mimeType);
 
             $response->setInputStream($resourceStream);
+
+            //Log matched resource path
+            $eventManager   = new \Zend\EventManager\EventManager();
+            $eventManager->trigger('log', $this,
+                array ('message'    => sprintf("Path to resource: '%s'", $pathToResource),
+                    'priority'   => Logger::DEBUG));
+
         } catch (\Exception $e) {
             if ($e instanceof IOException ||
                     $e instanceof ModuleResourceNotFoundException ||

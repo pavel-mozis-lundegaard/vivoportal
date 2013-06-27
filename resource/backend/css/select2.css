@@ -9,6 +9,7 @@ Version: 3.4.0 Timestamp: Tue May 14 08:27:33 PDT 2013
     zoom: 1;
     *display: inline;
     vertical-align: middle;
+    width: 100%;
 }
 
 .select2-container,
@@ -146,7 +147,7 @@ Version: 3.4.0 Timestamp: Tue May 14 08:27:33 PDT 2013
     position: absolute;
     right: 0;
     top: 0;
-    border-left: 1px solid #aaa;
+    border-left: 1px solid #BCC9EA;
     -webkit-background-clip: padding-box;
        -moz-background-clip: padding;
             background-clip: padding-box;
@@ -215,7 +216,6 @@ Version: 3.4.0 Timestamp: Tue May 14 08:27:33 PDT 2013
 .select2-container-active .select2-choices {
     /*border: 1px solid #5897fb;*/
     outline: none;
-
     -webkit-box-shadow: 0 0 5px rgba(0,0,0,.3);
        -moz-box-shadow: 0 0 5px rgba(0,0,0,.3);
             box-shadow: 0 0 5px rgba(0,0,0,.3);
@@ -225,7 +225,7 @@ Version: 3.4.0 Timestamp: Tue May 14 08:27:33 PDT 2013
    
 
     background-color: #FFF;
-
+ 
 }
 
 .select2-dropdown-open.select2-drop-above .select2-choice,
@@ -240,6 +240,7 @@ Version: 3.4.0 Timestamp: Tue May 14 08:27:33 PDT 2013
     background: transparent;
     border-left: none;
     filter: none;
+    border-left: 1px solid #BCC9EA;
 }
 .select2-dropdown-open .select2-choice div b {
     background-position: -18px 1px;

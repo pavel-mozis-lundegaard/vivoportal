@@ -26,59 +26,6 @@ $(document).ready(function() {
     //init treemenu
     initTreeMenu('#treeMenu');
 
-
-    //show/hide treeMenu - handler
-    $(".explorer_tree_hitcher").dblclick(function() {
-        $(".manager_content").addClass("manager_content_default");
-        if ($.cookie("hideTree") === null) {
-            //$(".treeViewCont").hide();
-
-            $(".explorer_content_with_tree").animate({
-                marginRight: 7
-            }, 200, "linear", function() {
-                setFakeDialogPathWidth();
-                checkMultiTabs();
-                makeTableHeaderFixed();
-            });
-
-            $(".explorer_tree").animate({
-                width: 0
-            }, 200, "linear", function() {
-                $.cookie("hideTree", 1, {expires: 365, path: '/'});
-                //$(".treeViewCont").hide();
-                $(".explorer_tree_hitcher").addClass("explorer_tree_hitcher_right_closed").removeClass("explorer_tree_hitcher_right_open");
-                $(".explorer_tree_hitcher_cont").addClass("explorer_tree_hitcher_right_closed").removeClass("explorer_tree_hitcher_right_open");
-                setFakeDialogPathWidth();
-                checkHeight();
-                checkMultiTabs();
-                makeTableHeaderFixed();
-            });
-
-        } else {
-            //$(".treeViewCont").show();
-            $(".explorer_content_with_tree").animate({
-                marginRight: parseInt($.cookie("treeMenuWidth")) + 7
-            }, 210, "linear", function() {
-                setFakeDialogPathWidth();
-                checkMultiTabs();
-                makeTableHeaderFixed();
-            });
-
-            $(".explorer_tree").animate({
-                width: parseInt($.cookie("treeMenuWidth"))
-            }, 200, "linear", function() {
-                $.cookie("hideTree", null, {expires: 365, path: '/'});
-                $(".explorer_tree_hitcher").removeClass("explorer_tree_hitcher_right_closed").addClass("explorer_tree_hitcher_right_open");
-                $(".explorer_tree_hitcher_cont").removeClass("explorer_tree_hitcher_right_closed").addClass("explorer_tree_hitcher_right_open");
-                //openTree(parent.location.pathname);
-                setFakeDialogPathWidth();
-                checkHeight();
-                checkMultiTabs();
-                makeTableHeaderFixed();
-            });
-        }
-    });
-
     $(".explorer_tree_hitcher_cont").draggable({
         axis: 'x',
         zIndex: 1000000,
@@ -94,13 +41,14 @@ $(document).ready(function() {
         },
         stop: function(event, ui) {
             off = ui.offset;
+            console.log(off);
             var mwidth = $(window).width() - off.left;
             $(".explorer_content_with_tree").css({'margin-right': (mwidth < 0) ? 7 : mwidth});
             $(".explorer_tree").css({"width": (mwidth - 7 < 0) ? 0 : mwidth - 7});
             $(".explorer_tree_hitcher_cont").css({"left": ""});
 
             //$(".footer_status").html(mwidth);
-
+            console.log(mwidth);
             if (mwidth - 7 <= 0) {
 
                 $.cookie("hideTree", 1, {expires: 365, path: '/'});
@@ -115,9 +63,9 @@ $(document).ready(function() {
             }
             $.cookie("treeMenuWidth", ((mwidth - 7 < 0) ? defMenuWidth : mwidth - 7), {expires: 365, path: '/'});
             //openTree(parent.location.pathname);
-            /*setFakeDialogPathWidth();
-             checkMultiTabs();
-             makeTableHeaderFixed();*/
+            setFakeDialogPathWidth();
+            checkMultiTabs();
+            makeTableHeaderFixed();
             $("iframe").css("visibility", "visible");
         }
     });
@@ -132,13 +80,19 @@ $(document).ready(function() {
         increaseArea: '20%' // optional
     });
 
-    $('select').select2({minimumResultsForSearch: "250"});
+    $('select').select2({
+        minimumResultsForSearch: "250",
+        width:"100%"
+    });
+    var contWidth = $('.select2-container').width();
+    console.log(contWidth);
+    
 
-   /* $('.checkbox.hover').hover(function(){
-        var $this = $(this);
-        var neco = $this.next();
-        alert(neco);
-    });*/
+    /* $('.checkbox.hover').hover(function(){
+     var $this = $(this);
+     var neco = $this.next();
+     alert(neco);
+     });*/
 
     $.ajaxSetup({
         url: window.location.pathname,
@@ -197,6 +151,271 @@ $(document).ready(function() {
     siteMenu();
 
 });
+
+function setFakeDialogPathWidth() {
+    if ($("#fakePathHolder").is(":visible")) {
+        var firstItemOnRightSide = $("#firstRDialogItem").offset();
+        var fakePath = $("#fakePathHolder .fakePath").offset();
+        var newFakePathWidth = firstItemOnRightSide.left - fakePath.left - 30;
+        $("#fakePathHolder .fakePath").css({"width": newFakePathWidth + "px"});
+    }
+}
+
+function checkHeight() {
+    var window_height = $(parent.window).height();
+    var window_width = $(parent.window).width();
+    var tabs_height = $("#tabs").height();
+    tabs_height = (tabs_height === null || typeof tabs_height == 'undefined') ? 0 : tabs_height;
+    var ribbon_height = $(".ribbon-holder").height();
+    ribbon_height = (ribbon_height === null) ? 0 : ribbon_height;
+    tabs_height = ribbon_height ? ribbon_height : tabs_height;
+    var tabs_multi_iframe_height = $("#tabs-multi-iframe").height();
+    var dialog_height = $(".dialogHeader").height();
+    var finder_height = $("#finder").height() > 0 ? $("#finder").height() + 2 : 0;
+    var footer_height = $("#footer").height();
+    var default_view = window_height - $("#header").height() - footer_height - finder_height - 3;
+    var message_height = $(".main_message").height();
+    var h1_height = ($("h1.dialogTitle").height() > 0) ? $("h1.dialogTitle").height() + 1 : 0;
+    var manager_panel_width = $(".manager_panel").width();
+    message_height = (message_height === null || typeof message_height == 'undefined') ? 0 : message_height + 2;
+    var button_bar = $('#buttons-bar').length ? $('#buttons-bar').height() : 0;
+
+
+    $("body").css({"overflow-y": "hidden"});
+    $(".explorer_panel").css({"height": default_view - message_height, "overflow-y": "hidden", "overflow-x": "hidden"});
+    $(".manager_panel").css({"height": window_height - message_height - $("#header").height() - $("#footer").height() - 4});
+
+    if (location.pathname == "/system/manager/content-manager/") {
+        var body = window_height - $("#header").height() - message_height - h1_height - dialog_height - $("#footer").height() - 3;
+
+        $(".explorer_tree_hitcher").add(".explorer_tree_hitcher_cont").css({"height": body});
+        $(".explorer_tree").css({"height": body, "overflow-y": "auto", "overflow-x": "hidden"});
+    }
+    else {
+        $(".explorer_tree_hitcher").add(".explorer_tree_hitcher_cont").css({"height": default_view - message_height});
+        $(".explorer_tree").css({"height": default_view - message_height, "overflow-y": "auto", "overflow-x": "hidden"});
+    }
+    if ($(".manager_panel").width() === null || 0) {//logon screen
+        $(".manager_content").css({"height": window_height - message_height - $("#header").height() - $("#footer").height() - 4, "margin-left": "0px"});
+    } else {
+        if (location.pathname == "/system/manager/" && ie7) {
+            $(".manager_content").css({"height": window_height - message_height - $("#header").height() - $("#footer").height() - 3});
+        }
+    }
+
+    if (dialog_height > 0) {//page with dialog options
+        if (location.pathname != "/system/Editors/browser/" || (location.pathname == "/system/Editors/browser/" && parent.window.location.pathname != "/system/Editors/editor/"))
+            $(".tabMainContent").css({"height": default_view - tabs_height - dialog_height - message_height - h1_height - button_bar, "overflow-y": "auto", "overflow-x": "hidden", "zoom": "1"});
+    } else { //page without dialog options
+        $(".tabContent").css({"height": default_view - tabs_height - message_height - h1_height - button_bar, "overflow-y": "auto", "overflow-x": "hidden"});
+        $(".tabMainContent").css({"height": default_view - tabs_height - message_height - h1_height - button_bar, "overflow-y": "auto", "overflow-x": "hidden"});
+    }
+    ;
+
+    //replicator - osetreni zobrazeni exploreru s iframy pri editaci
+    var parent_tabcontent_height = null;
+    if (window != parent.window) {
+        if (parent_tabcontent_height = parent.window.$(".tabContent").height() && location.pathname != "/system/Editors/browser/") {
+            $(".tabMainContent").css({"height": parent_tabcontent_height - tabs_multi_iframe_height - dialog_height - message_height, "overflow-y": "auto", "overflow-x": "hidden", "zoom": "1"});
+        }
+    }
+
+    //replicator - zobrazeni prehledu replikaci
+    if ($("#replication").length) {
+        var tab_content_height = $("#replication").parents(".tabMainContent").height();
+        $(".tabMainContent").css("overflow-y", "hidden");
+        $("#replication").css({
+            "width": window_width - manager_panel_width,
+            "height": tab_content_height,
+            "overflow": "auto"
+        });
+    }
+
+    //osetreni zobrazeni tabu zabezpeceni - roztahnuti na vysku
+    if ($(".leftCell").length && $(".rightCell").length && $(".leftCell .secureDisplay:visible").length) {
+        $(".leftCell .secureDisplay, .rightCell .cellContent")
+                .css("height", window_height - $(".leftCell .secureDisplay:visible").offset().top - footer_height - 6); //6 - td padding (top + bottom)
+    }
+
+    //resize iframe
+    $(".viewFrame, .vivoiframe").css({"height": default_view - tabs_height - dialog_height - message_height, "overflow-y": "auto", "overflow-x": "hidden", "border": "0px"});
+    $(".vivoiframe").parents(".tabContent").css({"overflow-y": "hidden"});
+
+    //manager help
+    $(".manager_content > iframe").css({"width": "100%", "height": window_height - $("#header").height() - $("#footer").height() - 3});
+
+    //site
+    $(".site").css({"height": window_height - $("#header").height() - $("#footer").height() - finder_height - message_height - 3});
+
+    checkInputWithIconWidth();
+}
+
+//--soupatko pro zalozky v multidocumentu - init
+function checkMultiTabs() {
+    if ($("#tabs-multi").is(":visible")) {
+        var li_width = new Array();
+        var whole_width = new Number;
+        var curDocument = $("#entity_uuid").val(); //uuid dokumentu
+        var curPosition = ($.cookie("multiTabPosition") === null) ? 0 : $.cookie("multiTabPosition");
+        var curPosotionParams = new Array();
+        if (curPosition != 0) {
+            curPosotionParams = curPosition.split(":");
+        }
+        var multiTabWidth = $("#tabs-multi").outerWidth(false);
+        $("#tabs-multi li").each(function(i) {
+            li_width.push($(this).outerWidth(true));
+            whole_width += parseInt($(this).outerWidth(true));
+        });
+
+        whole_width = whole_width + 4; // tabsHolder-multi left padding
+
+        $("#tabs-multi .tabsHolder-multi")
+                .css({"width": whole_width + "px"});
+
+        if (!$("#tabs-multi .rightScroller").length && multiTabWidth < whole_width) {
+            $("#tabs-multi").addClass("tabs-multi");
+            $("#tabs-multi .tabsHolder-multi")
+                    .before($(document.createElement("div")).addClass("leftScroller"))
+                    .before($(document.createElement("div")).addClass("rightScroller"));
+        }
+
+        if ($("#tabs-multi").hasClass("tabs-multi") && multiTabWidth >= whole_width) {
+            $("#tabs-multi").removeClass("tabs-multi");
+        }
+
+        multiTabWidth = $("#tabs-multi").outerWidth(false);
+
+
+        $("#tabs-multi .rightScroller").css({"left": ($("#tabs-multi").outerWidth(false) + $("#tabs-multi .rightScroller").width()) + "px"});
+
+
+        if (multiTabWidth < whole_width) {
+            $("#tabs-multi .rightScroller").addClass("rightScrollerActive");
+        }
+
+        if (parseInt($("#tabs-multi .tabsHolder-multi").css("margin-left")) < 0) {
+            $("#tabs-multi .leftScroller").addClass("leftScrollerActive");
+        }
+
+        if ($("#tabs-multi .rightScroller").hasClass("rightScrollerActive")) {
+            $("#tabs-multi .rightScroller").bind('click', function() {
+                multiTabMoveRight(whole_width);
+            });
+        }
+
+        if ($("#tabs-multi .leftScroller").hasClass("leftScrollerActive")) {
+            $("#tabs-multi .leftScroller").bind('click', function() {
+                multiTabMoveLeft(whole_width);
+            });
+        }
+
+        if (curPosotionParams[0] == curDocument && curPosotionParams[1] != 0) {
+            $("#tabs-multi .tabsHolder-multi").css({"margin-left": curPosotionParams[1] + "px"});
+        }
+        if (curPosotionParams[0] != curDocument) {
+            $.cookie("multiTabPosition", null, {expires: 365, path: '/'});
+        }
+    }
+}
+//--soupatko pro zalozky v multidocumentu - doprava
+function multiTabMoveRight(whole_width) {
+    var multiTabWidth = $("#tabs-multi").outerWidth(false);
+    var curDocument = $("#entity_uuid").val(); //uuid dokumentu
+    var mLeft = parseInt($("#tabs-multi .tabsHolder-multi").css("margin-left")) - 300;
+    var maxMLeft = multiTabWidth - whole_width;
+    mLeft = (mLeft < maxMLeft) ? maxMLeft : mLeft;
+
+    $("#tabs-multi .tabsHolder-multi")
+       .animate(
+            {"margin-left": mLeft + "px"},200,
+            function() {
+                if (parseInt($("#tabs-multi .tabsHolder-multi").css("margin-left")) < 0) {
+                    $("#tabs-multi .leftScroller").addClass("leftScrollerActive");
+                    $("#tabs-multi .leftScroller").unbind('click');
+                    $("#tabs-multi .leftScroller").bind('click', function() {
+                        multiTabMoveLeft(whole_width);
+                    });
+                }
+                if (multiTabWidth >= whole_width + parseInt($("#tabs-multi .tabsHolder-multi").css("margin-left"))) {
+                    $("#tabs-multi .rightScroller").removeClass("rightScrollerActive");
+                    $("#tabs-multi .rightScroller").unbind('click');
+                }
+                $.cookie("multiTabPosition", curDocument + ":" + mLeft, {expires: 365, path: '/'});
+            });
+}
+
+//--soupatko pro zalozky v multidocumentu - doleva
+function multiTabMoveLeft(whole_width) {
+    var multiTabWidth = $("#tabs-multi").outerWidth(false);
+    var curDocument = $("#entity_uuid").val(); //uuid dokumentu
+    var mLeft = parseInt($("#tabs-multi .tabsHolder-multi").css("margin-left")) + 300;
+    mLeft = (mLeft > 0) ? 0 : mLeft;
+    $("#tabs-multi .tabsHolder-multi")
+            .animate(
+            {"margin-left": mLeft + "px"},
+    200,
+            function() {
+                if (parseInt($("#tabs-multi .tabsHolder-multi").css("margin-left")) >= 0) {
+                    $("#tabs-multi .leftScroller").removeClass("leftScrollerActive");
+                    $("#tabs-multi .leftScroller").unbind('click');
+                }
+                if (multiTabWidth < whole_width) {
+                    $("#tabs-multi .rightScroller").addClass("rightScrollerActive");
+                    $("#tabs-multi .rightScroller").unbind('click');
+                    $("#tabs-multi .rightScroller").bind('click', function() {
+                        multiTabMoveRight(whole_width);
+                    });
+                }
+                $.cookie("multiTabPosition", curDocument + ":" + mLeft, {expires: 365, path: '/'});
+            })
+}
+
+function makeTableHeaderFixed() {
+    if (ie7)
+        return;
+    var table_selector = "table.vivo-table-fixedheader";
+    var table = $(table_selector);
+
+    if (!table.length)
+        return;
+
+    var first_tr = table.find('tr:eq(0)');
+    cloneTableColumns = [];
+    var is_cloned = $('#tableClone').length;
+    clone = (typeof clone == 'undefined') ? true : clone;
+    var first_tr_clone;
+    var clone_table;
+    if (!is_cloned) { //clone
+        first_tr_clone = first_tr.clone(false);
+        // zobrazime klon
+        table.before("<div id='tableClone'><table class='tableGrid'><thead>" + first_tr_clone.html() + "</thead></table></div>");
+    }
+    clone_table = $('#tableClone');
+    clone_table
+            .css({"width": table.parent().width()})
+            .find("table").css({"width": table.width()});
+
+    var td_count = first_tr.find('th').length;
+
+    //zjisteni aktualni sirky sloupcu
+    for (i = 0; i < td_count; i++) {
+        cloneTableColumns.push(table.find("tr:eq(0) th:eq(" + i + ") div").width());
+    }
+
+    //nastaveni sirky sloupcu pro #tableClone dle aktualni sirky sloupcu tabulky
+    var th_width;
+    for (i = 0; i < td_count; i++) {
+        th_width = cloneTableColumns[i];
+        clone_table.find('th:eq(' + i + ')')
+                .css({
+            'width': th_width + "px"
+        })
+                .removeAttr("width");
+    }
+    $(window).resize(function() {
+        makeTableHeaderFixed();
+    });
+}
 
 $.fn.dropShadow = function() {
     console.log("TODO shadows ...");
@@ -377,9 +596,6 @@ function checkHeight() {
 
 
 
-function filterContent(){
-    
-}
 
 //clock depending on server side time
 function startclock() {
@@ -608,19 +824,19 @@ function initTableInputs(_selector) {
 }
 
 /*function checkboxHints(){
-    $('.controls .checkbox').each(function(i) {
-        var $this = $(this);
-        var help = $this.next();
-        var div = "<div class='hintBox' id='hintBox-" + i + "'><div class='hintBoxHolder'><div class='hintBoxTop'></div><div class='hintBoxMiddle'><div class='hintBoxMiddleContent'>" + $(help).html() + "</div></div><div class='hintBoxBottom'></div></div></div>";
-
-        $this
-            .hover(function() {             
-                help.wrap(div).show();                         
-            },function(){
-                help.parent().parent().parent().hide();
-            });   
-    });
-}*/
+ $('.controls .checkbox').each(function(i) {
+ var $this = $(this);
+ var help = $this.next();
+ var div = "<div class='hintBox' id='hintBox-" + i + "'><div class='hintBoxHolder'><div class='hintBoxTop'></div><div class='hintBoxMiddle'><div class='hintBoxMiddleContent'>" + $(help).html() + "</div></div><div class='hintBoxBottom'></div></div></div>";
+ 
+ $this
+ .hover(function() {             
+ help.wrap(div).show();                         
+ },function(){
+ help.parent().parent().parent().hide();
+ });   
+ });
+ }*/
 
 //hint (help) box generator
 function hintBox() {

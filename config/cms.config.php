@@ -8,14 +8,16 @@
 return array(
     'templates' => array (
         'template_map' => array(
-            'Vivo\UI\Page'                      => __DIR__.'/../view/Vivo/UI/Page.phtml',
+            // Content front component
             'Vivo\CMS\UI\Content\Layout'        => __DIR__.'/../view/Vivo/CMS/UI/Content/Layout.phtml',
             'Vivo\CMS\UI\Content\File:html'     => __DIR__.'/../view/Vivo/CMS/UI/Content/File.html.phtml',
             'Vivo\CMS\UI\Content\File:plain'    => __DIR__.'/../view/Vivo/CMS/UI/Content/File.plain.phtml',
             'Vivo\CMS\UI\Content\File:flash'    => __DIR__.'/../view/Vivo/CMS/UI/Content/File.flash.phtml',
             'Vivo\CMS\UI\Content\File:image'    => __DIR__.'/../view/Vivo/CMS/UI/Content/File.image.phtml',
             'Vivo\CMS\UI\Content\File'          => __DIR__.'/../view/Vivo/CMS/UI/Content/File.phtml',
-            'Vivo\CMS\UI\Content\Fileleboard'   => __DIR__.'/../view/Vivo/CMS/UI/Content/Fileleboard.phtml',
+            'Vivo\CMS\UI\Content\Fileboard'            => __DIR__.'/../view/Vivo/CMS/UI/Content/Fileboard.phtml',
+            'Vivo\CMS\UI\Content\Fileboard:Media'      => __DIR__.'/../view/Vivo/CMS/UI/Content/Fileboard.Media.phtml',
+            'Vivo\CMS\UI\Content\Fileboard:Separator'  => __DIR__.'/../view/Vivo/CMS/UI/Content/Fileboard.Separator.phtml',
             'Vivo\CMS\UI\Content\Overview'      => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.phtml',
             'Vivo\CMS\UI\Content\Overview:Inline'       => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.Inline.phtml',
             'Vivo\CMS\UI\Content\Overview:NavInline'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.NavInline.phtml',
@@ -30,24 +32,29 @@ return array(
             'Vivo\CMS\UI\Content\Overview:CarouselTouch' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.CarouselTouch.phtml',
             'Vivo\CMS\UI\Content\Overview:Expandable' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.Expandable.phtml',
             'Vivo\CMS\UI\Content\Logon'         => __DIR__.'/../view/Vivo/CMS/UI/Content/Logon.phtml',
+
+            // Content editor component
+            'Vivo\CMS\UI\Content\Editor\Editor'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Editor.phtml',
+            'Vivo\CMS\UI\Content\Editor\File'      => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File.phtml',
+            'Vivo\CMS\UI\Content\Editor\Fileboard' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Fileboard.phtml',
+            'Vivo\CMS\UI\Content\Editor\Layout'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Layout.phtml',
+            'Vivo\CMS\UI\Content\Editor\Overview'  => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Overview.phtml',
+            'Vivo\CMS\UI\Content\Editor\Navigation' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Navigation.phtml',
+            'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapter' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File/WysiwygAdapter.phtml',
+            'Vivo\CMS\UI\Content\Editor\File\DefaultAdapter' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File/DefaultAdapter.phtml',
+
+            // Other UI
+            'Vivo\UI\Page'                      => __DIR__.'/../view/Vivo/UI/Page.phtml',
             'Vivo\UI\ComponentContainer'        => __DIR__.'/../view/Vivo/UI/ComponentContainer.phtml',
             'Vivo\UI\TabContainer'              => __DIR__.'/../view/Vivo/UI/TabContainer.phtml',
+            'Vivo\UI\Paginator'                 => __DIR__.'/../view/Vivo/UI/Paginator.phtml',
             'Vivo\UI\Ribbon'                    => __DIR__.'/../view/Vivo/UI/TabContainerRibbon.phtml',
             'Vivo\UI\Ribbon\Tab'                => __DIR__.'/../view/Vivo/UI/Ribbon/Tab.phtml',
             'Vivo\UI\Ribbon\Group'              => __DIR__.'/../view/Vivo/UI/Ribbon/Group.phtml',
             'Vivo\UI\Ribbon\Item'               => __DIR__.'/../view/Vivo/UI/Ribbon/Item.phtml',
             'Vivo\UI\Alert'                     => __DIR__.'/../view/Vivo/UI/Alert.phtml',
             'Vivo\CMS\UI\Content\Navigation'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Navigation.phtml',
-            'Vivo\CMS\UI\Content\Navigation:Breadcrumbs'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Navigation.Breadcrumbs.phtml',
-            'Vivo\UI\Paginator'                 => __DIR__.'/../view/Vivo/UI/Paginator.phtml',
-
-            'Vivo\CMS\UI\Content\Editor\Editor'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Editor.phtml',
-            'Vivo\CMS\UI\Content\Editor\File'      => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File.phtml',
-            'Vivo\CMS\UI\Content\Editor\Layout'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Layout.phtml',
-            'Vivo\CMS\UI\Content\Editor\Overview'  => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Overview.phtml',
-            'Vivo\CMS\UI\Content\Editor\Navigation' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Navigation.phtml',
-            'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapter' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File/WysiwygAdapter.phtml',
-            'Vivo\CMS\UI\Content\Editor\File\DefaultAdapter' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File/DefaultAdapter.phtml',
+            'Vivo\CMS\UI\Content\Navigation:Breadcrumbs' => __DIR__.'/../view/Vivo/CMS/UI/Content/Navigation.Breadcrumbs.phtml',
         ),
         'custom_templates' => array (
             // custom selectable templates
@@ -143,7 +150,7 @@ return array(
                 ),
             ),
             'document_path' => array (
-                '/Layouts' => array (
+                '/layouts' => array (
                     'layout',
                 ),
             ),
@@ -409,5 +416,21 @@ return array(
             '500' => '/error-500/',
         ),
         'default' => '/error/',
-    )
+    ),
+    'document_sorting' => array (
+        'native' => array(
+            'parent'         => 'by_parent_document',
+            'title:asc'      => 'title_asc',
+            'title:desc'     => 'title_desc',
+            'created:asc'    => 'created_asc',
+            'created:desc'   => 'created_desc',
+            'modified:asc'   => 'modified_asc',
+            'modified:desc'  => 'modified_desc',
+            'position:asc'   => 'position_asc',
+            'position:desc'  => 'position_desc',
+            'published:asc'  => 'publish_date_document_only_asc',
+            'published:desc' => 'publish_date_document_only_desc',
+            'random'     => 'random'
+        ),
+     ),
 );

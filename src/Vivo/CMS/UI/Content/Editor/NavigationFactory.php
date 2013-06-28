@@ -9,7 +9,9 @@ class NavigationFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $docApi = $serviceLocator->get('Vivo\CMS\Api\Document');
-        $editor = new Navigation($docApi);
+        $config = $serviceLocator->get('cms_config');
+        
+        $editor = new Navigation($docApi, $config['document_sorting']['native']);
         return $editor;
     }
 

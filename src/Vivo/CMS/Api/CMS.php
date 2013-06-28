@@ -118,28 +118,19 @@ class CMS
     }
 
     /**
-     * @param Model\Folder $folder
+     * @param \Vivo\CMS\Model\Entity $entity
      * @return \Vivo\CMS\Model\Entity[]
      */
-    public function getChildren(Model\Folder $folder)
+    public function getChildren(Model\Entity $entity)
     {
-        return $this->repository->getChildren($folder);
+        return $this->repository->getChildren($entity);
     }
 
     /**
-     * @param Model\Folder $folder
-     * @return Model\Folder
-     */
-    public function getParent(Model\Folder $folder)
-    {
-        return $this->repository->getParent($folder);
-    }
-
-    /**
-     * @param Model\Entity $entity
+     * @param \Vivo\CMS\Model\Entity $entity
      * @return \Vivo\CMS\Model\Entity
      */
-    public function getEntityParent(Model\Entity $entity)
+    public function getParent(Model\Entity $entity)
     {
         return $this->repository->getParent($entity);
     }

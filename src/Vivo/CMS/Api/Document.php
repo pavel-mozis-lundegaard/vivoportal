@@ -389,7 +389,7 @@ class Document implements DocumentInterface
     public function saveContent(Model\Content $content)
     {
         //Save content
-        $container = $this->cmsApi->getEntityParent($content);
+        $container = $this->cmsApi->getParent($content);
         $this->updateContentStates($container, $content);
         $this->cmsApi->saveEntity($content, true);
 
@@ -465,6 +465,80 @@ class Document implements DocumentInterface
         $childDocs      = $this->getChildDocuments($document);
         $hasChildDocs   = count($childDocs) > 0;
         return $hasChildDocs;
+    }
+    
+    /**
+     * Sort array of documents/folders by specified criteria. You can also pass array with dependencies 
+     * where doc index is Model\Document and 'children' is custom array sorted with document.      
+     * array(
+     *     'doc' => Model\Document, 
+     *     'children' => array(...)
+     * ) 
+     * 
+     * @param array $documents Array of documents/folders
+     * @param string $criteriaString Criteria determinates how to sort given documents Example('title:asc')
+     * @return array
+     */
+    public function sortDocumentsByCriteria(array $documents, $criteriaString)
+    {
+        if (is_string($criteriaString)) {
+            if(strpos($criteriaString, ":") !== false) {
+                $propertyName = substr($criteriaString, 0,  strpos($criteriaString,':'));
+                $sortWay = substr($criteriaString,strpos($criteriaString,':')+1);
+            } else {
+                $propertyName = $criteriaString;
+                $sortWay = 'asc';
+            }
+            $criteria = array(
+                'propertyName' => $propertyName,
+                'order' => ($sortWay == 'desc') ? SORT_DESC : SORT_ASC
+            );
+            
+            uasort($documents, function($a, $b) use ($criteria) {
+                $getPropertyByName = function($node, $prop) {
+                    $getter = 'get' . $prop;
+                    if(method_exists($node, $getter)){
+                        return $node->$getter();
+                    } else {
+                        return null;
+                    }            
+                };
+
+                if($criteria['propertyName'] === 'random') {
+                    return rand(-1,1);
+                }
+                
+                if(is_array($a)) {
+                    $aProp = $getPropertyByName($a['doc'], $criteria['propertyName']);
+                } else {
+                    $aProp = $getPropertyByName($a, $criteria['propertyName']);
+                }
+                if(is_array($b)) {
+                    $bProp = $getPropertyByName($b['doc'], $criteria['propertyName']);
+                } else {
+                    $bProp = $getPropertyByName($b, $criteria['propertyName']);
+                }
+                
+                //comparison functions
+                if ($aProp != $bProp) {
+                    if($aProp instanceof \DateTime && $bProp instanceof \DateTime){
+                        if($criteria['order'] === SORT_ASC) {
+                            return $aProp > $bProp ? 1 : -1;
+                        } else {
+                            return $bProp > $aProp ? 1 : -1;
+                        }
+                    } else {
+                        return ($criteria['order'] == SORT_ASC)
+                            //@TODO Check behavior with multi-byte strings
+                            ? strnatcasecmp($aProp, $bProp)
+                            : strnatcasecmp($bProp, $aProp);
+                    }
+                }
+                return 0;
+            });
+        }
+
+        return $documents;
     }
 
     /**

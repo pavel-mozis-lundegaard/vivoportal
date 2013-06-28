@@ -31,6 +31,7 @@ class ResourceFactory implements  FactoryInterface
             'vivo/cms'          => 'vivo/resource',
             'backend/cms'       => 'backend/resource',
             'backend/modules'   => 'backend/backend_resource',
+            'backend/explorer'  => 'backend/backend_resource',
             'backend/other'     => 'backend/backend_resource',
             'backend/default'   => 'backend/backend_resource',
         );

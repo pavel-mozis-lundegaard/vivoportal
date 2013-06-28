@@ -27,16 +27,6 @@ class TabContainer extends ComponentContainer implements PersistableInterface
             throw new Exception\InvalidArgumentException(sprintf('Tab \'%s\' not exists', $name));
         }
 
-
-        $events = new \Zend\EventManager\EventManager();
-        $message = 'select called. selected: ' . $this->selected . ', called: '.$name;
-        $events->trigger('log', $this, array('message' => $message,
-                    'priority'=> \VpLogger\Log\Logger::PERF_FINEST));
-
-        $message = 'objectid = ' . spl_object_hash($this );
-        $events->trigger('log', $this, array('message' => $message,
-                    'priority'=> \VpLogger\Log\Logger::PERF_FINEST));
-
         $selectedComponent = $this->components[$name];
 
         if ($selectedComponent instanceof TabContainerItemInterface) {
@@ -134,14 +124,5 @@ class TabContainer extends ComponentContainer implements PersistableInterface
     public function loadState($state)
     {
         $this->selected = $state;
-
-        $message = 'loaded state from session: ' . $this->selected;
-        $events = new \Zend\EventManager\EventManager();
-        $events->trigger('log', $this, array('message' => $message,
-                    'priority'=> \VpLogger\Log\Logger::PERF_FINEST));
-
-        $message = 'objectid = ' . spl_object_hash($this );
-        $events->trigger('log', $this, array('message' => $message,
-                    'priority'=> \VpLogger\Log\Logger::PERF_FINEST));
     }
 }

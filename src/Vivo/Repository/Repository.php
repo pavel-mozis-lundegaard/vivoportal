@@ -401,11 +401,16 @@ class Repository implements RepositoryInterface
      * @param PathInterface|string $spec Either PathInterface object or directly a path as a string
      * @param bool|string $className
      * @param bool $deep
+     * @param bool $ignoreErrors
      * @throws Exception\InvalidArgumentException
+     * @throws \Exception
      * @return \Vivo\CMS\Model\Entity[]
      */
-    public function getChildren($spec, $className = false, $deep = false)
-	{
+    public function getChildren($spec,
+                                $className = false,
+                                $deep = false,
+                                $ignoreErrors = false)
+    {
         $path   = null;
         if ($spec instanceof PathInterface) {
             $path   = $this->getAndCheckPath($spec);
@@ -417,34 +422,39 @@ class Repository implements RepositoryInterface
             throw new Exception\InvalidArgumentException(
                 sprintf("%s: spec must be either a PathInterface object or a string", __METHOD__));
         }
-		$children       = array();
-		$descendants    = array();
-		//TODO: tady se zamyslet, zda neskenovat podle tridy i obsahy
-		//if (is_subclass_of($class_name, 'Vivo\Cms\Model\Content')) {
-		//	$names = $this->storage->scan("$path/Contents");
-		//}
-		//else {
-			$names = $this->storage->scan($path);
-		//}
-		sort($names); // sort it in a natural way
-		foreach ($names as $name) {
-            $childPath = $this->pathBuilder->buildStoragePath(array($path, $name), true);
-            if (!$this->storage->isObject($childPath)) {
-                try {
-                    $entity = $this->getEntity($childPath);
-                    if ($entity/* && ($entity instanceof CMS\Model\Site || CMS::$securityManager->authorize($entity, 'Browse', false))*/) {
-                        $children[] = $entity;
-                    }
-                } catch (Exception\EntityNotFoundException $e) {
-                    //Fix for the situation when a directory exists without an Entity.object
+        $children       = array();
+        $descendants    = array();
+        $childPaths     = $this->getChildEntityPaths($path);
+
+        //TODO: tady se zamyslet, zda neskenovat podle tridy i obsahy
+        //if (is_subclass_of($class_name, 'Vivo\Cms\Model\Content')) {
+        //	$names = $this->storage->scan("$path/Contents");
+        //}
+        //else {
+//            $names = $this->storage->scan($path);
+        //}
+        foreach ($childPaths as $childPath) {
+            try {
+                $entity = $this->getEntity($childPath);
+                if ($entity/* && ($entity instanceof CMS\Model\Site || CMS::$securityManager->authorize($entity, 'Browse', false))*/) {
+                    $children[] = $entity;
+                }
+            } catch (Exception\EntityNotFoundException $e) {
+                //Fix for the situation when a directory exists without an Entity.object
+            } catch (\Exception $e) {
+                //Another exception, e.g. unserialization exception
+                if ($ignoreErrors) {
+                    continue;
+                } else {
+                    throw $e;
                 }
             }
-		}
+        }
 
-		// sorting
+        // sorting
 // 		$entity = $this->getEntity($path, false);
 // 		if ($entity instanceof CMS\Model\Entity) {
-			//@todo: sorting? jedine pre Interface "SortableInterface" ?
+            //@todo: sorting? jedine pre Interface "SortableInterface" ?
 // 			$sorting = method_exists($entity, 'sorting') ? $entity->sorting() : $entity->sorting;
 // 			if (Util\Object::is_a($sorting, 'Closure')) {
 // 				usort($children, $sorting);
@@ -456,17 +466,17 @@ class Repository implements RepositoryInterface
 // 			}
 // 		}
 
-		foreach ($children as $child) {
+        foreach ($children as $child) {
             if (!$className || $child instanceof $className) {
                 $descendants[]  = $child;
             }
             //All descendants
-			if ($deep) {
-                $childDescendants   = $this->getChildren($child, $className, $deep);
+            if ($deep) {
+                $childDescendants   = $this->getChildren($child, $className, $deep, $ignoreErrors);
                 $descendants        = array_merge($descendants, $childDescendants);
-			}
-		}
-		return $descendants;
+            }
+        }
+        return $descendants;
 	}
 
 	/**
@@ -1001,5 +1011,24 @@ class Repository implements RepositoryInterface
             $mtime  = null;
         }
         return $mtime;
+    }
+
+    /**
+     * Returns child entity paths
+     * @param string $path
+     * @return string[]
+     */
+    public function getChildEntityPaths($path)
+    {
+        $childEntityPaths   = array();
+        $names = $this->storage->scan($path);
+        sort($names); // sort it in a natural way
+        foreach ($names as $name) {
+            $childPath = $this->pathBuilder->buildStoragePath(array($path, $name), true);
+            if (!$this->storage->isObject($childPath)) {
+                $childEntityPaths[] = $childPath;
+            }
+        }
+        return $childEntityPaths;
     }
 }

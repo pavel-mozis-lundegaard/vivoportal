@@ -136,7 +136,7 @@ return array(
                         ),
                     ),
                     //route for site entity resources in backend view
-                    'resource_entity' => array(
+                    'backend_resource_entity' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
                             'regex'    => '/(?<host>.+)/view/\.entity(?<entity>.+?)((\.path/(?<path>.+)))',

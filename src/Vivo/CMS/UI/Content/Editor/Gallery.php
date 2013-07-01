@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\CMS\UI\Content\Editor;
 
+use Vivo\Stdlib\OrderableInterface;
+
 use Vivo\CMS\Api;
 use Vivo\CMS\Api\Content\Gallery as GalleryApi;
 use Vivo\CMS\Model;
@@ -82,7 +84,27 @@ class Gallery extends AbstractForm implements EditorInterface
             }
 
             if($this->content->getCreated()) {
+                if($form->get('gl-new')) {
+                    $fieldset = $form->get('gl-new');
 
+                    // Upload new file
+                    $file = $fieldset->get('file')->getValue();
+                    $name = $fieldset->get('name')->getValue();
+                    $desc = $fieldset->get('desc')->getValue();
+
+                    if($file['error'] != UPLOAD_ERR_NO_FILE && $file['error'] != UPLOAD_ERR_OK) {
+                        throw new \Exception(sprintf('%s: File upload error %s', __METHOD__, $file['error']));
+                    }
+                    if($file['error'] == UPLOAD_ERR_OK) {
+                        $order = $this->getMaxOrderBy() + 1;
+                        $this->galleryApi->createMediaWithUploadedFile($this->content, $file,
+                                array(
+                                    'name' => trim($name),
+                                    'description' => trim($desc),
+                                    'order' => $order,
+                                ));
+                    }
+                }
             }
         }
     }
@@ -131,7 +153,7 @@ class Gallery extends AbstractForm implements EditorInterface
      * @return int
      */
     private function getMaxOrderBy() {
-
+        return $this->galleryApi->getMaxOrder($this->files);
     }
 
     /**

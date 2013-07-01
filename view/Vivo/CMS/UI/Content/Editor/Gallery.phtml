@@ -14,10 +14,10 @@ if($form->get('gl-new')) {
         <?
          $count = count($files);
          foreach ($files as $i => $file) {
-            $u = $file->getUuid();
+            //$u = $file->getUuid();
         ?>
             <li style="border:1px solid gray; margin:6px;">
-                <?=$u?>
+                <img src="<?=$this->resource('resource.'.$file->getExt(), $file);?>" alt="" />
             </li>
         <? } ?>
     </ol>

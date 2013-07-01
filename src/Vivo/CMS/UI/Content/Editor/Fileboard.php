@@ -195,14 +195,7 @@ class Fileboard extends AbstractForm implements EditorInterface
      * @return int
      */
     private function getMaxOrderBy() {
-        $max = -1;
-        if($this->files) {
-            foreach ($this->files as $photo) {
-                $max = max($max, $photo->getOrder());
-            }
-        }
-
-        return $max;
+        return $this->fileboardApi->getMaxOrder($this->files);
     }
 
     /**

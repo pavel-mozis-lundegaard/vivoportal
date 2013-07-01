@@ -158,7 +158,7 @@ return array(
                 ),
             ),
             'document_path' => array (
-                '/Layouts' => array (
+                '/layouts' => array (
                     'layout',
                 ),
             ),

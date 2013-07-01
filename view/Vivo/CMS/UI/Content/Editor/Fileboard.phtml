@@ -2,8 +2,10 @@
 use Vivo\CMS\Model\Content\Fileboard;
 
 $formType = DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
-echo $this->formFieldsetTwb($form->get('fb-new'), $formType, array(), true, false);
-$this->tinyMce('exact', $form->get('fb-new')->get('separator')->getAttribute('id'), true, 'en');
+if($form->get('fb-new')) {
+    echo $this->formFieldsetTwb($form->get('fb-new'), $formType, array(), true, false);
+    $this->tinyMce('exact', $form->get('fb-new')->get('separator')->getAttribute('id'), true, 'en');
+}
 ?>
 <? if($files) : ?>
     <div>

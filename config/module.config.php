@@ -179,6 +179,7 @@ return array(
             'indexer_document_builder'  => 'Vivo\Indexer\DocumentBuilder',
             'view_model'                => 'Zend\View\Model\ViewModel',
             'Vivo\Http\Filter\OutputFilterListener' => 'Vivo\Http\Filter\OutputFilterListener',
+            'Vivo\watcher'              => 'Vivo\Repository\Watcher',
         ),
         'factories' => array(
             'RoutePluginManager'        => 'Vivo\Service\RoutePluginManagerFactory',
@@ -247,6 +248,7 @@ return array(
             'mime'                      => 'Vivo\Util\MIMEFactory',
             'indexer_events'            => 'Vivo\Indexer\EventManagerFactory',
             'Vivo\nav_overview_defaults_processor' => 'Vivo\Service\EntityProcessor\NavAndOverviewDefaultsFactory',
+            'Vivo\repository_storage'   => 'Vivo\Repository\RepositoryStorageFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',

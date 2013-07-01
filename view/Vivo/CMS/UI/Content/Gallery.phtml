@@ -1,9 +1,10 @@
 <? if($files) : ?>
     <ol>
-        <?
-        foreach ($files as $file) {
-            echo $file->getUuid();
-        }
-        ?>
+        <? foreach ($files as $file) : ?>
+            <li>
+                <img src="<?=$this->resource('resource.'.$file->getExt(), $file);?>" alt="<?=htmlspecialchars($file->getName())?>" />
+                <p><?=htmlspecialchars($file->getDescription())?></p>
+            </li>
+        <? endforeach; ?>
     </ol>
 <? endif; ?>

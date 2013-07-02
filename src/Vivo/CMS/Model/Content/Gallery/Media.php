@@ -17,6 +17,16 @@ class Media extends Content\File implements OrderableInterface
     protected $description;
 
     /**
+     * @var int Size.
+     */
+    protected $originalWidth;
+
+    /**
+     * @var int Size.
+     */
+    protected $originalHeight;
+
+    /**
      * @var int Order.
      */
     protected $order = 0;
@@ -41,9 +51,57 @@ class Media extends Content\File implements OrderableInterface
         return $this->description;
     }
 
+    /**
+     * Image size.
+     *
+     * @param int $width
+     */
+    public function setOriginalWidth($width)
+    {
+        $this->originalWidth = intval($width);
+    }
+
+    /**
+     * Image size.
+     *
+     * @return int
+     */
+    public function getOriginalWidth()
+    {
+        return $this->originalWidth;
+    }
+
+    /**
+     * Image size.
+     *
+     * @param int $height
+     */
+    public function setOriginalHeight($height)
+    {
+        $this->originalHeight = intval($height);
+    }
+
+    /**
+     * Image size.
+     *
+     * @return int
+     */
+    public function getOriginalHeight()
+    {
+        return $this->originalHeight;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isLandscape()
+    {
+        return $this->originalWidth > $this->originalHeight;
+    }
+
     public function setOrder($order)
     {
-        $this->order = $order;
+        $this->order = intval($order);
     }
 
     public function getOrder()

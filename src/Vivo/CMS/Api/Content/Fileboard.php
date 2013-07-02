@@ -45,7 +45,7 @@ class Fileboard extends AbstractOrderableContentApi
      * @param \Vivo\CMS\Model\Content\Fileboard\Separator $separator
      * @param string $html HTML content
      */
-    public function saveSeparator(Fileboard\Separator $separator, $html)
+    public function saveSeparator(Separator $separator, $html)
     {
         $separator->setMimeType('text/html');
         $separator->setExt('html');
@@ -101,5 +101,15 @@ class Fileboard extends AbstractOrderableContentApi
         $this->cmsApi->saveEntity($separator, true);
 
         return $separator;
+    }
+
+    /**
+     * Removes all fileboard's content.
+     *
+     * @param \Vivo\CMS\Model\Content\Fileboard $gallery
+     */
+    public function removeAllFiles(Content\Fileboard $fileboard)
+    {
+        $this->cmsApi->removeChildren($fileboard);
     }
 }

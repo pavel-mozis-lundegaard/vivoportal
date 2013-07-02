@@ -5,6 +5,7 @@ use Vivo\CMS\Api;
 use Vivo\CMS\Api\Exception\InvalidArgumentException;
 use Vivo\CMS\Model\PathInterface;
 use Vivo\CMS\Model\Entity;
+use Vivo\CMS\Model\Content;
 use Vivo\Indexer\IndexerInterface;
 use Vivo\Indexer\QueryBuilder;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
@@ -149,6 +150,70 @@ abstract class AbstractOrderableContentApi
     }
 
     /**
+     * Moves up an entity in array and returns new sortered array.
+     *
+     * @param array $files
+     * @param \Vivo\Stdlib\OrderableInterface $entity
+     * @return array
+     */
+    public function moveUp(array $files, OrderableInterface $entity)
+    {
+        $i = $this->getFileKeyById($files, $entity->getUuid());
+        $j = $i - 1;
+
+        if(isset($files[$j])) {
+            $entity2 = $files[$j];
+
+            $this->swap($entity, $entity2);
+
+            $files[$i] = $entity2;
+            $files[$j] = $entity;
+        }
+
+        return $files;
+    }
+
+    /**
+     * Moves down an entity in array and returns new sortered array.
+     *
+     * @param array <\Vivo\CMS\Model\Entity> $files
+     * @param \Vivo\Stdlib\OrderableInterface $entity
+     * @return array <\Vivo\CMS\Model\Entity>
+     */
+    public function moveDown(array $files, OrderableInterface $entity)
+    {
+        $i = $this->getFileKeyById($files, $entity->getUuid());
+        $j = $i + 1;
+
+        if(isset($files[$j])) {
+            $entity2 = $files[$j];
+
+            $this->swap($entity, $entity2);
+
+            $files[$i] = $entity2;
+            $files[$j] = $entity;
+        }
+
+        return $files;
+    }
+
+    /**
+     * @param array <\Vivo\CMS\Model\Entity> $files
+     * @param string $uuid Entity UUID.
+     * @return int
+     */
+    private function getFileKeyById(array $files, $uuid)
+    {
+        for ($i = 0; $i < count($files); $i++) {
+            if ($files[$i]->getUuid() == $uuid) {
+                break;
+            }
+        }
+
+        return $i;
+    }
+
+    /**
      * Sends HTTP headers and print file content.
      *
      * @param \Vivo\CMS\Model\Content\File $file
@@ -191,15 +256,4 @@ abstract class AbstractOrderableContentApi
         return $this->fileApi->readResource($file);
     }
 
-    /**
-     * Removes all fileboard's content.
-     *
-     * @param \Vivo\CMS\Model\Content\Fileboard $fileboard
-     */
-    public function removeAllFiles(Content\Fileboard $fileboard)
-    {
-        foreach ($this->cmsApi->getChildren($fileboard) as $child) {
-            $this->cmsApi->removeEntity($child);
-        }
-    }
 }

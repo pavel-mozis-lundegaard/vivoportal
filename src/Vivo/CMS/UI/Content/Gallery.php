@@ -20,6 +20,11 @@ class Gallery extends Component
     private $files = array();
 
     /**
+     * @var array
+     */
+    private $info = array();
+
+    /**
      * Constructor
      */
     public function __construct(GalleryApi $galleryApi)
@@ -32,11 +37,13 @@ class Gallery extends Component
         parent::init();
 
         $this->files = $this->galleryApi->getList($this->content);
+        $this->info = $this->galleryApi->getInformationsAsArray($this->content);
     }
 
     public function view()
     {
         $view = parent::view();
+        $view->info = $this->info;
         $view->files = $this->files;
 
         return $view;

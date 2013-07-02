@@ -6,7 +6,6 @@ use Vivo\Stdlib\OrderableInterface;
 use Vivo\CMS\Api;
 use Vivo\CMS\Api\Content\Gallery as GalleryApi;
 use Vivo\CMS\Model;
-use Vivo\CMS\Model\Content\Fileboard\Separator;
 use Vivo\UI\AbstractForm;
 use Vivo\Form\Form;
 use Vivo\Form\Fieldset;
@@ -116,15 +115,18 @@ class Gallery extends AbstractForm implements EditorInterface
      */
     public function delete($uuid)
     {
-
+        $file = $this->galleryApi->getEntity($uuid);
+        $this->galleryApi->removeEntity($file);
+        $this->events->trigger(new RedirectEvent());
     }
 
     /**
-     * Deletes all fileboard files.
+     * Deletes all gallery files.
      */
     public function deleteAll()
     {
-
+        $this->galleryApi->removeAllFiles($this->content);
+        $this->events->trigger(new RedirectEvent());
     }
 
     /**
@@ -134,7 +136,9 @@ class Gallery extends AbstractForm implements EditorInterface
      */
     public function moveUp($uuid)
     {
-
+        $entity = $this->galleryApi->getEntity($uuid);
+        $this->galleryApi->moveUp($this->files, $entity);
+        $this->events->trigger(new RedirectEvent());
     }
 
     /**
@@ -144,7 +148,9 @@ class Gallery extends AbstractForm implements EditorInterface
      */
     public function moveDown($uuid)
     {
-
+        $entity = $this->galleryApi->getEntity($uuid);
+        $this->galleryApi->moveDown($this->files, $entity);
+        $this->events->trigger(new RedirectEvent());
     }
 
     /**
@@ -154,14 +160,6 @@ class Gallery extends AbstractForm implements EditorInterface
      */
     private function getMaxOrderBy() {
         return $this->galleryApi->getMaxOrder($this->files);
-    }
-
-    /**
-     * @param string $uuid Entity UUID.
-     * @return int
-     */
-    private function getFileKeyById($uuid) {
-
     }
 
     /**
@@ -175,6 +173,10 @@ class Gallery extends AbstractForm implements EditorInterface
 
         if($this->content->getCreated()) {
             $fieldset = $this->getEditorFieldset();
+            $form->add($fieldset);
+        }
+        if(count($this->files)) {
+            $fieldset = $this->getEditorFieldsetMedia($this->files);
             $form->add($fieldset);
         }
 
@@ -212,6 +214,45 @@ class Gallery extends AbstractForm implements EditorInterface
         ));
 
         return $fieldset;
+    }
+
+    /**
+     * Returns editor for current gallery files.
+     *
+     * @param array $files
+     * @return \Vivo\Form\Fieldset
+     */
+    private function getEditorFieldsetMedia(array $files)
+    {
+        $container = new Fieldset('gl-file-container');
+
+        foreach ($files as $file) {
+            $fieldset = new Fieldset($file->getUuid());
+            $fieldset->add(array(
+                'name' => 'name',
+                'type' => 'Vivo\Form\Element\Text',
+                'attributes' => array(
+                    'value' => $file->getName()
+                ),
+                'options' => array(
+                    'label' => 'name',
+                ),
+            ));
+            $fieldset->add(array(
+                'name' => 'desc',
+                'type' => 'Vivo\Form\Element\Textarea',
+                'attributes' => array(
+                    'value' => $file->getDescription()
+                ),
+                'options' => array(
+                    'label' => 'description',
+                ),
+            ));
+
+            $container->add($fieldset);
+        }
+
+        return $container;
     }
 
     public function view()

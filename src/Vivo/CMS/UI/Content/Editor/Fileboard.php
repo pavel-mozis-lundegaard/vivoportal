@@ -166,11 +166,8 @@ class Fileboard extends AbstractForm implements EditorInterface
      */
     public function moveUp($uuid)
     {
-        $entity1 = $this->fileboardApi->getEntity($uuid);
-        $i = $this->getFileKeyById($uuid);
-        $entity2 = $this->files[$i - 1];
-
-        $this->fileboardApi->swap($entity1, $entity2);
+        $entity = $this->fileboardApi->getEntity($uuid);
+        $this->fileboardApi->moveUp($this->files, $entity);
         $this->events->trigger(new RedirectEvent());
     }
 
@@ -181,11 +178,8 @@ class Fileboard extends AbstractForm implements EditorInterface
      */
     public function moveDown($uuid)
     {
-        $entity1 = $this->fileboardApi->getEntity($uuid);
-        $i = $this->getFileKeyById($uuid);
-        $entity2 = $this->files[$i + 1];
-
-        $this->fileboardApi->swap($entity1, $entity2);
+        $entity = $this->fileboardApi->getEntity($uuid);
+        $this->fileboardApi->moveDown($this->files, $entity);
         $this->events->trigger(new RedirectEvent());
     }
 
@@ -196,20 +190,6 @@ class Fileboard extends AbstractForm implements EditorInterface
      */
     private function getMaxOrderBy() {
         return $this->fileboardApi->getMaxOrder($this->files);
-    }
-
-    /**
-     * @param string $uuid Entity UUID.
-     * @return int
-     */
-    private function getFileKeyById($uuid) {
-        for ($i = 0; $i < count($this->files); $i++) {
-            if ($this->files[$i]->getUuid() == $uuid) {
-                break;
-            }
-        }
-
-        return $i;
     }
 
     /**

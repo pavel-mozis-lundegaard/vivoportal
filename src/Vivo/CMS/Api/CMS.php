@@ -128,6 +128,16 @@ class CMS
 
     /**
      * @param \Vivo\CMS\Model\Entity $entity
+     */
+    public function removeChildren(Model\Entity $entity)
+    {
+        foreach ($this->getChildren($entity) as $child) {
+            $this->removeEntity($child);
+        }
+    }
+
+    /**
+     * @param \Vivo\CMS\Model\Entity $entity
      * @return \Vivo\CMS\Model\Entity
      */
     public function getParent(Model\Entity $entity)

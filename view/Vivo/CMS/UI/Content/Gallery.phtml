@@ -1,5 +1,5 @@
 <? if($files) : ?>
-    <ol>
+    <ul>
         <? foreach ($files as $file) : /* @var $file \Vivo\CMS\Model\Content\Gallery\Media */
             $url = $this->resource('resource.'.$file->getExt(), $file);
             $size = $file->isLandscape()
@@ -13,5 +13,5 @@
                 <p><?=htmlspecialchars($file->getDescription())?></p>
             </li>
         <? endforeach; ?>
-    </ol>
+    </ul>
 <? endif; ?>

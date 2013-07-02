@@ -133,6 +133,14 @@ interface RepositoryInterface extends TransactionalInterface
     public function writeResource(PathInterface $entity, $name, \Vivo\IO\InputStreamInterface $stream);
 
     /**
+     * Returns entity resource mtime or false when the resource is not found
+     * @param PathInterface $entity
+     * @param string $name
+     * @return int|bool
+     */
+    public function getResourceMtime(PathInterface $entity, $name);
+
+    /**
      * Returns parent folder
      * If there is no parent folder (ie this is a root), returns null
      * @param PathInterface $folder

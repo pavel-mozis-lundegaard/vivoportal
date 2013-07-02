@@ -601,6 +601,32 @@ class Repository implements RepositoryInterface
 	}
 
     /**
+     * Returns entity resource mtime or false when the resource is not found
+     * @param PathInterface $entity
+     * @param string $name
+     * @throws Exception\InvalidArgumentException
+     * @return int|bool
+     */
+    public function getResourceMtime(PathInterface $entity, $name)
+    {
+        if ($name == '' || is_null($name)) {
+            throw new Exception\InvalidArgumentException(sprintf("%s: Resource name cannot be empty", __METHOD__));
+        }
+        $entityPath     = $this->getAndCheckPath($entity);
+        $pathComponents = array($entityPath, $name);
+        $path           = $this->pathBuilder->buildStoragePath($pathComponents, true);
+        $mtime          = $this->storage->mtime($path);
+        if ($mtime == false) {
+            //Log not found resource
+            $this->events->trigger('log', $this,  array(
+                'message'   => sprintf("Resource '%s' not found with entity '%s'", $name, $entity->getPath()),
+                'priority'  => \VpLogger\Log\Logger::ERR,
+            ));
+        }
+        return $mtime;
+    }
+
+    /**
      * Adds an entity to the list of entities to be deleted
      * @param PathInterface $entity
      */

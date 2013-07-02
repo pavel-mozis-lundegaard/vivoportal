@@ -259,6 +259,18 @@ class CMS
     }
 
     /**
+     * Returns entity resource mtime or false when the resource is not found
+     * @param Model\Entity $entity
+     * @param string $name
+     * @return int|bool
+     */
+    public function getResourceMtime(Model\Entity $entity, $name)
+    {
+        $mtime  = $this->repository->getResourceMtime($entity, $name);
+        return $mtime;
+    }
+
+    /**
      * Returns all resource names without entity object.
      * @param Model\Entity $entity
      * @return array

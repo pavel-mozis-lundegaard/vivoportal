@@ -79,10 +79,11 @@ class Resource extends AbstractHelper
      * @param string $resourcePath
      * @param string|Entity $source
      * @param string|null $type Resource type (for module resources)
+     * @param array $queryParams Query string parameters
      * @throws Exception\InvalidArgumentException
      * @return string
      */
-    public function __invoke($resourcePath, $source, $type = null)
+    public function __invoke($resourcePath, $source, $type = null, array $queryParams = array())
     {
         if ($this->options['check_resource'] == true) {
             $this->checkResource($resourcePath, $source);
@@ -96,11 +97,6 @@ class Resource extends AbstractHelper
                 'entity'    => $entityUrl,
             );
             $mtime      = $this->cmsApi->getResourceMtime($source, $resourcePath);
-            $urlOptions         = array(
-                'query' => array(
-                    'mtime' => $mtime,
-                ),
-            );
             $reuseMatchedParams = true;
         } elseif (is_string($source)) {
             if ($source == 'Vivo') {
@@ -116,15 +112,14 @@ class Resource extends AbstractHelper
                 'path'      => $resourcePath,
                 'type'      => 'resource',
             );
-            $urlOptions         = array(
-                'query' => array(
-                    'mtime' => $mtime,
-                ),
-            );
             $reuseMatchedParams = true;
         } else {
             throw new InvalidArgumentException(sprintf("%s: Invalid value for parameter 'source'.", __METHOD__));
         }
+        $queryParams['mtime']   = $mtime;
+        $urlOptions         = array(
+            'query' => $queryParams,
+        );
         $url = $urlHelper($resourceRouteName, $urlParams, $urlOptions, $reuseMatchedParams);
         //Replace encoded slashes in the url.
         //It's needed because apache returns 404 when the url contains encoded slashes

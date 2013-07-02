@@ -154,6 +154,18 @@ class Gallery extends AbstractForm implements EditorInterface
     }
 
     /**
+     * Sets as main.
+     *
+     * @param string $uuid Entity UUID.
+     */
+    public function setAsMain($uuid)
+    {
+        $entity = $this->galleryApi->getEntity($uuid);
+        $this->galleryApi->setAsMain($this->content, $entity);
+        $this->events->trigger(new RedirectEvent());
+    }
+
+    /**
      * Returns the maximum value of the order.
      *
      * @return int

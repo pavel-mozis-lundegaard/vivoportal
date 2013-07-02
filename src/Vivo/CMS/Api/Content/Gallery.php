@@ -79,6 +79,59 @@ class Gallery extends AbstractOrderableContentApi
     }
 
     /**
+     * Returns main item.
+     *
+     * @param \Vivo\CMS\Model\Content\Gallery $gallery
+     * @param bool $first Returns first item if main not exist. Otherwise returns NULL.
+     * @return \Vivo\CMS\Model\Entity
+     */
+    public function getMain(Content\Gallery $gallery, $first = true)
+    {
+        $return = null;
+
+        $qb = new QueryBuilder();
+        $con1  = $qb->cond($gallery->getPath().'/*', '\path');
+        $con2  = $qb->cond(1, '\Vivo\CMS\Model\Content\Gallery\Media\main');
+        $query = $qb->andX($con1, $con2);
+
+        $hit = $this->indexer->find($query, array('page_size' => 1))->getFirstHit();
+
+        if(false) {
+            $path    = $hit->getDocument()->getFieldValue('\path');
+            $return  = $this->cmsApi->getEntity($path);
+        }
+        else if($first) {
+            $hit = $this->indexer->find($con1, array('page_size' => 1))->getFirstHit();
+
+            if($hit) {
+                $path    = $hit->getDocument()->getFieldValue('\path');
+                $return  = $this->cmsApi->getEntity($path);
+            }
+        }
+
+        return $return;
+    }
+
+    /**
+     * Sets media file as main item.
+     *
+     * @param Content\Gallery $gallery
+     * @param Media $media
+     */
+    public function setAsMain(Content\Gallery $gallery, Media $media)
+    {
+        foreach ($this->getList($gallery) as $file) { /* @var $file \Vivo\CMS\Model\Content\Gallery\Media */
+            if($file->getMain()) {
+                $file->setMain(false);
+                $this->saveEntity($file);
+            }
+        }
+
+        $media->setMain();
+        $this->saveEntity($media);
+    }
+
+    /**
      * Returns gallery image sizes (...) as array.
      *
      * @param \Vivo\CMS\Model\Content\Gallery $gallery

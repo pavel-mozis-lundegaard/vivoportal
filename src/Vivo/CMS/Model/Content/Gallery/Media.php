@@ -17,6 +17,11 @@ class Media extends Content\File implements OrderableInterface
     protected $description;
 
     /**
+     * @var bool
+     */
+    protected $main = false;
+
+    /**
      * @var int Size.
      */
     protected $originalWidth;
@@ -49,6 +54,22 @@ class Media extends Content\File implements OrderableInterface
     public function getDescription()
     {
         return $this->description;
+    }
+
+    /**
+     * @param bool $main
+     */
+    public function setMain($main = true)
+    {
+        $this->main = (bool)$main;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getMain()
+    {
+        return $this->main;
     }
 
     /**

@@ -63,7 +63,8 @@ class ResourceFrontController implements DispatchableInterface,
         try {
             if ($source === 'Vivo') {
                 //it's vivo core resource
-                    $resourceStream = new FileInputStream(__DIR__ . '/../../../resource/' . $pathToResource);
+                $resourceStream = new FileInputStream(__DIR__ . '/../../../resource/' . $pathToResource);
+                $filename       = pathinfo($pathToResource, PATHINFO_BASENAME);
             } elseif ($source === 'entity') {
                 //it's entity resource
                 $entityPath = $this->event->getRouteMatch()->getParam('entity');
@@ -72,15 +73,15 @@ class ResourceFrontController implements DispatchableInterface,
                 if ($entity instanceof File) {
                     //TODO match interface instead of the concrete class File
                     $filename = $entity->getFilename();
+                } else {
+                    $filename = pathinfo($pathToResource, PATHINFO_BASENAME);
                 }
 
                 $resourceStream = $this->cmsApi->readResource($entity, $pathToResource);
             } else {
                 //it's module resource
                 $resourceStream = $this->resourceManager->readResource($source, $pathToResource);
-            }
-            if (!isset($filename)) {
-                $filename   = pathinfo($pathToResource, PATHINFO_BASENAME);
+                $filename       = pathinfo($pathToResource, PATHINFO_BASENAME);
             }
             $ext = pathinfo($filename, PATHINFO_EXTENSION);
             $mimeType = $this->mime->detectByExtension($ext);

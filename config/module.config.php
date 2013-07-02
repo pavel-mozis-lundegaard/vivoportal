@@ -844,6 +844,13 @@ return array(
                 'tokenized'     => false,
                 'multi'         => false,
             ),
+            '\mimeType' => array(
+                'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
+                'indexed'       => true,
+                'stored'        => true,
+                'tokenized'     => false,
+                'multi'         => false,
+            ),
             '\position'   => array(
                 'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
                 'indexed'       => true,

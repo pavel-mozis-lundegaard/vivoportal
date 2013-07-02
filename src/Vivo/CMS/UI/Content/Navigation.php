@@ -55,6 +55,12 @@ class Navigation extends Component
      * @var Cache
      */
     protected $cache;
+    
+    /**
+     * Determinates if navigation have active document or not.
+     * @var bool 
+     */
+    protected $hasActiveDocument = false;
 
     /**
      * Constructor
@@ -220,9 +226,40 @@ class Navigation extends Component
             //Create the navigation container
             $this->navigation   = new NavigationContainer();
             $pages              = $this->buildNavPages($documents, $this->content->getLimit());
+            
+            if($this->hasActiveDocument == false) {
+                $currentPage = $this->cmsEvent->getDocument();
+                $navigationContUuidTable = array();
+                $navigationContUuidTable = $this->getFlatNavigationContainerPages($pages, $navigationContUuidTable);
+                while($currentPage = $this->documentApi->getParentDocument($currentPage)) {
+                    if(array_key_exists($currentPage->getUuid(), $navigationContUuidTable)) {
+                        $navigationContUuidTable[$currentPage->getUuid()]->active = true;
+                        $this->hasActiveDocument = true;
+                        break;
+                    }
+                }
+            }
             $this->navigation->setPages($pages);
         }
         return $this->navigation;
+    }
+    
+    /**
+     * Returns flat navigation container pages.
+     * 
+     * @param array $pages
+     * @param array $navigationContUuidTable
+     * @return array
+     */
+    protected function getFlatNavigationContainerPages(array $pages, array $navigationContUuidTable)
+    {
+        foreach ($pages as $key => $page) {
+            $navigationContUuidTable[$page->getUuid()] = $page;
+            if($page->hasChildren()) {        
+                return $this->getFlatNavigationContainerPages($page->getPages(), $navigationContUuidTable);
+            }
+        }
+        return $navigationContUuidTable;
     }
 
     /**
@@ -328,7 +365,7 @@ class Navigation extends Component
 
     /**
      * Builds navigation pages from the supplied documents structure
-     * @param array $documents For structure see property Vivo\CMS\Model\Content::$enumeratedDocs
+     * @param array $documentsPaths
      * @param int $limit Number of documents listed in the navigation per level
      * @throws \Vivo\CMS\UI\Exception\UnexpectedValueException
      * @throws \Vivo\CMS\UI\Exception\InvalidArgumentException
@@ -337,8 +374,9 @@ class Navigation extends Component
     protected function buildNavPages(array $documentsPaths = array(), $limit = null)
     {
         $pages      = array();
-		$documents  = array();
+        $documents  = array();
         $currentDoc = $this->cmsEvent->getDocument();        
+        
         foreach($documentsPaths as $docArray) {
             if (!is_array($docArray)) {
                 throw new Exception\InvalidArgumentException(
@@ -364,8 +402,8 @@ class Navigation extends Component
             }
             $documents[] = array('doc' => $doc, 'children' => $docArray['children']);
         }        
-        if($this->content->getNavigationSorting() !== null){
-            $sorting = $this->content->getNavigationSorting();
+        if($this->navModel->getNavigationSorting() !== null) {
+            $sorting = $this->navModel->getNavigationSorting();
             $parentSorting = $currentDoc->getSorting();
             if(strpos($sorting, "parent") !== false && $parentSorting != null) {
                 $sorting = $parentSorting;
@@ -381,10 +419,13 @@ class Navigation extends Component
             $pageOptions    = array(
                 'sitePath'      => $docRelPath,
                 'label'         => $doc->getNavigationTitle(),
-                'active'        => $this->cmsApi->getEntityRelPath($currentDoc) == $docRelPath,
                 'document'      => $doc,
             );
-            $page           = new CmsNavPage($pageOptions);
+            if($this->cmsApi->getEntityRelPath($currentDoc) == $docRelPath) {
+                $this->hasActiveDocument = true;
+                $pageOptions['active']   = true;
+            }
+            $page              = new CmsNavPage($pageOptions);
             if ((bool) $doc->getAllowListingInNavigation() === false) {
                 $page->visible = false;
             }

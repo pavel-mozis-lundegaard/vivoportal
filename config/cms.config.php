@@ -252,6 +252,7 @@ return array(
 
             // Other
             'Vivo\CMS\FetchErrorDocumentListener' => 'Vivo\CMS\FetchErrorDocumentListenerFactory',
+            'Vivo\CMS\RedirectMapListener'   => 'Vivo\CMS\RedirectMapListenerFactory',
             'Vivo\UI\Page'                   => 'Vivo\Service\UI\PageFactory',
             'Vivo\UI\Alert'                  => 'Vivo\UI\AlertFactory',
             'Vivo\UI\Paginator'              => 'Vivo\UI\PaginatorFactory',

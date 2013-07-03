@@ -1,58 +1,15 @@
 <?php
 namespace Vivo\CMS\Api\Content;
 
-use Vivo\CMS\Api;
-use Vivo\CMS\Model\Entity;
 use Vivo\CMS\Model\Content;
 use Vivo\CMS\Model\Content\Fileboard\Media;
 use Vivo\CMS\Model\Content\Fileboard\Separator;
 use Vivo\Indexer\QueryBuilder;
 use Vivo\IO\FileInputStream;
 use Vivo\CMS\Api\Exception\InvalidPathException;
-use Vivo\Stdlib\OrderableInterface;
 
-class Fileboard
+class Fileboard extends AbstractOrderableContentApi
 {
-    /**
-     * @var \Vivo\CMS\Api\CMS
-     */
-    private $cmsApi;
-
-    /**
-     * @var \Vivo\CMS\Api\Content\File
-     */
-    private $fileApi;
-
-    /**
-     * @var \Vivo\Indexer\IndexerInterface
-     */
-    private $indexer;
-
-    /**
-     * @var \Vivo\Storage\PathBuilder\PathBuilderInterface
-     */
-    private $pathBuilder;
-
-    /**
-     * Constructor.
-     *
-     * @param \Vivo\CMS\Api\CMS $cmsApi
-     * @param \Vivo\CMS\Api\Content\File $fileApi
-     * @param \Vivo\Indexer\IndexerInterface $indexer
-     * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
-     */
-    public function __construct(
-        Api\CMS $cmsApi,
-        Api\Content\File $fileApi,
-        \Vivo\Indexer\IndexerInterface $indexer,
-        \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder)
-    {
-        $this->cmsApi = $cmsApi;
-        $this->fileApi = $fileApi;
-        $this->indexer = $indexer;
-        $this->pathBuilder = $pathBuilder;
-    }
-
     /**
      * Returns all fileboard items.
      *
@@ -80,64 +37,6 @@ class Fileboard
         }
 
         return $return;
-    }
-
-    /**
-     * Prepare fileboard content before saving.
-     *
-     * @param \Vivo\CMS\Model\Content\Fileboard $fileboard
-     * @param \Vivo\CMS\Model\Entity $media
-     * @return \Vivo\CMS\Model\Entity
-     */
-    private function prepareMediaForSaving(Content\Fileboard $fileboard, Entity $media)
-    {
-        $qb = new QueryBuilder();
-        $condition = $qb->cond($fileboard->getPath().'/*', '\path');
-        $hits = $this->indexer->find($condition)->getHits();
-
-        $i = -1;
-        foreach ($hits as $hit) {
-            $path = $hit->getDocument()->getField('\path')->getValue();
-            $parts = $this->pathBuilder->getStoragePathComponents($path);
-            $lastI = $parts[count($parts) - 1];
-            $i = max($i, $lastI);
-        }
-
-        $path = $this->pathBuilder->buildStoragePath(array($fileboard->getPath(), ++$i));
-        $media->setPath($path);
-
-        return $media;
-    }
-
-    /**
-     * Returns CMS entity by UUID.
-     *
-     * @param string $ident
-     * @return \Vivo\CMS\Model\Content\Fileboard\Media
-     */
-    public function getEntity($ident)
-    {
-        return $this->cmsApi->getEntity($ident);
-    }
-
-    /**
-     * Removes entity.
-     *
-     * @param \Vivo\CMS\Model\Entity $entity
-     */
-    public function removeEntity(Entity $entity)
-    {
-        $this->cmsApi->removeEntity($entity);
-    }
-
-    /**
-     * Saves entity.
-     *
-     * @param \Vivo\CMS\Model\Entity $entity
-     */
-    public function saveEntity(Entity $entity)
-    {
-        $this->cmsApi->saveEntity($entity, true);
     }
 
     /**
@@ -205,73 +104,12 @@ class Fileboard
     }
 
     /**
-     * Swap order.
-     *
-     * @param \Vivo\Stdlib\OrderableInterface $entity1
-     * @param \Vivo\Stdlib\OrderableInterface $entity2
-     */
-    public function swap(OrderableInterface $entity1, OrderableInterface $entity2)
-    {
-        $tmpOrder = $entity1->getOrder();
-        $entity1->setOrder($entity2->getOrder());
-        $entity2->setOrder($tmpOrder);
-
-        $this->saveEntity($entity1);
-        $this->saveEntity($entity2);
-    }
-
-    /**
-     * Sends HTTP headers and print file content.
-     *
-     * @param \Vivo\CMS\Model\Content\Fileboard\Media $media
-     */
-    public function download(Media $media)
-    {
-        $this->fileApi->download($media);
-    }
-
-    /**
-     * Sends HTTP headers and print file content.
-     *
-     * @param string $uuid
-     */
-    public function downloadByUuid($uuid)
-    {
-        $media = $this->cmsApi->getEntity($uuid);
-        $this->download($media);
-    }
-
-    /**
-     * Returns content of entity resource.
-     *
-     * @param \Vivo\CMS\Model\Content\File $file
-     * @return string
-     */
-    public function getResource(Content\File $file)
-    {
-        return $this->fileApi->getResource($file);
-    }
-
-    /**
-     * Returns input stream for resource of entity.
-     *
-     * @param \Vivo\CMS\Model\Content\File $file
-     * @return \Vivo\IO\InputStreamInterface
-     */
-    public function readResource(Content\File $file)
-    {
-        return $this->fileApi->readResource($file);
-    }
-
-    /**
      * Removes all fileboard's content.
      *
-     * @param \Vivo\CMS\Model\Content\Fileboard $fileboard
+     * @param \Vivo\CMS\Model\Content\Fileboard $gallery
      */
     public function removeAllFiles(Content\Fileboard $fileboard)
     {
-        foreach ($this->cmsApi->getChildren($fileboard) as $child) {
-            $this->cmsApi->removeEntity($child);
-        }
+        $this->cmsApi->removeChildren($fileboard);
     }
 }

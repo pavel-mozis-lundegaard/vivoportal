@@ -268,6 +268,7 @@ return array(
                     => 'Vivo\CMS\UI\Content\Editor\File\DefaultAdapterFactory',
 
             'Vivo\CMS\FetchErrorDocumentListener' => 'Vivo\CMS\FetchErrorDocumentListenerFactory',
+            'Vivo\CMS\RedirectMapListener' => 'Vivo\CMS\RedirectMapListenerFactory',
         ),
         'aliases' => array(
         ),

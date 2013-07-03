@@ -7,13 +7,13 @@ use Zend\EventManager\ListenerAggregateInterface;
 /**
  * Default listener for fetching error documents.
  *
- * This listener find document by its path.
+ * This listener uses a config to map an errorcode to an error document path.
  */
 class FetchErrorDocumentListener implements ListenerAggregateInterface
 {
 
     /**
-     *
+     * Indexer api
      * @var Api\Indexer
      */
     protected $indexerApi;
@@ -23,11 +23,17 @@ class FetchErrorDocumentListener implements ListenerAggregateInterface
      */
     protected $listeners = array();
 
+    /**
+     * Configuration.
+     * @example array ('codes' => array('404' => '/error-404/'), 'default'=> '/error/')
+     * @var array
+     */
     protected $config;
 
     /**
      * Constructor.
      * @param \Vivo\CMS\Api\CMS $cmsApi
+     * @param array $config
      */
     public function __construct(Api\CMS $cmsApi, array $config)
     {
@@ -37,7 +43,7 @@ class FetchErrorDocumentListener implements ListenerAggregateInterface
     }
 
     /**
-     * Attach to an event manager
+     * Attach to an event manager.
      *
      * @param  EventManagerInterface $events
      * @return void
@@ -48,7 +54,7 @@ class FetchErrorDocumentListener implements ListenerAggregateInterface
     }
 
     /**
-     * Detach all our listeners from the event manager
+     * Detach all our listeners from the event manager.
      *
      * @param  EventManagerInterface $events
      * @return void
@@ -69,17 +75,24 @@ class FetchErrorDocumentListener implements ListenerAggregateInterface
      */
     public function fetchDocument(Event\CMSEvent $cmsEvent)
     {
-        return null;
-        $exception = $cmsEvent->getException()->getCode();
+        $exceptionCode = $cmsEvent->getException()->getCode();
         foreach($this->config['code'] as $code => $path){
-            if ($errorCode == $code) {
+            if ($exceptionCode == $code) {
+                $docPath = $path;
                 break;
             }
         }
-        $path = $path ?: $this->config['dafault'];
+
+        if (!isset($docPath) && isset($this->config['default'])) {
+            $docPath = $this->config['default'];
+        }
+
+        if (!$docPath) {
+            return null;
+        }
 
         try {
-            $document = $this->cmsApi->getSiteEntity($path, $cmsEvent->getSite());
+            $document = $this->cmsApi->getSiteEntity($docPath, $cmsEvent->getSite());
         } catch (\Vivo\Repository\Exception\EntityNotFoundException $e) {
             return null;
         }

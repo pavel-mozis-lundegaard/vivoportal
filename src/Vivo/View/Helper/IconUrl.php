@@ -15,8 +15,6 @@ use Zend\Stdlib\ArrayUtils;
 /**
  * IconUrl
  * getting url for icon from document, content or mime-type
- * 
- * @author Pavel Možíš <pavel.mozis@lundegaard.eu>
  */
 class IconUrl extends AbstractHelper
 {
@@ -119,17 +117,18 @@ class IconUrl extends AbstractHelper
      */
     public function getByMimeType($mimeType)
     {
-        $md = $this->metadataManager->getMetadata('Vivo\CMS\Model\Content\File');
-        
-        // replace dots in mime types, because ini keys can't have dots
-        // - it would act like inner level
-        $mimeType = str_replace('.', "-", $mimeType);
-        
-        if (isset($md['icon']['mimetypemap'][$mimeType])) {
-            return $this->getIconUrl($md['icon']['mimetypemap'][$mimeType]);
-        } else {
-            return $this->getIconUrl($this->options['default_icon']);
-        }
+        return $this->mime->getIconBaseName($mimeType);
+//        $md = $this->metadataManager->getMetadata('Vivo\CMS\Model\Content\File');
+//        
+//        // replace dots in mime types, because ini keys can't have dots
+//        // - it would act like inner level
+//        $mimeType = str_replace('.', "-", $mimeType);
+//        
+//        if (isset($md['icon']['mimetypemap'][$mimeType])) {
+//            return $this->getIconUrl($md['icon']['mimetypemap'][$mimeType]);
+//        } else {
+//            return $this->getIconUrl($this->options['default_icon']);
+//        }
     }
     
     /**

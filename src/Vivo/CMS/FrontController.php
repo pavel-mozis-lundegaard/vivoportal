@@ -136,7 +136,7 @@ class FrontController implements DispatchableInterface,
 
         if (!$this->siteEvent->getSite()) {
             throw new Exception\SiteNotFoundException(
-                    sprintf("%s: Site not found for hostname '%s'.",
+                    sprintf("%s: Site not found for hostname '%s'",
                             __METHOD__ , $this->siteEvent->getHost()));
         }
 
@@ -152,15 +152,18 @@ class FrontController implements DispatchableInterface,
             $eventResult = $this->events->trigger(CMSEvent::EVENT_FETCH_DOCUMENT, $this->getCmsEvent(),
                     function ($result) {
                         //stop event propagation when document is fetched
-                        return ($result instanceof \Vivo\CMS\Model\Document);
+                        return ($result instanceof CMS\Model\Document);
                     });
-            $document   = $eventResult->last();
+            $document = $eventResult->last();
+
             $this->cmsEvent->setDocument($document);
 
             //Performance log
-            $this->events->trigger('log', $this,
-                array ('message'    => sprintf("FrontController - Document fetched (%s)", $document->getPath()),
-                    'priority'   => Logger::PERF_BASE));
+            if($document instanceof CMS\Model\Document) {
+                $this->events->trigger('log', $this,
+                    array ('message'    => sprintf("FrontController - Document fetched (%s)", $document->getPath()),
+                           'priority'   => Logger::PERF_BASE));
+            }
 
             //perform redirects
             $this->events->trigger(CMSEvent::EVENT_REDIRECT, $this->getCmsEvent(),
@@ -174,14 +177,14 @@ class FrontController implements DispatchableInterface,
 
             //throw exception when document is not fetched
             if (!$document) {
-                throw new \Exception(sprintf('%s: Document for requested path `%s` can not be fetched.',
+                throw new \Exception(sprintf('%s: Document for requested path `%s` can not be fetched',
                             __METHOD__,
                             $this->cmsEvent->getRequestedPath()),
                         \Zend\Http\Response::STATUS_CODE_404);
             }
             //throw exception when document hasn't any published content
             if (!$this->documentApi->isPublished($document)) {
-            throw new \Exception(sprintf('%s: Document `%s` is not published.',
+            throw new \Exception(sprintf('%s: Document `%s` is not published',
                         __METHOD__,
                         $document->getPath()),
                     \Zend\Http\Response::STATUS_CODE_404);
@@ -193,7 +196,7 @@ class FrontController implements DispatchableInterface,
             //Performance log
             $this->events->trigger('log', $this,
                 array ('message'    => 'FrontController - UI component tree created',
-                    'priority'   => Logger::PERF_BASE));
+                       'priority'   => Logger::PERF_BASE));
 
             //perform tree operations
             $result = $this->dispatchTree($this->cmsEvent);
@@ -201,7 +204,7 @@ class FrontController implements DispatchableInterface,
             //Performance log
             $this->events->trigger('log', $this,
                 array ('message'    => 'FrontController - UI Component tree dispatched',
-                    'priority'   => Logger::PERF_BASE));
+                       'priority'   => Logger::PERF_BASE));
 
 
             if ($redirector->isRedirect()) {
@@ -215,7 +218,7 @@ class FrontController implements DispatchableInterface,
                 //Performance log
                 $this->events->trigger('log', $this,
                     array ('message'    => 'FrontController - View model rendered',
-                        'priority'   => Logger::PERF_BASE));
+                           'priority'   => Logger::PERF_BASE));
 
             } elseif ($result instanceof InputStreamInterface) {
                 //skip rendering phase
@@ -234,19 +237,19 @@ class FrontController implements DispatchableInterface,
             //fetch error document
             $eventResult = $this->events->trigger(CMSEvent::EVENT_FETCH_ERRORDOCUMENT, $this->getCmsEvent(),
                     function ($result) {
-                        return ($result instanceof \Vivo\CMS\Model\Document);
+                        return ($result instanceof CMS\Model\Document);
                     });
             $this->cmsEvent->setDocument($eventResult->last());
 
             //throw exception when error document not found
             if (!$this->cmsEvent->getDocument()) {
-                throw new \Exception(sprintf('%s: Error document can not be fetched for site `%s`.',
+                throw new \Exception(sprintf('%s: Error document can not be fetched for site `%s`',
                             __METHOD__,
                             $this->siteEvent->getSite()->getName()),
                         \Zend\Http\Response::STATUS_CODE_500, $e);
             }
 
-           //create ui component tree
+            //create ui component tree
             $this->events->trigger(CMSEvent::EVENT_CREATE, $this->cmsEvent);
 
             //perform tree operations
@@ -276,7 +279,7 @@ class FrontController implements DispatchableInterface,
         //Performance log
         $this->events->trigger('log', $this,
             array ('message'    => 'FrontController - Dispatch end',
-                'priority'   => Logger::PERF_BASE));
+                   'priority'   => Logger::PERF_BASE));
 
         return $response;
     }
@@ -305,7 +308,7 @@ class FrontController implements DispatchableInterface,
         //parse resource map file
         foreach ($lines as $line) {
             if ($line = trim($line)) { //skip empty rows
-                $lineColums = array_values(array_filter(explode(" ", $line)));
+                $lineColums = array_values(array_filter(explode(' ', $line)));
                 if (count($lineColums) == 3) {
                     list($path, $source, $resource) = $lineColums;
                     if ($cmsEvent->getRequestedPath() == $path) {

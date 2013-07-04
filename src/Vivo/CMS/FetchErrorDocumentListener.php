@@ -1,8 +1,11 @@
 <?php
 namespace Vivo\CMS;
 
+use Vivo\CMS\Api\Exception\DocumentNotFoundException;
+use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
+use VpLogger\Log\Logger;
 
 /**
  * Default listener for fetching error documents.
@@ -14,9 +17,9 @@ class FetchErrorDocumentListener implements ListenerAggregateInterface
 
     /**
      * Indexer api
-     * @var Api\Indexer
+     * @var \Vivo\CMS\Api\Document
      */
-    protected $indexerApi;
+    protected $documentApi;
 
     /**
      * @var \Zend\Stdlib\CallbackHandler[]
@@ -32,14 +35,13 @@ class FetchErrorDocumentListener implements ListenerAggregateInterface
 
     /**
      * Constructor.
-     * @param \Vivo\CMS\Api\CMS $cmsApi
+     * @param \Vivo\CMS\Api\Document $cmsApi
      * @param array $config
      */
-    public function __construct(Api\CMS $cmsApi, array $config)
+    public function __construct(Api\Document $documentApi, array $config)
     {
-
+        $this->documentApi = $documentApi;
         $this->config = $config;
-        $this->cmsApi = $cmsApi;
     }
 
     /**
@@ -75,27 +77,33 @@ class FetchErrorDocumentListener implements ListenerAggregateInterface
      */
     public function fetchDocument(Event\CMSEvent $cmsEvent)
     {
+        $document = null;
+        $docPath = array();
         $exceptionCode = $cmsEvent->getException()->getCode();
         foreach($this->config['code'] as $code => $path){
             if ($exceptionCode == $code) {
-                $docPath = $path;
+                $docPath[] = $path;
                 break;
             }
         }
 
-        if (!isset($docPath) && isset($this->config['default'])) {
-            $docPath = $this->config['default'];
+        if(isset($this->config['default'])) {
+            $docPath[] = $this->config['default'];
         }
 
-        if (!$docPath) {
-            return null;
+        $events = new EventManager();
+
+        foreach ($docPath as $path) {
+            try {
+                $document = $this->documentApi->getSiteDocument($path, $cmsEvent->getSite());
+                break;
+            } catch (DocumentNotFoundException $e) {
+                $events->trigger('log', $this, array(
+                        'message'    => sprintf("Error document (%s) not found (%s)", $exceptionCode, $e->getMessage()),
+                        'priority'   => Logger::ERR));
+            }
         }
 
-        try {
-            $document = $this->cmsApi->getSiteEntity($docPath, $cmsEvent->getSite());
-        } catch (\Vivo\Repository\Exception\EntityNotFoundException $e) {
-            return null;
-        }
         return $document;
     }
 }

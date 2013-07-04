@@ -134,7 +134,6 @@ class Tree extends Component
             $a = array ();
             $a['document'] = $child;
             $a['published'] = true;
-            $a['content_type'] = '';
             $a['level'] = $node->getDeep();
             $a['rel_path'] = $this->cmsApi->getEntityRelPath($child);
             $a['active'] = $child->getPath() == $expandedPath;

@@ -1180,6 +1180,6 @@ return array(
         //do not access to this key directly - use service 'cms_config'
     ),
     'options' => array(
-		'template_not_found_action' => Vivo\View\Resolver\TemplateResolver::STATE_NOT_FOUND_ACTION_COMMENT,
+        'template_not_found_action' => Vivo\View\Resolver\TemplateResolver::STATE_NOT_FOUND_ACTION_COMMENT,
 	),
 );

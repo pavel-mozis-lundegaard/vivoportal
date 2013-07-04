@@ -31,12 +31,6 @@ class CMS
     private $repository;
 
     /**
-     * Query Builder
-     * @var QueryBuilder
-     */
-    protected $qb;
-
-    /**
      * UUID Convertor
      * @var UuidConvertorInterface
      */
@@ -62,19 +56,16 @@ class CMS
     /**
      * Construct
      * @param \Vivo\Repository\RepositoryInterface $repository
-     * @param \Vivo\Indexer\QueryBuilder $qb
      * @param \Vivo\CMS\UuidConvertor\UuidConvertorInterface $uuidConvertor
      * @param \Vivo\Uuid\GeneratorInterface $uuidGenerator
      * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
      */
     public function __construct(RepositoryInterface $repository,
-                                QueryBuilder $qb,
                                 UuidConvertorInterface $uuidConvertor,
                                 UuidGeneratorInterface $uuidGenerator,
                                 PathBuilderInterface $pathBuilder)
     {
         $this->repository       = $repository;
-        $this->qb               = $qb;
         $this->uuidConvertor    = $uuidConvertor;
         $this->uuidGenerator    = $uuidGenerator;
         $this->pathBuilder      = $pathBuilder;
@@ -124,6 +115,16 @@ class CMS
     public function getChildren(Model\Entity $entity)
     {
         return $this->repository->getChildren($entity);
+    }
+
+    /**
+     * @param \Vivo\CMS\Model\Entity $entity
+     */
+    public function removeChildren(Model\Entity $entity)
+    {
+        foreach ($this->getChildren($entity) as $child) {
+            $this->removeEntity($child);
+        }
     }
 
     /**

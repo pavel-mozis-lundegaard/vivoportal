@@ -18,6 +18,7 @@ return array(
             'Vivo\CMS\UI\Content\Fileboard'            => __DIR__.'/../view/Vivo/CMS/UI/Content/Fileboard.phtml',
             'Vivo\CMS\UI\Content\Fileboard:Media'      => __DIR__.'/../view/Vivo/CMS/UI/Content/Fileboard.Media.phtml',
             'Vivo\CMS\UI\Content\Fileboard:Separator'  => __DIR__.'/../view/Vivo/CMS/UI/Content/Fileboard.Separator.phtml',
+            'Vivo\CMS\UI\Content\Gallery'              => __DIR__.'/../view/Vivo/CMS/UI/Content/Gallery.phtml',
             'Vivo\CMS\UI\Content\Overview'      => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.phtml',
             'Vivo\CMS\UI\Content\Overview:Inline'       => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.Inline.phtml',
             'Vivo\CMS\UI\Content\Overview:NavInline'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.NavInline.phtml',
@@ -34,11 +35,12 @@ return array(
             'Vivo\CMS\UI\Content\Logon'         => __DIR__.'/../view/Vivo/CMS/UI/Content/Logon.phtml',
 
             // Content editor component
-            'Vivo\CMS\UI\Content\Editor\Editor'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Editor.phtml',
-            'Vivo\CMS\UI\Content\Editor\File'      => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File.phtml',
-            'Vivo\CMS\UI\Content\Editor\Fileboard' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Fileboard.phtml',
-            'Vivo\CMS\UI\Content\Editor\Layout'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Layout.phtml',
-            'Vivo\CMS\UI\Content\Editor\Overview'  => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Overview.phtml',
+            'Vivo\CMS\UI\Content\Editor\Editor'     => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Editor.phtml',
+            'Vivo\CMS\UI\Content\Editor\File'       => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File.phtml',
+            'Vivo\CMS\UI\Content\Editor\Fileboard'  => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Fileboard.phtml',
+            'Vivo\CMS\UI\Content\Editor\Gallery'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Gallery.phtml',
+            'Vivo\CMS\UI\Content\Editor\Layout'     => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Layout.phtml',
+            'Vivo\CMS\UI\Content\Editor\Overview'   => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Overview.phtml',
             'Vivo\CMS\UI\Content\Editor\Navigation' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Navigation.phtml',
             'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapter' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File/WysiwygAdapter.phtml',
             'Vivo\CMS\UI\Content\Editor\File\DefaultAdapter' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File/DefaultAdapter.phtml',
@@ -93,6 +95,7 @@ return array(
             'Vivo\CMS\Model\Content\Logon'      => 'Vivo\CMS\UI\Content\Logon',
             'Vivo\CMS\Model\Content\Navigation' => 'Vivo\CMS\UI\Content\Navigation',
             'Vivo\CMS\Model\Content\Fileboard'  => 'Vivo\CMS\UI\Content\Fileboard',
+            'Vivo\CMS\Model\Content\Gallery'    => 'Vivo\CMS\UI\Content\Gallery',
         ),
         'editor_component' => array (
             'Vivo\CMS\Model\Content\Component'  => 'Vivo\CMS\UI\Content\Editor\Editor',
@@ -103,6 +106,7 @@ return array(
             'Vivo\CMS\Model\Content\Hyperlink'  => 'Vivo\CMS\UI\Content\Editor\Editor',
             'Vivo\CMS\Model\Content\Navigation' => 'Vivo\CMS\UI\Content\Editor\Navigation',
             'Vivo\CMS\Model\Content\Fileboard'  => 'Vivo\CMS\UI\Content\Editor\Fileboard',
+            'Vivo\CMS\Model\Content\Gallery'    => 'Vivo\CMS\UI\Content\Editor\Gallery',
         ),
     ),
     'contents' => array (
@@ -145,6 +149,10 @@ return array(
             'fileboard'    => array(
                 'class'     => 'Vivo\CMS\Model\Content\Fileboard',
                 'label'     => 'Vivo\CMS\Model\Content\Fileboard',
+            ),
+            'gallery'    => array(
+                'class'     => 'Vivo\CMS\Model\Content\Gallery',
+                'label'     => 'Vivo\CMS\Model\Content\Gallery',
             ),
         ),
         'restrictions' => array (
@@ -225,6 +233,7 @@ return array(
             'Vivo\CMS\UI\Manager\Explorer\Ribbon'  => 'Vivo\CMS\UI\Manager\Explorer\Ribbon',
         ),
         'factories' => array (
+            // Content factories
             'Vivo\CMS\UI\Content\File'       => 'Vivo\CMS\UI\Content\FileFactory',
             'Vivo\CMS\UI\Content\Hyperlink'  => 'Vivo\CMS\UI\Content\HyperlinkFactory',
             'Vivo\CMS\UI\Content\Layout'     => 'Vivo\CMS\UI\Content\LayoutFactory',
@@ -232,13 +241,29 @@ return array(
             'Vivo\CMS\UI\Content\Logon'      => 'Vivo\CMS\UI\Content\LogonFactory',
             'Vivo\CMS\UI\Content\Navigation' => 'Vivo\CMS\UI\Content\NavigationFactory',
             'Vivo\CMS\UI\Content\Fileboard'  => 'Vivo\CMS\UI\Content\FileboardFactory',
+            'Vivo\CMS\UI\Content\Gallery'    => 'Vivo\CMS\UI\Content\GalleryFactory',
+
+            // Content editor factories
+            'Vivo\CMS\UI\Content\Editor\Editor'     => 'Vivo\CMS\UI\Content\Editor\EditorFactory',
+            'Vivo\CMS\UI\Content\Editor\File'       => 'Vivo\CMS\UI\Content\Editor\FileFactory',
+            'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapter' => 'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapterFactory',
+            'Vivo\CMS\UI\Content\Editor\File\DefaultAdapter' => 'Vivo\CMS\UI\Content\Editor\File\DefaultAdapterFactory',
+            'Vivo\CMS\UI\Content\Editor\Overview'   => 'Vivo\CMS\UI\Content\Editor\OverviewFactory',
+            'Vivo\CMS\UI\Content\Editor\Layout'     => 'Vivo\CMS\UI\Content\Editor\LayoutFactory',
+            'Vivo\CMS\UI\Content\Editor\Navigation' => 'Vivo\CMS\UI\Content\Editor\NavigationFactory',
+            'Vivo\CMS\UI\Content\Editor\Fileboard'  => 'Vivo\CMS\UI\Content\Editor\FileboardFactory',
+            'Vivo\CMS\UI\Content\Editor\Gallery'    => 'Vivo\CMS\UI\Content\Editor\GalleryFactory',
+
+            // Other
+            'Vivo\CMS\FetchErrorDocumentListener' => 'Vivo\CMS\FetchErrorDocumentListenerFactory',
+            'Vivo\CMS\RedirectMapListener'   => 'Vivo\CMS\RedirectMapListenerFactory',
             'Vivo\UI\Page'                   => 'Vivo\Service\UI\PageFactory',
             'Vivo\UI\Alert'                  => 'Vivo\UI\AlertFactory',
             'Vivo\UI\Paginator'              => 'Vivo\UI\PaginatorFactory',
             'security_manager'               => 'Vivo\Service\SimpleSecurityManagerFactory',
 //          'security_manager'               => 'Vivo\Service\DbSecurityManagerFactory',
 
-            //backend
+            // Backend
             //TODO move to own config
             'Vivo\Backend\UI\Backend'           => 'Vivo\Backend\UI\BackendFactory',
             'Vivo\Backend\UI\SiteSelector'      => 'Vivo\Backend\UI\SiteSelectorFactory',
@@ -256,22 +281,6 @@ return array(
             'Vivo\Backend\UI\Explorer\Browser'  => 'Vivo\Backend\UI\Explorer\BrowserFactory',
             'Vivo\Backend\UI\Logon'             => 'Vivo\Backend\UI\LogonFactory',
             'Vivo\Backend\ModuleResolver'       => 'Vivo\Backend\ModuleResolverFactory',
-
-            //TODO: content editor factories
-            'Vivo\CMS\UI\Content\Editor\Editor'     => 'Vivo\CMS\UI\Content\Editor\EditorFactory',
-            'Vivo\CMS\UI\Content\Editor\File'       => 'Vivo\CMS\UI\Content\Editor\FileFactory',
-            'Vivo\CMS\UI\Content\Editor\Overview'   => 'Vivo\CMS\UI\Content\Editor\OverviewFactory',
-            'Vivo\CMS\UI\Content\Editor\Layout'     => 'Vivo\CMS\UI\Content\Editor\LayoutFactory',
-            'Vivo\CMS\UI\Content\Editor\Navigation' => 'Vivo\CMS\UI\Content\Editor\NavigationFactory',
-            'Vivo\CMS\UI\Content\Editor\Fileboard'  => 'Vivo\CMS\UI\Content\Editor\FileboardFactory',
-
-            //Content editor adapters
-            'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapter'
-                    => 'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapterFactory',
-            'Vivo\CMS\UI\Content\Editor\File\DefaultAdapter'
-                    => 'Vivo\CMS\UI\Content\Editor\File\DefaultAdapterFactory',
-
-            'Vivo\CMS\FetchErrorDocumentListener' => 'Vivo\CMS\FetchErrorDocumentListenerFactory',
         ),
         'aliases' => array(
         ),

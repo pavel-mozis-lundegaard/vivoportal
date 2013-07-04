@@ -43,7 +43,7 @@ class Media extends Content\File implements OrderableInterface
 
     public function setOrder($order)
     {
-        $this->order = $order;
+        $this->order = intval($order);
     }
 
     public function getOrder()

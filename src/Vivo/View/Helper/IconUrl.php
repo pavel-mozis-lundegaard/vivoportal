@@ -114,7 +114,7 @@ class IconUrl extends AbstractHelper
         if ($content instanceof File) {
             return $this->getByMimeType($content->getMimeType());
         } else {
-            return $this->getIconUrl($this->options['default_icon']);
+            return $this->getByContentType(get_class($content));
         }
     }
     

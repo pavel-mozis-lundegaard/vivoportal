@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\Util;
 
+use Zend\Stdlib\ArrayUtils;
+
 /**
  * MIME provides methods to works with Content-types and MIME types.
  */
@@ -19,7 +21,7 @@ class MIME implements MIMEInterface
      */
     public function __construct(array $options = array())
     {
-        $this->options = array_merge($this->options, $options);
+        $this->options = ArrayUtils::merge($this->options, $options);
         if (!isset($this->options['default_icon']) || !$this->options['default_icon']) {
             throw new Exception\ConfigException(__METHOD__ . ": Default Icon is not set.");
         }

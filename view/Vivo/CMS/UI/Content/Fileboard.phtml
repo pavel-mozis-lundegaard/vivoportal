@@ -1,5 +1,5 @@
 <? if($files) : ?>
-    <ol>
+    <ul>
         <?
         foreach ($files as $file) {
             if($file instanceof Vivo\CMS\Model\Content\Fileboard\Media) {
@@ -12,5 +12,5 @@
             }
         }
         ?>
-    </ol>
+    </ul>
 <? endif; ?>

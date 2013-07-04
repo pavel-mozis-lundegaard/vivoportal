@@ -19,7 +19,8 @@ class IconUrlFactory implements FactoryInterface
         $sm              = $serviceLocator->getServiceLocator();
         $metadataManager = $sm->get('metadata_manager');
         $documentApi     = $sm->get('Vivo\CMS\Api\Document');
-        $helper          = new IconUrl($metadataManager, $documentApi);
+        $mime            = $sm->get('mime');
+        $helper          = new IconUrl($metadataManager, $documentApi, $mime);
         return $helper;
     }
 }

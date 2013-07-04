@@ -8,6 +8,7 @@ use Vivo\CMS\Api\Document as DocumentApi;
 use Vivo\Metadata\MetadataManager;
 use Vivo\CMS\Model\Content;
 use Vivo\CMS\Model\Content\File;
+use Vivo\Util\MIME;
 
 use Zend\View\Helper\AbstractHelper;
 use Zend\Stdlib\ArrayUtils;
@@ -38,16 +39,24 @@ class IconUrl extends AbstractHelper
     protected $documentApi;
     
     /**
+     *
+     * @var MIME
+     */
+    protected $mime;
+    
+    /**
      * 
      * @param \Vivo\Metadata\MetadataManager $metadataManager
      */
     public function __construct(MetadataManager $metadataManager,
                                 DocumentApi $documentApi,
+                                MIME $mime,
                                 array $options = array())
     {
         $this->options         = array_merge($this->options, $options);
         $this->metadataManager = $metadataManager;
         $this->documentApi     = $documentApi;
+        $this->mime            = $mime;
     }
     
     /**
@@ -117,18 +126,7 @@ class IconUrl extends AbstractHelper
      */
     public function getByMimeType($mimeType)
     {
-        return $this->mime->getIconBaseName($mimeType);
-//        $md = $this->metadataManager->getMetadata('Vivo\CMS\Model\Content\File');
-//        
-//        // replace dots in mime types, because ini keys can't have dots
-//        // - it would act like inner level
-//        $mimeType = str_replace('.', "-", $mimeType);
-//        
-//        if (isset($md['icon']['mimetypemap'][$mimeType])) {
-//            return $this->getIconUrl($md['icon']['mimetypemap'][$mimeType]);
-//        } else {
-//            return $this->getIconUrl($this->options['default_icon']);
-//        }
+        return $this->getIconUrl($this->mime->getIconBaseName($mimeType));
     }
     
     /**

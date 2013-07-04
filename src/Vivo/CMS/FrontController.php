@@ -152,14 +152,14 @@ class FrontController implements DispatchableInterface,
             $eventResult = $this->events->trigger(CMSEvent::EVENT_FETCH_DOCUMENT, $this->getCmsEvent(),
                     function ($result) {
                         //stop event propagation when document is fetched
-                        return ($result instanceof CMS\Model\Document);
+                        return ($result instanceof Model\Document);
                     });
             $document = $eventResult->last();
 
             $this->cmsEvent->setDocument($document);
 
             //Performance log
-            if($document instanceof CMS\Model\Document) {
+            if($document instanceof Model\Document) {
                 $this->events->trigger('log', $this,
                     array ('message'    => sprintf("FrontController - Document fetched (%s)", $document->getPath()),
                            'priority'   => Logger::PERF_BASE));
@@ -237,7 +237,7 @@ class FrontController implements DispatchableInterface,
             //fetch error document
             $eventResult = $this->events->trigger(CMSEvent::EVENT_FETCH_ERRORDOCUMENT, $this->getCmsEvent(),
                     function ($result) {
-                        return ($result instanceof CMS\Model\Document);
+                        return ($result instanceof Model\Document);
                     });
             $this->cmsEvent->setDocument($eventResult->last());
 

@@ -136,7 +136,7 @@ return array(
                         ),
                     ),
                     //route for site entity resources in backend view
-                    'resource_entity' => array(
+                    'backend_resource_entity' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
                             'regex'    => '/(?<host>.+)/view/\.entity(?<entity>.+?)((\.path/(?<path>.+)))',
@@ -208,6 +208,7 @@ return array(
             'Vivo\CMS\Api\Util'         => 'Vivo\CMS\Api\UtilFactory',
             'Vivo\CMS\Api\Content\File'       => 'Vivo\CMS\Api\Content\FileFactory',
             'Vivo\CMS\Api\Content\Fileboard'  => 'Vivo\CMS\Api\Content\FileboardFactory',
+            'Vivo\CMS\Api\Content\Gallery'    => 'Vivo\CMS\Api\Content\GalleryFactory',
             'module_resource_manager'   => 'Vivo\Module\ResourceManager\ResourceManagerFactory',
             'module_install_manager'    => 'Vivo\Service\ModuleInstallManagerFactory',
             'db_provider_factory'       => 'Vivo\Service\DbProviderFactoryFactory',
@@ -304,10 +305,10 @@ return array(
         'not_found_template'       => 'error/404',
         'exception_template'       => 'error/index',
         'template_map' => array(
-            'layout/layout'           => __DIR__ . '/../view/layout/layout.phtml',
-            'vivo/index/index' => __DIR__ . '/../view/vivo/index/index.phtml',
-            'error/404'               => __DIR__ . '/../view/error/404.phtml',
-            'error/index'             => __DIR__ . '/../view/error/index.phtml',
+            'layout/layout'        => __DIR__ . '/../view/layout/layout.phtml',
+            'vivo/index/index'     => __DIR__ . '/../view/vivo/index/index.phtml',
+            'error/404'            => __DIR__ . '/../view/error/404.phtml',
+            'error/index'          => __DIR__ . '/../view/error/index.phtml',
         ),
         'template_path_stack' => array(
             __DIR__ . '/../view',
@@ -329,6 +330,7 @@ return array(
         ),
         'factories' => array(
             'url'               => 'Vivo\View\Helper\UrlFactory',
+            'icon_url'          => 'Vivo\View\Helper\IconUrlFactory',
             'resource'          => 'Vivo\View\Helper\ResourceFactory',
             'document'          => 'Vivo\View\Helper\DocumentFactory',
             'cms'               => 'Vivo\View\Helper\CmsFactory',
@@ -685,6 +687,34 @@ return array(
             'font/ttf'                      => array('ttf'),
             'font/opentype'                 => array('otf'),
         ),
+        'icons' => array(
+            'video/avi' => 'File.avi',
+            'video/x-msvideo' => 'File.avi',
+            'application/msword' => 'File.doc',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'File.docx',
+            'image/gif' => 'File.gif',
+            'text/html' => 'File.html',
+            'image/jpeg' => 'File.jpg',
+            'image/pjpeg' => 'File.jpg',
+            'audio/mpeg' => 'File.mp3',
+            'application/pdf' => 'File.pdf',
+            'application/php' => 'File.php',
+            'application/phtml' => 'File.php',
+            'image/png' => 'File.png',
+            'image/x-png' => 'File.png',
+            'application/vnd.openxmlformats-officedocument.presentationml.slideshow' => 'File.ppsx',
+            'application/mspowerpoint' => 'File.ppt',
+            'application/vnd.ms-powerpoint' => 'File.ppt',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation' => 'File.pptx',
+            'text/x-vcard' => 'File.vcf',
+            'audio/x-wav' => 'File.wav',
+            'audio/x-ms-wma' => 'File.wma',
+            'video/x-ms-wmv' => 'File.wmv',
+            'application/vnd.ms-excel' => 'File.xls',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'File.xlsx',
+            'application/zip' => 'File.zip',
+        ),
+        'default_icon' => 'File',
     ),
 
     'response' => array (
@@ -839,6 +869,13 @@ return array(
                 'multi'         => false,
             ),
             '\title'   => array(
+                'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
+                'indexed'       => true,
+                'stored'        => true,
+                'tokenized'     => false,
+                'multi'         => false,
+            ),
+            '\mimeType' => array(
                 'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
                 'indexed'       => true,
                 'stored'        => true,

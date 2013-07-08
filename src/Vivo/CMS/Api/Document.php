@@ -32,7 +32,7 @@ class Document implements DocumentInterface
 
     /**
      * CMS API
-     * @var CMS
+     * @var \Vivo\CMS\Api\CMS
      */
     protected $cmsApi;
 
@@ -55,7 +55,7 @@ class Document implements DocumentInterface
 
     /**
      * Constructor
-     * @param CMS $cmsApi
+     * @param \Vivo\CMS\Api\CMS $cmsApi
      * @param \Vivo\Repository\RepositoryInterface $repository
      * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
      * @param \Vivo\Uuid\GeneratorInterface $uuidGenerator
@@ -422,12 +422,20 @@ class Document implements DocumentInterface
     {
         //Save content
         $container = $this->cmsApi->getParent($content);
-        $this->updateContentStates($container, $content);
+
+        // Only if parent is Container (Models with sub-contents (gallery) are excluded)
+        if($container instanceof Model\ContentContainer) {
+            $this->updateContentStates($container, $content);
+        }
+
         $this->cmsApi->saveEntity($content, true);
 
-        //Save document to reflect content stated
-        $document   = $this->getContentDocument($content);
-        $this->saveDocument($document, true);
+        // Only if parent is Container (Models with sub-contents (gallery) are excluded)
+        if($container instanceof Model\ContentContainer) {
+            //Save document to reflect content stated
+            $document   = $this->getContentDocument($content);
+            $this->saveDocument($document, true);
+        }
         return $content;
     }
 
@@ -723,7 +731,7 @@ class Document implements DocumentInterface
             if ($entity instanceof Model\Content\File && $entity->getMimeType() == 'text/html') {
                 /** @var $entity Model\Content\File */
                 /** @var $versionOriginal \Vivo\CMS\Model\Content */
-                $filename           = $entity->getFilename();
+                $filename           = $this->cmsApi->getResourceName($entity);
                 $html               = $this->repository->getResource($entity, $filename);
                 $html               = str_replace("[ref:$oldUuid]", "[ref:$newUuid]", $html);
                 $this->repository->saveResource($entity, $filename, $html);

@@ -24,6 +24,8 @@ class CMS
      */
     const UUID_PATTERN = '[\d\w]{32}';
 
+    const RESOURCE_NAME = 'resource';
+
     /**
      * Repository
      * @var RepositoryInterface
@@ -213,6 +215,17 @@ class CMS
 //
 //         return $this->repository->getChildren($document->getPath().'/Contents.'.$index);
 //     }
+
+    /**
+     * Returns resource name for repository.
+     *
+     * @param \Vivo\CMS\Model\Content\File $file
+     * @return string
+     */
+    public function getResourceName(Model\Content\File $file)
+    {
+        return sprintf('%s.%s', self::RESOURCE_NAME, $file->getExt());
+    }
 
     /**
      * Writes resource represented by a stream into the repository

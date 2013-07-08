@@ -113,46 +113,46 @@ return array(
         'available_contents' => array (
             'file'    => array(
                 'class'     => 'Vivo\CMS\Model\Content\File',
-                'label'     => 'Vivo\CMS\Model\Content\File - general file',
+                'label'     => 'Vivo: File - general file',
             ),
             'file_text/html'    => array(
                 'class'     => 'Vivo\CMS\Model\Content\File',
-                'label'     => 'Vivo\CMS\Model\Content\File - HTML file',
+                'label'     => 'Vivo: File - HTML file',
                 'options'   => array(
                     'mimeType'  => 'text/html',
                 ),
             ),
             'overview'    => array(
                 'class'     => 'Vivo\CMS\Model\Content\Overview',
-                'label'     => 'Vivo\CMS\Model\Content\Overview',
+                'label'     => 'Vivo: Overview',
             ),
             'link'    => array(
                 'class'     => 'Vivo\CMS\Model\Content\Link',
-                'label'     => 'Vivo\CMS\Model\Content\Link',
+                'label'     => 'Vivo: Link',
             ),
             'hyperlink'    => array(
                 'class'     => 'Vivo\CMS\Model\Content\Hyperlink',
-                'label'     => 'Vivo\CMS\Model\Content\Hyperlink',
+                'label'     => 'Vivo: Hyperlink',
             ),
             'component'    => array(
                 'class'     => 'Vivo\CMS\Model\Content\Component',
-                'label'     => 'Vivo\CMS\Model\Content\Component',
+                'label'     => 'Vivo: Component',
             ),
             'layout'    => array(
                 'class'     => 'Vivo\CMS\Model\Content\Layout',
-                'label'     => 'Vivo\CMS\Model\Content\Layout',
+                'label'     => 'Vivo: Layout',
             ),
             'navigation'    => array(
                 'class'     => 'Vivo\CMS\Model\Content\Navigation',
-                'label'     => 'Vivo\CMS\Model\Content\Navigation',
+                'label'     => 'Vivo: Navigation',
             ),
             'fileboard'    => array(
                 'class'     => 'Vivo\CMS\Model\Content\Fileboard',
-                'label'     => 'Vivo\CMS\Model\Content\Fileboard',
+                'label'     => 'Vivo: Fileboard',
             ),
             'gallery'    => array(
                 'class'     => 'Vivo\CMS\Model\Content\Gallery',
-                'label'     => 'Vivo\CMS\Model\Content\Gallery',
+                'label'     => 'Vivo: Gallery',
             ),
         ),
         'restrictions' => array (

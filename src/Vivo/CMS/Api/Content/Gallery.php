@@ -11,6 +11,7 @@ class Gallery extends AbstractOrderableContentApi
 {
     /**
      * Returns all gallery items.
+     * Max items is 9999.
      *
      * @param \Vivo\CMS\Model\Content\Gallery $model
      * @throws \Vivo\CMS\Api\Exception\InvalidPathException
@@ -27,7 +28,7 @@ class Gallery extends AbstractOrderableContentApi
         $qb = new QueryBuilder();
         $condition = $qb->cond($model->getPath().'/*', '\path');
         $hits      = $this->indexer
-                          ->find($condition, array('sort'=>array('\order')))
+                          ->find($condition, array('sort'=>array('\order'), 'page_size'=>9999))
                           ->getHits();
 
         foreach ($hits as $hit) {

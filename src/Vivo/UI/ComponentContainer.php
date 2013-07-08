@@ -3,6 +3,7 @@ namespace Vivo\UI;
 
 use Vivo\UI\Exception\ComponentNotExists;
 
+use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\View\Model\ModelInterface;
 
 /**
@@ -13,10 +14,16 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
 {
 
     /**
-     * @var array of ComponentInterface
+     * Child components
+     * @var ComponentInterface[]
      */
     protected $components = array();
 
+    /**
+     * Returns child component by name
+     * @param string $name
+     * @return ComponentInterface
+     */
     public function __get($name)
     {
         if ($this->hasComponent($name)) {
@@ -25,17 +32,31 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
         return $this->$name; //notice if property doesn't exist
     }
 
+    /**
+     * Checks if a component with the given name exists
+     * @param string $name
+     * @return bool
+     */
     function __isset($name)
     {
         return $this->hasComponent($name);
     }
 
+    /**
+     * Removes the specified component
+     * @param string $name
+     */
     function __unset($name)
     {
         if ($this->hasComponent($name))
             $this->removeComponent($name);
     }
 
+    /**
+     * Sets child component
+     * @param string $name
+     * @param mixed $object
+     */
     public function __set($name, $object)
     {
         if ($object instanceof ComponentInterface) {
@@ -86,8 +107,9 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
     }
 
     /**
-     * (non-PHPdoc)
-     * @see \Vivo\UI\ComponentContainerInterface::getComponent()
+     * Returns component by name
+     * @param string $name
+     * @return ComponentInterface
      */
     public function getComponent($name)
     {
@@ -117,23 +139,42 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
         return isset($this->components[$name]);
     }
 
-    public function view()
+    /**
+     * Listener for ComponentEventInterface::EVENT_VIEW event
+     * @param ComponentEventInterface $event
+     * @throws Exception\RuntimeException
+     */
+    public function viewListenerChildViews(ComponentEventInterface $event)
     {
-        $viewModel = parent::view();
+        if ($event->getComponent() != $this) {
+            //This view listener expects only this component as target
+            throw new Exception\RuntimeException(sprintf("%s: Unexpected component", __METHOD__));
+        }
+        $viewModel = $this->getView();
         foreach ($this->components as $name => $component) {
-            $model = $component->view();
-
+            $model = $component->getView();
             if ($model instanceof ModelInterface) {
                 $viewModel->addChild($model, $name);
             } else {
                 $viewModel->setVariable($name, $model);
             }
         }
-
         $container = array (
             'components' => array_keys($this->components),
         );
         $viewModel->setVariable('container', $container);
-        return $viewModel;
+    }
+
+    /**
+     * Attaches listeners
+     * @param ServiceLocatorInterface $serviceLocator
+     * @return void
+     */
+    public function attachListeners(ServiceLocatorInterface $serviceLocator)
+    {
+        parent::attachListeners($serviceLocator);
+        $eventManager   = $this->getEventManager();
+        //View
+        $eventManager->attach(ComponentEventInterface::EVENT_VIEW, array($this, 'viewListenerChildViews'));
     }
 }

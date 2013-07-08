@@ -11,6 +11,7 @@ use Vivo\UI\ComponentTreeController;
 use Vivo\Util\RedirectEvent;
 use Vivo\Util\Redirector;
 use Vivo\Util\UrlHelper;
+use Vivo\UI\ComponentEventInterface;
 
 use Zend\EventManager\EventInterface as Event;
 use Zend\Mvc\InjectApplicationEventInterface;
@@ -141,7 +142,7 @@ class BackendController implements DispatchableInterface,
             //if request is  ajax call, we use result of method
             $result = $this->handleAction();
         } else {
-            $this->tree->init();
+            $this->tree->init(); //replace by lazy init
             $this->handleAction();
             if (!$this->redirector->isRedirect()) {
                 $result = $this->tree->view();

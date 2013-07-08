@@ -17,11 +17,6 @@ class SiteSelector extends Component implements EventManagerAwareInterface,
 {
 
     /**
-     * @var EventManagerInterface
-     */
-    protected $eventManager;
-
-    /**
      * @var \Vivo\CMS\Api\Site
      */
     protected $siteApi;
@@ -32,8 +27,14 @@ class SiteSelector extends Component implements EventManagerAwareInterface,
     protected $site;
 
     /**
+     * Sites array
+     * @var \Vivo\CMS\Model\Site[]
+     */
+    protected $sites    = array();
+
+    /**
      * Constructor.
-     * @param Site $siteApi
+     * @param \Vivo\CMS\Api\Site $siteApi
      * @param SiteEvent $siteEvent
      */
     public function __construct(SiteApi $siteApi, SiteEvent $siteEvent)
@@ -75,22 +76,13 @@ class SiteSelector extends Component implements EventManagerAwareInterface,
     }
 
     /**
-     * (non-PHPdoc)
-     * @see \Zend\EventManager\EventsCapableInterface::getEventManager()
-     */
-    public function getEventManager()
-    {
-        return $this->eventManager;
-    }
-
-    /**
      * Sets currently edited site.
      * @param string $siteName
      * @throws \Exception
      */
     public function set($siteName)
     {
-        if (!key_exists($siteName, $this->sites)) {
+        if (!array_key_exists($siteName, $this->sites)) {
             throw new \Exception('Site is not accessible.');
         }
         $this->setSite($this->sites[$siteName]);
@@ -103,8 +95,7 @@ class SiteSelector extends Component implements EventManagerAwareInterface,
     public function setSite(Site $site)
     {
         $this->site = $site;
-        $this->eventManager
-                ->trigger(__FUNCTION__, $this, array('site' => $site));
+        $this->eventManager->trigger(__FUNCTION__, $this, array('site' => $site));
     }
 
     /**

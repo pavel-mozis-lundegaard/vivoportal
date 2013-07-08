@@ -1,16 +1,21 @@
 <?php
 namespace Vivo\UI;
 
+use Vivo\UI\ComponentEventInterface;
+use Vivo\UI\ComponentEvent;
+
+use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\View\Model\ModelInterface;
 use Zend\View\Model\ViewModel;
+use Zend\EventManager\EventManager;
+use Zend\EventManager\EventManagerInterface;
 
 /**
  * Base class for UI components.
  *
  */
-class Component implements ComponentInterface
+class Component implements ComponentInterface, ListenerProviderInterface
 {
-
     /**
      * String used to separate component names in path
      * @var string
@@ -36,6 +41,18 @@ class Component implements ComponentInterface
     protected $view;
 
     /**
+     * Component Event manager
+     * @var EventManagerInterface
+     */
+    protected $eventManager;
+
+    /**
+     * Component Event
+     * @var ComponentEventInterface
+     */
+    protected $event;
+
+    /**
      * @param ModelInterface $view
      */
     public function setView(ModelInterface $view)
@@ -43,6 +60,10 @@ class Component implements ComponentInterface
         $this->view = $view;
     }
 
+    /**
+     * Returns view model of the Component or string to display directly
+     * @return \Zend\View\Model\ModelInterface|string
+     */
     public function getView()
     {
         if ($this->view === null) {
@@ -51,28 +72,32 @@ class Component implements ComponentInterface
         return $this->view;
     }
 
-    public function init()
+    /**
+     * Initialize the view model on the ComponentEventInterface::EVENT_VIEW event
+     */
+    public function viewListenerInitView()
     {
-
-    }
-
-    public function view()
-    {
-        if ($this->getView()->getTemplate() == '') {
-            $this->getView()->setTemplate($this->getDefaultTemplate());
+        $view   = $this->getView();
+        if ($view->getTemplate() == '') {
+            $view->setTemplate($this->getDefaultTemplate());
         }
         $component = array(
-                'component' => $this,
-                'path' => $this->getPath(),
-                'name' => $this->getName(),
+            'component' => $this,
+            'path' => $this->getPath(),
+            'name' => $this->getName(),
         );
-        $this->getView()->setVariable('component', $component);
-        return $this->view;
+        $view->setVariable('component', $component);
     }
 
-    public function done()
+    /**
+     * Returns view model or string to display directly
+     * This method is present for backward compatibility - many existing descendants call parent::view() to obtain
+     * the view model
+     * @return \Zend\View\Model\ModelInterface|string
+     */
+    public function view()
     {
-
+        return $this->getView();
     }
 
     public function getPath($path = '')
@@ -87,6 +112,22 @@ class Component implements ComponentInterface
         return $path;
     }
 
+    /**
+     * For backward compatibility only
+     * Many existing extending components call parent::init()
+     */
+    public function init()
+    {
+    }
+
+    /**
+     * For backward compatibility only
+     * Existing extending components might call parent::done()
+     */
+    public function done()
+    {
+    }
+
     public function getDefaultTemplate()
     {
         return get_class($this);
@@ -94,6 +135,7 @@ class Component implements ComponentInterface
 
     /**
      * Return parent of component in component tree.
+     * @param string|null $className
      * @return ComponentContainerInterface
      */
     public function getParent($className = null)
@@ -108,7 +150,7 @@ class Component implements ComponentInterface
     }
 
     /**
-     * Sets parent component.
+     * Sets parent component
      * This method should be called only from ComponentContainer::addComponent()
      * @param ComponentContainerInterface $parent
      * @param string $name
@@ -126,9 +168,56 @@ class Component implements ComponentInterface
         return $this->name;
     }
 
-    protected function setName($name)
+    public function setName($name = null)
     {
         //TODO check name format (alfanum)
         $this->name = $name;
+    }
+
+    /**
+     * Sets the component Event Manager
+     * @param \Zend\EventManager\EventManagerInterface $eventManager
+     */
+    public function setEventManager(EventManagerInterface $eventManager)
+    {
+        $this->eventManager = $eventManager;
+    }
+
+    /**
+     * Returns component Event Manager
+     * @return \Zend\EventManager\EventManagerInterface
+     */
+    public function getEventManager()
+    {
+        if (!$this->eventManager) {
+            $this->eventManager = new EventManager();
+        }
+        return $this->eventManager;
+    }
+
+    /**
+     * Returns component Event
+     * @return ComponentEventInterface
+     */
+    public function getEvent()
+    {
+        if (!$this->event) {
+            $this->event    = new ComponentEvent();
+            $this->event->setTarget($this);
+        }
+        return $this->event;
+    }
+
+    /**
+     * Attaches listeners
+     * @param ServiceLocatorInterface $serviceLocator
+     * @return void
+     */
+    public function attachListeners(ServiceLocatorInterface $serviceLocator)
+    {
+        $eventManager   = $this->getEventManager();
+        //View
+        $eventManager->attach(ComponentEventInterface::EVENT_VIEW, array($this, 'viewListenerInitView'));
+
     }
 }

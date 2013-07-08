@@ -8,6 +8,7 @@ use Vivo\Backend\UI\SiteSelector;
 use Vivo\Service\Initializer\RequestAwareInterface;
 use Vivo\UI\ComponentContainer;
 use Vivo\UI\PersistableInterface;
+use Vivo\UI\ComponentEventInterface;
 
 use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
@@ -32,11 +33,6 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
      * @var string
      */
     protected $currentName = 'browser';
-
-    /**
-     * @var EventManagerInterface
-     */
-    protected $eventManager;
 
     /**
      * @var RequestInterface
@@ -257,15 +253,6 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     {
         $this->eventManager = $eventManager;
         $this->eventManager->addIdentifiers(__CLASS__);
-    }
-
-    /**
-     * (non-PHPdoc)
-     * @see \Zend\EventManager\EventsCapableInterface::getEventManager()
-     */
-    public function getEventManager()
-    {
-        return $this->eventManager;
     }
 
     /**

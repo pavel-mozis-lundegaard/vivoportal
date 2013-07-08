@@ -117,7 +117,7 @@ class Move extends AbstractForm implements TranslatorAwareInterface
                 $message = sprintf($this->translator->translate(
                     "Document at path '%s' has been moved to path '%s'"), $docRelPath, $movedDocRelPath);
                 $this->alert->addMessage($message, Alert::TYPE_SUCCESS);
-                $this->events->trigger(new RedirectEvent());
+                $this->eventManager->trigger(new RedirectEvent());
             } catch (EntityAlreadyExistsException $e) {
                 $message = $this->translator->translate("An entity already exists at the target path");
                 $this->alert->addMessage($message, Alert::TYPE_ERROR);

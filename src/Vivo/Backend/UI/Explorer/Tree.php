@@ -111,7 +111,7 @@ class Tree extends Component
     }
 
     /**
-     * Returs tree of document using DataTree structure.
+     * Returns tree of document using DataTree structure.
      *
      * @param Folder $rootFolder
      * @param string $expandedPath

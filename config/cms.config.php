@@ -109,7 +109,7 @@ return array(
         'available_contents' => array (
             'file'    => array(
                 'class'     => 'Vivo\CMS\Model\Content\File',
-                'label'     => 'Vivo\CMS\Model\Content\File - general file',
+                'label'     => ' Vivo\CMS\Model\Content\File - general file',
             ),
             'file_text/html'    => array(
                 'class'     => 'Vivo\CMS\Model\Content\File',
@@ -226,7 +226,6 @@ return array(
             'Vivo\CMS\UI\Root'              => 'Vivo\CMS\UI\Root',
             'Vivo\UI\ComponentContainer'    => 'Vivo\UI\ComponentContainer',
             'Vivo\UI\TabContainer'          => 'Vivo\UI\TabContainer',
-            'Vivo\CMS\UI\Manager\Explorer\Ribbon'  => 'Vivo\CMS\UI\Manager\Explorer\Ribbon',
         ),
         'factories' => array (
             // Content factories
@@ -256,6 +255,9 @@ return array(
             'Vivo\UI\Page'                   => 'Vivo\Service\UI\PageFactory',
             'Vivo\UI\Alert'                  => 'Vivo\UI\AlertFactory',
             'Vivo\UI\Paginator'              => 'Vivo\UI\PaginatorFactory',
+            'Vivo\UI\Ribbon\Tab'             => 'Vivo\UI\Ribbon\TabFactory',
+            'Vivo\UI\Ribbon\Group'           => 'Vivo\UI\Ribbon\GroupFactory',
+            'Vivo\UI\Ribbon\Item'            => 'Vivo\UI\Ribbon\ItemFactory',
             'security_manager'               => 'Vivo\Service\SimpleSecurityManagerFactory',
 //          'security_manager'               => 'Vivo\Service\DbSecurityManagerFactory',
 
@@ -275,6 +277,8 @@ return array(
             'Vivo\Backend\UI\Explorer\Move'     => 'Vivo\Backend\UI\Explorer\MoveFactory',
             'Vivo\Backend\UI\Explorer\Viewer'   => 'Vivo\Backend\UI\Explorer\ViewerFactory',
             'Vivo\Backend\UI\Explorer\Browser'  => 'Vivo\Backend\UI\Explorer\BrowserFactory',
+            'Vivo\Backend\UI\Explorer\Tree'     => 'Vivo\Backend\UI\Explorer\TreeFactory',
+            'Vivo\Backend\UI\Explorer\Ribbon'   => 'Vivo\Backend\UI\Explorer\RibbonFactory',
             'Vivo\Backend\UI\Logon'             => 'Vivo\Backend\UI\LogonFactory',
             'Vivo\Backend\ModuleResolver'       => 'Vivo\Backend\ModuleResolverFactory',
         ),
@@ -412,7 +416,7 @@ return array(
     ),
     'Vivo\CMS\ComponentFactory' => array (
         'specialComponents' => array (
-            //theese component are used instead of missing component
+            //these components are used instead of missing components
             'layout_empty_panel'    => 'Vivo\CMS\UI\LayoutEmptyPanel',
             'unpublished_document'  => 'Vivo\CMS\UI\UnpublishedDocument',
         ),

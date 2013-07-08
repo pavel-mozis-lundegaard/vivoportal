@@ -8,7 +8,14 @@ interface ComponentContainerInterface
 {
     public function addComponent(ComponentInterface $component, $name);
     public function removeComponent($name);
+
+    /**
+     * Returns component by name
+     * @param string $name
+     * @return ComponentInterface
+     */
     public function getComponent($name);
+
     public function getComponents();
 
     /**

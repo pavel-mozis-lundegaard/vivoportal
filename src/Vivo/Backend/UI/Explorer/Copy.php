@@ -96,7 +96,7 @@ class Copy extends AbstractForm implements TranslatorAwareInterface
             $message = sprintf($this->translator->translate(
                 "Document at path '%s' has been copied to path '%s'"), $docRelPath, $copiedDocRelPath);
             $this->alert->addMessage($message, Alert::TYPE_SUCCESS);
-            $this->events->trigger(new RedirectEvent());
+            $this->eventManager->trigger(new RedirectEvent());
         } else {
             $message = $this->translator->translate("Form data is not valid");
             $this->alert->addMessage($message, Alert::TYPE_ERROR);

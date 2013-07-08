@@ -9,6 +9,7 @@ use Vivo\Util\Redirector;
 
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
+use Zend\Form\Fieldset as ZfFieldset;
 use Zend\Form\FormInterface;
 use Zend\Form\Form as ZfForm;
 use Zend\Http\PhpEnvironment\Request;
@@ -25,7 +26,8 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
                                                                   RedirectorAwareInterface,
                                                                   EventManagerAwareInterface,
                                                                   TranslatorAwareInterface,
-                                                                  InputFilterFactoryAwareInterface
+                                                                  InputFilterFactoryAwareInterface,
+                                                                  ZfFieldsetProviderInterface
 {
     /**
      * @var ZfForm
@@ -89,12 +91,6 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
      * @var bool
      */
     protected $forceLoadFromRequest = true;
-
-    /**
-     * Event Manager
-     * @var EventManagerInterface
-     */
-    protected $events;
 
     /**
      * Translator instance
@@ -333,24 +329,6 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     }
 
     /**
-     * Sets eventmanager
-     * @param EventManagerInterface $eventManager
-     */
-    public function setEventManager(EventManagerInterface $eventManager)
-    {
-        $this->events = $eventManager;
-    }
-
-    /**
-     * Returns eventmanager.
-     * @return EventManagerInterface
-     */
-    public function getEventManager()
-    {
-        return $this->events;
-    }
-
-    /**
      * Injects translator
      * @param \Zend\I18n\Translator\Translator $translator
      */
@@ -399,5 +377,35 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     {
         $formFactory    = $form->getFormFactory();
         $formFactory->setInputFilterFactory($this->inputFilterFactory);
+    }
+
+    /**
+     * Returns ZF Fieldset
+     * @return ZfFieldset
+     */
+    public function getZfFieldset()
+    {
+        return $this->getForm();
+    }
+
+    /**
+     * Sets name of this ZfForm
+     * Use to override the underlying form name
+     * @param string $zfFormName
+     */
+    public function setZfFormName($zfFormName)
+    {
+        $form   = $this->getForm();
+        $form->setName($zfFormName);
+    }
+
+    /**
+     * Returns name of this ZfForm
+     * @return string
+     */
+    public function getZfFormName()
+    {
+        $form   = $this->getForm();
+        return $form->getName();
     }
 }

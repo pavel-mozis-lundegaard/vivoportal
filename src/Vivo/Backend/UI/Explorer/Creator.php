@@ -80,7 +80,7 @@ class Creator extends Editor
             $this->explorer->setEntity($this->entity);
             $this->saveProcess();
             $this->explorer->setCurrent('editor');
-            $this->events->trigger(new RedirectEvent());
+            $this->eventManager->trigger(new RedirectEvent());
             $this->addAlertMessage('Created...', Alert::TYPE_SUCCESS);
         }
         else {

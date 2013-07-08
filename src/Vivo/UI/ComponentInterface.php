@@ -6,21 +6,27 @@ namespace Vivo\UI;
  */
 interface ComponentInterface
 {
-    /**
-     * @return void
-     */
-    public function init();
+//    /**
+//     * @return void
+//     */
+//    public function init();
+
+//    /**
+//     * Returns view model or string to display directly
+//     * @return \Zend\View\Model\ModelInterface|string
+//     */
+//    public function view();
 
     /**
-     * Returns view model or string to display directly
+     * Returns view model of the Component or string to display directly
      * @return \Zend\View\Model\ModelInterface|string
      */
-    public function view();
+    public function getView();
 
-    /**
-     * @return void
-     */
-    public function done();
+//    /**
+//     * @return void
+//     */
+//    public function done();
 
     /**
      * @return string
@@ -31,4 +37,16 @@ interface ComponentInterface
      * @return ComponentContainerInterface
      */
     public function getParent();
+
+    /**
+     * Returns component Event Manager
+     * @return \Zend\EventManager\EventManagerInterface
+     */
+    public function getEventManager();
+
+    /**
+     * Returns component Event
+     * @return ComponentEventInterface
+     */
+    public function getEvent();
 }

@@ -117,7 +117,7 @@ class Gallery extends AbstractForm implements EditorInterface
     {
         $file = $this->galleryApi->getEntity($uuid);
         $this->galleryApi->removeEntity($file);
-        $this->events->trigger(new RedirectEvent());
+        $this->eventManager->trigger(new RedirectEvent());
     }
 
     /**
@@ -126,7 +126,7 @@ class Gallery extends AbstractForm implements EditorInterface
     public function deleteAll()
     {
         $this->galleryApi->removeAllFiles($this->content);
-        $this->events->trigger(new RedirectEvent());
+        $this->eventManager->trigger(new RedirectEvent());
     }
 
     /**
@@ -138,7 +138,7 @@ class Gallery extends AbstractForm implements EditorInterface
     {
         $entity = $this->galleryApi->getEntity($uuid);
         $this->galleryApi->moveUp($this->files, $entity);
-        $this->events->trigger(new RedirectEvent());
+        $this->eventManager->trigger(new RedirectEvent());
     }
 
     /**
@@ -150,7 +150,7 @@ class Gallery extends AbstractForm implements EditorInterface
     {
         $entity = $this->galleryApi->getEntity($uuid);
         $this->galleryApi->moveDown($this->files, $entity);
-        $this->events->trigger(new RedirectEvent());
+        $this->eventManager->trigger(new RedirectEvent());
     }
 
     /**
@@ -162,7 +162,7 @@ class Gallery extends AbstractForm implements EditorInterface
     {
         $entity = $this->galleryApi->getEntity($uuid);
         $this->galleryApi->setAsMain($this->content, $entity);
-        $this->events->trigger(new RedirectEvent());
+        $this->eventManager->trigger(new RedirectEvent());
     }
 
     /**

@@ -27,7 +27,7 @@ if($form->get('fb-new')) {
                     | <a href="<?=htmlspecialchars($this->actionUrl('moveDown', array('uuid'=>$u)))?>" title="Move Down">move down</a>
                 <? endif; ?>
                 <? if($file instanceof Fileboard\Media) : ?>
-                    <br><?=htmlspecialchars($file->getFilename())?>
+                    <br><img src="<?=$this->iconUrl($file->getMimeType())?>" alt=""> <?=htmlspecialchars($file->getFilename())?>
                     <?= $this->formFieldsetTwb($fieldset, $formType, array(), false, false, false); ?>
                 <? else : ?>
                     <?= $this->formFieldsetTwb($fieldset, $formType, array(), false, false, false); ?>

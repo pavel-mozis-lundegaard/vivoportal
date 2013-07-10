@@ -39,7 +39,10 @@
                     <div><?= ++$i ?></div>
                 </td>
                 <td>
-                    <div><?= $this->actionLink('set', $document->getTitle(), array($document->getPath())) ?></div>
+                    <div>
+                        <img src="<?= $this->iconUrl($document)?>" alt="" />
+                        <?= $this->actionLink('set', $document->getTitle(), array($document->getPath())) ?>
+                    </div>
                 </td>
                 <td>
                     <div><?= $document->getPath() ?></div>

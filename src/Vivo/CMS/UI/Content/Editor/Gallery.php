@@ -104,6 +104,17 @@ class Gallery extends AbstractForm implements EditorInterface
                                 ));
                     }
                 }
+
+                // Update current contents
+                if($form->get('gl-file-container')) {
+                    foreach ($form->get('gl-file-container')->getFieldsets() as $uuid=>$fieldset) {
+                        $media = $this->galleryApi->getEntity($uuid);
+                        $media->setName(trim($fieldset->get('name')->getValue()));
+                        $media->setDescription(trim($fieldset->get('desc')->getValue()));
+
+                        $this->galleryApi->saveEntity($media);
+                    }
+                }
             }
         }
     }

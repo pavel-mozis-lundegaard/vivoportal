@@ -2397,29 +2397,67 @@ a img { border: none; }
 	.box-shadow(~"0 0 25px rgba(0,0,0,.65)"); // drop shadow
 }
 
-.manager #logoutDialog .logoutDialogHeader {
-	background:@background-color-content url(../img/manager/default/tabs_background.gif) 0 -1px repeat-x;
+.manager #logoutDialog .logoutForm td {
+	vertical-align: top;
+	padding-top: 7px;
+	padding-bottom: 1px;
+}
+
+.manager #logoutDialog .logoutForm .first-row td {
+	padding-top: 12px;
+}
+
+.manager #logoutDialog .logoutForm label {
+	padding-top: 2px;
+}
+
+.manager #logoutDialog .logoutForm td.logoutDialogHeader {
+	background: @background-color-head url(../img/manager/default/tabs_background.gif) 0 -1px repeat-x;
 	color: #fff;
-  font-size: 1.4em;
-  font-weight: normal;
-  height: 33px;
-  overflow: hidden;
-  padding: 0px;
+	font-size: 1.4em;
+	font-weight: normal;
+	height: 33px;
+	overflow: hidden;
+	padding: 0px;
+}
+
+d.error {
+	border-color: #b94a48;
+	//#b94a48
 }
 
 .manager #logoutDialog .logoutDialogHeader span {
-  /*background: transparent url(../img/manager/default/tab_contentholder_background.gif) 0 1px repeat-y;*/
-  text-shadow: 0 1px 1px #5b7f9b;
-  display: block;
-  padding-bottom: 3px;
-  padding-left: 10px;
-  padding-top: 3px;
+	/*background: transparent url(../img/manager/default/tab_contentholder_background.gif) 0 1px repeat-y;*/
+	text-shadow: 0 1px 1px #5b7f9b;
+	display: block;
+	padding-bottom: 3px;
+	padding-left: 10px;
+	padding-top: 3px;
 }
 
-.manager #logoutDialog .logoutDialogLogo {
+.manager #logoutDialog .logoutForm td.logoutDialogLogo {
 	border-bottom: 1px #d6dde2 solid;
 	background: #fff;
 	padding: 0px;
+}
+
+.manager #logoutDialog .logoutForm td.logoutDialogError {
+	padding: 0px;	
+}
+
+.manager #logoutDialog .logoutForm td.logoutDialogError .alert-error {
+	border-top: 1px #ffcbd5 solid;
+	border-bottom: 1px #d53148 solid;	
+}
+
+
+.manager #logoutDialog .logoutForm .error td ul li {
+	font-size: 12px;
+	color: #b94a48;
+}
+
+.manager #logoutDialog .logoutDialogLogo img {
+	margin-bottom: -4px;
 }
 
 .manager #logoutDialog .logoutForm td {
@@ -2427,11 +2465,16 @@ a img { border: none; }
 }
 
 .manager #logoutDialog .logoutForm td input {
- width: 100% !important;
+	//width: 100% !important;
+}
+
+.manager #logoutDialog .logoutForm .inputSubmit.logon {
+	margin-left: 1px;
 }
 
 .manager #logoutDialog .saveButtons td {
   /*background: url(../img/manager/default/logon_savebuttons_background.gif) right bottom no-repeat; */
+  vertical-align: middle;
 }
 
 .manager #logoutDialog .saveButtons .browsersTrigger {
@@ -2440,6 +2483,7 @@ a img { border: none; }
 	font-size: 12px;
 	padding-left: 25px;
 	cursor: pointer;
+	margin-top: 17px;
 }
 .manager #logoutDialog .saveButtons .browsersTrigger.open {background-position: 0 -87px;}
 

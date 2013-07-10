@@ -68,7 +68,7 @@ return array(
                     ),
                     array(
                         'rel'  => 'stylesheet',
-                        'href' => '.Vivo.resource/backend/css/manager.css?v=1',
+                        'href' => '.Vivo.resource/backend/css/manager.css?v=2',
                         'type' => 'text/css',
                         'media' => 'screen'
                     ),

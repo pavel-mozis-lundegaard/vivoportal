@@ -2225,14 +2225,28 @@ a img {
   -moz-box-shadow: 0 0 25px rgba(0,0,0,.65);
   box-shadow: 0 0 25px rgba(0,0,0,.65);
 }
-.manager #logoutDialog .logoutDialogHeader {
-  background: #f0f5fa url(../img/manager/default/tabs_background.gif) 0 -1px repeat-x;
+.manager #logoutDialog .logoutForm td {
+  vertical-align: top;
+  padding-top: 7px;
+  padding-bottom: 1px;
+}
+.manager #logoutDialog .logoutForm .first-row td {
+  padding-top: 12px;
+}
+.manager #logoutDialog .logoutForm label {
+  padding-top: 2px;
+}
+.manager #logoutDialog .logoutForm td.logoutDialogHeader {
+  background: #a6c1cd url(../img/manager/default/tabs_background.gif) 0 -1px repeat-x;
   color: #fff;
   font-size: 1.4em;
   font-weight: normal;
   height: 33px;
   overflow: hidden;
   padding: 0px;
+}
+d.error {
+  border-color: #b94a48;
 }
 .manager #logoutDialog .logoutDialogHeader span {
   /*background: transparent url(../img/manager/default/tab_contentholder_background.gif) 0 1px repeat-y;*/
@@ -2243,20 +2257,35 @@ a img {
   padding-left: 10px;
   padding-top: 3px;
 }
-.manager #logoutDialog .logoutDialogLogo {
+.manager #logoutDialog .logoutForm td.logoutDialogLogo {
   border-bottom: 1px #d6dde2 solid;
   background: #fff;
   padding: 0px;
 }
+.manager #logoutDialog .logoutForm td.logoutDialogError {
+  padding: 0px;
+}
+.manager #logoutDialog .logoutForm td.logoutDialogError .alert-error {
+  border-top: 1px #ffcbd5 solid;
+  border-bottom: 1px #d53148 solid;
+}
+.manager #logoutDialog .logoutForm .error td ul li {
+  font-size: 12px;
+  color: #b94a48;
+}
+.manager #logoutDialog .logoutDialogLogo img {
+  margin-bottom: -4px;
+}
 .manager #logoutDialog .logoutForm td {
   background: #f0f5fa;
 }
-.manager #logoutDialog .logoutForm td input {
-  width: 100% !important;
+.manager #logoutDialog .logoutForm .inputSubmit.logon {
+  margin-left: 1px;
 }
 .manager #logoutDialog .saveButtons td {
   /*background: url(../img/manager/default/logon_savebuttons_background.gif) right bottom no-repeat; */
 
+  vertical-align: middle;
 }
 .manager #logoutDialog .saveButtons .browsersTrigger {
   background: transparent url(../img/manager/default/browsers_trigger.png) 0 3px no-repeat;
@@ -2264,6 +2293,7 @@ a img {
   font-size: 12px;
   padding-left: 25px;
   cursor: pointer;
+  margin-top: 17px;
 }
 .manager #logoutDialog .saveButtons .browsersTrigger.open {
   background-position: 0 -87px;

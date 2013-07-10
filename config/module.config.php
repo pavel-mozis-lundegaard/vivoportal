@@ -343,6 +343,7 @@ return array(
     'navigation_view_helpers'   => array(
         'invokables'        => array(
             'vivo_menu'         => 'Vivo\View\Helper\Navigation\Menu',
+            'vivo_site_map'     => 'Vivo\View\Helper\Navigation\SiteMap',
         ),
     ),
     'validators'    => array(

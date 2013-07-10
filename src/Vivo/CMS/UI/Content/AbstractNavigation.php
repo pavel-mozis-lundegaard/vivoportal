@@ -244,9 +244,10 @@ abstract class AbstractNavigation extends Component
     /**
      * Provides additional page options to CmsNavPage constructor
      * Method to be overriden by descendants
+     * @param Document $doc
      * @return array
      */
-    abstract protected function getAdditionalPageOptions();
+    abstract protected function getAdditionalPageOptions(Document $doc);
 
     /**
      * Determines whether the document is allowed to be listed
@@ -320,7 +321,7 @@ abstract class AbstractNavigation extends Component
                 $this->hasActiveDocument = true;
                 $pageOptions['active']   = true;
             }
-            $pageOptions = array_merge($pageOptions, $this->getAdditionalPageOptions());
+            $pageOptions = array_merge($pageOptions, $this->getAdditionalPageOptions($doc));
             $page              = new CmsNavPage($pageOptions);
             if ($this->allowListing($doc)) {
                 $page->visible = false;

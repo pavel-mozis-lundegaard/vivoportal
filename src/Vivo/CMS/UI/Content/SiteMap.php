@@ -95,7 +95,7 @@ class SiteMap extends Navigation
      * Provides additional page options to CmsNavPage constructor
      * @return array
      */
-    protected function getAdditionalPageOptions()
+    protected function getAdditionalPageOptions(Document $doc)
     {
         return array(
             'showDescription'   => $this->navModel->getShowDescription(),

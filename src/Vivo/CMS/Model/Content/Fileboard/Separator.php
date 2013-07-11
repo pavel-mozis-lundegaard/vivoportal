@@ -13,7 +13,7 @@ class Separator extends Content\File implements OrderableInterface
 
     public function setOrder($order)
     {
-        $this->order = $order;
+        $this->order = intval($order);
     }
 
     public function getOrder()

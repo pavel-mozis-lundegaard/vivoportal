@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\Util;
 
+use Zend\Stdlib\ArrayUtils;
+
 /**
  * MIME provides methods to works with Content-types and MIME types.
  */
@@ -9,14 +11,20 @@ class MIME implements MIMEInterface
     /**
      * @var array
      */
-    protected $types = array();
+    protected $options = array(
+        'types'         => array(),
+        'icons'         => array(),
+    );
 
     /**
-     * @param array $types
+     * @param array $options
      */
-    public function __construct(array $types)
+    public function __construct(array $options = array())
     {
-        $this->types = $types;
+        $this->options = ArrayUtils::merge($this->options, $options);
+        if (!isset($this->options['default_icon']) || !$this->options['default_icon']) {
+            throw new Exception\ConfigException(__METHOD__ . ": Default Icon is not set.");
+        }
     }
 
     /**
@@ -27,7 +35,7 @@ class MIME implements MIMEInterface
     protected function getType($ext)
     {
         $ext = strtolower($ext);
-        foreach ($this->types as $type => $exts) {
+        foreach ($this->options['types'] as $type => $exts) {
             if (in_array($ext, $exts)) {
                 return $type;
             }
@@ -43,7 +51,8 @@ class MIME implements MIMEInterface
     public function getExt($type)
     {
         $type = strtolower($type);
-        return isset($this->types[$type][0]) ? $this->types[$type][0] : null;
+        return isset($this->options['types'][$type][0]) ?
+                     $this->options['types'][$type][0] : null;
     }
 
     public function detectByExtension($ext)
@@ -54,6 +63,15 @@ class MIME implements MIMEInterface
     public function detectByFileContent($fileName)
     {
         //TODO , detect using finfo php extension
+    }
+    
+    /**
+     * @return string Icon Base Name (Without path or extension)
+     */
+    public function getIconBaseName($mimeType)
+    {
+        return isset($this->options['icons'][$mimeType]) ?
+               $this->options['icons'][$mimeType] : $this->options['default_icon'];
     }
 
 }

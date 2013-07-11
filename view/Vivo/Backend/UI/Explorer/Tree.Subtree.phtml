@@ -27,7 +27,7 @@
 			<? endif; ?>
 
 			<span class="<?=($document['expandable'])?'folder':'file'?>" id="cont-<?=$document['document']->getUuid();?>">
-				<img src="<?= $this->resource('backend/img/icons/16x16/File.png','Vivo')?>" alt="" />
+				<img src="<?= $this->iconUrl($document['document'])?>" alt="" />
 					<? if ($document['published']): ?>
 					<span class="published"></span>
 					<? endif; ?>

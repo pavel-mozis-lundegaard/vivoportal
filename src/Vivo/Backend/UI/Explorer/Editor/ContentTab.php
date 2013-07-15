@@ -85,7 +85,12 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
             $this->contents = array();
         }
     }
-    
+
+    /**
+     * Get Label of Content Type Class
+     * @param $class
+     * @return string
+     */
     private function getContentLabelFromClass($class)
     {
         foreach ($this->availableContents as $ctKey => $ac) {

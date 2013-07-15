@@ -156,7 +156,7 @@ return array(
             ),
             'site_map'    => array(
                 'class'     => 'Vivo\CMS\Model\Content\SiteMap',
-                'label'     => 'Vivo\CMS\Model\Content\SiteMap',
+                'label'     => 'Vivo: SiteMap',
             ),
         ),
         'restrictions' => array (

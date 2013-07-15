@@ -241,7 +241,7 @@ return array(
             'metadata_manager'          => 'Vivo\Service\MetadataManagerFactory',
             'lookup_data_manager'       => 'Vivo\LookupData\LookupDataManagerFactory',
             'redirector'                => 'Vivo\Util\RedirectorFactory',
-            'template_resolver'         => 'Vivo\Service\TemplateResolverFactory',
+            'template_resolver'         => 'Vivo\View\Resolver\TemplateResolverFactory',
             'di_proxy'                  => 'Vivo\Service\DiProxyFactory',
             'module_db_provider'        => 'Vivo\Service\ModuleDbProviderFactory',
             'db_table_name_provider'    => 'Vivo\Service\DbTableNameProviderFactory',
@@ -1194,4 +1194,7 @@ return array(
         //default values and structure are in cms.config.php
         //do not access to this key directly - use service 'cms_config'
     ),
+    'options' => array(
+       'template_not_found_action' => Vivo\View\Resolver\TemplateResolver::STATE_NOT_FOUND_ACTION_COMMENT,
+	),
 );

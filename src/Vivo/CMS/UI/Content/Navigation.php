@@ -374,8 +374,9 @@ class Navigation extends Component
     protected function buildNavPages(array $documentsPaths = array(), $limit = null)
     {
         $pages      = array();
-        $currentDoc = $this->cmsEvent->getDocument();
         $documents  = array();
+        $currentDoc = $this->cmsEvent->getDocument();        
+        
         foreach($documentsPaths as $docArray) {
             if (!is_array($docArray)) {
                 throw new Exception\InvalidArgumentException(

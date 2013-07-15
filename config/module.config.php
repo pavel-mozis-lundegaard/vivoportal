@@ -96,13 +96,30 @@ return array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'may_terminate' => true,
                         'options' => array(
-                            'regex'    => '/(?<host>.+?)/(?<module>.+?)/(?<path>.*)',
+                            'regex'    => '/(?<host>[^/]+)/(?<module>[^/]+)/(?<path>[^/]*)',
                             'spec'    => '/%host%/%module%/%path%',
                             'defaults' => array(
                                 'controller' => 'backend_controller',
                                 'path'   => '',
                                 'module' => 'explorer',
                                 'host' => '',
+                            ),
+                        ),
+                    ),
+                    //route for backend explorer module
+                    //@example http://<backendhost>/<sitehost>/explorer/<path>/<explorerAction>
+                    'explorer' => array(
+                        'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'may_terminate' => true,
+                        'options' => array(
+                            'regex'    => '/(?<host>[^/]+)/explorer/(?<path>[^/]+)/(?<explorerAction>[^/]*)',
+                            'spec'    => '/%host%/%module%/%path%/%explorerAction%',
+                            'defaults' => array(
+                                'controller' => 'backend_controller',
+                                'path'   => '',
+                                'host' => '',
+                                'module' => 'explorer',
+                                'explorerAction' => '',
                             ),
                         ),
                     ),
@@ -136,7 +153,7 @@ return array(
                         ),
                     ),
                     //route for site entity resources in backend view
-                    'backend_resource_entity' => array(
+                    'resource_entity' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
                             'regex'    => '/(?<host>.+)/view/\.entity(?<entity>.+?)((\.path/(?<path>.+)))',
@@ -292,7 +309,6 @@ return array(
             'cli_repository'            => 'Vivo\Service\Controller\CLI\CLIRepositoryControllerFactory',
             'cli_cms'                   => 'Vivo\Service\Controller\CLI\CLICmsControllerFactory',
             'cli_indexer'               => 'Vivo\Service\Controller\CLI\CLIIndexerControllerFactory',
-            'cli_util'                  => 'Vivo\Service\Controller\CLI\CLIUtilControllerFactory',
             'cli_setup'                 => 'Vivo\Service\Controller\CLI\CLISetupControllerFactory',
             'cli_util'                  => 'Vivo\Controller\CLI\UtilControllerFactory',
             'backend_controller'         => 'Vivo\Backend\BackendControllerFactory',
@@ -326,7 +342,6 @@ return array(
             'vivoformfieldset'      => 'Vivo\View\Helper\VivoFormFieldset',
             'container_component'   => 'Vivo\View\Helper\ContainerComponent',
             'overview_title'        => 'Vivo\View\Helper\OverviewTitle',
-          //  'url' => 'Vivo\View\Helper\Url',
         ),
         'factories' => array(
             'url'               => 'Vivo\View\Helper\UrlFactory',

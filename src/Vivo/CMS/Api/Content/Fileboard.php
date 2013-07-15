@@ -12,6 +12,7 @@ class Fileboard extends AbstractOrderableContentApi
 {
     /**
      * Returns all fileboard items.
+     * Max items is 9999.
      *
      * @param \Vivo\CMS\Model\Content\Fileboard $model
      * @throws \Vivo\CMS\Api\Exception\InvalidPathException
@@ -28,7 +29,7 @@ class Fileboard extends AbstractOrderableContentApi
         $qb = new QueryBuilder();
         $condition = $qb->cond($model->getPath().'/*', '\path');
         $hits      = $this->indexer
-                          ->find($condition, array('sort'=>array('\order')))
+                          ->find($condition, array('sort'=>array('\order'), 'page_size'=>9999))
                           ->getHits();
 
         foreach ($hits as $hit) {

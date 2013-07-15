@@ -126,7 +126,11 @@ class Tree extends Component
             $children = $this->documentApi->sortDocumentsByCriteria($children, $child->getSorting());
             $a = array ();
             $a['document'] = $child;
-            $a['published'] = true;
+            if ($child instanceof \Vivo\CMS\Model\Document) {
+                $a['published'] = $this->documentApi->isPublished($child);
+            } else { // Folder
+                $a['published'] = true;
+            }
             $a['level'] = $node->getDeep();
             $a['rel_path'] = $this->cmsApi->getEntityRelPath($child);
             $a['active'] = $child->getPath() == $expandedPath;

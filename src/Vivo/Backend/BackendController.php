@@ -142,8 +142,12 @@ class BackendController implements DispatchableInterface,
             //if request is  ajax call, we use result of method
             $result = $this->handleAction();
         } else {
-            $this->tree->init(); //replace by lazy init
-            $this->handleAction();
+            $this->tree->init();
+            $result = $this->handleAction();
+            if($result != null) {
+                throw new Exception\RuntimeException(sprintf("%s: Action returns not null result; returns '%s'",
+                        __METHOD__, gettype($result)));
+            }
             if (!$this->redirector->isRedirect()) {
                 $result = $this->tree->view();
             }

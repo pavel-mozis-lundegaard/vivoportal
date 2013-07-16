@@ -23,10 +23,16 @@ class ExplorerFactory implements FactoryInterface
         $ribbon                     = $componentCreator->createComponent('Vivo\Backend\UI\Explorer\Ribbon');
         $tree                       = $componentCreator->createComponent('Vivo\Backend\UI\Explorer\Tree');
         $finder                     = $componentCreator->createComponent('Vivo\Backend\UI\Explorer\Finder');
+        $urlHelper                  = $sm->get('Vivo\Util\UrlHelper');
         $cmsApi                     = $sm->get('Vivo\CMS\Api\CMS');
         $componentTreeController    = $sm->get('component_tree_controller');
         $eventManager               = $sm->get('event_manager');
-        $explorer = new Explorer($cmsApi, $siteSelector, $sm);
+        // get uuid from route (from path param)
+        /** @var \Zend\Mvc\Router\Http\RouteMatch $routeMatch */
+        $routeMatch                 = $serviceLocator->get('site_event')->getRouteMatch();
+        $uuid                       = $routeMatch->getParam('path');
+        $explorerAction             = $routeMatch->getParam('explorerAction') ?: 'browser';
+        $explorer = new Explorer($cmsApi, $siteSelector, $sm, $urlHelper, $uuid, $explorerAction);
         $explorer->setComponentTreeController($componentTreeController);
         $explorer->setEventManager($eventManager);
         $explorer->addComponent($ribbon, 'ribbon');

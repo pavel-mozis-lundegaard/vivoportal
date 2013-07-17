@@ -265,7 +265,7 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
             $successContents    = $this->saveContents();
             $this->documentApi->saveDocument($this->entity);
             if ($successContents) {
-                $this->eventManager->trigger(new RedirectEvent());
+                $this->getEventManager()->trigger(new RedirectEvent());
             }
         }
         else {

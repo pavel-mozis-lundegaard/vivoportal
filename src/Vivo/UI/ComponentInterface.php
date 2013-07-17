@@ -1,32 +1,19 @@
 <?php
 namespace Vivo\UI;
 
+use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\EventManager\EventManagerAwareInterface;
+
 /**
  * Interface for UI components.
  */
-interface ComponentInterface
+interface ComponentInterface extends EventManagerAwareInterface
 {
-//    /**
-//     * @return void
-//     */
-//    public function init();
-
-//    /**
-//     * Returns view model or string to display directly
-//     * @return \Zend\View\Model\ModelInterface|string
-//     */
-//    public function view();
-
     /**
      * Returns view model of the Component or string to display directly
      * @return \Zend\View\Model\ModelInterface|string
      */
     public function getView();
-
-//    /**
-//     * @return void
-//     */
-//    public function done();
 
     /**
      * @return string
@@ -39,14 +26,14 @@ interface ComponentInterface
     public function getParent();
 
     /**
-     * Returns component Event Manager
-     * @return \Zend\EventManager\EventManagerInterface
-     */
-    public function getEventManager();
-
-    /**
      * Returns component Event
      * @return ComponentEventInterface
      */
     public function getEvent();
+
+    /**
+     * Attaches listeners
+     * @return void
+     */
+    public function attachListeners();
 }

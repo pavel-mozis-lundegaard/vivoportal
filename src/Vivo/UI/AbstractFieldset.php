@@ -12,7 +12,6 @@ use Zend\Form\Fieldset as ZfFieldset;
  * AbstractFieldset
  */
 abstract class AbstractFieldset extends ComponentContainer implements TranslatorAwareInterface,
-                                                                      InputFilterFactoryAwareInterface,
                                                                       ZfFieldsetProviderInterface
 {
     /**
@@ -22,27 +21,10 @@ abstract class AbstractFieldset extends ComponentContainer implements Translator
     protected $translator;
 
     /**
-     * Input filter factory
-     * @var InputFilterFactory
-     */
-    protected $inputFilterFactory;
-
-    /**
      * Fieldset object
      * @var ZfFieldset
      */
     protected $fieldset;
-
-    /**
-     * Returns view model or string to display directly
-     * @return \Zend\View\Model\ModelInterface|string
-     */
-    public function view()
-    {
-        $fieldset                   = $this->getFieldset();
-        $this->getView()->fieldset  = $fieldset;
-        return parent::view();
-    }
 
     /**
      * Returns the Fieldset object
@@ -61,16 +43,6 @@ abstract class AbstractFieldset extends ComponentContainer implements Translator
      * @return ZfFieldset
      */
     abstract protected function doGetFieldset();
-
-    /**
-     * Sets the input filter factory
-     * @param InputFilterFactory $inputFilterFactory
-     * @return void
-     */
-    public function setInputFilterFactory(InputFilterFactory $inputFilterFactory)
-    {
-        $this->inputFilterFactory   = $inputFilterFactory;
-    }
 
     /**
      * Injects translator
@@ -109,5 +81,27 @@ abstract class AbstractFieldset extends ComponentContainer implements Translator
     {
         $fieldset   = $this->getFieldset();
         return $fieldset->getName();
+    }
+
+    /**
+     * View listener
+     * Passes the fieldset to the view
+     */
+    public function viewListener()
+    {
+        $fieldset                   = $this->getFieldset();
+        $this->getView()->fieldset  = $fieldset;
+    }
+
+    /**
+     * Attaches listeners
+     * @return void
+     */
+    public function attachListeners()
+    {
+        parent::attachListeners();
+        $eventManager   = $this->getEventManager();
+        //View
+        $eventManager->attach(ComponentEventInterface::EVENT_VIEW, array($this, 'viewListener'));
     }
 }

@@ -6,9 +6,9 @@ use Vivo\Service\Initializer\RequestAwareInterface;
 use Vivo\Service\Initializer\RedirectorAwareInterface;
 use Vivo\Service\Initializer\TranslatorAwareInterface;
 use Vivo\Util\Redirector;
+use Vivo\Form\Multistep\MultistepStrategyInterface;
+use Vivo\UI\ZfFieldsetProviderInterface;
 
-use Zend\EventManager\EventManagerAwareInterface;
-use Zend\EventManager\EventManagerInterface;
 use Zend\Form\Fieldset as ZfFieldset;
 use Zend\Form\FormInterface;
 use Zend\Form\Form as ZfForm;
@@ -24,7 +24,6 @@ use Zend\Stdlib\ArrayUtils;
  */
 abstract class AbstractForm extends ComponentContainer implements RequestAwareInterface,
                                                                   RedirectorAwareInterface,
-                                                                  EventManagerAwareInterface,
                                                                   TranslatorAwareInterface,
                                                                   InputFilterFactoryAwareInterface,
                                                                   ZfFieldsetProviderInterface
@@ -104,37 +103,24 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
      */
     protected $inputFilterFactory;
 
-    public function init()
-    {
-        parent::init();
-        //Load form data from request
-        if ($this->autoLoadFromRequest) {
-            $this->loadFromRequest();
-        }
-    }
+    /**
+     * Multistep strategy
+     * @var MultistepStrategyInterface
+     */
+    protected $multistepStrategy;
 
     /**
-     * Returns view model or string to display directly
-     * @return \Zend\View\Model\ModelInterface|string
+     * Name of the field containing the automatically added CSRF element
+     * @var string
      */
-    public function view()
-    {
-        $form = $this->getForm();
-        //Prepare the form
-        if ($this->autoPrepareForm) {
-            $form->prepare();
-        }
-        //Set form to view
-        $this->getView()->form = $form;
-        return parent::view();
-    }
+    protected $autoCsrfFieldName    = 'csrf';
 
     /**
      * Get ZF form
      * @throws Exception\InvalidArgumentException
      * @return ZfForm
      */
-    protected function getForm()
+    public function getForm()
     {
         if($this->form == null) {
             $this->form = $this->doGetForm();
@@ -149,7 +135,6 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
                 if (!$formName) {
                     throw new Exception\InvalidArgumentException(sprintf("%s: Form name not set", __METHOD__));
                 }
-                $elementName        = 'csrf';
                 /* Csrf validator name is used as a part of session container name; This is to prevent csrf session
                 container mix-up when there are more forms with csrf field on the same page. The unique Csrf element
                 name (using $form->setWrapElements(true) is of no use here, as the session container name is constructed
@@ -157,12 +142,15 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
                 element name, which is not unique. Explicitly setting the csrf validator name to unique value solves
                 this problem.
                 */
-                $csrfValidatorName  = 'csrf' . md5($formName . '_' . $elementName);
-                $csrf               = new \Vivo\Form\Element\Csrf($elementName);
+                $csrfValidatorName  = 'csrf' . md5($formName . '_' . $this->autoCsrfFieldName);
+                $csrf               = new \Vivo\Form\Element\Csrf($this->autoCsrfFieldName);
                 $csrfValidator      = $csrf->getCsrfValidator();
                 $csrfValidator->setName($csrfValidatorName);
                 $csrfValidator->setTimeout($this->csrfTimeout);
                 $this->form->add($csrf);
+            }
+            if ($this->multistepStrategy) {
+                $this->multistepStrategy->modifyForm($this->form);
             }
         }
         return $this->form;
@@ -389,6 +377,15 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     }
 
     /**
+     * Returns ZF Form
+     * @return ZfForm
+     */
+    public function getZfForm()
+    {
+        return $this->getForm();
+    }
+
+    /**
      * Sets name of this ZfForm
      * Use to override the underlying form name
      * @param string $zfFormName
@@ -407,5 +404,63 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     {
         $form   = $this->getForm();
         return $form->getName();
+    }
+
+    /**
+     * Sets multistep strategy
+     * @param MultistepStrategyInterface $multistepStrategy
+     */
+    public function setMultistepStrategy(MultistepStrategyInterface $multistepStrategy = null)
+    {
+        $this->multistepStrategy = $multistepStrategy;
+    }
+
+    /**
+     * Returns multistep strategy used on this form
+     * @return MultistepStrategyInterface
+     */
+    public function getMultistepStrategy()
+    {
+        return $this->multistepStrategy;
+    }
+
+    /**
+     * InitLate listener which loads data from request
+     * This listener must run late to let subcomponents attach their fieldsets to the form before loading data
+     */
+    public function initLateLoadFromRequest()
+    {
+        if ($this->autoLoadFromRequest) {
+            $this->loadFromRequest();
+        }
+    }
+
+    /**
+     * View listener
+     * Prepares the form and passes it to the view model
+     */
+    public function viewListenerPrepareAndSetForm()
+    {
+        $form = $this->getForm();
+        //Prepare the form
+        if ($this->autoPrepareForm) {
+            $form->prepare();
+        }
+        //Set form to view
+        $this->getView()->form = $form;
+    }
+
+    /**
+     * Attaches listeners
+     * @return void
+     */
+    public function attachListeners()
+    {
+        parent::attachListeners();
+        $eventManager   = $this->getEventManager();
+        //Init LATE
+        $eventManager->attach(ComponentEventInterface::EVENT_INIT_LATE, array($this, 'initLateLoadFromRequest'));
+        //View
+        $eventManager->attach(ComponentEventInterface::EVENT_VIEW, array($this, 'viewListenerPrepareAndSetForm'));
     }
 }

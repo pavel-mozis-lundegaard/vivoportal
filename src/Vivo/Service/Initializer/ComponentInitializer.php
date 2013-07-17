@@ -32,9 +32,7 @@ class ComponentInitializer implements InitializerInterface
             $componentEvents->attach(ComponentEventInterface::EVENT_DONE,
                                      array($componentEventListener, 'doneListenerDoneMethod'));
             //Attach listeners the component provides
-            if ($instance instanceof \Vivo\UI\ListenerProviderInterface) {
-                $instance->attachListeners($serviceLocator);
-            }
+            $instance->attachListeners($serviceLocator);
         }
     }
 }

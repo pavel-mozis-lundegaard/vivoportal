@@ -37,10 +37,9 @@ class Root extends Component
 
     /**
      * Attaches listeners
-     * @param ServiceLocatorInterface $serviceLocator
      * @return void
      */
-    public function attachListeners(ServiceLocatorInterface $serviceLocator)
+    public function attachListeners()
     {
         //Override attached listeners from Component and ComponentContainer
         //This Root component does not use its own view model but rather uses the view model of its main component

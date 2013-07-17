@@ -144,7 +144,7 @@ class ComponentFactory implements EventManagerAwareInterface
         } else {
             $frontComponent = $this->createComponent($this->options['specialComponents']['unpublished_document']);
             $message = "Document hasn`t any published content('".$document->getPath()."').";
-            $this->eventManager->trigger('log', $this, array ('message' => $message, 'level' => \Zend\Log\Logger::WARN));
+            $this->getEventManager()->trigger('log', $this, array ('message' => $message, 'level' => \Zend\Log\Logger::WARN));
         }
 
         if ($frontComponent instanceof RawComponentInterface) {
@@ -161,7 +161,7 @@ class ComponentFactory implements EventManagerAwareInterface
                                                      $document->getInjectComponentViewModelToLayout());
             }
         }
-        $this->eventManager->trigger('log', $this,
+        $this->getEventManager()->trigger('log', $this,
             array ('message'    => sprintf("Front component for document '%s' created", $document->getPath()),
                    'priority'      => Logger::PERF_FINER));
         return $frontComponent;
@@ -321,8 +321,8 @@ class ComponentFactory implements EventManagerAwareInterface
      */
     public function setEventManager(EventManagerInterface $eventManager)
     {
+        $eventManager->addIdentifiers(__CLASS__);
         $this->eventManager = $eventManager;
-        $this->eventManager->addIdentifiers(__CLASS__);
     }
 
     /**

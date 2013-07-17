@@ -72,10 +72,30 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
     public function addComponent(ComponentInterface $component, $name)
     {
         //TODO check cycles in component tree
+        $eventManager   = $this->getEventManager();
+        $event          = $this->getEvent();
+        $event->setParam('addComponent', array(
+            'name' => $name,
+            'component' => $component
+        ));
+        $event->setParam('log', array(
+            'message'   => sprintf("Component '%s' will be added under name '%s'", get_class($component), $name),
+            'priority'  => \VpLogger\Log\Logger::DEBUG,
+        ));
+        $eventManager->trigger(self::EVENT_COMPONENT_ADD_PRE, $event);
         $component->setParent($this, $name);
         $this->components[$name] = $component;
+        $event->setParam('log', array(
+            'message'   => sprintf("Component '%s' was added under name '%s'", get_class($component), $name),
+            'priority'  => \VpLogger\Log\Logger::DEBUG,
+        ));
+        $eventManager->trigger(self::EVENT_COMPONENT_ADD_POST, $event);
     }
 
+    /**
+     * Adds multiple components at once
+     * @param ComponentInterface[] $components
+     */
     public function addComponents(array $components)
     {
         foreach ($components as $name => $component) {
@@ -89,14 +109,30 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
     public function removeComponent($name)
     {
         //TODO also accept component object as parameter
+        $eventManager   = $this->getEventManager();
+        $event          = $this->getEvent();
+        $event->setParam('removeComponent', array('name' => $name, 'component' => null));
+        $event->setParam('log', array(
+            'message'   => sprintf("Component under name '%s' will be removed", $name),
+            'priority'  => \VpLogger\Log\Logger::DEBUG,
+        ));
+        $eventManager->trigger(self::EVENT_COMPONENT_REMOVE_PRE, $event);
 
         if (!$this->hasComponent($name)) {
             throw new ComponentNotExists(
                 "Component `$name` doesn't exist in container `"
                     . $this->getPath() . "`.");
         }
-        $this->getComponent($name)->setParent(null, null);
+        $component  = $this->getComponent($name);
+        $component->setParent(null, null);
         unset($this->components[$name]);
+        $event->setParam('removeComponent', array('name' => $name, 'component' => $component));
+        $event->setParam('log', array(
+            'message'   => sprintf("Component '%s' registered under name '%s' was removed",
+                get_class($component), $name),
+            'priority'  => \VpLogger\Log\Logger::DEBUG,
+        ));
+        $eventManager->trigger(self::EVENT_COMPONENT_REMOVE_POST, $event);
     }
 
     public function removeAllComponents()
@@ -167,12 +203,11 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
 
     /**
      * Attaches listeners
-     * @param ServiceLocatorInterface $serviceLocator
      * @return void
      */
-    public function attachListeners(ServiceLocatorInterface $serviceLocator)
+    public function attachListeners()
     {
-        parent::attachListeners($serviceLocator);
+        parent::attachListeners();
         $eventManager   = $this->getEventManager();
         //View
         $eventManager->attach(ComponentEventInterface::EVENT_VIEW, array($this, 'viewListenerChildViews'));

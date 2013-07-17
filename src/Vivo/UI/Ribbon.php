@@ -5,13 +5,10 @@ use Vivo\UI\Ribbon\Group;
 use Vivo\UI\Ribbon\Tab;
 use Vivo\UI\Ribbon\Item;
 
-use Zend\EventManager\EventManagerAwareInterface;
-use Zend\EventManager\EventManagerInterface;
-
 /**
  * Ribbon
  */
-class Ribbon extends TabContainer // implements EventManagerAwareInterface
+class Ribbon extends TabContainer
 {
     /**
      * @var integer

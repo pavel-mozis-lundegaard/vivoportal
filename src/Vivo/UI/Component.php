@@ -14,7 +14,7 @@ use Zend\EventManager\EventManagerInterface;
  * Base class for UI components.
  *
  */
-class Component implements ComponentInterface, ListenerProviderInterface
+class Component implements ComponentInterface
 {
     /**
      * String used to separate component names in path
@@ -78,15 +78,17 @@ class Component implements ComponentInterface, ListenerProviderInterface
     public function viewListenerInitView()
     {
         $view   = $this->getView();
-        if ($view->getTemplate() == '') {
-            $view->setTemplate($this->getDefaultTemplate());
+        if ($view instanceof ModelInterface) {
+            if ($view->getTemplate() == '') {
+                $view->setTemplate($this->getDefaultTemplate());
+            }
+            $component = array(
+                'component' => $this,
+                'path' => $this->getPath(),
+                'name' => $this->getName(),
+            );
+            $view->setVariable('component', $component);
         }
-        $component = array(
-            'component' => $this,
-            'path' => $this->getPath(),
-            'name' => $this->getName(),
-        );
-        $view->setVariable('component', $component);
     }
 
     /**
@@ -100,6 +102,11 @@ class Component implements ComponentInterface, ListenerProviderInterface
         return $this->getView();
     }
 
+    /**
+     * Returns path to this component
+     * @param string $path
+     * @return string
+     */
     public function getPath($path = '')
     {
         $component = $this;
@@ -128,6 +135,10 @@ class Component implements ComponentInterface, ListenerProviderInterface
     {
     }
 
+    /**
+     * Returns default template name
+     * @return string
+     */
     public function getDefaultTemplate()
     {
         return get_class($this);
@@ -163,24 +174,23 @@ class Component implements ComponentInterface, ListenerProviderInterface
         }
     }
 
+    /**
+     * Returns name of this component
+     * @return string
+     */
     public function getName()
     {
         return $this->name;
     }
 
+    /**
+     * Sets name of this component
+     * @param string $name
+     */
     public function setName($name = null)
     {
         //TODO check name format (alfanum)
         $this->name = $name;
-    }
-
-    /**
-     * Sets the component Event Manager
-     * @param \Zend\EventManager\EventManagerInterface $eventManager
-     */
-    public function setEventManager(EventManagerInterface $eventManager)
-    {
-        $this->eventManager = $eventManager;
     }
 
     /**
@@ -190,9 +200,32 @@ class Component implements ComponentInterface, ListenerProviderInterface
     public function getEventManager()
     {
         if (!$this->eventManager) {
-            $this->eventManager = new EventManager();
+            $this->setEventManager(new EventManager());
         }
         return $this->eventManager;
+    }
+
+    /**
+     * Sets the component Event Manager
+     * @param \Zend\EventManager\EventManagerInterface $eventManager
+     */
+    public function setEventManager(EventManagerInterface $eventManager)
+    {
+        $eventManager->addIdentifiers($this->getEventManagerIdentifiers());
+        $this->eventManager = $eventManager;
+    }
+
+    /**
+     * Returns an array of identifiers for the EventManager of this component
+     * @return array
+     */
+    protected function getEventManagerIdentifiers()
+    {
+        $identifiers    = array(
+            __CLASS__,
+            get_class($this),
+        );
+        return $identifiers;
     }
 
     /**
@@ -210,14 +243,12 @@ class Component implements ComponentInterface, ListenerProviderInterface
 
     /**
      * Attaches listeners
-     * @param ServiceLocatorInterface $serviceLocator
      * @return void
      */
-    public function attachListeners(ServiceLocatorInterface $serviceLocator)
+    public function attachListeners()
     {
         $eventManager   = $this->getEventManager();
         //View
         $eventManager->attach(ComponentEventInterface::EVENT_VIEW, array($this, 'viewListenerInitView'));
-
     }
 }

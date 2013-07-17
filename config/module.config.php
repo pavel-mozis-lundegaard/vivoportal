@@ -365,6 +365,7 @@ return array(
         'invokables' => array(
             'conditional'   => 'Vivo\Validator\Conditional',
             'vivo_invalid'  => 'Vivo\Validator\VivoInvalid',
+            'vivo_personal_number_cz'  => 'Vivo\Validator\PersonalNumberCZ',
         ),
         'initializers'      => array(
             'validator_initializer'     => 'Vivo\Validator\Initializer',

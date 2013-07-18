@@ -12,12 +12,6 @@ use Zend\View\Helper\AbstractHelper;
 class Document extends AbstractHelper
 {
     /**
-     * Helper options
-     * @var array
-     */
-    private $options = array();
-
-    /**
      * Document url helper
      * @var DocumentUrlHelper
      */
@@ -26,12 +20,10 @@ class Document extends AbstractHelper
     /**
      * Constructor
      * @param \Vivo\CMS\Api\CMS $cmsApi
-     * @param array $options
      */
-    public function __construct(DocumentUrlHelper $documentUrlHelper, $options = array())
+    public function __construct(DocumentUrlHelper $documentUrlHelper)
     {
         $this->documentUrlHelper = $documentUrlHelper;
-        $this->options = array_merge($this->options, $options);
     }
 
     /**

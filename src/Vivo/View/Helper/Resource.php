@@ -13,12 +13,6 @@ class Resource extends AbstractHelper
 {
 
     /**
-     * Helper options
-     * @var array
-     */
-    private $options = array();
-
-    /**
      * Resource url helper
      * @var ResourceUrlHelper
      */
@@ -27,12 +21,10 @@ class Resource extends AbstractHelper
     /**
      * Constructor
      * @param ResourceUrlHelper $resourceUrlHelper
-     * @param array $options
      */
-    public function __construct(ResourceUrlHelper $resourceUrlHelper, $options = array())
+    public function __construct(ResourceUrlHelper $resourceUrlHelper)
     {
         $this->resourceUrlHelper = $resourceUrlHelper;
-        $this->options = array_merge($this->options, $options);
     }
 
     /**

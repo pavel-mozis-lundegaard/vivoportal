@@ -39,7 +39,7 @@ class Db extends AbstractManager
      * @var array
      */
     protected $options  = array(
-        'use_ntlm_authentication'   => true,
+        'use_external_authentication'   => true,
         'super_password'            => null,
         'super_access_networks'     => array(
         ),

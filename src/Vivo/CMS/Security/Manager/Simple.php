@@ -19,7 +19,7 @@ class Simple extends AbstractManager
      * @var array
      */
     protected $options  = array(
-        'use_ntlm_authentication'   => true,
+        'use_external_authentication'   => true,
         'security_domain'           => 'VIVO',
         'username'                  => 'vivo.user',
         'password'                  => 'password',

@@ -197,7 +197,7 @@ abstract class AbstractManager
                 && $this->session['security.principal'] instanceof Principal\UserInterface) {
             $principal = $this->session['security.principal'];
         }
-        if ($this->options['use_external_authentication']) {
+        if (isset($this->options['use_external_authentication']) && $this->options['use_external_authentication']) {
             //TODO - refactor not to use $_SERVER
             if (!$principal && isset($_SERVER['REMOTE_USER']) && ($remoteUser = $_SERVER['REMOTE_USER'])) {
                 $principal = new Principal\User();

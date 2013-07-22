@@ -41,9 +41,15 @@ class Root extends Component
      */
     public function attachListeners()
     {
-        //Override attached listeners from Component and ComponentContainer
+        parent::attachListeners();
+        $eventManager   = $this->getEventManager();
         //This Root component does not use its own view model but rather uses the view model of its main component
-        //(see getView(). Therefore leaving the default listeners from Component and ComponentContainer attached
+        //(see getView()). Therefore leaving the default view listeners from Component and ComponentContainer attached
         //results in mixed-up view models
+        $eventManager->detach($this->listeners['viewListenerInitView']);
+        $eventManager->detach($this->listeners['viewListenerChildViews']);
+        unset($this->listeners['viewListenerInitView']);
+        unset($this->listeners['viewListenerChildViews']);
+//        $listeners  = $this->listeners;
     }
 }

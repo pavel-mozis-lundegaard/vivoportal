@@ -53,6 +53,12 @@ class Component implements ComponentInterface
     protected $event;
 
     /**
+     * Array of attached listeners
+     * @var array
+     */
+    protected $listeners;
+
+    /**
      * @param ModelInterface $view
      */
     public function setView(ModelInterface $view)
@@ -249,6 +255,8 @@ class Component implements ComponentInterface
     {
         $eventManager   = $this->getEventManager();
         //View
-        $eventManager->attach(ComponentEventInterface::EVENT_VIEW, array($this, 'viewListenerInitView'));
+        $this->listeners['viewListenerInitView']
+            = $eventManager->attach(ComponentEventInterface::EVENT_VIEW,
+                array($this, 'viewListenerInitView'));
     }
 }

@@ -202,6 +202,60 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
     }
 
     /**
+     * Triggers early init event on all children components
+     * @param ComponentEventInterface $event
+     * @throws Exception\RuntimeException
+     */
+    public function initEarlyListenerInitChildren(ComponentEventInterface $event)
+    {
+        if ($event->getComponent() != $this) {
+            //This view listener expects only this component as target
+            throw new Exception\RuntimeException(sprintf("%s: Unexpected component", __METHOD__));
+        }
+        foreach ($this->components as $component) {
+            $componentEvents    = $component->getEventManager();
+            $componentEvent     = $component->getEvent();
+            $componentEvents->trigger(ComponentEventInterface::EVENT_INIT_EARLY, $componentEvent);
+        }
+    }
+
+    /**
+     * Triggers init event on all children components
+     * @param ComponentEventInterface $event
+     * @throws Exception\RuntimeException
+     */
+    public function initListenerInitChildren(ComponentEventInterface $event)
+    {
+        if ($event->getComponent() != $this) {
+            //This view listener expects only this component as target
+            throw new Exception\RuntimeException(sprintf("%s: Unexpected component", __METHOD__));
+        }
+        foreach ($this->components as $component) {
+            $componentEvents    = $component->getEventManager();
+            $componentEvent     = $component->getEvent();
+            $componentEvents->trigger(ComponentEventInterface::EVENT_INIT, $componentEvent);
+        }
+    }
+
+    /**
+     * Triggers late init event on all children components
+     * @param ComponentEventInterface $event
+     * @throws Exception\RuntimeException
+     */
+    public function initLateListenerInitChildren(ComponentEventInterface $event)
+    {
+        if ($event->getComponent() != $this) {
+            //This view listener expects only this component as target
+            throw new Exception\RuntimeException(sprintf("%s: Unexpected component", __METHOD__));
+        }
+        foreach ($this->components as $component) {
+            $componentEvents    = $component->getEventManager();
+            $componentEvent     = $component->getEvent();
+            $componentEvents->trigger(ComponentEventInterface::EVENT_INIT_LATE, $componentEvent);
+        }
+    }
+
+    /**
      * Attaches listeners
      * @return void
      */
@@ -209,7 +263,21 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
     {
         parent::attachListeners();
         $eventManager   = $this->getEventManager();
+        //Init early
+        $this->listeners['initEarlyListenerInitChildren']
+            = $eventManager->attach(ComponentEventInterface::EVENT_INIT_EARLY,
+            array($this, 'initEarlyListenerInitChildren'), -10000);
+        //Init
+        $this->listeners['initListenerInitChildren']
+            = $eventManager->attach(ComponentEventInterface::EVENT_INIT,
+            array($this, 'initListenerInitChildren'), -10000);
+        //Init late
+        $this->listeners['initLateListenerInitChildren']
+            = $eventManager->attach(ComponentEventInterface::EVENT_INIT_LATE,
+            array($this, 'initLateListenerInitChildren'), -10000);
         //View
-        $eventManager->attach(ComponentEventInterface::EVENT_VIEW, array($this, 'viewListenerChildViews'));
+        $this->listeners['viewListenerChildViews']
+            = $eventManager->attach(ComponentEventInterface::EVENT_VIEW,
+            array($this, 'viewListenerChildViews'));
     }
 }

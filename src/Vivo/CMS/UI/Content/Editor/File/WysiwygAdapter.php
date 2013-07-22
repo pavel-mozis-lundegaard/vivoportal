@@ -43,8 +43,6 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
     */
     public function init()
     {
-        parent::init();
-
         $form = $this->getForm();
         $form->setAttribute('method', 'post');
         try {
@@ -110,7 +108,6 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
         if($form->isValid()) {
             $data = $form->get("resource")->getValue();
             $data = $this->symRefConvertor->convertUrlsToReferences($data);
-
             return $data;
         }
     }

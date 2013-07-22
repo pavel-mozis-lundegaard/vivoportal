@@ -97,12 +97,12 @@ class Explorer extends ComponentContainer implements RequestAwareInterface, Pers
                                 UrlHelper $urlHelper,
                                 $uuid, $explorerAction)
     {
-        $this->cmsApi = $cmsApi;
-        $this->siteSelector = $siteSelector;
-        $this->serviceManager = $serviceManager;
-        $this->urlHelper = $urlHelper;
-        $this->uuid = $uuid;
-        $this->explorerAction = $explorerAction;
+        $this->cmsApi           = $cmsApi;
+        $this->siteSelector     = $siteSelector;
+        $this->serviceManager   = $serviceManager;
+        $this->urlHelper        = $urlHelper;
+        $this->uuid             = $uuid;
+        $this->explorerAction   = $explorerAction;
     }
 
     /**

@@ -36,7 +36,6 @@ class DefaultAdapter extends AbstractAdapter
     */
     public function init()
     {
-        parent::init();
         try {
             if($this->content->getFileName()) {
                 $this->showDownload = true;

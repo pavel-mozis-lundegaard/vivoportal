@@ -83,8 +83,6 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
 
     public function init()
     {
-        parent::init();
-
         $adapter = $this->getComponent(self::ADAPTER_COMPONENT_NAME);
         if ($adapter) {
             $adapter->init();

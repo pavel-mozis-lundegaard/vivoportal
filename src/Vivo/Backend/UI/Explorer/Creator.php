@@ -85,7 +85,7 @@ class Creator extends Editor
                 'explorerAction' => 'editor',
             );
             $url = $this->urlHelper->fromRoute('backend/explorer', $routeParams);
-            $this->getEventManager->trigger(new RedirectEvent($url));
+            $this->getEventManager()->trigger(new RedirectEvent($url));
             $this->addAlertMessage('Created...', Alert::TYPE_SUCCESS);
         }
         else {

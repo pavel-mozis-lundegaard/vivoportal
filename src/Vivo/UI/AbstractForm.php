@@ -28,6 +28,13 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
                                                                   InputFilterFactoryAwareInterface,
                                                                   ZfFieldsetProviderInterface
 {
+    /**#@+
+     * Events
+     */
+    const EVENT_LOAD_FROM_REQUEST_PRE   = 'load_from_request_pre';
+    const EVENT_LOAD_FROM_REQUEST_POST  = 'load_from_request_post';
+    /**#@-*/
+
     /**
      * @var ZfForm
      */
@@ -189,6 +196,8 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
      */
     public function loadFromRequest()
     {
+        $eventManager   = $this->getEventManager();
+        $eventManager->trigger(self::EVENT_LOAD_FROM_REQUEST_PRE, $this);
         if ($this->dataLoaded && !$this->forceLoadFromRequest) {
             return;
         }
@@ -216,6 +225,7 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
 
         $form->setData($data);
         $this->dataLoaded   = true;
+        $eventManager->trigger(self::EVENT_LOAD_FROM_REQUEST_POST, $this, array('data' => $data));
     }
 
     /**

@@ -6,6 +6,7 @@ use Vivo\UI\TabContainerItemInterface;
 use Vivo\Form\Form;
 use Vivo\CMS\Api;
 use Vivo\CMS\Model;
+use Vivo\UI\ComponentEventInterface;
 
 class ContentTab extends AbstractForm implements TabContainerItemInterface
 {
@@ -45,6 +46,11 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
         $this->autoAddCsrf = false;
     }
 
+    public function init()
+    {
+        $this->loadContents();
+    }
+
     /**
      * @param \Vivo\CMS\Model\ContentContainer $contentContainer
      */
@@ -61,10 +67,12 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
         $this->availableContents = $contents;
     }
 
-    public function init()
+    /**
+     * Load from request post listener
+     * Changes content version to the version specified in the form
+     */
+    public function loadFromRequestPostListenerChangeVersion()
     {
-        $this->loadContents();
-        parent::init();
         $version = $this->getForm()->get('version')->getValue();
         $this->doChangeVersion($version);
     }
@@ -74,6 +82,17 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
         $this->loadContents();
         $version = $this->getForm()->get('version')->getValue();
         $this->doChangeVersion($version);
+    }
+
+    /**
+     * Attaches listeners
+     */
+    public function attachListeners()
+    {
+        parent::attachListeners();
+        $eventManager   = $this->getEventManager();
+        $eventManager->attach(AbstractForm::EVENT_LOAD_FROM_REQUEST_POST,
+            array($this, 'loadFromRequestPostListenerChangeVersion'));
     }
 
     private function loadContents()

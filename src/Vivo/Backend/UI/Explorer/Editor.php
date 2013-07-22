@@ -114,7 +114,6 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
             }
         }
         $this->getForm()->bind($this->entity);
-        parent::init();
         $this->initForm();
     }
 

@@ -1,6 +1,8 @@
 <?php
-namespace Vivo\CMS;
+namespace Vivo\CMS\Listener;
 
+use Vivo\CMS\Api;
+use Vivo\CMS\Event\CMSEvent;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
 
@@ -33,7 +35,7 @@ class FetchDocumentListener implements ListenerAggregateInterface
      */
     public function attach(EventManagerInterface $events, $priority = 1)
     {
-        $this->listeners[] = $events->attach(Event\CMSEvent::EVENT_FETCH_DOCUMENT, array($this, 'fetchDocument'));
+        $this->listeners[] = $events->attach(CMSEvent::EVENT_FETCH_DOCUMENT, array($this, 'fetchDocument'));
     }
 
     /**
@@ -56,7 +58,7 @@ class FetchDocumentListener implements ListenerAggregateInterface
      * @param \Vivo\CMS\Event\CMSEvent $e
      * @return null|Model\Document
      */
-    public function fetchDocument(Event\CMSEvent $e)
+    public function fetchDocument(CMSEvent $e)
     {
         try {
             $document = $this->cmsApi->getSiteEntity($e->getRequestedPath(), $e->getSite());

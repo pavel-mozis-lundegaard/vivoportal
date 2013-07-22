@@ -320,14 +320,14 @@ return array(
     'cms_front_controller' => array(
         'listeners' => array(
             // fetch
-            'Vivo\CMS\FetchDocumentListener'       => 100,
-            'Vivo\CMS\FetchDocumentByUrlListener'  => 200,
-            'Vivo\CMS\FetchErrorDocumentListener'  => 300,
+            'Vivo\CMS\Listener\FetchDocumentListener'       => 100,
+            'Vivo\CMS\Listener\FetchDocumentByUrlListener'  => 200,
+            'Vivo\CMS\Listener\FetchErrorDocumentListener'  => 300,
             // redirect
-            'Vivo\CMS\RedirectMapListener' => 100,
+            'Vivo\CMS\Listener\RedirectMapListener' => 100,
             // create
-            'Vivo\CMS\Listener\Rss' => 500,
-            'Vivo\CMS\Listener\ComponentTreeFromDocument' => 100,
+            'Vivo\CMS\Listener\RssListener' => 500,
+            'Vivo\CMS\Listener\ComponentTreeFromDocumentListener' => 100,
             // render
         ),
     ),

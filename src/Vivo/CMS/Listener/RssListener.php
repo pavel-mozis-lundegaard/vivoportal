@@ -2,13 +2,13 @@
 namespace Vivo\CMS\Listener;
 
 use Vivo\CMS\Event\CMSEvent;
-use Vivo\CMS\UI;
+use Vivo\CMS\UI\Rss;
 use Vivo\SiteManager\Event\SiteEvent;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\Http\PhpEnvironment\Request;
 
-class Rss implements ListenerAggregateInterface
+class RssListener implements ListenerAggregateInterface
 {
     /**
      * @var \Zend\Http\PhpEnvironment\Request
@@ -40,7 +40,7 @@ class Rss implements ListenerAggregateInterface
     public function invoke(CMSEvent $e)
     {
         if($this->request->getUri()->getQuery() == 'rss') {
-            $rss = new UI\Rss();
+            $rss = new Rss();
             $rss->setCmsEvent($e);
             $rss->setDocument($e->getDocument());
 

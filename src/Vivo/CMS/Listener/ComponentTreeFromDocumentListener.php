@@ -6,7 +6,7 @@ use Vivo\CMS\Event\CMSEvent;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\EventManager\EventManagerInterface;
 
-class ComponentTreeFromDocument implements ListenerAggregateInterface
+class ComponentTreeFromDocumentListener implements ListenerAggregateInterface
 {
     /**
      * @var \Zend\Stdlib\CallbackHandler[]

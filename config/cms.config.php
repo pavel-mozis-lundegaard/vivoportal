@@ -267,11 +267,12 @@ return array(
             'Vivo\CMS\UI\Content\Editor\SiteMap'    => 'Vivo\CMS\UI\Content\Editor\SiteMapFactory',
 
             // CMS listeners
-            'Vivo\CMS\FetchDocumentListener'               => 'Vivo\CMS\FetchDocumentListenerFactory',
-            'Vivo\CMS\FetchErrorDocumentListener'          => 'Vivo\CMS\FetchErrorDocumentListenerFactory',
-            'Vivo\CMS\RedirectMapListener'                 => 'Vivo\CMS\RedirectMapListenerFactory',
-            'Vivo\CMS\Listener\ComponentTreeFromDocument'  => 'Vivo\CMS\Listener\ComponentTreeFromDocumentFactory',
-            'Vivo\CMS\Listener\Rss'                        => 'Vivo\CMS\Listener\RssFactory',
+            'Vivo\CMS\Listener\FetchDocumentListener'       => 'Vivo\CMS\Listener\FetchDocumentListenerFactory',
+            'Vivo\CMS\Listener\FetchDocumentByUrlListener'  => 'Vivo\CMS\Listener\FetchDocumentByUrlListenerFactory',
+            'Vivo\CMS\Listener\FetchErrorDocumentListener'  => 'Vivo\CMS\Listener\FetchErrorDocumentListenerFactory',
+            'Vivo\CMS\Listener\RedirectMapListener'         => 'Vivo\CMS\Listener\RedirectMapListenerFactory',
+            'Vivo\CMS\Listener\ComponentTreeFromDocumentListener' => 'Vivo\CMS\Listener\ComponentTreeFromDocumentListenerFactory',
+            'Vivo\CMS\Listener\RssListener'                 => 'Vivo\CMS\Listener\RssListenerFactory',
 
             // Other
             'Vivo\UI\Page'                   => 'Vivo\Service\UI\PageFactory',

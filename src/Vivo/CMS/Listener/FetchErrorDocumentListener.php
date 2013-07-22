@@ -1,6 +1,9 @@
 <?php
-namespace Vivo\CMS;
+namespace Vivo\CMS\Listener;
 
+use Vivo\CMS\Event\CMSEvent;
+
+use Vivo\CMS\Api;
 use Vivo\CMS\Api\Exception\DocumentNotFoundException;
 use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerInterface;
@@ -52,7 +55,7 @@ class FetchErrorDocumentListener implements ListenerAggregateInterface
      */
     public function attach(EventManagerInterface $events)
     {
-        $this->listeners[] = $events->attach(Event\CMSEvent::EVENT_FETCH_ERRORDOCUMENT, array($this, 'fetchDocument'));
+        $this->listeners[] = $events->attach(CMSEvent::EVENT_FETCH_ERRORDOCUMENT, array($this, 'fetchDocument'));
     }
 
     /**
@@ -75,7 +78,7 @@ class FetchErrorDocumentListener implements ListenerAggregateInterface
      * @param \Vivo\CMS\Event\CMSEvent $cmsEvent
      * @return null|Model\Document
      */
-    public function fetchDocument(Event\CMSEvent $cmsEvent)
+    public function fetchDocument(CMSEvent $cmsEvent)
     {
         $document = null;
         $docPath = array();

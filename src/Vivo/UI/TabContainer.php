@@ -21,7 +21,6 @@ class TabContainer extends ComponentContainer implements PersistableInterface
      * Method for selecting a tab. Call method selected() on selected component.
      * @param strign $name Tab name.
      * @throws Exception\InvalidArgumentException
-     * @return \Vivo\UI\Component Selected component.
      */
     public function select($name)
     {
@@ -36,8 +35,6 @@ class TabContainer extends ComponentContainer implements PersistableInterface
         }
 
         $this->selected = $name;
-
-        return $selectedComponent;
     }
 
     public function addComponent(ComponentInterface $component, $name)

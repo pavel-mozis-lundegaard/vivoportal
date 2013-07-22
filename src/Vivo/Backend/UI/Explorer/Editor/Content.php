@@ -88,8 +88,6 @@ class Content extends AbstractForm
 
     public function init()
     {
-        parent::init();
-
         $this->explorer = $this->getParent('Vivo\Backend\UI\Explorer\ExplorerInterface');
 
         if($this->content) {

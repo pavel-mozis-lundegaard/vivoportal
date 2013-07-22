@@ -196,11 +196,11 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
      */
     public function loadFromRequest()
     {
-        $eventManager   = $this->getEventManager();
-        $eventManager->trigger(self::EVENT_LOAD_FROM_REQUEST_PRE, $this);
         if ($this->dataLoaded && !$this->forceLoadFromRequest) {
             return;
         }
+        $eventManager   = $this->getEventManager();
+        $eventManager->trigger(self::EVENT_LOAD_FROM_REQUEST_PRE, $this);
         $data   = $this->request->getQuery()->toArray();
         $data   = ArrayUtils::merge($data, $this->request->getPost()->toArray());
         $data   = ArrayUtils::merge($data, $this->request->getFiles()->toArray());

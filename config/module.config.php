@@ -317,6 +317,20 @@ return array(
             'backend_controller'         => 'Vivo\Backend\BackendControllerFactory',
         ),
     ),
+    'cms_front_controller' => array(
+        'listeners' => array(
+            // fetch
+            'Vivo\CMS\FetchDocumentListener'       => 100,
+            'Vivo\CMS\FetchDocumentByUrlListener'  => 200,
+            'Vivo\CMS\FetchErrorDocumentListener'  => 300,
+            // redirect
+            'Vivo\CMS\RedirectMapListener' => 100,
+            // create
+            'Vivo\CMS\Listener\Rss' => 500,
+            'Vivo\CMS\Listener\ComponentTreeFromDocument' => 100,
+            // render
+        ),
+    ),
     'view_manager' => array(
         'display_not_found_reason' => true,
         'display_exceptions'       => false,

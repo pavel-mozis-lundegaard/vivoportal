@@ -12,11 +12,6 @@ use Zend\EventManager\ListenerAggregateInterface;
 class FetchDocumentListener implements ListenerAggregateInterface
 {
     /**
-     * @var Api\Indexer
-     */
-    protected $indexerApi;
-
-    /**
      * @var \Zend\Stdlib\CallbackHandler[]
      */
     protected $listeners = array();
@@ -36,7 +31,7 @@ class FetchDocumentListener implements ListenerAggregateInterface
      * @param  EventManagerInterface $events
      * @return void
      */
-    public function attach(EventManagerInterface $events)
+    public function attach(EventManagerInterface $events, $priority = 1)
     {
         $this->listeners[] = $events->attach(Event\CMSEvent::EVENT_FETCH_DOCUMENT, array($this, 'fetchDocument'));
     }

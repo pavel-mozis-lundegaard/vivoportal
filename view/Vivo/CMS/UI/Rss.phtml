@@ -22,9 +22,10 @@
                             : $item->getCreated()->format(\DateTime::RSS)?></pubDate>
             <? if ($item->getImage()) {
                 $imageURL = $this->resource($item->getImage(), $item);
-                //$info = getimagesize($imgPath);
-                echo sprintf('<enclosure length="%s" type="%s" url="%s" />', 0, 'mime', $imageURL);
+                $info = $this->resourceInfo($item->getImage(), $item);
+                echo sprintf('<enclosure length="%s" type="%s" url="%s" />', $info['size'], $info['mime'], $imageURL);
             } ?>
+            <?//=$this->resourceInfo()->mime($item->getImage(), $item)?>
         </item>
     <? endforeach; ?>
 </rss>

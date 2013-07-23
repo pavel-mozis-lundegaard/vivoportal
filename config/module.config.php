@@ -364,6 +364,7 @@ return array(
             'url'               => 'Vivo\View\Helper\UrlFactory',
             'icon_url'          => 'Vivo\View\Helper\IconUrlFactory',
             'resource'          => 'Vivo\View\Helper\ResourceFactory',
+            'resourceInfo'      => 'Vivo\View\Helper\ResourceInfoFactory',
             'document'          => 'Vivo\View\Helper\DocumentFactory',
             'cms'               => 'Vivo\View\Helper\CmsFactory',
             'vivo_head_title'   => 'Vivo\View\Helper\VivoHeadTitleFactory',

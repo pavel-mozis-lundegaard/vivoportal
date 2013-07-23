@@ -123,6 +123,24 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     protected $autoCsrfFieldName    = 'csrf';
 
     /**
+     * Form data or an empty array when validation has not been performed yet
+     * @var array
+     */
+    protected $formData     = array();
+
+    /**
+     * Whether or not validation has occurred
+     * @var bool
+     */
+    protected $hasValidated = false;
+
+    /**
+     * Result of last validation operation
+     * @var bool
+     */
+    protected $isValid      = false;
+
+    /**
      * Get ZF form
      * @throws Exception\InvalidArgumentException
      * @return ZfForm
@@ -226,6 +244,86 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
         $form->setData($data);
         $this->dataLoaded   = true;
         $eventManager->trigger(self::EVENT_LOAD_FROM_REQUEST_POST, $this, array('data' => $data));
+    }
+
+    /**
+     * Check if the form has been validated
+     * @return bool
+     */
+    public function hasValidated()
+    {
+        return $this->hasValidated;
+    }
+
+    /**
+     * Returns validation group which should be used for validation
+     * Descendants may redefine if needed
+     * @return mixed
+     */
+    protected function getValidationGroup()
+    {
+        if ($this->multistepStrategy) {
+            $zfForm             = $this->getForm();
+            $validationGroup    = $this->multistepStrategy->getValidationGroup($zfForm);
+            if ($this->autoAddCsrf && ($validationGroup != FormInterface::VALIDATE_ALL) && (
+                    (is_array($validationGroup) && !in_array($this->autoCsrfFieldName, $validationGroup))
+                    || (is_string($validationGroup) && $validationGroup != $this->autoCsrfFieldName))) {
+                //Csrf field is missing in validation group, add it
+                if (!is_array($validationGroup)) {
+                    $validationGroup    = array($validationGroup);
+                }
+                $validationGroup[]  = $this->autoCsrfFieldName;
+            }
+        } else {
+            $validationGroup    = FormInterface::VALIDATE_ALL;
+        }
+        return $validationGroup;
+    }
+
+    /**
+     * Validates the form and returns the validation result
+     * @param bool $revalidate Force revalidation of the form even though it has been validated before
+     * @param mixed $validationGroup If not set, $this->getValidationGroup() will be used to provide the VG
+     * @return bool
+     */
+    public function isValid($revalidate = false, $validationGroup = null)
+    {
+        if ($revalidate) {
+            $this->hasValidated = false;
+        }
+        if ($this->hasValidated) {
+            return $this->isValid;
+        }
+        if (is_null($validationGroup)) {
+            $validationGroup    = $this->getValidationGroup();
+        }
+        $this->isValid      = false;
+        $this->formData     = array();
+        $form               = $this->getForm();
+        $form->setValidationGroup($validationGroup);
+        $this->isValid      = $form->isValid();
+        $this->hasValidated = true;
+        $formData           = $form->getData();
+        $this->setFormData($formData);
+        return $this->isValid;
+    }
+
+    /**
+     * Sets form data
+     * @param array $formData
+     */
+    protected function setFormData(array $formData)
+    {
+        $this->formData    = $formData;
+    }
+
+    /**
+     * Returns form data
+     * @return array
+     */
+    public function getData()
+    {
+        return $this->formData;
     }
 
     /**

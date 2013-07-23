@@ -11,6 +11,7 @@ use Vivo\CMS\Exception\InvalidArgumentException;
 use Vivo\CMS\UI\Content\Editor\EditorInterface;
 use Vivo\CMS\UI\Content\Editor\AdapterAwareInterface as EditorAdapterAwareInterface;
 use Vivo\LookupData\LookupDataManager;
+use Vivo\UI\ComponentEventInterface;
 
 use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
 
@@ -138,8 +139,11 @@ class Content extends AbstractForm
                     $editor->setAdapter($adapter);
                 }
                 $this->addComponent($editor, 'editorComponent');
-
-                $editor->init();
+                //Trigger already passed phases of init on the editor
+                $editorEventManager = $editor->getEventManager();
+                $editorEvent        = $editor->getEvent();
+                $editorEventManager->trigger(ComponentEventInterface::EVENT_INIT_EARLY, $editorEvent);
+                $editorEventManager->trigger(ComponentEventInterface::EVENT_INIT, $editorEvent);
             }
             catch(InvalidArgumentException $e)
             {

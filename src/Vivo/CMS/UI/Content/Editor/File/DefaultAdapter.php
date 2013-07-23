@@ -2,9 +2,10 @@
 namespace Vivo\CMS\UI\Content\Editor\File;
 
 use Vivo\CMS\Api;
-use Vivo\Form\Form;
+use Vivo\Form\Fieldset;
 use Vivo\CMS\UI\Content\Editor\AbstractAdapter;
 use Vivo\Repository\Exception\PathNotSetException;
+use Vivo\UI\ComponentEventInterface;
 
 /**
  * Editor Adapter for general files
@@ -31,10 +32,19 @@ class DefaultAdapter extends AbstractAdapter
         $this->fileApi = $fileApi;
     }
 
+    public function attachListeners()
+    {
+        parent::attachListeners();
+        $eventManager   = $this->getEventManager();
+        $eventManager->attach(ComponentEventInterface::EVENT_INIT, array($this, 'initListenerSetShowDownload'));
+        $eventManager->attach(ComponentEventInterface::EVENT_VIEW, array($this, 'viewListenerSetViewModelVars'));
+    }
+
+
     /**
      * Initializes Adapter
     */
-    public function init()
+    public function initListenerSetShowDownload()
     {
         try {
             if($this->content->getFileName()) {
@@ -42,17 +52,21 @@ class DefaultAdapter extends AbstractAdapter
             }
         }
         catch (PathNotSetException $e) {
-
         }
+    }
+
+    public function viewListenerSetViewModelVars()
+    {
+        $this->getView()->showDownload = $this->showDownload;
     }
 
     /**
      * Creates form
      */
-    protected function doGetForm()
+    protected function doGetFieldset()
     {
         // NOT USED
-        return new Form('download-resource'.$this->content->getUuid());
+        return new Fieldset('download-resource'.$this->content->getUuid());
     }
 
     /**
@@ -62,16 +76,4 @@ class DefaultAdapter extends AbstractAdapter
     {
         $this->fileApi->download($this->content);
     }
-
-    /**
-     * View Adapter
-     */
-    public function view()
-    {
-        $view = parent::view();
-        $view->showDownload = $this->showDownload;
-
-        return $view;
-    }
-
 }

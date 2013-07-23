@@ -94,7 +94,6 @@ class ResourceUrlHelper
      * @throws Exception\InvalidArgumentException
      * @return string
      */
-    //public function getResourceUrl($resourcePath, $source, $type = null, array $queryParams = array())
     public function getResourceUrl($resourcePath, $source, array $options = array())
     {
         if ($this->options['check_resource'] == true) {
@@ -114,6 +113,7 @@ class ResourceUrlHelper
                 $mtime  = $this->getVivoResourceMtime($resourcePath);
             } else {
                 //It is a module resource
+                $type = isset($options['type']) ? $options['type'] : null;
                 $mtime  = $this->moduleResourceManager->getResourceMtime($source, $resourcePath, $type);
             }
             $resourceRouteName  = $this->resourceRouteName;

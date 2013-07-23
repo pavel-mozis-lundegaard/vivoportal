@@ -152,7 +152,7 @@ class UrlHelper
             $params['explorerAction'] = $this->routeMatch->getParam('explorerAction');
         }
 
-        $keysToRemove = array('full_url', 'settings', 'reuse_matched_params');
+        $keysToRemove = array('full_url', 'settings', 'reuse_matched_params', 'type');
         $this->unsetKeys($keysToRemove, $localOptions);
 
         $url = $this->router->assemble($params, $localOptions);

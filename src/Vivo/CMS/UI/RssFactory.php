@@ -1,19 +1,19 @@
 <?php
-namespace Vivo\CMS\Listener;
+namespace Vivo\CMS\UI;
 
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-class RssListenerFactory implements FactoryInterface
+class RssFactory implements FactoryInterface
 {
     /**
      * (non-PHPdoc)
      * @see \Zend\ServiceManager\FactoryInterface::createService()
-     * @return Vivo\CMS\Listener\RssListener
+     * @return \Vivo\CMS\UI\Rss
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        return new RssListener($serviceLocator->get('Vivo\CMS\UI\Rss'), $serviceLocator->get('request'));
+        return new Rss($serviceLocator->get('Vivo\CMS\Api\CMS'), $serviceLocator->get('Vivo\CMS\Api\Document'));
     }
 
 }

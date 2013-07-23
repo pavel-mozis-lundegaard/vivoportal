@@ -1,10 +1,9 @@
 <?php
 namespace Vivo\CMS\Listener;
 
-use Vivo\CMS\Event\CMSEvent;
-
 use Vivo\CMS\Api;
 use Vivo\CMS\Api\Exception\DocumentNotFoundException;
+use Vivo\CMS\Event\CMSEvent;
 use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;

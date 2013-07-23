@@ -3,7 +3,6 @@ namespace Vivo\CMS;
 
 use Vivo\CMS\Api;
 use Vivo\CMS\Api\CMS;
-use Vivo\CMS\ComponentFactory;
 use Vivo\CMS\Event\CMSEvent;
 use Vivo\Controller\Exception;
 use Vivo\IO\InputStreamInterface;
@@ -324,7 +323,7 @@ class FrontController implements DispatchableInterface,
 
         //parse resource map file
         foreach ($lines as $line) {
-            if ($line = trim($line)) { //skip empty rows
+            if (($line = trim($line))) { //skip empty rows
                 $lineColums = array_values(array_filter(explode(' ', $line)));
                 if (count($lineColums) == 3) {
                     list($path, $source, $resource) = $lineColums;

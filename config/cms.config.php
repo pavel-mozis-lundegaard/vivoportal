@@ -236,11 +236,11 @@ return array(
         //configuration of service manager, services defined here should not override
         //services defined in Vivo config
         'invokables' => array (
-            'Vivo\CMS\UI\Blank'             => 'Vivo\CMS\UI\Blank',
-            'Vivo\CMS\UI\Root'              => 'Vivo\CMS\UI\Root',
-            'Vivo\UI\ComponentContainer'    => 'Vivo\UI\ComponentContainer',
-            'Vivo\UI\TabContainer'          => 'Vivo\UI\TabContainer',
+            'Vivo\CMS\UI\Blank'                    => 'Vivo\CMS\UI\Blank',
+            'Vivo\CMS\UI\Root'                     => 'Vivo\CMS\UI\Root',
             'Vivo\CMS\UI\Manager\Explorer\Ribbon'  => 'Vivo\CMS\UI\Manager\Explorer\Ribbon',
+            'Vivo\UI\ComponentContainer'           => 'Vivo\UI\ComponentContainer',
+            'Vivo\UI\TabContainer'                 => 'Vivo\UI\TabContainer',
         ),
         'factories' => array (
             // Content factories
@@ -278,6 +278,7 @@ return array(
             'Vivo\UI\Page'                   => 'Vivo\Service\UI\PageFactory',
             'Vivo\UI\Alert'                  => 'Vivo\UI\AlertFactory',
             'Vivo\UI\Paginator'              => 'Vivo\UI\PaginatorFactory',
+            'Vivo\CMS\UI\Rss'                => 'Vivo\CMS\UI\RssFactory',
             'security_manager'               => 'Vivo\Service\SimpleSecurityManagerFactory',
 //          'security_manager'               => 'Vivo\Service\DbSecurityManagerFactory',
 

@@ -3,6 +3,7 @@ namespace Vivo\Backend\UI\Explorer;
 
 use Vivo\UI\Alert;
 use Vivo\Form\Fieldset;
+use Vivo\UI\ComponentEventInterface;
 use Vivo\Util\RedirectEvent;
 use Vivo\CMS\Model\Folder;
 
@@ -24,12 +25,25 @@ class Creator extends Editor
      */
     protected $parentFolder;
 
-    public function init()
+    public function attachListeners()
+    {
+        parent::attachListeners();
+        $eventManager   = $this->getEventManager();
+        //Detach the listener inherited from Editor
+        $eventManager->detach($this->listeners['initListenerEditor']);
+        $eventManager->attach(ComponentEventInterface::EVENT_INIT_EARLY, array($this, 'initEarlyListenerCreator'));
+        $eventManager->attach(ComponentEventInterface::EVENT_INIT, array($this, 'initListenerCreator'));
+    }
+
+    public function initEarlyListenerCreator()
     {
         $this->explorer = $this->getParent('Vivo\Backend\UI\Explorer\ExplorerInterface');
         $this->parentFolder = $this->explorer->getEntity();
-        $this->doCreate();
+    }
 
+    public function initListenerCreator()
+    {
+        $this->doCreate();
         $this->initForm();
     }
 
@@ -54,8 +68,8 @@ class Creator extends Editor
             'type' => 'Vivo\Form\Element\Select',
             'attributes' => array(
                 'options' => array(
-                    'Vivo\CMS\Model\Document' => 'Vivo\CMS\Model\Document',
-                    'Vivo\CMS\Model\Folder' => 'Vivo\CMS\Model\Folder',
+                    'Vivo\CMS\Model\Document'   => 'Vivo\CMS\Model\Document',
+                    'Vivo\CMS\Model\Folder'     => 'Vivo\CMS\Model\Folder',
                 )
             )
         ));

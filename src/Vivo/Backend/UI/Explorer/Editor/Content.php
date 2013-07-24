@@ -1,7 +1,7 @@
 <?php
 namespace Vivo\Backend\UI\Explorer\Editor;
 
-use Vivo\UI\AbstractForm;
+use Vivo\UI\AbstractFieldset;
 use Vivo\Form\Form;
 use Vivo\Backend\Form\Fieldset\EntityEditor;
 use Vivo\Backend\Exception\ConfigException;
@@ -15,7 +15,7 @@ use Vivo\UI\ComponentEventInterface;
 
 use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
 
-class Content extends AbstractForm
+class Content extends AbstractFieldset
 {
     /**
      * @var \Vivo\Backend\UI\Explorer\ExplorerInterface
@@ -68,7 +68,6 @@ class Content extends AbstractForm
         $this->documentApi = $documentApi;
         $this->metadataManager = $metadataManager;
         $this->lookupDataManager = $lookupDataManager;
-        $this->autoAddCsrf = false;
     }
 
     /**
@@ -87,16 +86,24 @@ class Content extends AbstractForm
         $this->content = $content;
     }
 
-    public function init()
+    public function attachListeners()
+    {
+        parent::attachListeners();
+        $eventManager   = $this->getEventManager();
+        $eventManager->attach(ComponentEventInterface::EVENT_INIT, array($this, 'initListenerContent'));
+    }
+
+    public function initListenerContent()
     {
         $this->explorer = $this->getParent('Vivo\Backend\UI\Explorer\ExplorerInterface');
 
         if($this->content) {
-            $form = $this->getForm();
-            $form->bind($this->content);
+            $fieldset   = $this->getFieldset();
+            $fieldset->setObject($this->content);
+            $fieldset->extractAndPopulate();
 
             if(!$this->content->getUuid()) {
-                $form->get('content')->get('state')->setValue('NEW');
+                $fieldset->get('state')->setValue('NEW');
             }
 
             try {
@@ -152,7 +159,7 @@ class Content extends AbstractForm
         }
     }
 
-    protected function doGetForm()
+    protected function doGetFieldset()
     {
         if($this->content) {
             $id = $this->content->getUuid();
@@ -182,12 +189,12 @@ class Content extends AbstractForm
             ),
         ));
 
-        $form = new Form('content-'.$id);
-        $form->setWrapElements(true);
-        $form->setAttribute('method', 'post');
-        $form->add($fieldset);
+//        $form = new Form('content-'.$id);
+//        $form->setWrapElements(true);
+//        $form->setAttribute('method', 'post');
+//        $form->add($fieldset);
 
-        return $form;
+        return $fieldset;
     }
 
     /**
@@ -195,17 +202,15 @@ class Content extends AbstractForm
      */
     public function save()
     {
-        if ($this->getForm()->isValid()) {
+        $fieldsetData   = $this->getFieldsetData();
+        if ($fieldsetData) {
             if(!$this->contentContainer->getUuid()) {
                 $this->contentContainer = $this->documentApi->createContentContainer($this->explorer->getEntity());
             }
-
+            $this->content->setState($fieldsetData['state']);
             $this->editorComponent->save($this->contentContainer);
-
             return true;
         }
-
         return false;
     }
-
 }

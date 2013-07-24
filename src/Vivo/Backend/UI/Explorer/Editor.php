@@ -9,6 +9,7 @@ use Vivo\CMS\AvailableContentsProvider;
 use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 use Vivo\CMS\Model\Document;
 use Vivo\CMS\Model\ContentContainer;
+use Vivo\UI\ComponentEventInterface;
 use Vivo\Util\RedirectEvent;
 use Vivo\Util\UrlHelper;
 use Vivo\LookupData\LookupDataManager;
@@ -103,7 +104,15 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
         $this->urlHelper = $urlHelper;
     }
 
-    public function init()
+    public function attachListeners()
+    {
+        parent::attachListeners();
+        $eventManager                           = $this->getEventManager();
+        $this->listeners['initListenerEditor']  = $eventManager->attach(ComponentEventInterface::EVENT_INIT,
+                                                    array($this, 'initListenerEditor'));
+    }
+
+    public function initListenerEditor()
     {
         $this->entity = $this->getParent()->getEntity();
         if ($this->hasComponent('resourceEditor')) {

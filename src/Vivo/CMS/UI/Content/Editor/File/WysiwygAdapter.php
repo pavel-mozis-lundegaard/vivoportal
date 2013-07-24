@@ -70,11 +70,6 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
         }
     }
 
-    public function initListenerLateTest()
-    {
-
-    }
-
     /**
      * Creates fieldset
      */
@@ -124,15 +119,5 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
             $resourceData   = null;
         }
         return $resourceData;
-
-//        return $data;
-//        $this->loadFromRequest();
-//        $form = $this->getForm();
-//        if($form->isValid()) {
-//            $data = $form->get("resource")->getValue();
-//            $data = $this->symRefConvertor->convertUrlsToReferences($data);
-//            return $data;
-//        }
     }
-
 }

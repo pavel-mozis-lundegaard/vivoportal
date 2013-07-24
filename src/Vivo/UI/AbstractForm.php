@@ -309,21 +309,50 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     }
 
     /**
+     * Returns form data
+     * @param bool $recursive Return also data from child fieldsets?
+     * @throws Exception\DomainException
+     * @return array
+     */
+    public function getData($recursive = true)
+    {
+        if (!$this->hasValidated) {
+            throw new Exception\DomainException(sprintf('%s: cannot return data as validation has not yet occurred',
+                __METHOD__));
+        }
+        $data   = $this->formData;
+        if ($recursive) {
+            foreach ($this->components as $component) {
+                if ($component instanceof AbstractFieldset) {
+                    $childName  = $component->getUnwrappedZfFieldsetName();
+                    $childData  = $component->getFieldsetData($recursive);
+                    $data[$childName]   = $childData;
+                }
+            }
+        }
+        return $data;
+    }
+
+    /**
      * Sets form data
      * @param array $formData
      */
     protected function setFormData(array $formData)
     {
+        foreach ($this->components as $component) {
+            if ($component instanceof AbstractFieldset) {
+                $unwrapped          = $component->getUnwrappedZfFieldsetName();
+                if (isset($formData[$unwrapped])) {
+                    $childData  = $formData[$unwrapped];
+                    //Remove the child data
+                    unset($formData[$unwrapped]);
+                } else {
+                    $childData  = array();
+                }
+                $component->setFieldsetData($childData);
+            }
+        }
         $this->formData    = $formData;
-    }
-
-    /**
-     * Returns form data
-     * @return array
-     */
-    public function getData()
-    {
-        return $this->formData;
     }
 
     /**

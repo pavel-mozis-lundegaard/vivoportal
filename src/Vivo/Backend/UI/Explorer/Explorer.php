@@ -138,15 +138,20 @@ class Explorer extends ComponentContainer implements RequestAwareInterface, Pers
                     sprintf("%s: Component for '%s' is not defined",
                             __METHOD__, $this->explorerAction));
         }
-
         $name = $this->explorerComponents[$this->explorerAction];
-
+        /** @var $component \Vivo\UI\ComponentInterface */
         $component = $this->serviceManager->create($name);
         $this->addComponent($component, $this->explorerAction);
-
         if($needInit) {
-            $this->tree->setRoot($component);
-            $this->tree->init();
+            $componentEventManager  = $component->getEventManager();
+            $componentEvent         = $component->getEvent();
+            $componentEventManager->trigger(ComponentEventInterface::EVENT_INIT_EARLY, $componentEvent);
+            $componentEventManager->trigger(ComponentEventInterface::EVENT_INIT, $componentEvent);
+            $componentEventManager->trigger(ComponentEventInterface::EVENT_INIT_LATE, $componentEvent);
+
+
+//            $this->tree->setRoot($component);
+//            $this->tree->init();
         }
     }
 

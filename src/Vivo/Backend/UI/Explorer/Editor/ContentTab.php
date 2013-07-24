@@ -158,7 +158,6 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
                     'value' => $optionKey,
                 ),
         ));
-
         return $form;
     }
 
@@ -196,7 +195,11 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
         $component->setContentContainer($this->contentContainer);
         $component->setContent($content);
         $this->addComponent($component, 'contentEditor');
-        $component->init();
+        $componentEventManager  = $component->getEventManager();
+        $componentEvent         = $component->getEvent();
+        $componentEventManager->trigger(ComponentEventInterface::EVENT_INIT_EARLY, $componentEvent);
+        $componentEventManager->trigger(ComponentEventInterface::EVENT_INIT, $componentEvent);
+        $componentEventManager->trigger(ComponentEventInterface::EVENT_INIT_LATE, $componentEvent);
     }
 
     /**
@@ -204,22 +207,23 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
      */
     public function save()
     {
-        $result = $this->contentEditor->save();
-
-        if($result) {
-            // Reload version selectbox
-            $value = $this->getForm()->get('version')->getValue();
-            $this->resetForm();
-            $this->loadContents();
-            $this->getForm()->get('version')->setValue($value);
+        if ($this->isValid()) {
+            $result = $this->contentEditor->save();
+            if($result) {
+                // Reload version selectbox
+                $value = $this->getForm()->get('version')->getValue();
+                $this->resetForm();
+                $this->loadContents();
+                $this->getForm()->get('version')->setValue($value);
+            }
+            return $result;
+        } else {
+            return false;
         }
-
-        return $result;
     }
 
     public function select()
     {
-
     }
 
     public function isDisabled()
@@ -231,5 +235,4 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
     {
         return $this->contentContainer->getContainerName() ? $this->contentContainer->getContainerName() : '+';
     }
-
 }

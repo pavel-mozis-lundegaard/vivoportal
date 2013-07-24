@@ -1,6 +1,7 @@
 <?php
 namespace Vivo\CMS\UI\Content\Editor;
 
+use Vivo\CMS\Model\Content;
 use Vivo\CMS\UI\Content\Editor\ResourceEditorInterface;
 use Vivo\CMS\Api;
 use Vivo\CMS\Model;
@@ -81,13 +82,6 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
         return $this->getComponent(self::ADAPTER_COMPONENT_NAME);
     }
 
-    public function init()
-    {
-        $adapter = $this->getComponent(self::ADAPTER_COMPONENT_NAME);
-        if ($adapter) {
-            $adapter->init();
-        }
-    }
     /**
      * (non-PHPdoc)
      * @see Vivo\CMS\UI\Content\Editor.EditorInterface::save()

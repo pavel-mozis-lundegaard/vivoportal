@@ -1,7 +1,7 @@
 <?php
 namespace Vivo\CMS\UI\Content\Editor;
 
-use Vivo\CMS\UI\AbstractFieldset;
+use Vivo\UI\AbstractFieldset;
 use \Vivo\CMS\Model\Content;
 use Vivo\CMS\UI\Content\Editor\AdapterInterface;
 

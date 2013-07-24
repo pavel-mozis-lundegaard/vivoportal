@@ -253,6 +253,7 @@ return array(
             'Vivo\Util\UrlHelper'       => 'Vivo\Util\UrlHelperFactory',
             'Vivo\document_url_helper'  => 'Vivo\CMS\Util\DocumentUrlHelperFactory',
             'Vivo\resource_url_helper'  => 'Vivo\CMS\Util\ResourceUrlHelperFactory',
+            'Vivo\icon_url_helper'      => 'Vivo\CMS\Util\IconUrlHelperFactory',
             'Vivo\Http\HeaderHelper'    => 'Vivo\Http\HeaderHelperFactory',
             'Vivo\Transliterator\Path'  => 'Vivo\Transliterator\PathFactory',
             'Vivo\Transliterator\Url'   => 'Vivo\Transliterator\UrlFactory',
@@ -355,6 +356,7 @@ return array(
             'vivo_head_title'   => 'Vivo\View\Helper\VivoHeadTitleFactory',
             'render_document'   => 'Vivo\View\Helper\RenderDocumentFactory',
             'user'              => 'Vivo\View\Helper\UserFactory',
+            'transliterate'     => 'Vivo\View\Helper\TransliterateFactory',
         ),
     ),
     //Plugin manager configuration for navigation view helpers

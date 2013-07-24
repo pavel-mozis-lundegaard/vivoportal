@@ -10,7 +10,6 @@
             <title><?=htmlspecialchars($site->getTitle())?></title>
             <url></url>
         </image>
-    </channel>
     <? foreach ($items as $item) : /* @var $item \Vivo\CMS\Model\Document */ ?>
         <item>
             <title><?=htmlspecialchars($item->getTitle())?></title>
@@ -27,4 +26,5 @@
             } ?>
         </item>
     <? endforeach; ?>
+    </channel>
 </rss>

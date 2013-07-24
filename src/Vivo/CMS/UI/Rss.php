@@ -2,25 +2,30 @@
 namespace Vivo\CMS\UI;
 
 use Vivo\CMS\Api;
+use Vivo\Http\StreamResponse;
 
 class Rss extends Component
 {
-    /**
-     * @var \Vivo\CMS\Api\CMS
-     */
-    private $cmsApi;
-
     /**
      * @var \Vivo\CMS\Api\Document
      */
     private $documentApi;
 
+    /**
+     * @var Vivo\Http\StreamResponse
+     */
+    private $response;
+
     private $items = array();
 
-    public function __construct(Api\CMS $cmsApi, Api\Document $documentApi)
+    /**
+     * @param \Vivo\CMS\Api\Document $documentApi
+     * @param \Vivo\Http\StreamResponse $response
+     */
+    public function __construct(Api\Document $documentApi, StreamResponse $response)
     {
-        $this->cmsApi = $cmsApi; //@deprecated
         $this->documentApi = $documentApi;
+        $this->response = $response;
     }
 
     public function init()
@@ -34,7 +39,7 @@ class Rss extends Component
 
     public function view()
     {
-        //TODO: base URL
+        $this->response->getHeaders()->addHeaderLine('Content-Type', 'text/xml; charset:utf-8');
 
         $view = parent::view();
         $view->site = $this->cmsEvent->getSite();

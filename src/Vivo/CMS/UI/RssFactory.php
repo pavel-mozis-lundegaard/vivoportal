@@ -13,7 +13,7 @@ class RssFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        return new Rss($serviceLocator->get('Vivo\CMS\Api\CMS'), $serviceLocator->get('Vivo\CMS\Api\Document'));
+        return new Rss($serviceLocator->get('Vivo\CMS\Api\Document'), $serviceLocator->get('response'));
     }
 
 }

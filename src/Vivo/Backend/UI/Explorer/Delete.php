@@ -82,7 +82,7 @@ class Delete extends AbstractForm implements TranslatorAwareInterface
             $explorer->setCurrent('viewer');
             $message = sprintf($this->translator->translate("Document at path '%s' has been deleted"), $relPath);
             $this->alert->addMessage($message, Alert::TYPE_SUCCESS);
-            $this->events->trigger(new RedirectEvent());
+            $this->getEventManager()->trigger(new RedirectEvent());
         } else {
             $message = $this->translator->translate("Form data is not valid");
             $this->alert->addMessage($message, Alert::TYPE_ERROR);

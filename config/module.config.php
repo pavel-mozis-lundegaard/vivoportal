@@ -197,6 +197,7 @@ return array(
             'view_model'                => 'Zend\View\Model\ViewModel',
             'Vivo\Http\Filter\OutputFilterListener' => 'Vivo\Http\Filter\OutputFilterListener',
             'Vivo\watcher'              => 'Vivo\Repository\Watcher',
+            'Vivo\component_event_listener' => 'Vivo\UI\ComponentEventListener',
         ),
         'factories' => array(
             'RoutePluginManager'        => 'Vivo\Service\RoutePluginManagerFactory',
@@ -233,7 +234,7 @@ return array(
             'pdo_abstract_factory'      => 'Vivo\Service\PdoAbstractFactoryFactory',
             'zdb_abstract_factory'      => 'Vivo\Service\ZdbAbstractFactoryFactory',
             'path_builder'              => 'Vivo\Service\PathBuilderFactory',
-            'component_factory'         => 'Vivo\Service\ComponentFactoryFactory',
+            'component_factory'         => 'Vivo\CMS\ComponentFactoryFactory',
             'indexer_adapter'           => 'Vivo\Service\IndexerAdapterFactory',
             'indexer_field_helper'      => 'Vivo\Service\IndexerFieldHelperFactory',
             'indexer_query_parser'      => 'Vivo\Service\IndexerQueryParserFactory',
@@ -268,7 +269,8 @@ return array(
             'mime'                      => 'Vivo\Util\MIMEFactory',
             'indexer_events'            => 'Vivo\Indexer\EventManagerFactory',
             'Vivo\nav_overview_defaults_processor' => 'Vivo\Service\EntityProcessor\NavAndOverviewDefaultsFactory',
-            'Vivo\repository_storage'       => 'Vivo\Repository\RepositoryStorageFactory',
+            'Vivo\repository_storage'   => 'Vivo\Repository\RepositoryStorageFactory',
+            'Vivo\component_creator'    => 'Vivo\UI\ComponentCreatorFactory',
             'Vivo\form_view_helper_utils'   => 'Vivo\Form\View\HelperUtilsFactory',
         ),
         'aliases' => array(
@@ -355,6 +357,7 @@ return array(
             'vivo_head_title'   => 'Vivo\View\Helper\VivoHeadTitleFactory',
             'render_document'   => 'Vivo\View\Helper\RenderDocumentFactory',
             'user'              => 'Vivo\View\Helper\UserFactory',
+            'transliterate'     => 'Vivo\View\Helper\TransliterateFactory',
         ),
     ),
     //Plugin manager configuration for navigation view helpers

@@ -8,20 +8,18 @@ use Vivo\Backend\UI\SiteSelector;
 use Vivo\Service\Initializer\RequestAwareInterface;
 use Vivo\UI\ComponentContainer;
 use Vivo\UI\PersistableInterface;
+use Vivo\UI\ComponentEventInterface;
 use Vivo\Util\UrlHelper;
 use Vivo\Util\RedirectEvent;
 
 use Zend\EventManager\Event;
-use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\EventManagerAwareInterface;
 use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\RequestInterface;
 
 /**
  * Explorer component.
  */
-class Explorer extends ComponentContainer implements EventManagerAwareInterface,
-        RequestAwareInterface, PersistableInterface, ExplorerInterface
+class Explorer extends ComponentContainer implements RequestAwareInterface, PersistableInterface, ExplorerInterface
 {
     /**
      * Entity being explored.
@@ -34,11 +32,6 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
      * @var string
      */
     protected $explorerAction = 'browser';
-
-    /**
-     * @var EventManagerInterface
-     */
-    protected $eventManager;
 
     /**
      * @var RequestInterface
@@ -62,7 +55,7 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
 
     /**
      * Array of classes of explorer components.
-     * @var type
+     * @var array
      */
     protected $explorerComponents = array(
         'creator'   => 'Vivo\Backend\UI\Explorer\Creator',
@@ -89,25 +82,27 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
      */
     protected $uuid;
 
+
     /**
      * Constructor.
      * @param CMS $cmsApi
      * @param SiteSelector $siteSelector
      * @param ExplorerComponentFactory $explorerComponentFactory
      * @param string $uuid
+     * @param \Zend\ServiceManager\ServiceManager $serviceManager
      */
     public function __construct(CMS $cmsApi,
-            \Vivo\Backend\UI\SiteSelector $siteSelector,
-            ServiceManager $serviceManager,
-            UrlHelper $urlHelper,
-            $uuid, $explorerAction)
+                                \Vivo\Backend\UI\SiteSelector $siteSelector,
+                                ServiceManager $serviceManager,
+                                UrlHelper $urlHelper,
+                                $uuid, $explorerAction)
     {
-        $this->cmsApi = $cmsApi;
-        $this->siteSelector = $siteSelector;
-        $this->serviceManager = $serviceManager;
-        $this->urlHelper = $urlHelper;
-        $this->uuid = $uuid;
-        $this->explorerAction = $explorerAction;
+        $this->cmsApi           = $cmsApi;
+        $this->siteSelector     = $siteSelector;
+        $this->serviceManager   = $serviceManager;
+        $this->urlHelper        = $urlHelper;
+        $this->uuid             = $uuid;
+        $this->explorerAction   = $explorerAction;
     }
 
     /**
@@ -143,15 +138,20 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
                     sprintf("%s: Component for '%s' is not defined",
                             __METHOD__, $this->explorerAction));
         }
-
         $name = $this->explorerComponents[$this->explorerAction];
-
+        /** @var $component \Vivo\UI\ComponentInterface */
         $component = $this->serviceManager->create($name);
         $this->addComponent($component, $this->explorerAction);
-
         if($needInit) {
-            $this->tree->setRoot($component);
-            $this->tree->init();
+            $componentEventManager  = $component->getEventManager();
+            $componentEvent         = $component->getEvent();
+            $componentEventManager->trigger(ComponentEventInterface::EVENT_INIT_EARLY, $componentEvent);
+            $componentEventManager->trigger(ComponentEventInterface::EVENT_INIT, $componentEvent);
+            $componentEventManager->trigger(ComponentEventInterface::EVENT_INIT_LATE, $componentEvent);
+
+
+//            $this->tree->setRoot($component);
+//            $this->tree->init();
         }
     }
 
@@ -256,7 +256,7 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
         $this->entity = $entity;
         //recreate component when entity is changed.
         $this->createComponent(true);
-        $this->eventManager->trigger(__FUNCTION__, $this, array('entity' => $entity));
+        $this->getEventManager()->trigger(__FUNCTION__, $this, array('entity' => $entity));
     }
 
     /**
@@ -279,26 +279,7 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     }
 
     /**
-     * (non-PHPdoc)
-     * @see \Zend\EventManager\EventManagerAwareInterface::setEventManager()
-     */
-    public function setEventManager(EventManagerInterface $eventManager)
-    {
-        $this->eventManager = $eventManager;
-        $this->eventManager->addIdentifiers(__CLASS__);
-    }
-
-    /**
-     * (non-PHPdoc)
-     * @see \Zend\EventManager\EventsCapableInterface::getEventManager()
-     */
-    public function getEventManager()
-    {
-        return $this->eventManager;
-    }
-
-    /**
-     * Returns site beeing explored.
+     * Returns site being explored.
      * @return \Vivo\CMS\Model\Site
      */
     public function getSite()

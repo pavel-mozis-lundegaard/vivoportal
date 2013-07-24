@@ -6,20 +6,11 @@ use Vivo\SiteManager\Event\SiteEvent;
 use Vivo\UI\Component;
 use Vivo\UI\PersistableInterface;
 
-use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\EventManagerAwareInterface;
-
 /**
  * Component for selecting site for editing.
  */
-class SiteSelector extends Component implements EventManagerAwareInterface
-        /*PersistableInterface*/
+class SiteSelector extends Component implements PersistableInterface
 {
-
-    /**
-     * @var EventManagerInterface
-     */
-    protected $eventManager;
 
     /**
      * @var \Vivo\CMS\Api\Site
@@ -32,8 +23,14 @@ class SiteSelector extends Component implements EventManagerAwareInterface
     protected $site;
 
     /**
+     * Sites array
+     * @var \Vivo\CMS\Model\Site[]
+     */
+    protected $sites    = array();
+
+    /**
      * Constructor.
-     * @param Site $siteApi
+     * @param \Vivo\CMS\Api\Site $siteApi
      * @param SiteEvent $siteEvent
      */
     public function __construct(SiteApi $siteApi, SiteEvent $siteEvent)
@@ -65,32 +62,13 @@ class SiteSelector extends Component implements EventManagerAwareInterface
     }
 
     /**
-     * (non-PHPdoc)
-     * @see \Zend\EventManager\EventManagerAwareInterface::setEventManager()
-     */
-    public function setEventManager(EventManagerInterface $eventManager)
-    {
-        $this->eventManager = $eventManager;
-        $this->eventManager->addIdentifiers(__CLASS__);
-    }
-
-    /**
-     * (non-PHPdoc)
-     * @see \Zend\EventManager\EventsCapableInterface::getEventManager()
-     */
-    public function getEventManager()
-    {
-        return $this->eventManager;
-    }
-
-    /**
      * Sets currently edited site.
      * @param string $siteName
      * @throws \Exception
      */
     public function set($siteName)
     {
-        if (!key_exists($siteName, $this->sites)) {
+        if (!array_key_exists($siteName, $this->sites)) {
             throw new \Exception('Site is not accessible.');
         }
         $this->setSite($this->sites[$siteName]);
@@ -103,8 +81,7 @@ class SiteSelector extends Component implements EventManagerAwareInterface
     public function setSite(Site $site)
     {
         $this->site = $site;
-        $this->eventManager
-                ->trigger(__FUNCTION__, $this, array('site' => $site));
+        $this->getEventManager()->trigger(__FUNCTION__, $this, array('site' => $site));
     }
 
     /**

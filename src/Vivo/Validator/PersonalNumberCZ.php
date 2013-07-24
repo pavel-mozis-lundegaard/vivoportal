@@ -3,12 +3,10 @@
 namespace Vivo\Validator;
 
 use Zend\Validator\AbstractValidator;
-use Zend\ServiceManager\ServiceLocatorAwareInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Validator\Date;
 use Zend\Validator\Exception;
 
-class PersonalNumberCZ extends AbstractValidator implements ServiceLocatorAwareInterface
+class PersonalNumberCZ extends AbstractValidator
 {
 
     /**
@@ -32,8 +30,6 @@ class PersonalNumberCZ extends AbstractValidator implements ServiceLocatorAwareI
         $date1 = $this->getDate($pn1);
 
         // Date check
-//        $date = $this->getServiceLocator()->get('Date');
-        // @TODO: change to service
         $date = new Date();
 
         $date->setFormat('d.m.Y');
@@ -76,27 +72,6 @@ class PersonalNumberCZ extends AbstractValidator implements ServiceLocatorAwareI
             }, $pn);
 
         return $date;
-    }
-
-    /**
-     * Set service manager instance
-     *
-     * @param  ServiceLocatorInterface $serviceLocator
-     * @return void
-     */
-    public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
-    {
-        $this->sm = $serviceLocator;
-    }
-
-    /**
-     * Retrieve service manager instance
-     *
-     * @return ServiceLocatorInterface
-     */
-    public function getServiceLocator()
-    {
-        return $this->sm;
     }
 
 }

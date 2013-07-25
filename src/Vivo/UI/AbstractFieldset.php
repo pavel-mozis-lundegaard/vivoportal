@@ -242,6 +242,15 @@ abstract class AbstractFieldset extends ComponentContainer implements Translator
         $viewModel                  = $this->getView();
         $viewModel->fieldset        = $this->getFieldset();
         $viewModel->fieldsetData    = $this->getFieldsetData();
+        //Set current step name
+        $formComponent  = $this->getParentFormComponent();
+        if ($formComponent && $formComponent->getMultistepStrategy()) {
+            $msStrategy = $formComponent->getMultistepStrategy();
+            $viewModel->currentStep = $msStrategy->getStep();
+        } else {
+            //No multistep strategy available, set current step name to null
+            $viewModel->currentStep = null;
+        }
     }
 
     /**

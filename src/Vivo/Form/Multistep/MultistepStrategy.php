@@ -37,6 +37,21 @@ class MultistepStrategy implements MultistepStrategyInterface
     protected $steps            = array();
 
     /**
+     * The form this multistep strategy operates on
+     * @var FormInterface
+     */
+    protected $form;
+
+    /**
+     * Sets the form this multistep strategy operates on
+     * @param FormInterface $form
+     */
+    public function setForm(FormInterface $form)
+    {
+        $this->form = $form;
+    }
+
+    /**
      * Sets steps the form has
      * @param array $steps
      * @throws \Vivo\Form\Exception\InvalidArgumentException
@@ -58,12 +73,11 @@ class MultistepStrategy implements MultistepStrategyInterface
 
     /**
      * Modifies the form to be usable as a multi-step form
-     * @param Form $form
      */
-    public function modifyForm(Form $form)
+    public function modifyForm()
     {
-        $this->setStep($form, $this->getNextStep());
-        $this->resetGotoStep($form);
+        $this->setStep($this->getNextStep());
+        $this->resetGotoStep();
     }
 
     /**
@@ -171,12 +185,11 @@ class MultistepStrategy implements MultistepStrategyInterface
 
     /**
      * Returns validation group for the current step
-     * @param \Zend\Form\Form $form
      * @return mixed
      */
-    public function getValidationGroup(Form $form)
+    public function getValidationGroup()
     {
-        $step               = $this->getStep($form);
+        $step               = $this->getStep();
         $validationGroup    = $this->assembleValidationGroupForStep($step);
         return $validationGroup;
     }
@@ -203,92 +216,92 @@ class MultistepStrategy implements MultistepStrategyInterface
     }
 
     /**
-     * Returns step identification from form
-     * @param Form $form
+     * Returns current step identification from form
      * @throws \Vivo\Form\Exception\RuntimeException
      * @return string
      */
-    public function getStep(Form $form)
+    public function getStep()
     {
-        $form->setValidationGroup($this->options['element_names']['step']);
-        if (!$form->isValid()) {
+        $this->checkFormIsSet();
+        $this->form->setValidationGroup($this->options['element_names']['step']);
+        if (!$this->form->isValid()) {
             throw new Exception\RuntimeException(
-                sprintf("%s: Form element containing step '%s' is not valid", __METHOD__, $this->options['element_names']['step']));
+                sprintf("%s: Form element containing step '%s' is not valid",
+                    __METHOD__, $this->options['element_names']['step']));
         }
-        $data   = $form->getData();
+        $data   = $this->form->getData();
         $step   = $data[$this->options['element_names']['step']];
         return $step;
     }
 
     /**
      * Sets step identification into the form
-     * @param Form $form
      * @param string $step
      * @throws \Vivo\Form\Exception\RuntimeException
      */
-    public function setStep(Form $form, $step)
+    public function setStep($step)
     {
+        $this->checkFormIsSet();
         if (!$this->isStepNameValid($step)) {
             throw new Exception\RuntimeException(sprintf("%s: Invalid step name '%s'", __METHOD__, $step));
         }
-        if (!$form->has($this->options['element_names']['step'])) {
+        if (!$this->form->has($this->options['element_names']['step'])) {
             //Step
-            $form->add(array(
+            $this->form->add(array(
                 'name'  => $this->options['element_names']['step'],
                 'type'  => 'hidden',
             ));
         }
         //Set step
-        $form->get($this->options['element_names']['step'])->setValue($step);
+        $this->form->get($this->options['element_names']['step'])->setValue($step);
     }
 
     /**
      * Returns identification of the step to go to from the form
-     * @param Form $form
      * @throws \Vivo\Form\Exception\RuntimeException
      * @return string
      */
-    public function getGotoStep(Form $form)
+    public function getGotoStep()
     {
-        $form->setValidationGroup($this->options['element_names']['goto_step']);
-        if (!$form->isValid()) {
+        $this->checkFormIsSet();
+        $this->form->setValidationGroup($this->options['element_names']['goto_step']);
+        if (!$this->form->isValid()) {
             throw new Exception\RuntimeException(
                 sprintf("%s: Form element containing goto_step '%s' is not valid",
                     __METHOD__, $this->options['element_names']['goto_step']));
         }
-        $data       = $form->getData();
+        $data       = $this->form->getData();
         $gotoStep   = $data[$this->options['element_names']['goto_step']];
         return $gotoStep;
     }
 
     /**
      * Resets the goto_step hidden field
-     * @param Form $form
      */
-    public function resetGotoStep(Form $form)
+    public function resetGotoStep()
     {
-        if (!$form->has($this->options['element_names']['goto_step'])) {
-            $form->add(array(
+        $this->checkFormIsSet();
+        if (!$this->form->has($this->options['element_names']['goto_step'])) {
+            $this->form->add(array(
                 'name'  => $this->options['element_names']['goto_step'],
                 'type'  => 'hidden',
             ));
         }
         //Set goto_step
-        $form->get($this->options['element_names']['goto_step'])->setValue('');
+        $this->form->get($this->options['element_names']['goto_step'])->setValue('');
     }
 
     /**
      * Advances one step forward
      * If there are no more steps, returns null, otherwise returns name of the next step
-     * @param Form $form
      * @return string|null
      */
-    public function next(Form $form)
+    public function next()
     {
-        $step       = $this->getStep($form);
+        $step       = $this->getStep();
         $nextStep   = $this->getNextStep($step);
         if ($nextStep) {
-            $this->setStep($form, $nextStep);
+            $this->setStep($nextStep);
         }
         return $nextStep;
     }
@@ -296,16 +309,26 @@ class MultistepStrategy implements MultistepStrategyInterface
     /**
      * Returns one step back
      * If there are no more steps, returns null, otherwise returns name of the previous step
-     * @param Form $form
      * @return string|null
      */
-    public function back(Form $form)
+    public function back()
     {
-        $step           = $this->getStep($form);
+        $step           = $this->getStep();
         $previousStep   = $this->getPreviousStep($step);
         if ($previousStep) {
-            $this->setStep($form, $previousStep);
+            $this->setStep($previousStep);
         }
         return $previousStep;
+    }
+
+    /**
+     * Checks that a form has been set into this multistep strategy
+     * @throws \Vivo\Form\Exception\RuntimeException
+     */
+    protected function checkFormIsSet()
+    {
+        if (!$this->form) {
+            throw new Exception\RuntimeException(sprintf("%s: No form is set in multi-step strategy", __METHOD__));
+        }
     }
 }

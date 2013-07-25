@@ -175,7 +175,8 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
                 $this->form->add($csrf);
             }
             if ($this->multistepStrategy) {
-                $this->multistepStrategy->modifyForm($this->form);
+                $this->multistepStrategy->setForm($this->form);
+                $this->multistepStrategy->modifyForm();
             }
         }
         return $this->form;
@@ -583,8 +584,17 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
         if ($this->autoPrepareForm) {
             $form->prepare();
         }
+        $viewModel          = $this->getView();
         //Set form to view
-        $this->getView()->form = $form;
+        $viewModel->form    = $form;
+        //Set current step name
+        if ($this->getMultistepStrategy()) {
+            $msStrategy = $this->getMultistepStrategy();
+            $viewModel->currentStep = $msStrategy->getStep();
+        } else {
+            //No multistep strategy available, set current step name to null
+            $viewModel->currentStep = null;
+        }
     }
 
     /**

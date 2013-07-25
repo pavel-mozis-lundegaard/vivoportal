@@ -231,6 +231,11 @@ class MultistepStrategy implements MultistepStrategyInterface
         }
         $data   = $this->form->getData();
         $step   = $data[$this->options['element_names']['step']];
+        //If the form has not been submitted yet, there are no data to validate and $step is null,
+        //get the value preset in the form
+        if (is_null($step)) {
+            $step   = $this->form->get($this->options['element_names']['step'])->getValue();
+        }
         return $step;
     }
 
@@ -272,6 +277,11 @@ class MultistepStrategy implements MultistepStrategyInterface
         }
         $data       = $this->form->getData();
         $gotoStep   = $data[$this->options['element_names']['goto_step']];
+        //If the form has not been submitted yet, there are no data to validate and $gotoStep is null,
+        //get the value preset in the form
+        if (is_null($gotoStep)) {
+            $gotoStep   = $this->form->get($this->options['element_names']['goto_step'])->getValue();
+        }
         return $gotoStep;
     }
 

@@ -4,12 +4,19 @@ namespace Vivo\Form\Multistep;
 use Vivo\Form\Exception;
 
 use Zend\Form\Form;
+use Zend\Form\FormInterface;
 
 /**
  * MultistepStrategyInterface
  */
 interface MultistepStrategyInterface
 {
+    /**
+     * Sets the form this multistep strategy operates on
+     * @param FormInterface $form
+     */
+    public function setForm(FormInterface $form);
+
     /**
      * Sets steps the form has
      * @param array $steps
@@ -19,9 +26,8 @@ interface MultistepStrategyInterface
 
     /**
      * Modifies the form to be usable as a multi-step form
-     * @param Form $form
      */
-    public function modifyForm(Form $form);
+    public function modifyForm();
 
     /**
      * Returns if the specified value is a valid step
@@ -31,27 +37,24 @@ interface MultistepStrategyInterface
     public function isStepNameValid($step);
 
     /**
-     * Returns step identification from form
-     * @param Form $form
+     * Returns current step identification from form
      * @return string
      */
-    public function getStep(Form $form);
+    public function getStep();
 
     /**
      * Sets step identification into the form
-     * @param Form $form
      * @param string $step
      * @throws \Vivo\Form\Exception\RuntimeException
      */
-    public function setStep(Form $form, $step);
+    public function setStep($step);
 
     /**
      * Returns identification of the step to go to from the form
-     * @param Form $form
      * @throws \Vivo\Form\Exception\RuntimeException
      * @return string
      */
-    public function getGotoStep(Form $form);
+    public function getGotoStep();
 
     /**
      * Returns array of steps following after the current step
@@ -96,27 +99,24 @@ interface MultistepStrategyInterface
      * @param \Zend\Form\Form $form
      * @return mixed
      */
-    public function getValidationGroup(Form $form);
+    public function getValidationGroup();
 
     /**
      * Resets the goto_step hidden field
-     * @param Form $form
      */
-    public function resetGotoStep(Form $form);
+    public function resetGotoStep();
 
     /**
      * Advances one step forward
      * If there are no more steps, returns null, otherwise returns name of the next step
-     * @param Form $form
      * @return string|null
      */
-    public function next(Form $form);
+    public function next();
 
     /**
      * Returns one step back
      * If there are no more steps, returns null, otherwise returns name of the previous step
-     * @param Form $form
      * @return string|null
      */
-    public function back(Form $form);
+    public function back();
 }

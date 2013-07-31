@@ -385,6 +385,7 @@ return array(
             'input'         => 'Vivo\InputFilter\Condition\Input',
             'notEmpty'      => 'Vivo\InputFilter\Condition\NotEmpty',
             'equals'        => 'Vivo\InputFilter\Condition\Equals',
+            'inArray'       => 'Vivo\InputFilter\Condition\InArray',
             'allEmpty'      => 'Vivo\InputFilter\Condition\AllEmpty',
         ),
         'initializers'  => array(

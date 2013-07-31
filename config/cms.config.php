@@ -263,6 +263,8 @@ return array(
             'Vivo\CMS\UI\Content\Editor\SiteMap'    => 'Vivo\CMS\UI\Content\Editor\SiteMapFactory',
 
             // Other
+            'Vivo\CMS\FetchDocumentListener' => 'Vivo\CMS\FetchDocumentListenerFactory',
+            'Vivo\CMS\FetchDocumentByUrlListener' => 'Vivo\CMS\FetchDocumentByUrlListenerFactory',
             'Vivo\CMS\FetchErrorDocumentListener' => 'Vivo\CMS\FetchErrorDocumentListenerFactory',
             'Vivo\CMS\RedirectMapListener'   => 'Vivo\CMS\RedirectMapListenerFactory',
             'Vivo\UI\Page'                   => 'Vivo\Service\UI\PageFactory',
@@ -302,19 +304,19 @@ return array(
         'initializers' => array(
         ),
     ),
-    'di' => array (
-        'instance' => array (
-            'alias' => array (
-            ),
-            'Vivo\UI\Component' => array (
-                'injection' => array (
-                ),
-                'parameters' => array (
-                    'view' => 'Zend\View\Model\ViewModel',
-                ),
-            ),
-        ),
-    ),
+//    'di' => array (
+//        'instance' => array (
+//            'alias' => array (
+//            ),
+//            'Vivo\UI\Component' => array (
+//                'injection' => array (
+//                ),
+//                'parameters' => array (
+//                    'view' => 'Zend\View\Model\ViewModel',
+//                ),
+//            ),
+//        ),
+//    ),
 
     'ui' => array (
         //configuration of ui components

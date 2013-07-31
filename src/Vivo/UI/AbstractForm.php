@@ -410,6 +410,9 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     protected function getFormDataFromArrayNotation($arrayNotation, $value = null)
     {
         $parts          = $this->getPartsFromArrayNotation($arrayNotation);
+        if ($this->getForm()->wrapElements()) {
+            array_shift($parts);
+        }
         $fieldName      = array_pop($parts);
         if (is_null($value)) {
             $fieldSpec      = array($fieldName);

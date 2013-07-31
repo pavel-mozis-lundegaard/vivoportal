@@ -435,6 +435,9 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     protected function getFieldMessages(array $messages, $fieldName)
     {
         $parts  = $this->getPartsFromArrayNotation($fieldName);
+        if ($this->getForm()->wrapElements()) {
+            array_shift($parts);
+        }
         foreach ($parts as $part) {
             if (!array_key_exists($part, $messages)) {
                 return array();

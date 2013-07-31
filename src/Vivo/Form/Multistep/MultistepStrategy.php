@@ -223,19 +223,8 @@ class MultistepStrategy implements MultistepStrategyInterface
     public function getStep()
     {
         $this->checkFormIsSet();
-        $this->form->setValidationGroup($this->options['element_names']['step']);
-        if (!$this->form->isValid()) {
-            throw new Exception\RuntimeException(
-                sprintf("%s: Form element containing step '%s' is not valid",
-                    __METHOD__, $this->options['element_names']['step']));
-        }
-        $data   = $this->form->getData();
-        $step   = $data[$this->options['element_names']['step']];
-        //If the form has not been submitted yet, there are no data to validate and $step is null,
-        //get the value preset in the form
-        if (is_null($step)) {
-            $step   = $this->form->get($this->options['element_names']['step'])->getValue();
-        }
+        $this->addStepFieldToFormIfMissing();
+        $step   = $this->form->get($this->options['element_names']['step'])->getValue();
         return $step;
     }
 
@@ -250,13 +239,7 @@ class MultistepStrategy implements MultistepStrategyInterface
         if (!$this->isStepNameValid($step)) {
             throw new Exception\RuntimeException(sprintf("%s: Invalid step name '%s'", __METHOD__, $step));
         }
-        if (!$this->form->has($this->options['element_names']['step'])) {
-            //Step
-            $this->form->add(array(
-                'name'  => $this->options['element_names']['step'],
-                'type'  => 'hidden',
-            ));
-        }
+        $this->addStepFieldToFormIfMissing();
         //Set step
         $this->form->get($this->options['element_names']['step'])->setValue($step);
     }
@@ -269,19 +252,8 @@ class MultistepStrategy implements MultistepStrategyInterface
     public function getGotoStep()
     {
         $this->checkFormIsSet();
-        $this->form->setValidationGroup($this->options['element_names']['goto_step']);
-        if (!$this->form->isValid()) {
-            throw new Exception\RuntimeException(
-                sprintf("%s: Form element containing goto_step '%s' is not valid",
-                    __METHOD__, $this->options['element_names']['goto_step']));
-        }
-        $data       = $this->form->getData();
-        $gotoStep   = $data[$this->options['element_names']['goto_step']];
-        //If the form has not been submitted yet, there are no data to validate and $gotoStep is null,
-        //get the value preset in the form
-        if (is_null($gotoStep)) {
-            $gotoStep   = $this->form->get($this->options['element_names']['goto_step'])->getValue();
-        }
+        $this->addGotoStepFieldToFormIfMissing();
+        $gotoStep   = $this->form->get($this->options['element_names']['goto_step'])->getValue();
         return $gotoStep;
     }
 
@@ -290,13 +262,7 @@ class MultistepStrategy implements MultistepStrategyInterface
      */
     public function resetGotoStep()
     {
-        $this->checkFormIsSet();
-        if (!$this->form->has($this->options['element_names']['goto_step'])) {
-            $this->form->add(array(
-                'name'  => $this->options['element_names']['goto_step'],
-                'type'  => 'hidden',
-            ));
-        }
+        $this->addGotoStepFieldToFormIfMissing();
         //Set goto_step
         $this->form->get($this->options['element_names']['goto_step'])->setValue('');
     }
@@ -339,6 +305,38 @@ class MultistepStrategy implements MultistepStrategyInterface
     {
         if (!$this->form) {
             throw new Exception\RuntimeException(sprintf("%s: No form is set in multi-step strategy", __METHOD__));
+        }
+    }
+
+    /**
+     * Adds the 'step' field to the form if missing
+     */
+    protected function addStepFieldToFormIfMissing()
+    {
+        $this->checkFormIsSet();
+        if (!$this->form->has($this->options['element_names']['step'])) {
+            //Step
+            $this->form->add(array(
+                'name'  => $this->options['element_names']['step'],
+                'type'  => 'hidden',
+                'value' => $this->getNextStep(),
+            ));
+        }
+    }
+
+    /**
+     * Adds the 'gotoStep' field to the form if missing
+     */
+    protected function addGotoStepFieldToFormIfMissing()
+    {
+        $this->checkFormIsSet();
+        if (!$this->form->has($this->options['element_names']['goto_step'])) {
+            //GotoStep
+            $this->form->add(array(
+                'name'  => $this->options['element_names']['goto_step'],
+                'type'  => 'hidden',
+                'value' => '',
+            ));
         }
     }
 }

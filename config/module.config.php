@@ -196,6 +196,7 @@ return array(
             'indexer_document_builder'  => 'Vivo\Indexer\DocumentBuilder',
             'view_model'                => 'Zend\View\Model\ViewModel',
             'Vivo\Http\Filter\OutputFilterListener' => 'Vivo\Http\Filter\OutputFilterListener',
+            'Vivo\Http\Filter\ImageTransform' => 'Vivo\Http\Filter\ImageTransform',
             'Vivo\watcher'              => 'Vivo\Repository\Watcher',
             'Vivo\component_event_listener' => 'Vivo\UI\ComponentEventListener',
         ),
@@ -390,8 +391,8 @@ return array(
             'condition_initializer' => 'Vivo\InputFilter\Condition\Initializer',
         ),
     ),
-    'di' => array(
-    ),
+//    'di' => array(
+//    ),
     'metadata_manager' => array(
         'config_path' => __DIR__ . '/../config/metadata',
     ),

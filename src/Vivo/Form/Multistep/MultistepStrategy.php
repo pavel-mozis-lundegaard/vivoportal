@@ -339,4 +339,41 @@ class MultistepStrategy implements MultistepStrategyInterface
             ));
         }
     }
-}
+
+    /**
+     * Returns if the step is before current step
+     *
+     * @param string $stepName
+     * @return bool
+     */
+    public function isBeforeCurrentStep($stepName)
+    {
+        if (is_null($stepName)) {
+            throw new \Exception('Step name in Multiform Strategy not set');
+        }
+
+        if (in_array($stepName, $this->getPreviousSteps($this->getStep()))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Returns if the step is after current step
+     *
+     * @param $stepName
+     * @return bool
+     */
+    public function isAfterCurrentStep($stepName)
+    {
+        if (is_null($stepName)) {
+            throw new \Exception('Step name in Multiform Strategy not set');
+        }
+
+        if (in_array($stepName, $this->getNextSteps($this->getStep()))) {
+            return true;
+        } else {
+            return false;
+        }
+    }}

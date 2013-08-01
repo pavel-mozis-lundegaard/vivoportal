@@ -596,10 +596,12 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
         //Set current step name
         if ($this->getMultistepStrategy()) {
             $msStrategy = $this->getMultistepStrategy();
-            $viewModel->currentStep = $msStrategy->getStep();
+            $viewModel->multistepInfo = array(
+                'currentStep' => $msStrategy->getStep(),
+            );
         } else {
-            //No multistep strategy available, set current step name to null
-            $viewModel->currentStep = null;
+            //No multistep strategy available, set multistep info to null
+            $viewModel->multistepInfo = null;
         }
     }
 

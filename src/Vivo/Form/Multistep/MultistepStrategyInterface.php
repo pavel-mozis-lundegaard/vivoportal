@@ -43,6 +43,22 @@ interface MultistepStrategyInterface
     public function getStep();
 
     /**
+     * Returns if the step is before current step
+     *
+     * @param string $stepName name of the step
+     * @return bool
+     */
+    public function isBeforeCurrentStep($stepName);
+
+    /**
+     * Returns if the step is after current step
+     *
+     * @param string $stepName name of the step
+     * @return bool
+     */
+    public function isAfterCurrentStep($stepName);
+
+    /**
      * Sets step identification into the form
      * @param string $step
      * @throws \Vivo\Form\Exception\RuntimeException

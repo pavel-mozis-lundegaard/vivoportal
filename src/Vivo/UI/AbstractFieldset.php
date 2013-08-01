@@ -45,6 +45,12 @@ abstract class AbstractFieldset extends ComponentContainer implements Translator
     protected $fieldsetData    = array();
 
     /**
+     * Name of step in Multistep form or null for common forms
+     * @var string | null
+     */
+    protected $stepName = null;
+
+    /**
      * Finds and returns the closest parent component containing a ZFFieldset
      * If not found, returns null
      * @return ZfFieldsetProviderInterface|null
@@ -244,13 +250,28 @@ abstract class AbstractFieldset extends ComponentContainer implements Translator
         $viewModel->fieldsetData    = $this->getFieldsetData();
         //Set current step name
         $formComponent  = $this->getParentFormComponent();
-        if ($formComponent && $formComponent->getMultistepStrategy()) {
+        if ($formComponent && $formComponent->getMultistepStrategy() && !is_null($this->stepName)) {
             $msStrategy = $formComponent->getMultistepStrategy();
-            $viewModel->currentStep = $msStrategy->getStep();
+            $viewModel->multistepInfo = array(
+                'currentStep'           => $msStrategy->getStep(),
+                'isBeforeCurrentStep'   => $msStrategy->isBeforeCurrentStep($this->stepName),
+                'isAfterCurrentStep'    => $msStrategy->isAfterCurrentStep($this->stepName),
+                'isCurrentStep'         => $msStrategy->getStep() == $this->stepName,
+                'stepName'              => $this->stepName,
+            );
         } else {
             //No multistep strategy available, set current step name to null
-            $viewModel->currentStep = null;
+            $viewModel->multistepInfo = null;
         }
+    }
+
+    /**
+     * Sets step name
+     * @param null|string $stepName
+     */
+    public function setStepName($stepName)
+    {
+        $this->stepName = $stepName;
     }
 
     /**

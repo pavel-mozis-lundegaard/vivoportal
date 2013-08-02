@@ -360,17 +360,19 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
      * Validates a single form field
      * Facilitates single field AJAX validations
      * @param string $fieldName in array notation (eg 'fieldset1[fieldset2][fieldname]')
-     * @param string $fieldValue Value being tested
+     * @param string $formData the whole form data
      * @param array $messages Validation messages are returned in this array
      * @return boolean
      */
-    public function isFieldValid($fieldName, $fieldValue, array &$messages)
+    public function isFieldValid($fieldName, $formData, array &$messages)
     {
         $form       = $this->getForm();
         $fieldSpec  = $this->getFormDataFromArrayNotation($fieldName);
-        $data       = $this->getFormDataFromArrayNotation($fieldName, $fieldValue);
         $form->setValidationGroup($fieldSpec);
-        $form->setData($data);
+        if ($this->getForm()->wrapElements()) {
+            $formData = reset($formData);
+        }
+        $form->setData($formData);
         //Store the current bind on validate flag setting and set it to manual
         $bindOnValidateFlag = $form->bindOnValidate();
         $form->setBindOnValidate(FormInterface::BIND_MANUAL);
@@ -486,10 +488,14 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     public function ajaxValidateFormField()
     {
         $field      = $this->request->getPost('field');
-        $value      = $this->request->getPost('value');
+        $formData = $this->request->getPost('formData');
+        // parse data from request string if needed
+        if (is_string($formData)) {
+            parse_str($formData, $formData);
+        }
         $messages   = array();
         $jsonModel  = new \Zend\View\Model\JsonModel();
-        $isValid    = $this->isFieldValid($field, $value, $messages);
+        $isValid    = $this->isFieldValid($field, $formData, $messages);
         if ($isValid) {
             //Form field is valid
             $jsonModel->setVariable('valid', true);
